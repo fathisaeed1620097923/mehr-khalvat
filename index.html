@@ -63,15 +63,12 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <p>مشکل خود را بگو، مسیرش را نشانت می‌دهیم</p>
 </div>
 
-<!-- تب‌های جابجایی -->
 <div class="tabs">
 <button class="tab-btn active" onclick="switchTab('customer')">👤 پنل مشتری (اسکن QR)</button>
 <button class="tab-btn" onclick="switchTab('employee')">🏦 پنل کارمند شعبه</button>
 </div>
 
-<!-- ========================================== -->
-<!-- ۱. پنل مشتری (موبایل) -->
-<!-- ========================================== -->
+<!-- پنل مشتری -->
 <div class="content panel active" id="panel-customer">
 <div class="form-group">
 <label>شماره همراه:</label>
@@ -91,7 +88,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <option value="">-- انتخاب کنید --</option>
 <option value="1">۱. وام واریز نشده</option>
 <option value="6">۶. احراز هویت با خطا مواجه می‌شود</option>
-<option value="18">۱۸. درخواست قبلی در سامانه باقی مانده (درخواست فعال)</option>
+<option value="18">۱۸. درخواست قبلی در سامانه باقی مانده</option>
 <option value="19">۱۹. رمز پیامکی دریافت نمی‌شود</option>
 </select>
 <div class="error" id="c-problemError">لطفاً یک گزینه را انتخاب کنید.</div>
@@ -111,7 +108,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <button class="btn btn-danger" id="c-captureBtn" onclick="capturePhoto()" style="display: none;">گرفتن عکس</button>
 </div>
 
-<button class="btn" onclick="submitCustomerForm()">ثبت درخواست</button>
+<button class="btn" id="submitCustomerBtn" onclick="submitCustomerForm()">ثبت درخواست</button>
 
 <div class="result-box" id="c-resultSection">
 <h3>✅ درخواست شما ثبت شد</h3>
@@ -122,9 +119,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </div>
 </div>
 
-<!-- ========================================== -->
-<!-- ۲. پنل کارمند شعبه (کامپیوتر) -->
-<!-- ========================================== -->
+<!-- پنل کارمند -->
 <div class="content panel" id="panel-employee">
 <p style="font-size: 13px; color: #666; margin-bottom: 15px;">اطلاعات مشتری و مشکل وی را ثبت کنید. سیستم به طور خودکار تیکت را به واحد مربوطه ارسال می‌کند.</p>
 
@@ -166,50 +161,48 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <textarea id="e-description" placeholder="جزئیات مشکل مشتری..."></textarea>
 </div>
 
+<!-- غلط تایپی این بخش اصلاح شد -->
 <div class="form-group">
-<label>پیوست.get مدرک (عکس چک، فیش و...):</label>
-<input type="Tfile" id="e-fileAttachment" accept="imageracks/*" onchange="pre().viewImage(this)">
+<label>پیوست مدرک (عکس چک، فیش و...):</label>
+<input type="file" id="e-fileAttachment" accept="image/*" onchange="previewImage(this)">
 <img id="e-photoPreview" style="max-width: 100px; border-radius: 5px; display: none; margin-top: 10px; border: 2px solid #0a4d2e;">
 </div>
 
-<button class="btn" onclick="submitEmployeeForm()">ثبت و ارسال تیکت</button>
+<button class="btn" id="submitEmployeeBtn" onclick="submitEmployeeForm()">ثبت و ارسال تیکت</button>
 
 <div class="result-box" id="e-resultSection">
 <h3>✅ تیکت ثبت شد</h3>
 <p>کد پیگیری مشتری:</p>
 <div class="tracking-code" id="e-trackingCode">-----</div>
 <div class="routing-info" id="e-routingInfo"></div>
-<p style="font-size: 12px; margin-top: 10px;">پیامک حاوی کد پیگیری برای مشتری ارسال شد.</p>
 <button class="btn" onclick="location.reload()" style="margin-top: 15px; background: #148a4f;">ثبت تیکت جدید</button>
 </div>
 </div>
 </div>
 
 <script>
-// ==========================================
+// =======================================================
+// 🔴 مهم: لینک Web App خود را اینجا قرار دهید
+// =======================================================
+const SCRIPT_URL = "لینک_exec_خود_را_اینجا_بگذارید";
+
 // ۱. مدیریت تب‌ها
-// ==========================================
 function switchTab(panelId) {
-// مخفی کردن همه پنل‌ها
 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-// نمایش پنل انتخاب شده
 document.getElementById('panel-' + panelId).classList.add('active');
 event.target.classList.add('active');
 
-// متوقف کردن دوربین اگر از پنل مشتری خارج شدیم
 if (panelId !== 'customer' && stream) {
-streamforEach(track => track.stop());
+// غلط تایپی این بخش اصلاح شد
+stream.getTracks().forEach(track => track.stop());
 document.getElementById('c-video').style.display = 'none';
 document.getElementById('c-startCameraBtn').style.display = 'block';
 document.getElementById('c-captureBtn').style.display = 'none';
 }
 }
 
-// ==========================================
-// ۲. موتور مسیریابی هوشمند (مشترک برای هر دو پنل)
-// ==========================================
+// ۲. موتور مسیریابی
 function getDepartment(problemValue) {
 switch(problemValue) {
 case "1": case "2": case "3": case "4": case "5": case "8": case "10": case "18":
@@ -225,9 +218,7 @@ return "معاون استان (بررسی ویژه)";
 }
 }
 
-// ==========================================
-// ۳. منطق پنل مشتری (دوربین و ثبت)
-// ==========================================
+// ۳. منطق پنل مشتری
 let video = document.getElementById('c-video');
 let canvas = document.getElementById('c-canvas');
 let photoResult = document.getElementById('c-photoResult');
@@ -269,7 +260,6 @@ let problemType = document.getElementById('c-problemType').value;
 let description = document.getElementById('c-description').value;
 
 let isValid = true;
-
 if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('c-mobileError').style.display = 'none'; }
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
 if (!problemType) { document.getElementById('c-problemError').style.display = 'block'; isValid = false; } else { document.getElementById('c-problemError').style.display = 'none'; }
@@ -279,17 +269,32 @@ if (!isValid) return;
 let trackingCode = Math.floor(10000 + Math.random() * 90000);
 let department = getDepartment(problemType);
 
-console.log("مشتری ثبت کرد:", { mobile, nationalId, problemType, description, photo: photoBase64 ? "دارد" : "ندارد", routedTo: department });
+// تغییر متن دکمه
+document.getElementById('submitCustomerBtn').innerText = "در حال ثبت...";
 
-document.getElementById('panel-customer').querySelector('.form-group').style.display = 'none'; // مخفی کردن فرم‌ها (ساده شده)
+// آماده‌سازی اطلاعات برای ارسال به گوگل
+let payload = {
+name: mobile + " - کد ملی: " + nationalId,
+description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
+imageBase64: photoBase64
+};
+
+// ارسال به دیتابیس (اکسل)
+fetch(SCRIPT_URL, {
+method: 'POST',
+body: JSON.stringify(payload)
+}).then(() => {
+document.getElementById('panel-customer').querySelectorAll('.form-group, .camera-box, .btn').forEach(el => el.style.display = 'none');
 document.getElementById('c-resultSection').style.display = 'block';
 document.getElementById('c-trackingCode').textContent = trackingCode;
 document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`;
+}).catch(err => {
+alert("خطا در ارتباط با سرور.");
+document.getElementById('submitCustomerBtn').innerText = "ثبت درخواست";
+});
 }
 
-// ==========================================
-// ۴. منطق پنل کارمند (پیوست و ثبت)
-// ==========================================
+// ۴. منطق پنل کارمند
 function previewImage(input) {
 if (input.files && input.files[0]) {
 var reader = new FileReader();
@@ -306,9 +311,9 @@ let nationalId = document.getElementById('e-nationalId').value;
 let mobile = document.getElementById('e-mobile').value;
 let problemType = document.getElementById('e-problemType').value;
 let description = document.getElementById('e-description').value;
+let fileInput = document.getElementById('e-fileAttachment');
 
 let isValid = true;
-
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('e-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('e-nationalIdError').style.display = 'none'; }
 if (!/^09\d{9}$/.test(mobile)) { document.getElementById('e-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('e-mobileError').style.display = 'none'; }
 if (!problemType) { document.getElementById('e-problemError').style.display = 'block'; isValid = false; } else { document.getElementById('e-problemError').style.display = 'none'; }
@@ -317,15 +322,33 @@ if (!isValid) return;
 
 let trackingCode = Math.floor(10000 + Math.random() * 90000);
 let department = getDepartment(problemType);
+document.getElementById('submitEmployeeBtn').innerText = "در حال ارسال...";
 
-console.log("کارمند ثبت کرد (ارسال به جیرا):", { employee: "102", nationalId, mobile, problemType, description, routedTo: department });
+let processSubmit = (base64) => {
+let payload = {
+name: mobile + " - کد ملی: " + nationalId,
+description: "نوع مشکل: " + document.getElementById('e-problemType').options[document.getElementById('e-problemType').selectedIndex].text + " | " + description,
+imageBase64: base64
+};
 
+fetch(SCRIPT_URL, {
+method: 'POST',
+body: JSON.stringify(payload)
+}).then(() => {
 document.getElementById('e-resultSection').style.display = 'block';
 document.getElementById('e-trackingCode').textContent = trackingCode;
 document.getElementById('e-routingInfo').innerHTML = `این تیکت به <strong style="color:#c0392b;">${department}</strong> ارجاع داده شد.`;
-
-// مخفی کردن فرم
 document.getElementById('panel-employee').querySelectorAll('.form-group, .btn').forEach(el => el.style.display = 'none');
+});
+};
+
+if (fileInput.files && fileInput.files[0]) {
+var reader = new FileReader();
+reader.onload = function(e) { processSubmit(e.target.result); };
+reader.readAsDataURL(fileInput.files[0]);
+} else {
+processSubmit("");
+}
 }
 </script>
 </body>
