@@ -1,0 +1,332 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سامانه مهر خلوت (دوگانه)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, Arial, sans-serif; }
+body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+.container { background: #fff; width: 100%; max-width: 700px; border-radius: 20px; box-shadow: 0 10px 30px rgba(10,77,46,0.1); overflow: hidden; }
+
+/* هدر و تب‌ها */
+.header { background: linear-gradient(135deg, #0a4d2e, #148a4f); color: #fff; padding: 20px; text-align: center; }
+.header h1 { font-size: 22px; margin-bottom: 5px; }
+.header p { font-size: 13px; opacity: 0.9; }
+
+.tabs { display: flex; background: #e9ecef; }
+.tab-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 15px; font-weight: bold; color: #666; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; }
+.tab-btn.active { background: #fff; color: #0a4d2e; border-bottom-color: #0a4d2e; }
+
+/* محتوای فرم */
+.content { padding: 25px; }
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #0a4d2e; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; transition: 0.3s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #148a4f; outline: none; }
+.form-group textarea { resize: vertical; height: 80px; }
+
+/* بخش دوربین برای مشتری */
+.camera-box { background: #faf8f3; border: 2px dashed #d4a017; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
+.camera-box video { width: 100%; max-width: 300px; border-radius: 10px; display: none; margin: 0 auto 10px auto; background: #000; }
+.camera-box canvas { display: none; }
+.camera-box img { width: 100%; max-width: 300px; border-radius: 10px; display: none; margin: 0 auto 10px auto; }
+
+/* دکمه‌ها */
+.btn { display: block; width: 100%; padding: 14px; background: #0a4d2e; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.btn:hover { background: #083d24; }
+.btn-secondary { background: #d4a017; margin-bottom: 10px; }
+.btn-secondary:hover { background: #b88a13; }
+.btn-danger { background: #c0392b; }
+
+/* بخش نتیجه */
+.result-box { display: none; background: #e8f5ec; border: 2px solid #27ae60; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; }
+.result-box h3 { color: #1e7a44; margin-bottom: 10px; font-size: 18px; }
+.tracking-code { font-size: 26px; font-weight: bold; color: #d4a017; background: #fff; padding: 10px; border-radius: 8px; margin: 10px 0; letter-spacing: 2px; border: 1px dashed #d4a017; }
+.routing-info { font-size: 14px; color: #333; background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; }
+
+.error { color: #c0392b; font-size: 12px; margin-top: 5px; display: none; }
+.row { display: flex; gap: 15px; flex-wrap: wrap; }
+.col { flex: 1; min-width: 200px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="header">
+<h1>🌿 مهر خلوت</h1>
+<p>مشکل خود را بگو، مسیرش را نشانت می‌دهیم</p>
+</div>
+
+<!-- تب‌های جابجایی -->
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('customer')">👤 پنل مشتری (اسکن QR)</button>
+<button class="tab-btn" onclick="switchTab('employee')">🏦 پنل کارمند شعبه</button>
+</div>
+
+<!-- ========================================== -->
+<!-- ۱. پنل مشتری (موبایل) -->
+<!-- ========================================== -->
+<div class="content panel active" id="panel-customer">
+<div class="form-group">
+<label>شماره همراه:</label>
+<input type="tel" id="c-mobile" placeholder="مثلاً 09123456789" maxlength="11">
+<div class="error" id="c-mobileError">شماره همراه باید ۱۱ رقم و با ۰۹ شروع شود.</div>
+</div>
+
+<div class="form-group">
+<label>کد ملی:</label>
+<input type="text" id="c-nationalId" placeholder="مثلاً 0012345678" maxlength="10">
+<div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div>
+</div>
+
+<div class="form-group">
+<label>نوع مشکل:</label>
+<select id="c-problemType">
+<option value="">-- انتخاب کنید --</option>
+<option value="1">۱. وام واریز نشده</option>
+<option value="6">۶. احراز هویت با خطا مواجه می‌شود</option>
+<option value="18">۱۸. درخواست قبلی در سامانه باقی مانده (درخواست فعال)</option>
+<option value="19">۱۹. رمز پیامکی دریافت نمی‌شود</option>
+</select>
+<div class="error" id="c-problemError">لطفاً یک گزینه را انتخاب کنید.</div>
+</div>
+
+<div class="form-group">
+<label>توضیح مختصر (اختیاری):</label>
+<textarea id="c-description" placeholder="مشکل خود را کمی توضیح دهید..."></textarea>
+</div>
+
+<div class="camera-box">
+<p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 گرفتن عکس زنده از مدارک (اختیاری)</p>
+<video id="c-video" autoplay playsinline></video>
+<canvas id="c-canvas"></canvas>
+<img id="c-photoResult" alt="عکس گرفته شده">
+<button class="btn btn-secondary" id="c-startCameraBtn" onclick="startCamera()">روشن کردن دوربین</button>
+<button class="btn btn-danger" id="c-captureBtn" onclick="capturePhoto()" style="display: none;">گرفتن عکس</button>
+</div>
+
+<button class="btn" onclick="submitCustomerForm()">ثبت درخواست</button>
+
+<div class="result-box" id="c-resultSection">
+<h3>✅ درخواست شما ثبت شد</h3>
+<p>کد پیگیری:</p>
+<div class="tracking-code" id="c-trackingCode">-----</div>
+<div class="routing-info" id="c-routingInfo"></div>
+<button class="btn" onclick="location.reload()" style="margin-top: 15px;">ثبت مشکل جدید</button>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- ۲. پنل کارمند شعبه (کامپیوتر) -->
+<!-- ========================================== -->
+<div class="content panel" id="panel-employee">
+<p style="font-size: 13px; color: #666; margin-bottom: 15px;">اطلاعات مشتری و مشکل وی را ثبت کنید. سیستم به طور خودکار تیکت را به واحد مربوطه ارسال می‌کند.</p>
+
+<div class="row">
+<div class="col">
+<div class="form-group">
+<label>کد ملی مشتری:</label>
+<input type="text" id="e-nationalId" placeholder="مثلاً 0012345678" maxlength="10">
+<div class="error" id="e-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div>
+</div>
+</div>
+<div class="col">
+<div class="form-group">
+<label>شماره همراه مشتری:</label>
+<input type="tel" id="e-mobile" placeholder="مثلاً 09123456789" maxlength="11">
+<div class="error" id="e-mobileError">شماره همراه باید ۱۱ رقم باشد.</div>
+</div>
+</div>
+</div>
+
+<div class="form-group">
+<label>دسته‌بندی مشکل (ارجاع خودکار):</label>
+<select id="e-problemType">
+<option value="">-- انتخاب کنید --</option>
+<option value="1">۱. وام واریز نشده (اعتبارات)</option>
+<option value="2">۲. اعتبارسنجی (اعتبارات)</option>
+<option value="4">۴. سفته اعمال نمی‌شود (اعتبارات)</option>
+<option value="6">۶. احراز هویت (انفورماتیک)</option>
+<option value="7">۷. مسدودی حساب (بازرسی)</option>
+<option value="8">۸. کسر دوباره قسط (اعتبارات/مالی)</option>
+<option value="18">۱۸. درخواست فعال (اعتبارات)</option>
+<option value="19">۱۹. رمز پیامکی (بانکداری دیجیتال)</option>
+</select>
+<div class="error" id="e-problemError">لطفاً یک گزینه را انتخاب کنید.</div>
+</div>
+
+<div class="form-group">
+<label>توضیحات کارمند:</label>
+<textarea id="e-description" placeholder="جزئیات مشکل مشتری..."></textarea>
+</div>
+
+<div class="form-group">
+<label>پیوست.get مدرک (عکس چک، فیش و...):</label>
+<input type="Tfile" id="e-fileAttachment" accept="imageracks/*" onchange="pre().viewImage(this)">
+<img id="e-photoPreview" style="max-width: 100px; border-radius: 5px; display: none; margin-top: 10px; border: 2px solid #0a4d2e;">
+</div>
+
+<button class="btn" onclick="submitEmployeeForm()">ثبت و ارسال تیکت</button>
+
+<div class="result-box" id="e-resultSection">
+<h3>✅ تیکت ثبت شد</h3>
+<p>کد پیگیری مشتری:</p>
+<div class="tracking-code" id="e-trackingCode">-----</div>
+<div class="routing-info" id="e-routingInfo"></div>
+<p style="font-size: 12px; margin-top: 10px;">پیامک حاوی کد پیگیری برای مشتری ارسال شد.</p>
+<button class="btn" onclick="location.reload()" style="margin-top: 15px; background: #148a4f;">ثبت تیکت جدید</button>
+</div>
+</div>
+</div>
+
+<script>
+// ==========================================
+// ۱. مدیریت تب‌ها
+// ==========================================
+function switchTab(panelId) {
+// مخفی کردن همه پنل‌ها
+document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+// نمایش پنل انتخاب شده
+document.getElementById('panel-' + panelId).classList.add('active');
+event.target.classList.add('active');
+
+// متوقف کردن دوربین اگر از پنل مشتری خارج شدیم
+if (panelId !== 'customer' && stream) {
+streamforEach(track => track.stop());
+document.getElementById('c-video').style.display = 'none';
+document.getElementById('c-startCameraBtn').style.display = 'block';
+document.getElementById('c-captureBtn').style.display = 'none';
+}
+}
+
+// ==========================================
+// ۲. موتور مسیریابی هوشمند (مشترک برای هر دو پنل)
+// ==========================================
+function getDepartment(problemValue) {
+switch(problemValue) {
+case "1": case "2": case "3": case "4": case "5": case "8": case "10": case "18":
+return "واحد اعتبارات";
+case "6": case "19": case "20":
+return "واحد بانکداری دیجیتال (انفورماتیک)";
+case "7":
+return "واحد بازرسی / حراست";
+case "9":
+return "واحد بازاریابی و فروش";
+default:
+return "معاون استان (بررسی ویژه)";
+}
+}
+
+// ==========================================
+// ۳. منطق پنل مشتری (دوربین و ثبت)
+// ==========================================
+let video = document.getElementById('c-video');
+let canvas = document.getElementById('c-canvas');
+let photoResult = document.getElementById('c-photoResult');
+let stream = null;
+let photoBase64 = "";
+
+async function startCamera() {
+try {
+stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+video.srcObject = stream;
+video.style.display = 'block';
+document.getElementById('c-startCameraBtn').style.display = 'none';
+document.getElementById('c-captureBtn').style.display = 'block';
+photoResult.style.display = 'none';
+} catch (err) {
+alert("دسترسی به دوربین امکان‌پذیر نیست. لطفاً مجوز دوربین را در مرورگر فعال کنید.");
+}
+}
+
+function capturePhoto() {
+canvas.width = video.videoWidth;
+canvas.height = video.videoHeight;
+canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+photoBase64 = canvas.toDataURL('image/jpeg');
+photoResult.src = photoBase64;
+photoResult.style.display = 'block';
+
+if (stream) stream.getTracks().forEach(track => track.stop());
+video.style.display = 'none';
+document.getElementById('c-captureBtn').style.display = 'none';
+document.getElementById('c-startCameraBtn').textContent = 'گرفتن عکس مجدد';
+document.getElementById('c-startCameraBtn').style.display = 'block';
+}
+
+function submitCustomerForm() {
+let mobile = document.getElementById('c-mobile').value;
+let nationalId = document.getElementById('c-nationalId').value;
+let problemType = document.getElementById('c-problemType').value;
+let description = document.getElementById('c-description').value;
+
+let isValid = true;
+
+if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('c-mobileError').style.display = 'none'; }
+if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
+if (!problemType) { document.getElementById('c-problemError').style.display = 'block'; isValid = false; } else { document.getElementById('c-problemError').style.display = 'none'; }
+
+if (!isValid) return;
+
+let trackingCode = Math.floor(10000 + Math.random() * 90000);
+let department = getDepartment(problemType);
+
+console.log("مشتری ثبت کرد:", { mobile, nationalId, problemType, description, photo: photoBase64 ? "دارد" : "ندارد", routedTo: department });
+
+document.getElementById('panel-customer').querySelector('.form-group').style.display = 'none'; // مخفی کردن فرم‌ها (ساده شده)
+document.getElementById('c-resultSection').style.display = 'block';
+document.getElementById('c-trackingCode').textContent = trackingCode;
+document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`;
+}
+
+// ==========================================
+// ۴. منطق پنل کارمند (پیوست و ثبت)
+// ==========================================
+function previewImage(input) {
+if (input.files && input.files[0]) {
+var reader = new FileReader();
+reader.onload = function(e) {
+document.getElementById('e-photoPreview').src = e.target.result;
+document.getElementById('e-photoPreview').style.display = 'block';
+}
+reader.readAsDataURL(input.files[0]);
+}
+}
+
+function submitEmployeeForm() {
+let nationalId = document.getElementById('e-nationalId').value;
+let mobile = document.getElementById('e-mobile').value;
+let problemType = document.getElementById('e-problemType').value;
+let description = document.getElementById('e-description').value;
+
+let isValid = true;
+
+if (!/^\d{10}$/.test(nationalId)) { document.getElementById('e-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('e-nationalIdError').style.display = 'none'; }
+if (!/^09\d{9}$/.test(mobile)) { document.getElementById('e-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('e-mobileError').style.display = 'none'; }
+if (!problemType) { document.getElementById('e-problemError').style.display = 'block'; isValid = false; } else { document.getElementById('e-problemError').style.display = 'none'; }
+
+if (!isValid) return;
+
+let trackingCode = Math.floor(10000 + Math.random() * 90000);
+let department = getDepartment(problemType);
+
+console.log("کارمند ثبت کرد (ارسال به جیرا):", { employee: "102", nationalId, mobile, problemType, description, routedTo: department });
+
+document.getElementById('e-resultSection').style.display = 'block';
+document.getElementById('e-trackingCode').textContent = trackingCode;
+document.getElementById('e-routingInfo').innerHTML = `این تیکت به <strong style="color:#c0392b;">${department}</strong> ارجاع داده شد.`;
+
+// مخفی کردن فرم
+document.getElementById('panel-employee').querySelectorAll('.form-group, .btn').forEach(el => el.style.display = 'none');
+}
+</script>
+</body>
+</html>
