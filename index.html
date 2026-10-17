@@ -1,5 +1,7 @@
 
 
+
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -40,19 +42,23 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .error { color: #c0392b; font-size: 12px; margin-top: 5px; display: none; }
 .row { display: flex; gap: 15px; flex-wrap: wrap; }
 .col { flex: 1; min-width: 200px; }
+.ticket-card { background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.ticket-card h4 { color: #0a4d2e; margin-bottom: 10px; }
+.ticket-card p { font-size: 13px; margin-bottom: 8px; line-height: 1.5; }
+.ticket-card a { color: #2980b9; text-decoration: none; font-weight: bold; }
+.btn-resolve { background: #27ae60; padding: 8px; font-size: 14px; margin-top: 10px; }
 </style>
 </head>
 <body>
 <div class="container">
 <div class="header"><h1>🌿 مهر خلوت</h1><p>مشکل خود را بگو، مسیرش را نشانت می‌دهیم</p></div>
 <div class="tabs">
-<button class="tab-btn active" onclick="switchTab('customer')">👤 پنل مشتری (اسکن QR)</button>
-<button class="tab-btn" onclick="switchTab('employee')">🏦 پنل کارمند شعبه</button>
+<button class="tab-btn active" onclick="switchTab('customer', this)">👤 پنل مشتری (اسکن QR)</button>
+<button class="tab-btn" onclick="switchTab('employee', this)">🏦 پنل کارمند شعبه</button>
 </div>
 
 <!-- پنل مشتری -->
 <div class="content panel active" id="panel-customer">
-  
 <div style="text-align: center; padding: 15px; background: #f9fbf9; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
 <p style="font-size: 14px; font-weight: bold; color: #0a4d2e; margin-bottom: 10px;">📱 برای دسترسی سریع، QR کد زیر را با دوربین گوشی اسکن کنید:</p>
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://fathisaeed1620097923.github.io/mehr-khalvat/" alt="QR Code" style="border: 2px solid #0a4d2e; border-radius: 10px; padding: 5px; background: #fff;">
@@ -84,44 +90,36 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 
 <!-- پنل کارمند -->
 <div class="content panel" id="panel-employee">
-<p style="font-size: 13px; color: #666; margin-bottom: 15px;">اطلاعات مشتری را ثبت کنید. سیستم به طور خودکار تیکت را ارجاع می‌دهد.</p>
-<div class="row">
-<div class="col"><div class="form-group"><label>کد ملی مشتری:</label><input type="text" id="e-nationalId" maxlength="10"><div class="error" id="e-nationalIdError">کد ملی نامعتبر است.</div></div></div>
-<div class="col"><div class="form-group"><label>شماره همراه مشتری:</label><input type="tel" id="e-mobile" maxlength="11"><div class="error" id="e-mobileError">شماره همراه نامعتبر است.</div></div></div>
-</div>
 <div class="form-group">
-<label>دسته‌بندی مشکل:</label>
-<select id="e-problemType">
-<option value="">-- انتخاب کنید --</option>
-<option value="1">۱. وام (واریز نشده)</option><option value="2">۲. اعتبارسنجی</option><option value="3">۳. امتیاز (انتقال)</option><option value="4">۴. سفته (اعمال نمی‌شود)</option><option value="5">۵. چک (دیجیتال)</option><option value="6">۶. احراز هویت (خطا)</option><option value="7">۷. مسدودی حساب</option><option value="8">۸. قسط (کسر دوباره)</option><option value="9">۹. وام جدید</option><option value="10">۱۰. وضعیت وام</option><option value="11">۱۱. کاهش امتیاز</option><option value="12">۱۲. تسویه زودتر</option><option value="13">۱۳. کارت گم شده</option><option value="14">۱۴. رمز فراموشی</option><option value="15">۱۵. طرح نیلوفر</option><option value="16">۱۶. مشاهده معدل</option><option value="17">۱۷. رد وام</option><option value="18">۱۸. درخواست فعال</option><option value="19">۱۹. رمز پیامکی (نیامدن)</option><option value="20">۲۰. رمز پیامکی (قبول نشدن)</option><option value="21">۲۱. احراز ناقص</option><option value="22">۲۲. چک ناقص</option>
-</select><div class="error" id="e-problemError">لطفاً یک گزینه را انتخاب کنید.</div>
+<label>واحد خود را انتخاب کنید:</label>
+<select id="e-department" onchange="fetchDepartmentTickets()">
+<option value="">-- انتخاب واحد --</option>
+<option value="اعتبارات">اعتبارات</option>
+<option value="بانکداری دیجیتال">بانکداری دیجیتال</option>
+<option value="انفورماتیک">انفورماتیک</option>
+<option value="حقوقی">حقوقی / شعبه</option>
+</select>
 </div>
-<div class="form-group"><label>توضیحات کارمند:</label><textarea id="e-description"></textarea></div>
-<div class="form-group"><label>پیوست مدرک:</label><input type="file" id="e-fileAttachment" accept="image/*" onchange="previewImage(this)"><img id="e-photoPreview" style="max-width: 100px; border-radius: 5px; display: none; margin-top: 10px;"></div>
-<button class="btn" id="submitEmployeeBtn" onclick="submitEmployeeForm()">ثبت و ارسال تیکت</button>
-<div class="result-box" id="e-resultSection">
-<h3>✅ تیکت ثبت شد</h3><p>کد پیگیری:</p><div class="tracking-code" id="e-trackingCode">-----</div>
-<div class="routing-info" id="e-routingInfo"></div>
-<button class="btn" onclick="location.reload()" style="margin-top: 15px; background: #148a4f;">ثبت تیکت جدید</button>
+<div id="employee-ticket-list" style="margin-top: 20px;">
+<!-- لیست تیکت‌ها اینجا نمایش داده می‌شود -->
 </div>
 </div>
 </div>
 
 <script>
-// 🔴 توجه: لینکی که در مرحله ۱ کپی کردید را اینجا بچسبانید (داخل دابل کوتیشن)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
 
-function switchTab(panelId) {
+function switchTab(panelId, btnElement) {
 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('panel-' + panelId).classList.add('active');
-event.target.classList.add('active');
+btnElement.classList.add('active');
 if (panelId !== 'customer' && stream) { stream.getTracks().forEach(track => track.stop()); document.getElementById('c-video').style.display = 'none'; document.getElementById('c-startCameraBtn').style.display = 'block'; document.getElementById('c-captureBtn').style.display = 'none'; }
 }
 
 function getDepartment(problemValue) {
 switch(problemValue) {
-case "1": return "اعتبارات و بانکداری دیجیتال"; case "2": return "بانکداری دیجیتال"; case "3": return "اعتبارات و بانکداری دیجیتال"; case "4": return "بانکداری دیجیتال"; case "5": return "بانکداری دیجیتال"; case "6": return "بانکداری دیجیتال"; case "7": return "حقوقی / شعبه / اعتبارات"; case "8": return "بانکداری دیجیتال"; case "9": return "بانکداری دیجیتال"; case "10": return "بانکداری دیجیتال"; case "11": return "اعتبارات"; case "12": return "شعبه یا اعتبارات"; case "13": return "شعبه یا حقوقی"; case "14": return "بانکداری دیجیتال"; case "15": return "اعتبارات"; case "16": return "اعتبارات یا بانکداری دیجیتال"; case "17": return "بانکداری دیجیتال"; case "18": return "بانکداری دیجیتال"; case "19": return "انفورماتیک"; case "20": return "انفورماتیک"; case "21": return "بانکداری دیجیتال"; case "22": return "بانکداری دیجیتال"; default: return "پشتیبانی";
+case "1": return "اعتبارات و بانکداری دیجیتال"; case "2": return "بانکداری دیجیتال"; case "3": return "اعتبارات و بانکداری دیجیتال"; case "4": return "بانکداری دیجیتال"; case "5": return "بانکداری دیجیتال"; case "6": return "بانکداری دیجیتال"; case "7": return "حقوقی"; case "8": return "بانکداری دیجیتال"; case "9": return "بانکداری دیجیتال"; case "10": return "بانکداری دیجیتال"; case "11": return "اعتبارات"; case "12": return "اعتبارات"; case "13": return "حقوقی"; case "14": return "بانکداری دیجیتال"; case "15": return "اعتبارات"; case "16": return "اعتبارات"; case "17": return "بانکداری دیجیتال"; case "18": return "بانکداری دیجیتال"; case "19": return "انفورماتیک"; case "20": return "انفورماتیک"; case "21": return "بانکداری دیجیتال"; case "22": return "بانکداری دیجیتال"; default: return "پشتیبانی";
 }
 }
 
@@ -147,17 +145,66 @@ let payload = { name: mobile + " - کد ملی: " + nationalId, description: "ن
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { document.getElementById('panel-customer').querySelectorAll('.form-group, .camera-box, .btn').forEach(el => el.style.display = 'none'); document.getElementById('c-resultSection').style.display = 'block'; document.getElementById('c-trackingCode').textContent = trackingCode; document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`; }).catch(err => { alert("خطا در ارتباط با سرور."); document.getElementById('submitCustomerBtn').innerText = "ثبت درخواست"; });
 }
 
-function previewImage(input) { if (input.files && input.files[0]) { var reader = new FileReader(); reader.onload = function(e) { document.getElementById('e-photoPreview').src = e.target.result; document.getElementById('e-photoPreview').style.display = 'block'; } reader.readAsDataURL(input.files[0]); } }
+// ====== بخش جدید: نمایش تیکت‌های کارمند ======
+function fetchDepartmentTickets() {
+const dept = document.getElementById('e-department').value;
+const listContainer = document.getElementById('employee-ticket-list');
+if (!dept) { listContainer.innerHTML = ''; return; }
 
-function submitEmployeeForm() {
-let nationalId = document.getElementById('e-nationalId').value; let mobile = document.getElementById('e-mobile').value; let problemType = document.getElementById('e-problemType').value; let description = document.getElementById('e-description').value; let fileInput = document.getElementById('e-fileAttachment'); let isValid = true;
-if (!/^\d{10}$/.test(nationalId)) { document.getElementById('e-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('e-nationalIdError').style.display = 'none'; }
-if (!/^09\d{9}$/.test(mobile)) { document.getElementById('e-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('e-mobileError').style.display = 'none'; }
-if (!problemType) { document.getElementById('e-problemError').style.display = 'block'; isValid = false; } else { document.getElementById('e-problemError').style.display = 'none'; }
-if (!isValid) return;
-let trackingCode = Math.floor(10000 + Math.random() * 90000); let department = getDepartment(problemType); document.getElementById('submitEmployeeBtn').innerText = "در حال ارسال...";
-let processSubmit = (base64) => { let payload = { name: mobile + " - کد ملی: " + nationalId, description: "نوع مشکل: " + document.getElementById('e-problemType').options[document.getElementById('e-problemType').selectedIndex].text + " | " + description, imageBase64: base64 }; fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { document.getElementById('e-resultSection').style.display = 'block'; document.getElementById('e-trackingCode').textContent = trackingCode; document.getElementById('e-routingInfo').innerHTML = `این تیکت به <strong style="color:#c0392b;">${department}</strong> ارجاع داده شد.`; document.getElementById('panel-employee').querySelectorAll('.form-group, .btn').forEach(el => el.style.display = 'none'); }); };
-if (fileInput.files && fileInput.files[0]) { var reader = new FileReader(); reader.onload = function(e) { processSubmit(e.target.result); }; reader.readAsDataURL(fileInput.files[0]); } else { processSubmit(""); }
+listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت اطلاعات...</p>';
+
+fetch(SCRIPT_URL + "?action=getTickets")
+.then(res => res.json())
+.then(tickets => {
+listContainer.innerHTML = '';
+let found = false;
+
+tickets.forEach(ticket => {
+// بررسی اینکه آیا مشکل به این واحد مربوط است یا نه
+let shouldShow = false;
+if (dept === 'اعتبارات' && (ticket.description.includes('اعتبارات') || ticket.description.includes('وام') || ticket.description.includes('امتیاز') || ticket.description.includes('قسط'))) shouldShow = true;
+if (dept === 'بانکداری دیجیتال' && (ticket.description.includes('دیجیتال') || ticket.description.includes('سفته') || ticket.description.includes('چک') || ticket.description.includes('احراز') || ticket.description.includes('رمز'))) shouldShow = true;
+if (dept === 'انفورماتیک' && (ticket.description.includes('انفورماتیک') || ticket.description.includes('رمز پیامکی'))) shouldShow = true;
+if (dept === 'حقوقی' && (ticket.description.includes('حقوقی') || ticket.description.includes('مسدودی') || ticket.description.includes('کارت گم'))) shouldShow = true;
+if (ticket.status === 'حل شد') shouldShow = false; // تیکت‌های حل شده را نشان نده
+
+if (shouldShow) {
+found = true;
+let html = `
+<div class="ticket-card">
+<h4>کد پیگیری: ${ticket.trackingCode}</h4>
+<p><strong>مشخصات مشتری:</strong> ${ticket.name}</p>
+<p><strong>مشکل:</strong> ${ticket.description}</p>
+${ticket.imageUrl ? `<p><a href="${ticket.imageUrl}" target="_blank">📷 مشاهده تصویر پیوست</a></p>` : ''}
+<p><strong>وضعیت:</strong> ${ticket.status}</p>
+<button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button>
+</div>`;
+listContainer.innerHTML += html;
+}
+});
+
+if (!found) {
+listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ تیکت باز و جدیدی برای این واحد وجود ندارد.</p>';
+}
+})
+.catch(err => {
+listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در دریافت اطلاعات.</p>';
+});
+}
+
+function resolveTicket(row, btnElement) {
+btnElement.innerText = "در حال ذخیره...";
+let payload = { action: 'updateStatus', row: row, status: 'حل شد' };
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+.then(() => {
+alert('تیکت با موفقیت حل شد.');
+fetchDepartmentTickets(); // لیست را دوباره لود کن
+})
+.catch(() => {
+alert('خطا در تغییر وضعیت.');
+btnElement.innerText = "علامت‌گذاری به عنوان حل شد";
+});
 }
 </script>
 </body>
