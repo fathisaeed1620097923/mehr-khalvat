@@ -1,13 +1,11 @@
 
 
-
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سامانه مهر خلوت (دوگانه)</title>
+<title>سامانه مهر خلوت</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, Arial, sans-serif; }
 body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
@@ -47,21 +45,22 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .ticket-card p { font-size: 13px; margin-bottom: 8px; line-height: 1.5; }
 .ticket-card a { color: #2980b9; text-decoration: none; font-weight: bold; }
 .btn-resolve { background: #27ae60; padding: 8px; font-size: 14px; margin-top: 10px; }
+.admin-login-link { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px dashed #ccc; }
+.admin-login-link button { background: transparent; color: #888; border: none; cursor: pointer; text-decoration: underline; font-size: 12px; }
 </style>
 </head>
 <body>
 <div class="container">
 <div class="header"><h1>🌿 مهر خلوت</h1><p>مشکل خود را بگو، مسیرش را نشانت می‌دهیم</p></div>
-<div class="tabs">
-<button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل جدید (مشتری / شعبه)</button>
-<button class="tab-btn" onclick="switchTab('employee', this)">📋 پنل پیگیری کارمندان</button>
-
+<div class="tabs" id="main-tabs">
+<button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل جدید</button>
+<button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل پیگیری</button>
 </div>
 
 <!-- پنل مشتری -->
 <div class="content panel active" id="panel-customer">
 <div style="text-align: center; padding: 15px; background: #f9fbf9; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
-<p style="font-size: 14px; font-weight: bold; color: #0a4d2e; margin-bottom: 10px;">📱 برای دسترسی سریع، QR کد زیر را با دوربین گوشی اسکن کنید:</p>
+<p style="font-size: 14px; font-weight: bold; color: #0a4d2e; margin-bottom: 10px;">📱 برای دسترسی سریع، QR کد زیر را اسکن کنید:</p>
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://fathisaeed1620097923.github.io/mehr-khalvat/" alt="QR Code" style="border: 2px solid #0a4d2e; border-radius: 10px; padding: 5px; background: #fff;">
 </div>
 
@@ -87,6 +86,10 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <div class="routing-info" id="c-routingInfo"></div>
 <button class="btn" onclick="location.reload()" style="margin-top: 15px;">ثبت مشکل جدید</button>
 </div>
+
+<div class="admin-login-link">
+<button onclick="askAdminPassword()">ورود کارمندان (مدیریت)</button>
+</div>
 </div>
 
 <!-- پنل کارمند -->
@@ -101,14 +104,26 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <option value="حقوقی">حقوقی / شعبه</option>
 </select>
 </div>
-<div id="employee-ticket-list" style="margin-top: 20px;">
-<!-- لیست تیکت‌ها اینجا نمایش داده می‌شود -->
-</div>
+<div id="employee-ticket-list" style="margin-top: 20px;"></div>
 </div>
 </div>
 
 <script>
+// 🔴 لینک exec خود را اینجا قرار دهید
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
+
+// 🔑 رمز عبور کارمندان
+const ADMIN_PASSWORD = "mehr1234";
+
+function askAdminPassword() {
+let pass = prompt("لطفاً رمز عبور کارمندان را وارد کنید:");
+if (pass === ADMIN_PASSWORD) {
+document.getElementById('employee-tab-btn').style.display = 'block';
+switchTab('employee', document.getElementById('employee-tab-btn'));
+} else if (pass !== null) {
+alert("رمز عبور اشتباه است! شما به این بخش دسترسی ندارید.");
+}
+}
 
 function switchTab(panelId, btnElement) {
 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -146,7 +161,6 @@ let payload = { name: mobile + " - کد ملی: " + nationalId, description: "ن
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { document.getElementById('panel-customer').querySelectorAll('.form-group, .camera-box, .btn').forEach(el => el.style.display = 'none'); document.getElementById('c-resultSection').style.display = 'block'; document.getElementById('c-trackingCode').textContent = trackingCode; document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`; }).catch(err => { alert("خطا در ارتباط با سرور."); document.getElementById('submitCustomerBtn').innerText = "ثبت درخواست"; });
 }
 
-// ====== بخش جدید: نمایش تیکت‌های کارمند ======
 function fetchDepartmentTickets() {
 const dept = document.getElementById('e-department').value;
 const listContainer = document.getElementById('employee-ticket-list');
@@ -161,13 +175,12 @@ listContainer.innerHTML = '';
 let found = false;
 
 tickets.forEach(ticket => {
-// بررسی اینکه آیا مشکل به این واحد مربوط است یا نه
 let shouldShow = false;
 if (dept === 'اعتبارات' && (ticket.description.includes('اعتبارات') || ticket.description.includes('وام') || ticket.description.includes('امتیاز') || ticket.description.includes('قسط'))) shouldShow = true;
 if (dept === 'بانکداری دیجیتال' && (ticket.description.includes('دیجیتال') || ticket.description.includes('سفته') || ticket.description.includes('چک') || ticket.description.includes('احراز') || ticket.description.includes('رمز'))) shouldShow = true;
 if (dept === 'انفورماتیک' && (ticket.description.includes('انفورماتیک') || ticket.description.includes('رمز پیامکی'))) shouldShow = true;
 if (dept === 'حقوقی' && (ticket.description.includes('حقوقی') || ticket.description.includes('مسدودی') || ticket.description.includes('کارت گم'))) shouldShow = true;
-if (ticket.status === 'حل شد') shouldShow = false; // تیکت‌های حل شده را نشان نده
+if (ticket.status === 'حل شد') shouldShow = false;
 
 if (shouldShow) {
 found = true;
@@ -200,7 +213,7 @@ let payload = { action: 'updateStatus', row: row, status: 'حل شد' };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(() => {
 alert('تیکت با موفقیت حل شد.');
-fetchDepartmentTickets(); // لیست را دوباره لود کن
+fetchDepartmentTickets();
 })
 .catch(() => {
 alert('خطا در تغییر وضعیت.');
