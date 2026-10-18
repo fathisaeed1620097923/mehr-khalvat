@@ -40,12 +40,10 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .ticket-card { background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 .ticket-card h4 { color: #0a4d2e; margin-bottom: 10px; }
 .ticket-card p { font-size: 13px; margin-bottom: 8px; line-height: 1.5; }
-.ticket-card a { color: #2980b9; text-decoration: none; font-weight: bold; }
 .btn-resolve { background: #27ae60; padding: 10px; font-size: 14px; margin-top: 10px; margin-bottom: 0;}
 .reply-box { margin-top: 15px; padding: 10px; background: #f0f8ff; border-right: 4px solid #2980b9; border-radius: 5px; font-size: 13px; display: none; }
 .admin-login-link { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px dashed #ccc; }
 .admin-login-link button { background: transparent; color: #888; border: none; cursor: pointer; text-decoration: underline; font-size: 12px; }
-
 .toast { visibility: hidden; min-width: 250px; background-color: #c0392b; color: #fff; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 1000; top: 20px; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, top 0.3s; }
 .toast.show { visibility: visible; opacity: 1; top: 30px; }
 .badge { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
@@ -100,7 +98,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 
 <div class="form-group"><label>شماره همراه:</label><input type="tel" id="c-mobile" placeholder="مثلاً 09123456789" maxlength="11"><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
 <div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="مثلاً 0012345678" maxlength="10"><div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div></div>
-<div class="form-group"><label>ایمیل (اختیاری - برای اعلان):</label><input type="email" id="c-email" placeholder="example@gmail.com"></div>
+<div class="form-group"><label>ایمیل (اختیاری):</label><input type="email" id="c-email" placeholder="example@gmail.com"></div>
 <div class="form-group">
 <label>نوع مشکل:</label>
 <select id="c-problemType">
@@ -115,7 +113,6 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <img id="c-photoResult" alt="عکس گرفته شده">
 
 <div id="photo-options">
-<!-- دکمه واحد برای باز کردن دوربین یا گالری توسط سیستم‌عامل گوشی -->
 <input type="file" id="c-fileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
 <button class="btn btn-secondary" onclick="document.getElementById('c-fileInput').click()">انتخاب یا گرفتن عکس</button>
 </div>
@@ -179,7 +176,6 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </div>
 
 <script>
-// 🔴 لینک exec خود را دقیقاً بین این دو دابل کوتیشن بچسبانید.
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
 const ADMIN_PASSWORD = "mehr1234";
 
@@ -235,8 +231,6 @@ const ctx = tempCanvas.getContext('2d'); ctx.drawImage(img, 0, 0, tempCanvas.wid
 photoBase64 = tempCanvas.toDataURL('image/jpeg', 0.7);
 photoResult.src = photoBase64;
 photoResult.style.display = 'block';
-
-// مخفی کردن دکمه انتخاب عکس و نمایش دکمه حذف
 document.getElementById('photo-options').style.display = 'none';
 document.getElementById('photo-remove-box').style.display = 'block';
 };
@@ -252,7 +246,7 @@ document.getElementById('photo-remove-box').style.display = 'none';
 }
 
 function submitCustomerForm() {
-let mobile = document.getElementById('c-mobile').value; let nationalId = document.getElementById('c-nationalId').value; let email = document.getElementById('c-email').value; let problemType = document.getElementById('c-problemType').value; let description = document.getElementById('c-description').value; let branch = document.getElementById('c-branch').value; let isValid = true;
+let mobile = document.getElementById('c-mobile').value; let nationalId = document.getElementById('c-nationalId').value; let email = document.getElementById('c-email').value; let problemType = document.getElementById('c-problemType').value; let description = document.getElementById('c-description').value; let isValid = true;
 if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('c-mobileError').style.display = 'none'; }
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
 if (!problemType) { document.getElementById('c-problemError').style.display = 'block'; isValid = false; } else { document.getElementById('c-problemError').style.display = 'none'; }
@@ -266,8 +260,7 @@ description: "نوع مشکل: " + document.getElementById('c-problemType').opti
 imageBase64: photoBase64,
 department: department,
 trackingCode: trackingCode,
-email: email,
-branch: branch
+email: email
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
@@ -343,12 +336,24 @@ listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ ت
 return;
 }
 deptTickets.forEach(ticket => {
+
+let imageHtml = "";
+if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) {
+imageHtml = `
+<div style="margin-top:10px; text-align:center;">
+<p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p>
+<a href="${ticket.imageUrl}" target="_blank">
+<img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;">
+</a>
+</div>`;
+}
+
 let html = `
 <div class="ticket-card">
 <h4>کد پیگیری: ${ticket.trackingCode} (شعبه: ${ticket.branch})</h4>
 <p><strong>مشخصات مشتری:</strong> ${ticket.name}</p>
 <p><strong>مشکل:</strong> ${ticket.description}</p>
-${ticket.imageUrl ? `<p><a href="${ticket.imageUrl}" target="_blank">📷 مشاهده تصویر پیوست</a></p>` : ''}
+${imageHtml}
 <div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-${ticket.row}" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div>
 <button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button>
 </div>`;
