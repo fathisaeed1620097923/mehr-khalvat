@@ -12,8 +12,8 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .header { background: linear-gradient(135deg, #0a4d2e, #148a4f); color: #fff; padding: 20px; text-align: center; }
 .header h1 { font-size: 22px; margin-bottom: 5px; }
 .header p { font-size: 13px; opacity: 0.9; }
-.tabs { display: flex; background: #e9ecef; }
-.tab-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 15px; font-weight: bold; color: #666; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; }
+.tabs { display: flex; background: #e9ecef; flex-wrap: wrap; }
+.tab-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 14px; font-weight: bold; color: #666; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; min-width: 120px; position: relative;}
 .tab-btn.active { background: #fff; color: #0a4d2e; border-bottom-color: #0a4d2e; }
 .content { padding: 25px; }
 .panel { display: none; }
@@ -28,40 +28,49 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .camera-box video { width: 100%; max-width: 300px; border-radius: 10px; display: none; margin: 0 auto 10px auto; background: #000; }
 .camera-box canvas { display: none; }
 .camera-box img { width: 100%; max-width: 300px; border-radius: 10px; display: none; margin: 0 auto 10px auto; }
-.btn { display: block; width: 100%; padding: 14px; background: #0a4d2e; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+.btn { display: block; width: 100%; padding: 14px; background: #0a4d2e; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px;}
 .btn:hover { background: #083d24; }
-.btn-secondary { background: #d4a017; margin-bottom: 10px; }
+.btn-secondary { background: #d4a017; }
 .btn-danger { background: #c0392b; }
+.btn-outline { background: transparent; border: 2px solid #0a4d2e; color: #0a4d2e; }
 .result-box { display: none; background: #e8f5ec; border: 2px solid #27ae60; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; }
 .result-box h3 { color: #1e7a44; margin-bottom: 10px; font-size: 18px; }
 .tracking-code { font-size: 26px; font-weight: bold; color: #d4a017; background: #fff; padding: 10px; border-radius: 8px; margin: 10px 0; letter-spacing: 2px; border: 1px dashed #d4a017; }
 .routing-info { font-size: 14px; color: #333; background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; }
 .error { color: #c0392b; font-size: 12px; margin-top: 5px; display: none; }
-.row { display: flex; gap: 15px; flex-wrap: wrap; }
-.col { flex: 1; min-width: 200px; }
 .ticket-card { background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 .ticket-card h4 { color: #0a4d2e; margin-bottom: 10px; }
 .ticket-card p { font-size: 13px; margin-bottom: 8px; line-height: 1.5; }
 .ticket-card a { color: #2980b9; text-decoration: none; font-weight: bold; }
-.btn-resolve { background: #27ae60; padding: 8px; font-size: 14px; margin-top: 10px; }
+.btn-resolve { background: #27ae60; padding: 10px; font-size: 14px; margin-top: 10px; margin-bottom: 0;}
+.reply-box { margin-top: 15px; padding: 10px; background: #f0f8ff; border-right: 4px solid #2980b9; border-radius: 5px; font-size: 13px; display: none; }
 .admin-login-link { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px dashed #ccc; }
 .admin-login-link button { background: transparent; color: #888; border: none; cursor: pointer; text-decoration: underline; font-size: 12px; }
+
+/* استایل اعلان (Notification) */
+.toast { visibility: hidden; min-width: 250px; background-color: #c0392b; color: #fff; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 1000; top: 20px; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, top 0.3s; }
+.toast.show { visibility: visible; opacity: 1; top: 30px; }
+.badge { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
 </style>
 </head>
 <body>
+
+<!-- المان اعلان و صدا -->
+<div id="toast-notification" class="toast">تیکت جدید ثبت شد!</div>
+<audio id="notify-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
 <div class="container">
 <div class="header"><h1>🌿 مهر خلوت</h1><p>مشکل خود را بگو، مسیرش را نشانت می‌دهیم</p></div>
 <div class="tabs" id="main-tabs">
-<button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل جدید</button>
+<button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
 <button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری وضعیت</button>
-<button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان</button>
+<button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge">!</span></button>
 </div>
 
 <!-- پنل مشتری -->
 <div class="content panel active" id="panel-customer">
 <div style="text-align: center; padding: 15px; background: #f9fbf9; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
-<p style="font-size: 14px; font-weight: bold; color: #0a4d2e; margin-bottom: 10px;">📱 برای دسترسی سریع، QR کد زیر را اسکن کنید:</p>
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://fathisaeed1620097923.github.io/mehr-khalvat/" alt="QR Code" style="border: 2px solid #0a4d2e; border-radius: 10px; padding: 5px; background: #fff;">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://fathisaeed1620097923.github.io/mehr-khalvat/" alt="QR Code" style="border: 2px solid #0a4d2e; border-radius: 10px; padding: 5px; background: #fff;">
 </div>
 
 <div class="form-group"><label>شماره همراه:</label><input type="tel" id="c-mobile" placeholder="مثلاً 09123456789" maxlength="11"><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
@@ -74,13 +83,19 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </select><div class="error" id="c-problemError">لطفاً یک گزینه را انتخاب کنید.</div>
 </div>
 <div class="form-group"><label>توضیح مختصر (اختیاری):</label><textarea id="c-description" placeholder="مشکل خود را کمی توضیح دهید..."></textarea></div>
+
 <div class="camera-box">
-<p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 گرفتن عکس (اختیاری)</p>
+<p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 پیوست عکس (اختیاری)</p>
 <video id="c-video" autoplay playsinline></video><canvas id="c-canvas"></canvas><img id="c-photoResult" alt="عکس گرفته شده">
-<button class="btn btn-secondary" id="c-startCameraBtn" onclick="startCamera()">روشن کردن دوربین</button>
-<button class="btn btn-danger" id="c-captureBtn" onclick="capturePhoto()" style="display: none;">گرفتن عکس</button>
+
+<button class="btn btn-secondary" id="c-startCameraBtn" onclick="startCamera()">گرفتن عکس با دوربین</button>
+<button class="btn btn-danger" id="c-captureBtn" onclick="capturePhoto()" style="display: none;">ثبت عکس دوربین</button>
+
+<input type="file" id="c-fileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
+<button class="btn btn-outline" onclick="document.getElementById('c-fileInput').click()">آپلود عکس از گالری</button>
 </div>
-<button class="btn" id="submitCustomerBtn" onclick="submitCustomerForm()">ثبت درخواست</button>
+
+<button class="btn" id="submitCustomerBtn" onclick="submitCustomerForm()">ثبت نهایی درخواست</button>
 <div class="result-box" id="c-resultSection">
 <h3>✅ درخواست شما ثبت شد</h3><p>کد پیگیری شما:</p><div class="tracking-code" id="c-trackingCode">-----</div>
 <div class="routing-info" id="c-routingInfo"></div>
@@ -92,22 +107,27 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </div>
 </div>
 
-<!-- پنل پیگیری وضعیت (جدید) -->
+<!-- پنل پیگیری وضعیت -->
 <div class="content panel" id="panel-track">
 <div style="text-align: center; margin-bottom: 20px;">
-<h2 style="color: #0a4d2e; margin-bottom: 10px;">پیگیری وضعیت درخواست</h2>
-<p style="font-size: 14px; color: #666;">لطفاً کد پیگیری خود را وارد کنید.</p>
+<h2 style="color: #0a4d2e; margin-bottom: 10px;">پیگیری وضعیت</h2>
+<p style="font-size: 14px; color: #666;">کد پیگیری (عدد) خود را وارد کنید.</p>
 </div>
 <div class="form-group">
 <label>کد پیگیری:</label>
 <input type="text" id="track-code-input" placeholder="مثلاً 58421">
 </div>
-<button class="btn" onclick="trackTicket()">مشاهده وضعیت</button>
+<button class="btn" onclick="startTracking()">مشاهده و پیگیری زنده</button>
 
 <div class="result-box" id="track-result-box" style="display: none;">
 <h3>وضعیت درخواست شما:</h3>
-<p style="font-size: 18px; font-weight: bold; margin: 10px 0;" id="track-status-text"></p>
+<p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #d4a017;" id="track-status-text"></p>
 <div class="routing-info" id="track-dept-text"></div>
+<div class="reply-box" id="track-reply-box">
+<strong>پاسخ کارشناس:</strong>
+<p id="track-reply-text" style="margin-top: 5px;"></p>
+</div>
+<p style="font-size: 11px; color: #888; margin-top: 15px;">(این صفحه هر ۱۵ ثانیه به صورت خودکار آپدیت می‌شود)</p>
 </div>
 </div>
 
@@ -115,7 +135,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <div class="content panel" id="panel-employee">
 <div class="form-group">
 <label>واحد خود را انتخاب کنید:</label>
-<select id="e-department" onchange="fetchDepartmentTickets()">
+<select id="e-department" onchange="startEmployeePolling()">
 <option value="">-- انتخاب واحد --</option>
 <option value="اعتبارات">اعتبارات</option>
 <option value="بانکداری دیجیتال">بانکداری دیجیتال</option>
@@ -131,17 +151,30 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <script>
 // 🔴 لینک exec خود را دقیقاً بین این دو دابل کوتیشن بچسبانید.
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
-
 const ADMIN_PASSWORD = "mehr1234";
+
+// متغیرهای سراسری برای نوتیفیکیشن
+let lastTicketCount = 0;
+let lastTrackStatus = "";
+let trackInterval = null;
+let employeeInterval = null;
+
+function showToast(message) {
+const toast = document.getElementById('toast-notification');
+toast.innerText = message;
+toast.className = "toast show";
+// پخش صدا
+document.getElementById('notify-sound').play().catch(e => console.log("Sound blocked"));
+
+setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 5000);
+}
 
 function askAdminPassword() {
 let pass = prompt("لطفاً رمز عبور کارمندان را وارد کنید:");
 if (pass === ADMIN_PASSWORD) {
 document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
-} else if (pass !== null) {
-alert("رمز عبور اشتباه است! شما به این بخش دسترسی ندارید.");
-}
+} else if (pass !== null) { alert("رمز عبور اشتباه است!"); }
 }
 
 function switchTab(panelId, btnElement) {
@@ -149,6 +182,12 @@ document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('panel-' + panelId).classList.add('active');
 btnElement.classList.add('active');
+
+// مخفی کردن نشان قرمز وقتی کاربر وارد پنل کارمند شد
+if(panelId === 'employee') {
+document.getElementById('tab-badge').style.display = 'none';
+}
+
 if (panelId !== 'customer' && stream) { stream.getTracks().forEach(track => track.stop()); document.getElementById('c-video').style.display = 'none'; document.getElementById('c-startCameraBtn').style.display = 'block'; document.getElementById('c-captureBtn').style.display = 'none'; }
 }
 
@@ -165,7 +204,23 @@ try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 
 }
 
 function capturePhoto() {
-canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height); photoBase64 = canvas.toDataURL('image/jpeg'); photoResult.src = photoBase64; photoResult.style.display = 'block'; if (stream) stream.getTracks().forEach(track => track.stop()); video.style.display = 'none'; document.getElementById('c-captureBtn').style.display = 'none'; document.getElementById('c-startCameraBtn').textContent = 'گرفتن عکس مجدد'; document.getElementById('c-startCameraBtn').style.display = 'block';
+canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height); compressAndSetImage(canvas.toDataURL('image/jpeg', 0.8));
+if (stream) stream.getTracks().forEach(track => track.stop()); video.style.display = 'none'; document.getElementById('c-captureBtn').style.display = 'none'; document.getElementById('c-startCameraBtn').textContent = 'گرفتن عکس مجدد'; document.getElementById('c-startCameraBtn').style.display = 'block';
+}
+
+function handleFileUpload(event) {
+const file = event.target.files[0];
+if (file) { const reader = new FileReader(); reader.onload = function(e) { compressAndSetImage(e.target.result); }; reader.readAsDataURL(file); }
+}
+
+function compressAndSetImage(base64Str) {
+const img = new Image(); img.src = base64Str;
+img.onload = function() {
+const tempCanvas = document.createElement('canvas'); const MAX_WIDTH = 800; const scaleSize = MAX_WIDTH / img.width;
+if (img.width > MAX_WIDTH) { tempCanvas.width = MAX_WIDTH; tempCanvas.height = img.height * scaleSize; } else { tempCanvas.width = img.width; tempCanvas.height = img.height; }
+const ctx = tempCanvas.getContext('2d'); ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+photoBase64 = tempCanvas.toDataURL('image/jpeg', 0.7); photoResult.src = photoBase64; photoResult.style.display = 'block';
+};
 }
 
 function submitCustomerForm() {
@@ -174,7 +229,7 @@ if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
 if (!problemType) { document.getElementById('c-problemError').style.display = 'block'; isValid = false; } else { document.getElementById('c-problemError').style.display = 'none'; }
 if (!isValid) return;
-let trackingCode = "TK-" + Math.floor(10000 + Math.random() * 90000); // تولید کد با پیشوند TK
+let trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 let department = getDepartment(problemType);
 document.getElementById('submitCustomerBtn').innerText = "در حال ثبت...";
 let payload = {
@@ -182,93 +237,136 @@ name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
 imageBase64: photoBase64,
 department: department,
-trackingCode: trackingCode // ارسال کد به دیتابیس
+trackingCode: trackingCode
 };
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { document.getElementById('panel-customer').querySelectorAll('.form-group, .camera-box, .btn').forEach(el => el.style.display = 'none'); document.getElementById('c-resultSection').style.display = 'block'; document.getElementById('c-trackingCode').textContent = trackingCode; document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`; }).catch(err => { alert("خطا در ارتباط با سرور."); document.getElementById('submitCustomerBtn').innerText = "ثبت درخواست"; });
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+.then(res => res.json())
+.then(data => {
+if(data.result === 'error') { alert("خطا در ثبت: " + data.error); document.getElementById('submitCustomerBtn').innerText = "ثبت درخواست"; return; }
+document.getElementById('panel-customer').querySelectorAll('.form-group, .camera-box, .btn').forEach(el => el.style.display = 'none');
+document.getElementById('c-resultSection').style.display = 'block';
+document.getElementById('c-trackingCode').textContent = trackingCode;
+document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`;
+})
+.catch(err => { alert("خطا در ارتباط با سرور."); document.getElementById('submitCustomerBtn').innerText = "ثبت درخواست"; });
 }
 
-// تابع جدید برای پیگیری
-function trackTicket() {
+// ================= سیستم نوتیفیکیشن مشتری =================
+function startTracking() {
 let code = document.getElementById('track-code-input').value;
 if(!code) { alert('لطفاً کد پیگیری را وارد کنید.'); return; }
 
-let btn = event.target;
-btn.innerText = "در حال جستجو...";
+document.getElementById('track-result-box').style.display = 'block';
+document.getElementById('track-status-text').innerText = "در حال دریافت...";
 
+if(trackInterval) clearInterval(trackInterval); // پاک کردن تایمر قبلی
+
+// تابع دریافت اطلاعات
+const fetchStatus = () => {
 fetch(SCRIPT_URL + "?action=trackTicket&code=" + code)
 .then(res => res.json())
 .then(data => {
-btn.innerText = "مشاهده وضعیت";
 if(data.found) {
-document.getElementById('track-result-box').style.display = 'block';
 document.getElementById('track-status-text').innerText = data.status;
 document.getElementById('track-dept-text').innerText = "ارجاع به: " + data.department;
+if(data.reply && data.reply.trim() !== "") { document.getElementById('track-reply-box').style.display = 'block'; document.getElementById('track-reply-text').innerText = data.reply; } else { document.getElementById('track-reply-box').style.display = 'none'; }
+
+// اگر وضعیت تغییر کرده بود، اعلان بده
+if(lastTrackStatus !== "" && lastTrackStatus !== data.status) {
+showToast("وضعیت درخواست شما تغییر کرد!");
+playSound();
+}
+lastTrackStatus = data.status;
 } else {
-alert('کد پیگیری یافت نشد! لطفاً دقت کنید که کد را درست وارد کرده‌اید.');
-document.getElementById('track-result-box').style.display = 'none';
+document.getElementById('track-status-text').innerText = "کد یافت نشد!";
+if(trackInterval) clearInterval(trackInterval);
 }
 })
-.catch(err => {
-btn.innerText = "مشاهده وضعیت";
-alert("خطا در ارتباط با سرور.");
-});
+.catch(err => { document.getElementById('track-status-text').innerText = "خطا در ارتباط."; });
+};
+
+fetchStatus(); // اجرای فوری
+trackInterval = setInterval(fetchStatus, 15000); // اجرای هر ۱۵ ثانیه
 }
 
-function fetchDepartmentTickets() {
+// ================= سیستم نوتیفیکیشن کارمند =================
+function startEmployeePolling() {
+const dept = document.getElementById('e-department').value;
+if (!dept) { document.getElementById('employee-ticket-list').innerHTML = ''; return; }
+
+if(employeeInterval) clearInterval(employeeInterval); // پاک کردن تایمر قبلی
+// اولین بار لیست را می‌گیریم تا تعداد اولیه مشخص شود
+fetchDepartmentTickets(true);
+// هر ۱۵ ثانیه چک می‌کنیم آیا تیکت جدیدی آمده؟
+employeeInterval = setInterval(() => {
+fetch(SCRIPT_URL + "?action=getTickets")
+.then(res => res.json())
+.then(tickets => {
+let currentCount = tickets.filter(t => t.department === dept && t.status !== 'حل شد').length;
+
+// اگر تعداد تیکت‌ها بیشتر از قبل شد
+if (currentCount > lastTicketCount && lastTicketCount !== 0) {
+showToast("تیکت جدیدی برای واحد شما ثبت شد!");
+document.getElementById('tab-badge').style.display = 'inline-block'; // نمایش دات قرمز
+fetchDepartmentTickets(false); // رفرش لیست بدون اعلان اولیه
+}
+lastTicketCount = currentCount;
+});
+}, 15000);
+}
+
+function fetchDepartmentTickets(isInitial = false) {
 const dept = document.getElementById('e-department').value;
 const listContainer = document.getElementById('employee-ticket-list');
-if (!dept) { listContainer.innerHTML = ''; return; }
 
+if(!isInitial) {
+// اگر رفرش عادی است، صفحه را قفل نکن
+} else {
 listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت اطلاعات...</p>';
+}
 
 fetch(SCRIPT_URL + "?action=getTickets")
 .then(res => res.json())
 .then(tickets => {
+let deptTickets = tickets.filter(t => t.department === dept && t.status !== 'حل شد');
+
+if(isInitial) {
+lastTicketCount = deptTickets.length; // ذخیره تعداد اولیه برای اولین بار
+}
+
 listContainer.innerHTML = '';
-let found = false;
+if (deptTickets.length === 0) {
+listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ تیکت باز و جدیدی برای این واحد وجود ندارد.</p>';
+return;
+}
 
-tickets.forEach(ticket => {
-let shouldShow = false;
-if (ticket.department === dept) shouldShow = true;
-if (ticket.status === 'حل شد') shouldShow = false;
-
-if (shouldShow) {
-found = true;
+deptTickets.forEach(ticket => {
 let html = `
 <div class="ticket-card">
 <h4>کد پیگیری: ${ticket.trackingCode}</h4>
 <p><strong>مشخصات مشتری:</strong> ${ticket.name}</p>
 <p><strong>مشکل:</strong> ${ticket.description}</p>
 ${ticket.imageUrl ? `<p><a href="${ticket.imageUrl}" target="_blank">📷 مشاهده تصویر پیوست</a></p>` : ''}
-<p><strong>وضعیت:</strong> ${ticket.status}</p>
+<div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-${ticket.row}" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div>
 <button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button>
 </div>`;
 listContainer.innerHTML += html;
-}
 });
-
-if (!found) {
-listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ تیکت باز و جدیدی برای این واحد وجود ندارد.</p>';
-}
 })
-.catch(err => {
-listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در دریافت اطلاعات.</p>';
-});
+.catch(err => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا.</p>'; });
 }
 
 function resolveTicket(row, btnElement) {
 btnElement.innerText = "در حال ذخیره...";
-let payload = { action: 'updateStatus', row: row, status: 'حل شد' };
+let replyText = document.getElementById('reply-' + row).value;
+let payload = { action: 'updateStatus', row: row, status: 'حل شد', reply: replyText };
 
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(() => {
-alert('تیکت با موفقیت حل شد.');
-fetchDepartmentTickets();
+alert('تیکت حل شد.');
+fetchDepartmentTickets(true); // رفرش لیست و اپدیت تعداد
 })
-.catch(() => {
-alert('خطا در تغییر وضعیت.');
-btnElement.innerText = "علامت‌گذاری به عنوان حل شد";
-});
+.catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; });
 }
 </script>
 </body>
