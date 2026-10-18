@@ -53,7 +53,8 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <div class="header"><h1>🌿 مهر خلوت</h1><p>مشکل خود را بگو، مسیرش را نشانت می‌دهیم</p></div>
 <div class="tabs" id="main-tabs">
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل جدید</button>
-<button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل پیگیری</button>
+<button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری وضعیت</button>
+<button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان</button>
 </div>
 
 <!-- پنل مشتری -->
@@ -81,13 +82,32 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </div>
 <button class="btn" id="submitCustomerBtn" onclick="submitCustomerForm()">ثبت درخواست</button>
 <div class="result-box" id="c-resultSection">
-<h3>✅ درخواست شما ثبت شد</h3><p>کد پیگیری:</p><div class="tracking-code" id="c-trackingCode">-----</div>
+<h3>✅ درخواست شما ثبت شد</h3><p>کد پیگیری شما:</p><div class="tracking-code" id="c-trackingCode">-----</div>
 <div class="routing-info" id="c-routingInfo"></div>
 <button class="btn" onclick="location.reload()" style="margin-top: 15px;">ثبت مشکل جدید</button>
 </div>
 
 <div class="admin-login-link">
 <button onclick="askAdminPassword()">ورود کارمندان (مدیریت)</button>
+</div>
+</div>
+
+<!-- پنل پیگیری وضعیت (جدید) -->
+<div class="content panel" id="panel-track">
+<div style="text-align: center; margin-bottom: 20px;">
+<h2 style="color: #0a4d2e; margin-bottom: 10px;">پیگیری وضعیت درخواست</h2>
+<p style="font-size: 14px; color: #666;">لطفاً کد پیگیری خود را وارد کنید.</p>
+</div>
+<div class="form-group">
+<label>کد پیگیری:</label>
+<input type="text" id="track-code-input" placeholder="مثلاً 58421">
+</div>
+<button class="btn" onclick="trackTicket()">مشاهده وضعیت</button>
+
+<div class="result-box" id="track-result-box" style="display: none;">
+<h3>وضعیت درخواست شما:</h3>
+<p style="font-size: 18px; font-weight: bold; margin: 10px 0;" id="track-status-text"></p>
+<div class="routing-info" id="track-dept-text"></div>
 </div>
 </div>
 
@@ -154,15 +174,44 @@ if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
 if (!problemType) { document.getElementById('c-problemError').style.display = 'block'; isValid = false; } else { document.getElementById('c-problemError').style.display = 'none'; }
 if (!isValid) return;
-let trackingCode = Math.floor(10000 + Math.random() * 90000); let department = getDepartment(problemType);
+let trackingCode = "TK-" + Math.floor(10000 + Math.random() * 90000); // تولید کد با پیشوند TK
+let department = getDepartment(problemType);
 document.getElementById('submitCustomerBtn').innerText = "در حال ثبت...";
 let payload = {
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
 imageBase64: photoBase64,
-department: department
+department: department,
+trackingCode: trackingCode // ارسال کد به دیتابیس
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) }).then(() => { document.getElementById('panel-customer').querySelectorAll('.form-group, .camera-box, .btn').forEach(el => el.style.display = 'none'); document.getElementById('c-resultSection').style.display = 'block'; document.getElementById('c-trackingCode').textContent = trackingCode; document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`; }).catch(err => { alert("خطا در ارتباط با سرور."); document.getElementById('submitCustomerBtn').innerText = "ثبت درخواست"; });
+}
+
+// تابع جدید برای پیگیری
+function trackTicket() {
+let code = document.getElementById('track-code-input').value;
+if(!code) { alert('لطفاً کد پیگیری را وارد کنید.'); return; }
+
+let btn = event.target;
+btn.innerText = "در حال جستجو...";
+
+fetch(SCRIPT_URL + "?action=trackTicket&code=" + code)
+.then(res => res.json())
+.then(data => {
+btn.innerText = "مشاهده وضعیت";
+if(data.found) {
+document.getElementById('track-result-box').style.display = 'block';
+document.getElementById('track-status-text').innerText = data.status;
+document.getElementById('track-dept-text').innerText = "ارجاع به: " + data.department;
+} else {
+alert('کد پیگیری یافت نشد! لطفاً دقت کنید که کد را درست وارد کرده‌اید.');
+document.getElementById('track-result-box').style.display = 'none';
+}
+})
+.catch(err => {
+btn.innerText = "مشاهده وضعیت";
+alert("خطا در ارتباط با سرور.");
+});
 }
 
 function fetchDepartmentTickets() {
