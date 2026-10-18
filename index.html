@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -176,13 +175,13 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </div>
 
 <script>
+// 🔴 لینک exec جدید خود را دقیقاً بین این دو دابل کوتیشن بچسبانید
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
-const ADMIN_PASSWORD = "mehr1234";
 
-let lastTicketCount = 0;
 let lastTrackStatus = "";
 let trackInterval = null;
 let employeeInterval = null;
+let seenTicketRows = new Set();
 
 function showToast(message) {
 const toast = document.getElementById('toast-notification');
@@ -192,12 +191,24 @@ document.getElementById('notify-sound').play().catch(e => console.log("Sound blo
 setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 5000);
 }
 
+// 🔐 ورود امن با ارسال POST
 function askAdminPassword() {
 let pass = prompt("لطفاً رمز عبور کارمندان را وارد کنید:");
-if (pass === ADMIN_PASSWORD) {
+if (pass === null) return;
+fetch(SCRIPT_URL, {
+method: 'POST',
+body: JSON.stringify({action: 'login', pass: pass})
+})
+.then(res => res.json())
+.then(data => {
+if (data.access) {
+sessionStorage.setItem('adminToken', data.token);
 document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
-} else if (pass !== null) { alert("رمز عبور اشتباه است!"); }
+} else {
+alert("رمز عبور اشتباه است!");
+}
+}).catch(() => alert("خطا در ارتباط با سرور."));
 }
 
 function switchTab(panelId, btnElement) {
@@ -260,7 +271,8 @@ description: "نوع مشکل: " + document.getElementById('c-problemType').opti
 imageBase64: photoBase64,
 department: department,
 trackingCode: trackingCode,
-email: email
+email: email,
+branch: document.getElementById('c-branch').value
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
@@ -305,18 +317,24 @@ function startEmployeePolling() {
 const dept = document.getElementById('e-department').value;
 if (!dept) { document.getElementById('employee-ticket-list').innerHTML = ''; return; }
 if(employeeInterval) clearInterval(employeeInterval);
+seenTicketRows.clear();
 fetchDepartmentTickets(true);
 employeeInterval = setInterval(() => {
-fetch(SCRIPT_URL + "?action=getTickets")
+const token = sessionStorage.getItem('adminToken');
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
 .then(res => res.json())
 .then(tickets => {
-let currentCount = tickets.filter(t => t.department === dept && t.status !== 'حل شد').length;
-if (currentCount > lastTicketCount && lastTicketCount !== 0) {
+let hasNew = false;
+tickets.forEach(t => {
+if (t.department === dept && t.status !== 'حل شد' && !seenTicketRows.has(t.row)) {
+hasNew = true;
+}
+});
+if (hasNew) {
 showToast("تیکت جدیدی برای واحد شما ثبت شد!");
 document.getElementById('tab-badge').style.display = 'inline-block';
 fetchDepartmentTickets(false);
 }
-lastTicketCount = currentCount;
 });
 }, 15000);
 }
@@ -324,19 +342,23 @@ lastTicketCount = currentCount;
 function fetchDepartmentTickets(isInitial = false) {
 const dept = document.getElementById('e-department').value;
 const listContainer = document.getElementById('employee-ticket-list');
+const token = sessionStorage.getItem('adminToken');
+
 if(isInitial) { listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت اطلاعات...</p>'; }
-fetch(SCRIPT_URL + "?action=getTickets")
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
 .then(res => res.json())
 .then(tickets => {
+if(tickets.error) { listContainer.innerHTML = '<p style="text-align:center; color: red;">دسترسی غیرمجاز.</p>'; return; }
+
 let deptTickets = tickets.filter(t => t.department === dept && t.status !== 'حل شد');
-if(isInitial) { lastTicketCount = deptTickets.length; }
 listContainer.innerHTML = '';
 if (deptTickets.length === 0) {
 listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ تیکت باز و جدیدی برای این واحد وجود ندارد.</p>';
 return;
 }
 deptTickets.forEach(ticket => {
-
+seenTicketRows.add(ticket.row);
 let imageHtml = "";
 if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) {
 imageHtml = `
@@ -347,7 +369,6 @@ imageHtml = `
 </a>
 </div>`;
 }
-
 let html = `
 <div class="ticket-card">
 <h4>کد پیگیری: ${ticket.trackingCode} (شعبه: ${ticket.branch})</h4>
