@@ -87,11 +87,14 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 .qbank-arrow { transition: transform 0.3s; font-size: 12px; }
 .qbank.open-qbank .qbank-arrow { transform: rotate(180deg); }
 
+/* مراحل داخل کیوبانک */
 .q-steps{display: flex; flex-direction: column; gap: 6px; padding-top: 10px;}
 .q-step{background:#fff;border-radius:8px;font-size:12px;display:flex; flex-direction: column; border: 1px solid; cursor: pointer; transition: all 0.2s; margin-bottom: 5px;}
 .q-step-title { font-weight: bold; display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+/* فلش کوچک برای هر مرحله */
 .q-step-title::after { content: '▼'; font-size: 10px; margin-right: auto; transition: transform 0.3s; }
 .q-step.active-q-step .q-step-title::after { transform: rotate(180deg); }
+
 .q-step-desc { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; font-size: 11.5px; color: #555; line-height: 1.7; padding: 0 12px 0 34px; }
 .q-step.active-q-step .q-step-desc { max-height: 300px; padding-bottom: 12px; }
 .q-num { color:#fff;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px; }
@@ -269,7 +272,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="step-item" id="g-ind-3"><div class="step-circle">3</div><div class="step-title">جزئیات و محاسبه</div></div>
 </div>
 
-<!-- گام اول: دکمه‌های دسته‌بندی (رنگی شده) -->
+<!-- گام اول: دکمه‌های دسته‌بندی -->
 <div class="form-step active" id="g-step-1">
 <div style="display:flex; flex-direction:column; gap:10px;">
 <button type="button" class="btn-plan" style="color: #3498db; border-color: #3498db;" onclick="selectGuideCategory('general')">🌟 بانکداری خرد و اجتماعی (نیلوفر، نورا، شمس، ارکیده)</button>
@@ -310,7 +313,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 </div>
 </div>
 
-<!-- محفظه مخفی برای نگهداری کارت‌های طرح‌ها با تم‌های رنگی اختصاصی -->
+<!-- محفظه مخفی برای نگهداری کارت‌های طرح‌ها -->
 <div id="hidden-plans" style="display:none;">
 
 <!-- نیلوفر -->
@@ -768,6 +771,15 @@ content.style.maxHeight = null;
 }
 });
 }
+
+// ✅ فعال کردن پرده برای ۴ مرحله داخل کیوبانک (اضافه شده)
+const qSteps = clone.querySelectorAll('.q-step');
+qSteps.forEach(step => {
+step.addEventListener('click', function(e) {
+if(e.target.tagName.toLowerCase() === 'a') return; // اگر روی دکمه دانلود کلیک شد
+this.classList.toggle('active-q-step');
+});
+});
 
 // فعال کردن پرده‌های توضیحات (جامعه هدف، شرایط و...)
 const accHeaders = clone.querySelectorAll('.acc-header');
