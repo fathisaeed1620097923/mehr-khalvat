@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -59,6 +58,18 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .c-green{background:#e8f5ec;color:#1e7a44;border-left-color:#27ae60}.c-green .s-title{color:#1e7a44}.c-green .s-num{background:#27ae60}
 .c-yellow{background:#fef9e7;color:#8a6a0f;border-left-color:#d4a017}.c-yellow .s-title{color:#8a6a0f}.c-yellow .s-num{background:#d4a017}
 .c-red{background:#fdeaea;color:#a0312b;border-left-color:#e74c3c}.c-red .s-title{color:#a0312b}.c-red .s-num{background:#e74c3c}
+ul.bullet{padding-right:18px;margin-top:4px}
+ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
+
+/* استایل کیوبانک و صدا */
+.qbank{background:#eaf3fd;border:2px solid #4a90d9;border-radius:14px;padding:14px;margin:12px 0}
+.qbank h4{color:#1a5490;font-size:14px;margin-bottom:10px;text-align:center}
+.q-steps{counter-reset:step}
+.q-step{background:#fff;border-radius:8px;padding:10px;margin-bottom:6px;font-size:12px;display:flex;gap:8px;counter-increment:step}
+.q-step::before{content:counter(step);background:#4a90d9;color:#fff;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px}
+.q-link{display:block;width:100%;padding:12px;background:#4a90d9;color:#fff;border-radius:10px;font-weight:700;text-align:center;text-decoration:none;margin-top:10px}
+.speak-btn{display:block;width:100%;padding:12px;background:#0a4d2e;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;font-weight:700;cursor:pointer;margin-top:10px}
+.speak-btn.active{background:#d4a017}
 
 /* استایل ماشین حساب */
 .calc-box { background: #f8fbf9; border: 2px solid #27ae60; border-radius: 12px; padding: 15px; margin-top: 15px; }
@@ -118,7 +129,6 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </div>
 
 <form id="ticketForm" onsubmit="event.preventDefault(); submitCustomerForm();">
-<!-- مرحله ۱ -->
 <div class="form-step active" id="step-1">
 <div style="text-align: center; margin-bottom: 20px;">
 <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://fathisaeed1620097923.github.io/mehr-khalvat/" alt="QR Code" style="border: 2px solid #0a4d2e; border-radius: 10px; padding: 5px; background: #fff;">
@@ -140,7 +150,6 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <button type="button" class="btn" onclick="nextStep(1)">مرحله بعد <span style="float:left;">&larr;</span></button>
 </div>
 
-<!-- مرحله ۲ -->
 <div class="form-step" id="step-2">
 <div class="form-group">
 <label>مشکل خود را انتخاب کنید:</label>
@@ -155,7 +164,6 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </div>
 </div>
 
-<!-- مرحله ۳ -->
 <div class="form-step" id="step-3">
 <div class="form-group"><label>شماره همراه:</label><input type="tel" id="c-mobile" placeholder="مثلاً 09123456789" maxlength="11" required><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
 <div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="مثلاً 0012345678" maxlength="10" required><div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div></div>
@@ -217,7 +225,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 </div>
 </div>
 
-<!-- ۳. راهنمای تسهیلات (مرحله به مرحله + ماشین حساب هوشمند) -->
+<!-- ۳. راهنمای تسهیلات (کاملاً جامع) -->
 <div class="content panel" id="panel-guide">
 <div class="stepper" id="guide-stepper">
 <div class="step-item active" id="g-ind-1"><div class="step-circle">1</div><div class="step-title">دسته‌بندی</div></div>
@@ -228,9 +236,10 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <!-- گام ۱: دسته‌بندی -->
 <div class="form-step active" id="g-step-1">
 <div style="display:flex; flex-direction:column; gap:10px;">
-<button type="button" class="btn btn-outline" onclick="selectGuideCategory('general')">🌟 عمومی (کارمند، بازنشسته، خانه‌دار)</button>
-<button type="button" class="btn btn-outline" onclick="selectGuideCategory('guilds')">🏪 اصناف و کسبه (جواز کسب، اتحادیه)</button>
-<button type="button" class="btn btn-outline" onclick="selectGuideCategory('support')">🤝 کارکنان و اقشار حمایتی (مددجو، معلول)</button>
+<button type="button" class="btn btn-outline" onclick="selectGuideCategory('general')">🌟 بانکداری خرد و اجتماعی (نیلوفر، نورا، شمس، اردیده)</button>
+<button type="button" class="btn btn-outline" onclick="selectGuideCategory('guilds')">🏪 بانکداری اصناف (نارون، سرو، توسکا)</button>
+<button type="button" class="btn btn-outline" onclick="selectGuideCategory('support')">🤝 طرح‌های حمایتی (نجم، کرامت، رضوان، نصر)</button>
+<button type="button" class="btn btn-outline" onclick="selectGuideCategory('corporate')">🏢 بانکداری شرکتی (یاقوت، الماس، فیروزه)</button>
 </div>
 </div>
 
@@ -270,30 +279,101 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <!-- محفظه مخفی برای نگهداری کارت‌های طرح‌ها -->
 <div id="hidden-plans" style="display:none;">
 
-<!-- طرح نیلوفر -->
+<!-- ================= عمومی ================= -->
 <div class="card" id="plan-niloufar">
 <div class="c-title">طرح نیلوفر</div>
 <div class="c-body">
 <span class="badge">امتیازی - کد ۱۰۱</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>هر شخص حقیقی بالای ۱۸ سال که حساب قرض‌الحسنه پس‌انداز دارد.</div>
-<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>حساب پس‌انداز فعال، نداشتن چک برگشتی، رتبه ایرانیان بهتر از Z.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۳</span>💵 مشخصات</span>سقف: ۵۰۰ میلیون تومان. کارمزد ۲ تا ۴٪. بازپرداخت تا ۶۰ ماه.</div>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>هر شخص حقیقی بالای ۱۸ سال که حساب قرض‌الحسنه پس‌انداز دارد. بدون نیاز به جواز کسب یا تفاهم‌نامه.</div>
+<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span><ul class="bullet"><li>حساب پس‌انداز فعال (حداقل ۱ ماه)</li><li>نداشتن چک برگشتی</li><li>رتبه ایرانیان بهتر از Z</li></ul></div>
+<div class="s-box c-yellow"><span class="s-title"><span class="s-num">۳</span>💰 نحوه محاسبه</span><b>معدل =</b> میانگین پول در حساب.<br><b>وام =</b> معدل × ضریب.<br>سقف: ۵۰۰ میلیون تومان.</div>
+<div class="s-box c-red"><span class="s-title"><span class="s-num">۴</span>💵 کارمزد و ضمانت</span>کارمزد ۲ تا ۴٪. رتبه A/B + بیمه = بدون ضامن. در غیر این صورت یک ضامن + چک.</div>
 <div id="calc-container-niloufar"></div>
+<div class="qbank"><h4>📲 درخواست از کیوبانک</h4><div class="q-steps"><div class="q-step">اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step">حساب قرض‌الحسنه باز کنید</div><div class="q-step">مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step">در بخش تسهیلات، نیلوفر را انتخاب کنید</div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div>
+<button class="speak-btn" onclick="readPlan('niloufar', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- طرح نورا -->
 <div class="card" id="plan-noora">
 <div class="c-title">طرح نورا</div>
 <div class="c-body">
 <span class="badge">امتیازی - کد ۱۸۲</span>
 <div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>هر کسی که وام بدون کارمزد می‌خواهد.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵۰۰ میلیون تومان. کارمزد صفر درصد. بازپرداخت تا ۶۰ ماه.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵۰۰ میلیون تومان. کارمزد صفر درصد. بازپرداخت تا ۶۰ ماه. (ضریب پایین‌تر چون بدون سود است).</div>
 <div id="calc-container-noora"></div>
+<div class="qbank"><h4>📲 درخواست از کیوبانک</h4><div class="q-steps"><div class="q-step">اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step">حساب قرض‌الحسنه باز کنید</div><div class="q-step">مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step">در بخش تسهیلات، نورا را انتخاب کنید</div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div>
+<button class="speak-btn" onclick="readPlan('noora', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- طرح نجم -->
+<div class="card" id="plan-shams">
+<div class="c-title">طرح شمس</div>
+<div class="c-body">
+<span class="badge">پس‌انداز ماهیانه</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>افراد کم‌برخوردار که ماهانه پس‌انداز می‌کنند.</div>
+<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>واریز منظم ماهانه (حداقل ۲ میلیون).</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۳</span>💵 مشخصات</span>سقف: ۹۰ میلیون تومان. کارمزد ۴٪. بازتأخیر در واریز، دوره انتظار را بیشتر می‌کند.</div>
+<button class="speak-btn" onclick="readPlan('shams', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-ardideh">
+<div class="c-title">طرح اردیده</div>
+<div class="c-body">
+<span class="badge">حمایتی - بدون تفاهم‌نامه</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>اشخاص حقیقی (حمایتی).</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>مبلغ: ۲ برابر سپرده تودیعی مصالح. کارمزد: از منابع بانک ۴٪، از بانکداری اجتماعی صفر.</div>
+<button class="speak-btn" onclick="readPlan('ardideh', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<!-- ================= اصناف ================= -->
+<div class="card" id="plan-naron">
+<div class="c-title">طرح نارون</div>
+<div class="c-body">
+<span class="badge">امتیازی - کد ۱۰۶/۸۰۶</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>صاحبان مغازه، اعضای اتحادیه، دارندگان پروانه کسب.</div>
+<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>جواز کسب معتبر، گردش حساب فعال.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۳</span>💵 مشخصات</span>سقف: ۱ میلیارد (حقیقی) و ۱.۵ میلیارد (حقوقی). کارمزد ۲ تا ۴٪.</div>
+<div id="calc-container-naron"></div>
+<div class="qbank"><h4>📲 درخواست از کیوبانک</h4><div class="q-steps"><div class="q-step">اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step">حساب قرض‌الحسنه باز کنید</div><div class="q-step">مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step">در بخش تسهیلات، نارون را انتخاب کنید</div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div>
+<button class="speak-btn" onclick="readPlan('naron', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-sarv1">
+<div class="c-title">طرح سرو (بدون تفاهم‌نامه)</div>
+<div class="c-body">
+<span class="badge">حمایتی - بدون تفاهم‌نامه</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>دارندگان جواز کسب که تفاهم‌نامه ندارند.</div>
+<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>سپرده در قالب عقد صلح. انتظار ۲۰ تا ۶۰ روز.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۳</span>💵 مشخصات</span>سقف: ۱.۵ میلیارد تومان. کارمزد ۳ یا ۴٪.</div>
+<button class="speak-btn" onclick="readPlan('sarv1', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-sarv2">
+<div class="c-title">طرح سرو (تفاهم‌نامه‌ای)</div>
+<div class="c-body">
+<span class="badge">حمایتی - دارای تفاهم‌نامه</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>اتحادیه‌ها، صرافی‌ها، واحدهای تولیدی بزرگ و اصناف واجد شرایط.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: طبق جدول. کارمزد ۴٪. مدت ۱۲ یا ۲۴ ماه.</div>
+<button class="speak-btn" onclick="readPlan('sarv2', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-tooska">
+<div class="c-title">طرح توسکا</div>
+<div class="c-body">
+<span class="badge">حقوق محور - کد ۲۳۳</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>کارفرمایان با پوز فعال و واریز حقوق.</div>
+<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>دستگاه پوز فعال، واریز حقوق کارکنان.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۳</span>💵 مشخصات</span>سقف: ۱ میلیارد تومان. کارمزد ۴٪.</div>
+<button class="speak-btn" onclick="readPlan('tooska', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<!-- ================= حمایتی ================= -->
 <div class="card" id="plan-najm">
 <div class="c-title">طرح نجم</div>
 <div class="c-body">
@@ -301,17 +381,78 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 <div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>مددجویان، معلولان، بانوان سرپرست، عشایر.</div>
 <div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵۰۰ میلیون تومان. کارمزد ۲ تا ۴٪. **ضریب ۱۱۵٪ نسبت به طرح‌های عادی**.</div>
 <div id="calc-container-najm"></div>
+<button class="speak-btn" onclick="readPlan('najm', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- طرح نارون -->
-<div class="card" id="plan-naron">
-<div class="c-title">طرح نارون</div>
+<div class="card" id="plan-karamat">
+<div class="c-title">طرح کرامت</div>
 <div class="c-body">
-<span class="badge">امتیازی - کد ۱۰۶/۸۰۶</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>صاحبان مغازه، اعضای اتحادیه، دارندگان پروانه کسب.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۱ میلیارد تومان. کارمزد ۲ تا ۴٪. بازپرداخت تا ۶۰ ماه.</div>
-<div id="calc-container-naron"></div>
+<span class="badge">حمایتی - کد ۲۰۹</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>دریافت‌کنندگان مستمری.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵۰۰ میلیون تومان. کارمزد ۴٪.</div>
+<button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-radvan">
+<div class="c-title">طرح رضوان</div>
+<div class="c-body">
+<span class="badge">حمایتی - کد ۱۸۱</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵ میلیارد ریال (برای افراد معرفی شده). کارمزد ۲ تا ۴٪.</div>
+<button class="speak-btn" onclick="readPlan('radvan', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-nasr">
+<div class="c-title">طرح نصر (حقیقی)</div>
+<div class="c-body">
+<span class="badge">حمایتی - کد ۲۴۷/۲۵۷</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>افراد معرفی شده از سوی نهادهای حمایتی.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۱۵۰ میلیون تومان. کارمزد ۴٪.</div>
+<button class="speak-btn" onclick="readPlan('nasr', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<!-- ================= شرکتی ================= -->
+<div class="card" id="plan-yaghot">
+<div class="c-title">طرح یاقوت</div>
+<div class="c-body">
+<span class="badge">شرکتی - کد ۱۸۰/۸۵۰</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>سازمان‌ها و شرکت‌ها (برای معرفی کارکنان).</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵ میلیارد ریال (حقیقی). کارمزد ۰ تا ۴٪.</div>
+<button class="speak-btn" onclick="readPlan('yaghot', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-yaghot_fixed">
+<div class="c-title">طرح یاقوت (با حفظ مبلغ ثابت)</div>
+<div class="c-body">
+<span class="badge">شرکتی - تبصره یاقوت</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>متقاضیان حقوقی که با حفظ مبلغ ثابت (حداکثر ۱۲ ماه) و ایجاد میانگین آتی می‌خواهند وام بگیرند.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۱۵ میلیارد ریال. کارمزد ۴٪.</div>
+<button class="speak-btn" onclick="readPlan('yaghot_fixed', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-almas">
+<div class="c-title">طرح الماس</div>
+<div class="c-body">
+<span class="badge">شرکتی - تفاهم‌نامه</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>شرکت‌های سهامی و مشمول قانون تجارت (برای معرفی کارکنان).</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵ میلیارد ریال. کارمزد ۴٪ (از منابع بانک) و ۲٪ (از منابع مشتری).</div>
+<button class="speak-btn" onclick="readPlan('almas', this)">🔊 شنیدن توضیحات</button>
+</div>
+</div>
+
+<div class="card" id="plan-firoozeh">
+<div class="c-title">طرح فیروزه</div>
+<div class="c-body">
+<span class="badge">شرکتی - کد ۱۵۱</span>
+<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>شرکت‌هایی که حقوق کارکنان را از بانک واریز می‌کنند.</div>
+<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵ میلیارد ریال. کارمزد ۴٪.</div>
+<button class="speak-btn" onclick="readPlan('firoozeh', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -322,62 +463,107 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
 
 // ==========================================
-// ۱. دیتابیس ضرایب (بر اساس فایل PDF شما)
+// سیستم صوتی (TTS)
 // ==========================================
-// ضرایب ۴ درصد
-const T4 = {
-6: [.312, .632, .949, 1.265, 1.581, 1.897, 2.213, 2.529, 2.846, 3.162, 3.478, 3.794],
-12: [.187, .383, .574, .765, .957, 1.148, 1.340, 1.531, 1.722, 1.914, 2.105, 2.296],
-18: [.152, .312, .469, .655, .781, .937, 1.093, 1.249, 1.406, 1.562, 1.718, 1.874],
-24: [.120, .248, .373, .497, .621, .745, .869, .993, 1.118, 1.242, 1.366, 1.490],
-30: [.096, .200, .300, .400, .500, .600, .701, .801, .901, 1.002, 1.102, 1.202],
-36: [.080, .168, .253, .337, .421, .505, .589, .673, .758, .842, .926, 1.010],
-42: [.069, .145, .218, .291, .364, .436, .509, .582, .655, .727, .800, .873],
-48: [.060, .128, .193, .257, .321, .385, .449, .513, .578, .642, .706, .770],
-54: [.053, .115, .173, .231, .289, .347, .404, .462, .520, .578, .635, .693],
-60: [.048, .104, .157, .209, .261, .313, .365, .417, .470, .522, .574, .666]
-};
-// ضرایب ۳ درصد
-const T3 = {
-6: [.281, .569, .854, 1.138, 1.423, 1.707, 1.992, 2.276, 2.561, 2.846, 3.130, 3.415],
-12: [.168, .344, .517, .689, .861, 1.033, 1.206, 1.378, 1.550, 1.722, 1.895, 2.067],
-18: [.114, .234, .352, .469, .586, .703, .821, .938, 1.055, 1.172, 1.290, 1.407],
-24: [.108, .224, .335, .447, .559, .671, .782, .894, 1.006, 1.118, 1.229, 1.341],
-30: [.086, .180, .270, .360, .450, .540, .631, .721, .811, .902, .992, 1.082],
-36: [.072, .152, .227, .303, .379, .455, .530, .606, .682, .758, .832, .909],
-42: [.062, .131, .196, .262, .327, .393, .458, .524, .589, .655, .720, .786],
-48: [.054, .116, .173, .231, .289, .347, .404, .462, .520, .578, .635, .693],
-54: [.043, .094, .141, .188, .235, .282, .329, .376, .423, .470, .516, .563],
-60: [.043, .094, .141, .188, .235, .282, .329, .376, .423, .470, .516, .563]
-};
-// ضرایب ۲ درصد
-const T2 = {
-6: [.250, .506, .759, 1.012, 1.265, 1.518, 1.771, 2.023, 2.276, 2.529, 2.782, 3.035],
-12: [.150, .306, .459, .612, .765, .919, 1.072, 1.225, 1.378, 1.531, 1.684, 1.837],
-18: [.100, .206, .309, .413, .517, .620, .724, .828, .932, 1.035, 1.139, 1.243],
-24: [.096, .199, .298, .397, .497, .596, .695, .795, .894, .993, 1.093, 1.192],
-30: [.077, .160, .240, .321, .401, .481, .561, .642, .722, .802, .883, .963],
-36: [.064, .135, .202, .269, .337, .404, .471, .539, .606, .673, .741, .808],
-42: [.055, .116, .174, .232, .291, .349, .407, .465, .524, .582, .640, .698],
-48: [.048, .103, .154, .205, .257, .308, .359, .411, .462, .513, .565, .616],
-54: [.043, .094, .141, .188, .235, .282, .329, .376, .423, .470, .516, .563],
-60: [.038, .083, .125, .167, .209, .250, .292, .334, .376, .417, .459, .501]
-};
-// ضرایب نورا (بدون سود 0%)
-const TN = {
-6: [.125, .253, .380, .506, .633, .759, .886, 1.012, 1.138, 1.265, 1.391, 1.518],
-12: [.075, .153, .230, .306, .383, .459, .536, .612, .689, .765, .842, .919],
-18: [.050, .103, .155, .207, .258, .310, .362, .414, .466, .518, .569, .621],
-24: [.048, .100, .149, .199, .249, .298, .348, .398, .447, .497, .547, .596],
-30: [.038, .080, .120, .161, .201, .241, .281, .321, .361, .401, .441, .481],
-36: [.032, .068, .101, .135, .169, .202, .236, .270, .303, .337, .371, .404],
-42: [.028, .058, .087, .116, .145, .174, .204, .233, .262, .291, .320, .349],
-48: [.024, .052, .077, .103, .129, .154, .180, .206, .231, .257, .283, .308],
-54: [.019, .042, .063, .084, .105, .125, .146, .167, .188, .209, .230, .251],
-60: [.019, .042, .063, .084, .105, .125, .146, .167, .188, .209, .230, .251]
+var persianVoice = null;
+var isPlaying = false;
+var googleAudio = null;
+
+function loadVoices() {
+if (!('speechSynthesis' in window)) return;
+var voices = window.speechSynthesis.getVoices();
+for (var i = 0; i < voices.length; i++) {
+if (voices[i].lang === 'fa-IR' || voices[i].name.indexOf('Dariush') !== -1 || voices[i].name.indexOf('Laila') !== -1) {
+persianVoice = voices[i]; break;
+}
+}
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+document.addEventListener('touchstart', function() {
+if ('speechSynthesis' in window) {
+var u = new SpeechSynthesisUtterance(' ');
+u.volume = 0;
+window.speechSynthesis.speak(u);
+}
+}, { once: true });
+
+function readText(text) {
+if (!text) return;
+window.speechSynthesis.cancel();
+if (googleAudio) { googleAudio.pause(); googleAudio = null; }
+isPlaying = true;
+
+if ('speechSynthesis' in window) {
+var u = new SpeechSynthesisUtterance(text);
+if (persianVoice) { u.voice = persianVoice; u.lang = 'fa-IR'; }
+u.rate = 0.9;
+u.onend = function() { isPlaying = false; };
+u.onerror = function() { playGoogle(text); };
+window.speechSynthesis.speak(u);
+} else { playGoogle(text); }
+}
+
+function playGoogle(text) {
+var chunks = text.match(/.{1,150}([.!?]|$)/g) || [text];
+var i = 0;
+function next() {
+if (i >= chunks.length || !isPlaying) return;
+var chunk = chunks[i].trim();
+if (!chunk) { i++; next(); return; }
+var url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fa&q=' + encodeURIComponent(chunk);
+googleAudio = new Audio(url);
+googleAudio.onended = function() { i++; next(); };
+googleAudio.onerror = function() { isPlaying = false; };
+googleAudio.play().catch(function() { isPlaying = false; });
+}
+next();
+}
+
+function stopAudio() {
+isPlaying = false;
+window.speechSynthesis.cancel();
+if (googleAudio) { googleAudio.pause(); googleAudio = null; }
+}
+
+// متن‌های صوتی برای تمام طرح‌ها
+var pTexts = {
+niloufar: 'طرح نیلوفر. کد یکصد و یک. سقف پانصد میلیون تومان. کارمزد دو تا چهار درصد.',
+noora: 'طرح نورا. کد یکصد و هشتاد و دو. بدون کارمزد. سقف پانصد میلیون تومان.',
+shams: 'طرح شمس. پس انداز ماهیانه.',
+ardideh: 'طرح اردیده. حمایتی بدون تفاهم نامه.',
+naron: 'طرح نارون. ویژه اصناف. سقف یک میلیارد تومان.',
+sarv1: 'طرح سرو بدون تفاهم نامه. برای دارندگان جواز کسب.',
+sarv2: 'طرح سرو با تفاهم نامه. برای اتحادیه ها.',
+tooska: 'طرح توسکا. کارفرمایان با پوز فعال.',
+najm: 'طرح نجم. ویژه مددجویان. ضریب یکصد و پانزده درصد.',
+karamat: 'طرح کرامت. دریافت کنندگان مستمری.',
+radvan: 'طرح رضوان. سازمان های حمایتی.',
+nasr: 'طرح نصر. افراد معرفی شده از سوی نهادهای حمایتی.',
+yaghot: 'طرح یاقوت. بانکداری شرکتی.',
+yaghot_fixed: 'طرح یاقوت با حفظ مبلغ ثابت.',
+almas: 'طرح الماس. شرکت های سهامی.',
+firoozeh: 'طرح فیروزه. شرکت هایی که حقوق کارکنان را واریز می کنند.'
 };
 
-// متغیرهای سراسری برنامه
+function readPlan(key, btn) {
+if (!pTexts[key]) return;
+stopAudio();
+var btns = document.querySelectorAll('.speak-btn');
+for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+if (btn) btn.classList.add('active');
+readText(pTexts[key]);
+}
+
+// ==========================================
+// دیتابیس ضرایب ماشین‌حساب
+// ==========================================
+const T4 = {6:[.312,.632,.949,1.265,1.581,1.897,2.213,2.529,2.846,3.162,3.478,3.794],12:[.187,.383,.574,.765,.957,1.148,1.340,1.531,1.722,1.914,2.105,2.296],18:[.152,.312,.469,.655,.781,.937,1.093,1.249,1.406,1.562,1.718,1.874],24:[.120,.248,.373,.497,.621,.745,.869,.993,1.118,1.242,1.366,1.490],30:[.096,.200,.300,.400,.500,.600,.701,.801,.901,1.002,1.102,1.202],36:[.080,.168,.253,.337,.421,.505,.589,.673,.758,.842,.926,1.010],42:[.069,.145,.218,.291,.364,.436,.509,.582,.655,.727,.800,.873],48:[.060,.128,.193,.257,.321,.385,.449,.513,.578,.642,.706,.770],54:[.053,.115,.173,.231,.289,.347,.404,.462,.520,.578,.635,.693],60:[.048,.104,.157,.209,.261,.313,.365,.417,.470,.522,.574,.666]};
+const T3 = {6:[.281,.569,.854,1.138,1.423,1.707,1.992,2.276,2.561,2.846,3.130,3.415],12:[.168,.344,.517,.689,.861,1.033,1.206,1.378,1.550,1.722,1.895,2.067],18:[.114,.234,.352,.469,.586,.703,.821,.938,1.055,1.172,1.290,1.407],24:[.108,.224,.335,.447,.559,.671,.782,.894,1.006,1.118,1.229,1.341],30:[.086,.180,.270,.360,.450,.540,.631,.721,.811,.902,.992,1.082],36:[.072,.152,.227,.303,.379,.455,.530,.606,.682,.758,.832,.909],42:[.062,.131,.196,.262,.327,.393,.458,.524,.589,.655,.720,.786],48:[.054,.116,.173,.231,.289,.347,.404,.462,.520,.578,.635,.693],54:[.043,.094,.141,.188,.235,.282,.329,.376,.423,.470,.516,.563],60:[.043,.094,.141,.188,.235,.282,.329,.376,.423,.470,.516,.563]};
+const T2 = {6:[.250,.506,.759,1.012,1.265,1.518,1.771,2.023,2.276,2.529,2.782,3.035],12:[.150,.306,.459,.612,.765,.919,1.072,1.225,1.378,1.531,1.684,1.837],18:[.100,.206,.309,.413,.517,.620,.724,.828,.932,1.035,1.139,1.243],24:[.096,.199,.298,.397,.497,.596,.695,.795,.894,.993,1.093,1.192],30:[.077,.160,.240,.321,.401,.481,.561,.642,.722,.802,.883,.963],36:[.064,.135,.202,.269,.337,.404,.471,.539,.606,.673,.741,.808],42:[.055,.116,.174,.232,.291,.349,.407,.465,.524,.582,.640,.698],48:[.048,.103,.154,.205,.257,.308,.359,.411,.462,.513,.565,.616],54:[.043,.094,.141,.188,.235,.282,.329,.376,.423,.470,.516,.563],60:[.038,.083,.125,.167,.209,.250,.292,.334,.376,.417,.459,.501]};
+const TN = {6:[.125,.253,.380,.506,.633,.759,.886,1.012,1.138,1.265,1.391,1.518],12:[.075,.153,.230,.306,.383,.459,.536,.612,.689,.765,.842,.919],18:[.050,.103,.155,.207,.258,.310,.362,.414,.466,.518,.569,.621],24:[.048,.100,.149,.199,.249,.298,.348,.398,.447,.497,.547,.596],30:[.038,.080,.120,.161,.201,.241,.281,.321,.361,.401,.441,.481],36:[.032,.068,.101,.135,.169,.202,.236,.270,.303,.337,.371,.404],42:[.028,.058,.087,.116,.145,.174,.204,.233,.262,.291,.320,.349],48:[.024,.052,.077,.103,.129,.154,.180,.206,.231,.257,.283,.308],54:[.019,.042,.063,.084,.105,.125,.146,.167,.188,.209,.230,.251],60:[.019,.042,.063,.084,.105,.125,.146,.167,.188,.209,.230,.251]};
+
 let currentStep = 1;
 let lastTrackStatus = "";
 let trackInterval = null;
@@ -387,23 +573,37 @@ let seenTicketRows = new Set();
 const plansList = {
 general: [
 { id: 'niloufar', title: 'طرح نیلوفر' },
-{ id: 'noora', title: 'طرح نورا' }
+{ id: 'noora', title: 'طرح نورا' },
+{ id: 'shams', title: 'طرح شمس' },
+{ id: 'ardideh', title: 'طرح اردیده' }
 ],
 guilds: [
-{ id: 'naron', title: 'طرح نارون' }
+{ id: 'naron', title: 'طرح نارون' },
+{ id: 'sarv1', title: 'طرح سرو (بدون تفاهم‌نامه)' },
+{ id: 'sarv2', title: 'طرح سرو (تفاهم‌نامه‌ای)' },
+{ id: 'tooska', title: 'طرح توسکا' }
 ],
 support: [
-{ id: 'najm', title: 'طرح نجم' }
+{ id: 'najm', title: 'طرح نجم' },
+{ id: 'karamat', title: 'طرح کرامت' },
+{ id: 'radvan', title: 'طرح رضوان' },
+{ id: 'nasr', title: 'طرح نصر' }
+],
+corporate: [
+{ id: 'yaghot', title: 'طرح یاقوت' },
+{ id: 'yaghot_fixed', title: 'طرح یاقوت (با حفظ مبلغ ثابت)' },
+{ id: 'almas', title: 'طرح الماس' },
+{ id: 'firoozeh', title: 'طرح فیروزه' }
 ]
 };
 
-// توابع مدیریت تب‌ها و استپرها
 function switchTab(panelId, btnElement) {
 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('panel-' + panelId).classList.add('active');
 btnElement.classList.add('active');
 if(panelId === 'employee') { document.getElementById('tab-badge').style.display = 'none'; }
+stopAudio();
 }
 
 function showStep(step) {
@@ -438,22 +638,20 @@ list.innerHTML += `<button type="button" class="btn btn-outline" onclick="select
 showGuideStep(2);
 }
 
-// ==========================================
-// موتور هوشمند ماشین‌حساب
-// ==========================================
 function selectGuidePlan(planId) {
 const container = document.getElementById('guide-details-container');
 container.innerHTML = '';
 
-// کپی کردن کارت طرح
 const originalCard = document.getElementById('plan-' + planId);
 if(originalCard) {
 const clone = originalCard.cloneNode(true);
 clone.style.display = 'block';
 container.appendChild(clone);
 
-// ساخت ماشین حساب مخصوص این طرح
+const hasCalc = document.getElementById('calc-container-' + planId);
+if(hasCalc) {
 renderCalculator(planId);
+}
 }
 showGuideStep(3);
 }
@@ -462,15 +660,14 @@ function renderCalculator(planId) {
 const container = document.getElementById('calc-container-' + planId);
 if(!container) return;
 
-// تنظیمات اختصاصی هر طرح
-let maxLoan = 500000000; // پیش‌فرض ۵۰۰ میلیون
+let maxLoan = 500000000;
 let defaultFee = 4;
 let showFeeSelector = true;
 let multiplier = 1.0;
 
 if(planId === 'noora') { showFeeSelector = false; defaultFee = 0; }
-if(planId === 'najm') { multiplier = 1.15; } // ۱۱۵ درصد ضریب عادی
-if(planId === 'naron') { maxLoan = 1000000000; } // ۱ میلیارد
+if(planId === 'najm') { multiplier = 1.15; }
+if(planId === 'naron') { maxLoan = 1000000000; }
 
 let html = `
 <div class="calc-box">
@@ -502,7 +699,7 @@ html += `
 </div>
 `;
 container.innerHTML = html;
-// فرمت‌دهی به مبلغ سپرده
+
 document.getElementById('dep-' + planId).addEventListener('input', function() {
 let r = this.value.replace(/[^\d]/g, '');
 this.value = r ? parseInt(r).toLocaleString('en-US') : '';
@@ -510,7 +707,6 @@ this.value = r ? parseInt(r).toLocaleString('en-US') : '';
 }
 
 function setFee(planId, rate) {
-// ذخیره نرخ انتخاب شده در متغیر سراسری موقت
 window['fee_' + planId] = rate;
 const row = document.getElementById('fee-row-' + planId);
 const btns = row.querySelectorAll('.fee-btn');
@@ -542,11 +738,9 @@ let periods = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60];
 
 periods.forEach(rp => {
 let baseCoeff = table[rp][p - 1] || 0;
-let coeff = baseCoeff * multiplier; // اعمال ضریب (مثلا ۱۱۵٪ نجم)
+let coeff = baseCoeff * multiplier;
 
 let loanAmount = d * coeff;
-
-// اعمال سقف
 if (loanAmount > maxLoan) loanAmount = maxLoan;
 
 let feeAmount = loanAmount * (feeRate / 100) * (rp / 12);
@@ -564,7 +758,7 @@ resEl.innerHTML = h;
 }
 
 // ==========================================
-// توابع مهر خلوت (ثبت، پیگیری و کارمند)
+// توابع مهر خلوت
 // ==========================================
 function showToast(message) {
 const toast = document.getElementById('toast-notification');
@@ -580,19 +774,14 @@ if (username === null || username === "") return;
 let pass = prompt("لطفاً رمز عبور خود را وارد کنید:");
 if (pass === null) return;
 
-fetch(SCRIPT_URL, {
-method: 'POST',
-body: JSON.stringify({action: 'login', username: username, pass: pass})
-})
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: username, pass: pass}) })
 .then(res => res.json())
 .then(data => {
 if (data.access) {
 sessionStorage.setItem('adminToken', data.token);
 document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
-} else {
-alert("نام کاربری یا رمز عبور اشتباه است!");
-}
+} else { alert("نام کاربری یا رمز عبور اشتباه است!"); }
 }).catch(() => alert("خطا در ارتباط با سرور."));
 }
 
