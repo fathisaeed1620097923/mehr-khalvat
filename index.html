@@ -46,31 +46,52 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .camera-box { background: #faf8f3; border: 2px dashed #d4a017; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
 .camera-box img { width: 100%; max-width: 300px; border-radius: 10px; display: none; margin: 0 auto 10px auto; border: 2px solid #0a4d2e;}
 
+/* استایل دکمه‌های انتخاب طرح (پس‌زمینه سفید، حاشیه و متن رنگی) */
+.btn-plan {
+display: block; width: 100%; padding: 14px; background: #fff;
+border: 2px solid; border-radius: 10px; font-size: 15px; font-weight: bold;
+cursor: pointer; transition: 0.2s; text-align: center; margin-bottom: 10px;
+}
+.btn-plan:hover { background: #f8f9fa; }
+
 /* استایل‌های راهنما */
 .card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
 .c-title { font-size: 15.5px; font-weight: 700; padding: 14px 18px; text-align: center; border-bottom: 2px solid; transition: 0.3s;}
 .c-body { padding: 16px; }
 .badge { display: block; background: #d4a017; color: #fff; padding: 5px 14px; border-radius: 18px; font-size: 11px; font-weight: 700; text-align: center; margin: 0 auto 14px auto; width: fit-content; }
-.s-box { margin-bottom: 10px; padding: 12px 14px; border-radius: 10px; font-size: 13px; line-height: 1.95; border-left: 5px solid; }
-.s-title { font-weight: 800; font-size: 14px; display: block; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed rgba(0,0,0,.1); }
+
+/* ========================================= */
+/* آکاردئون‌های توضیحات (جامعه هدف، شرایط و...) */
+/* ========================================= */
+.acc-box { margin-bottom: 10px; border-radius: 10px; border-left: 5px solid; overflow: hidden; }
+.acc-header { padding: 12px 14px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
+.acc-header:hover { filter: brightness(0.95); }
+.acc-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 14px; font-size: 13px; line-height: 1.95; }
+.acc-box.active-acc .acc-body { padding: 0 14px 12px 14px; }
+.acc-arrow { transition: transform 0.3s; font-size: 10px; }
+.acc-box.active-acc .acc-arrow { transform: rotate(180deg); }
 .s-num { display: inline-block; color: #fff; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; font-size: 11px; font-weight: 800; margin-left: 8px; }
-.c-blue{background:#eaf3fd;color:#1a5490;border-left-color:#4a90d9}.c-blue .s-title{color:#1a5490}.c-blue .s-num{background:#4a90d9}
-.c-green{background:#e8f5ec;color:#1e7a44;border-left-color:#27ae60}.c-green .s-title{color:#1e7a44}.c-green .s-num{background:#27ae60}
-.c-yellow{background:#fef9e7;color:#8a6a0f;border-left-color:#d4a017}.c-yellow .s-title{color:#8a6a0f}.c-yellow .s-num{background:#d4a017}
-.c-red{background:#fdeaea;color:#a0312b;border-left-color:#e74c3c}.c-red .s-title{color:#a0312b}.c-red .s-num{background:#e74c3c}
+
+/* رنگ‌بندی آکاردئون‌ها */
+.c-blue{background:#eaf3fd;color:#1a5490;border-left-color:#4a90d9}.c-blue .acc-header{color:#1a5490}.c-blue .s-num{background:#4a90d9}
+.c-green{background:#e8f5ec;color:#1e7a44;border-left-color:#27ae60}.c-green .acc-header{color:#1e7a44}.c-green .s-num{background:#27ae60}
+.c-yellow{background:#fef9e7;color:#8a6a0f;border-left-color:#d4a017}.c-yellow .acc-header{color:#8a6a0f}.c-yellow .s-num{background:#d4a017}
+.c-red{background:#fdeaea;color:#a0312b;border-left-color:#e74c3c}.c-red .acc-header{color:#a0312b}.c-red .s-num{background:#e74c3c}
 ul.bullet{padding-right:18px;margin-top:4px}
 ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 
 /* ========================================= */
-/* استایل کیوبانک (پرده بازشو) با متغیرهای رنگ */
+/* استایل کیوبانک (پرده بازشو) */
 /* ========================================= */
 .qbank{border:2px solid; border-radius:14px;padding:14px;margin:12px 0; transition: 0.3s;}
 .qbank h4{font-size:14px;margin-bottom:10px;text-align:center}
 .q-steps{display: flex; flex-direction: column; gap: 6px;}
-.q-step{background:#fff;border-radius:8px;font-size:12px;display:flex; flex-direction: column; border: 1px solid; cursor: pointer; transition: all 0.2s;}
+.q-step{background:#fff;border-radius:8px;font-size:12px;display:flex; flex-direction: column; border: 1px solid; cursor: pointer; transition: all 0.2s; margin-bottom: 5px;}
 .q-step-title { font-weight: bold; display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+.q-step-title::after { content: '▼'; font-size: 10px; margin-right: auto; transition: transform 0.3s; }
+.q-step.active-q-step .q-step-title::after { transform: rotate(180deg); }
 .q-step-desc { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; font-size: 11.5px; color: #555; line-height: 1.7; padding: 0 12px 0 34px; }
-.q-step.active-q-step .q-step-desc { max-height: 250px; padding-bottom: 12px; }
+.q-step.active-q-step .q-step-desc { max-height: 300px; padding-bottom: 12px; }
 .q-num { color:#fff;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px; }
 .q-link{display:block;width:100%;padding:12px;color:#fff;border-radius:10px;font-weight:700;text-align:center;text-decoration:none;margin-top:10px}
 .speak-btn{display:block;width:100%;padding:12px;background:#0a4d2e;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;font-weight:700;cursor:pointer;margin-top:10px}
@@ -281,152 +302,235 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <!-- محفظه مخفی برای نگهداری کارت‌های طرح‌ها با تم‌های رنگی اختصاصی -->
 <div id="hidden-plans" style="display:none;">
 
-<!-- ================= عمومی ================= -->
-<!-- نیلوفر: آبی -->
+<!-- نیلوفر -->
 <div class="card" id="plan-niloufar" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نیلوفر</div>
 <div class="c-body">
 <span class="badge">امتیازی - کد ۱۰۱</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>هر شخص حقیقی بالای ۱۸ سال که حساب قرض‌الحسنه پس‌انداز دارد. بدون نیاز به جواز کسب یا تفاهم‌نامه.</div>
-<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span><ul class="bullet"><li>حساب پس‌انداز فعال (حداقل ۱ ماه)</li><li>نداشتن چک برگشتی</li><li>رتبه ایرانیان بهتر از Z</li></ul></div>
-<div class="s-box c-yellow"><span class="s-title"><span class="s-num">۳</span>💰 نحوه محاسبه</span><b>معدل =</b> میانگین پول در حساب.<br><b>وام =</b> معدل × ضریب.<br>سقف: ۵۰۰ میلیون تومان.</div>
-<div class="s-box c-red"><span class="s-title"><span class="s-num">۴</span>💵 کارمزد و ضمانت</span>کارمزد ۲ تا ۴٪. رتبه A/B + بیمه = بدون ضامن. در غیر این صورت یک ضامن + چک.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">هر شخص حقیقی بالای ۱۸ سال که حساب قرض‌الحسنه پس‌انداز دارد. بدون نیاز به جواز کسب یا تفاهم‌نامه.</div>
+</div>
+<div class="acc-box c-green">
+<div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body"><ul class="bullet"><li>حساب پس‌انداز فعال (حداقل ۱ ماه)</li><li>نداشتن چک برگشتی</li><li>رتبه ایرانیان بهتر از Z</li></ul></div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body"><b>معدل =</b> میانگین پول در حساب.<br><b>وام =</b> معدل × ضریب.<br>سقف: ۵۰۰ میلیون تومان.</div>
+</div>
+<div class="acc-box c-red">
+<div class="acc-header"><span><span class="s-num">۴</span> 💵 کارمزد و ضمانت</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">کارمزد ۲ تا ۴٪. رتبه A/B + بیمه = بدون ضامن. در غیر این صورت یک ضامن + چک.</div>
+</div>
 <div id="calc-container-niloufar"></div>
 <div class="qbank" style="background-color: var(--theme-light); border-color: var(--theme-color);">
 <h4 style="color: var(--theme-color);">📲 درخواست از کیوبانک</h4>
 <div class="q-steps">
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را از مارکت‌های معتبر جستجو کرده و روی گوشی خود نصب نمایید. پس از نصب، با شماره همراه خود وارد اپلیکیشن شوید.</div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید</div><div class="q-step-desc">در منوی اصلی اپلیکیشن، به بخش افتتاح حساب مراجعه کنید. با انتخاب گزینه "حساب قرض‌الحسنه" و طی کردن مراحل احراز هویت، حساب شما به صورت آنی باز خواهد شد.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">برای واجد شرایط شدن دریافت وام، مبلغی که به حساب واریز می‌کنید باید حداقل به مدت ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نیلوفر را انتخاب کنید</div><div class="q-step-desc">پس از گذشت مدت زمان لازم، در منوی اپلیکیشن به بخش تسهیلات بروید و بر اساس اعتبار خود، درخواست وام دهید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">برای واجد شرایط شدن دریافت وام، مبلغی که به حساب واریز می‌کنید باید حداقل به مدت ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند تا امتیاز اعتباری لازم را کسب کنید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نیلوفر را انتخاب کنید</div><div class="q-step-desc">پس از گذشت مدت زمان لازم، در منوی اپلیکیشن به بخش تسهیلات بروید. در این بخش می‌توانید طرح "نیلوفر" را انتخاب کرده و بر اساس اعتبار خود، نوبت دریافت وام را ثبت کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link" style="background-color: var(--theme-color);">📲 دانلود کیوبانک</a></div>
 <button class="speak-btn" onclick="readPlan('niloufar', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- نورا: قرمز یاقوتی -->
+<!-- نورا -->
 <div class="card" id="plan-noora" style="--theme-color: #e74c3c; --theme-light: #fdeaea; --theme-text: #a0312b;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نورا</div>
 <div class="c-body">
 <span class="badge">امتیازی - کد ۱۸۲</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>هر کسی که وام بدون کارمزد می‌خواهد.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵۰۰ میلیون تومان. کارمزد صفر درصد. بازپرداخت تا ۶۰ ماه. (ضریب پایین‌تر چون بدون سود است).</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">هر کسی که وام بدون کارمزد می‌خواهد.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💵 مشخصات و سقف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">سقف: ۵۰۰ میلیون تومان. کارمزد صفر درصد. بازپرداخت تا ۶۰ ماه. (ضریب پایین‌تر چون بدون سود است).</div>
+</div>
 <div id="calc-container-noora"></div>
 <div class="qbank" style="background-color: var(--theme-light); border-color: var(--theme-color);">
 <h4 style="color: var(--theme-color);">📲 درخواست از کیوبانک</h4>
 <div class="q-steps">
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را از مارکت‌های معتبر جستجو کرده و روی گوشی خود نصب نمایید. پس از نصب، با شماره همراه خود وارد اپلیکیشن شوید.</div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید</div><div class="q-step-desc">در منوی اصلی اپلیکیشن، به بخش افتتاح حساب مراجعه کنید. با انتخاب گزینه "حساب قرض‌الحسنه" و طی کردن مراحل احراز هویت، حساب شما به صورت آنی باز خواهد شد.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">برای واجد شرایط شدن دریافت وام، مبلغی که به حساب واریز می‌کنید باید حداقل به مدت ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نورا را انتخاب کنید</div><div class="q-step-desc">پس از گذشت مدت زمان لازم، در منوی اپلیکیشن به بخش تسهیلات بروید و بر اساس اعتبار خود، درخواست وام دهید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">برای واجد شرایط شدن دریافت وام، مبلغی که به حساب واریز می‌کنید باید حداقل به مدت ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند تا امتیاز اعتباری لازم را کسب کنید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نورا را انتخاب کنید</div><div class="q-step-desc">پس از گذشت مدت زمان لازم، در منوی اپلیکیشن به بخش تسهیلات بروید. در این بخش می‌توانید طرح "نورا" را انتخاب کرده و بر اساس اعتبار خود، نوبت دریافت وام را ثبت کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link" style="background-color: var(--theme-color);">📲 دانلود کیوبانک</a></div>
 <button class="speak-btn" onclick="readPlan('noora', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- شمس: نارنجی طلایی -->
+<!-- شمس -->
 <div class="card" id="plan-shams" style="--theme-color: #f39c12; --theme-light: #fef9e7; --theme-text: #8a6a0f;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح شمس</div>
 <div class="c-body">
 <span class="badge">پس‌انداز ماهیانه</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>افراد کم‌برخوردار که ماهانه پس‌انداز می‌کنند.</div>
-<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>واریز منظم ماهانه (حداقل ۲ میلیون).</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۳</span>💵 نحوه محاسبه</span>مبلغ وام بستگی به مدت و مبلغ واریز ماهانه دارد. سقف: ۹۰ میلیون تومان. کارمزد ۴٪. تأخیر در واریز، دوره انتظار را بیشتر می‌کند.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">افراد کم‌برخوردار که ماهانه پس‌انداز می‌کنند.</div>
+</div>
+<div class="acc-box c-green">
+<div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">واریز منظم ماهانه (حداقل ۲ میلیون).</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">مبلغ وام بستگی به مدت و مبلغ واریز ماهانه دارد. سقف: ۹۰ میلیون تومان. کارمزد ۴٪. تأخیر در واریز، دوره انتظار را بیشتر می‌کند.</div>
+</div>
 <button class="speak-btn" onclick="readPlan('shams', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- ارکیده: بنفش -->
+<!-- ارکیده -->
 <div class="card" id="plan-ardideh" style="--theme-color: #9b59b6; --theme-light: #f0e8f8; --theme-text: #5e2a80;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح ارکیده</div>
 <div class="c-body">
 <span class="badge">حمایتی - بدون تفاهم‌نامه</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>اشخاص حقیقی (حمایتی).</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 نحوه محاسبه</span><b>مبلغ وام = ۲ برابر</b> سپرده تودیعی مصالح در زمان درخواست.<br>کارمزد: از منابع بانک ۴٪، از بانکداری اجتماعی صفر.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">اشخاص حقیقی (حمایتی).</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💵 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body"><b>مبلغ وام = ۲ برابر</b> سپرده تودیعی مصالح در زمان درخواست.<br>کارمزد: از منابع بانک ۴٪، از بانکداری اجتماعی صفر.</div>
+</div>
 <button class="speak-btn" onclick="readPlan('ardideh', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- ================= اصناف ================= -->
-<!-- نارون: سبز جنگلی -->
+<!-- نارون -->
 <div class="card" id="plan-naron" style="--theme-color: #27ae60; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نارون</div>
 <div class="c-body">
 <span class="badge">امتیازی - کد ۱۰۶/۸۰۶</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>صاحبان مغازه، اعضای اتحادیه، دارندگان پروانه کسب.</div>
-<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>جواز کسب معتبر، گردش حساب فعال.</div>
-<div class="s-box c-yellow"><span class="s-title"><span class="s-num">۳</span>💰 نحوه محاسبه</span><b>معدل =</b> میانگین گردش حساب.<br>سقف: ۱ میلیارد (حقیقی) و ۱.۵ میلیارد (حقوقی). کارمزد ۲ تا ۴٪.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">صاحبان مغازه، اعضای اتحادیه، دارندگان پروانه کسب.</div>
+</div>
+<div class="acc-box c-green">
+<div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">جواز کسب معتبر، گردش حساب فعال.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body"><b>معدل =</b> میانگین گردش حساب.<br>سقف: ۱ میلیارد (حقیقی) و ۱.۵ میلیارد (حقوقی). کارمزد ۲ تا ۴٪.</div>
+</div>
 <div id="calc-container-naron"></div>
 <div class="qbank" style="background-color: var(--theme-light); border-color: var(--theme-color);">
 <h4 style="color: var(--theme-color);">📲 درخواست از کیوبانک</h4>
 <div class="q-steps">
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را از مارکت‌های معتبر جستجو کرده و روی گوشی خود نصب نمایید. پس از نصب، با شماره همراه خود وارد اپلیکیشن شوید.</div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید</div><div class="q-step-desc">در منوی اصلی اپلیکیشن، به بخش افتتاح حساب مراجعه کنید. با انتخاب گزینه "حساب قرض‌الحسنه" و طی کردن مراحل احراز هویت، حساب شما به صورت آنی باز خواهد شد.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">برای واجد شرایط شدن دریافت وام، مبلغی که به حساب واریز می‌کنید باید حداقل به مدت ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نارون را انتخاب کنید</div><div class="q-step-desc">پس از گذشت مدت زمان لازم، در منوی اپلیکیشن به بخش تسهیلات بروید و بر اساس اعتبار خود، درخواست وام دهید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">برای واجد شرایط شدن دریافت وام، مبلغی که به حساب واریز می‌کنید باید حداقل به مدت ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند تا امتیاز اعتباری لازم را کسب کنید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نارون را انتخاب کنید</div><div class="q-step-desc">پس از گذشت مدت زمان لازم، در منوی اپلیکیشن به بخش تسهیلات بروید. در این بخش می‌توانید طرح "نارون" را انتخاب کرده و بر اساس اعتبار خود، نوبت دریافت وام را ثبت کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link" style="background-color: var(--theme-color);">📲 دانلود کیوبانک</a></div>
 <button class="speak-btn" onclick="readPlan('naron', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- سرو: سبز روشن -->
+<!-- سرو 1 -->
 <div class="card" id="plan-sarv1" style="--theme-color: #2ecc71; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح سرو (بدون تفاهم‌نامه)</div>
 <div class="c-body">
 <span class="badge">حمایتی - بدون تفاهم‌نامه</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>دارندگان جواز کسب که تفاهم‌نامه ندارند.</div>
-<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>سپرده در قالب عقد صلح. انتظار ۲۰ تا ۶۰ روز.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۳</span>💵 نحوه محاسبه</span>بر اساس مبلغ سپرده (صلح) و مدت انتظار، سقف وام تعیین می‌شود. <b>سقف: ۱.۵ میلیارد تومان.</b> کارمزد ۳ یا ۴٪.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">دارندگان جواز کسب که تفاهم‌نامه ندارند.</div>
+</div>
+<div class="acc-box c-green">
+<div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">سپرده در قالب عقد صلح. انتظار ۲۰ تا ۶۰ روز.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">بر اساس مبلغ سپرده (صلح) و مدت انتظار، سقف وام تعیین می‌شود. <b>سقف: ۱.۵ میلیارد تومان.</b> کارمزد ۳ یا ۴٪.</div>
+</div>
 <button class="speak-btn" onclick="readPlan('sarv1', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
+<!-- سرو 2 -->
 <div class="card" id="plan-sarv2" style="--theme-color: #2ecc71; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح سرو (تفاهم‌نامه‌ای)</div>
 <div class="c-body">
 <span class="badge">حمایتی - دارای تفاهم‌نامه</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>اتحادیه‌ها، صرافی‌ها، واحدهای تولیدی بزرگ و اصناف واجد شرایط.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 نحوه محاسبه</span>حمایت بانک معادل <b>۱۰۰٪ آورده تفاهم‌نامه</b> است. مدت بازپرداخت ۱۲ یا ۲۴ ماه. کارمزد ۴٪. انتظار ۲۰ تا ۴۰ روز.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">اتحادیه‌ها، صرافی‌ها، واحدهای تولیدی بزرگ و اصناف واجد شرایط.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">حمایت بانک معادل <b>۱۰۰٪ آورده تفاهم‌نامه</b> است. مدت بازپرداخت ۱۲ یا ۲۴ ماه. کارمزد ۴٪. انتظار ۲۰ تا ۴۰ روز.</div>
+</div>
 <button class="speak-btn" onclick="readPlan('sarv2', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- توسکا: سبز آبی -->
+<!-- توسکا -->
 <div class="card" id="plan-tooska" style="--theme-color: #16a085; --theme-light: #e0f2f1; --theme-text: #0e6655;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح توسکا</div>
 <div class="c-body">
 <span class="badge">حقوق محور - کد ۲۳۳</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>کارفرمایان با پوز فعال و واریز حقوق.</div>
-<div class="s-box c-green"><span class="s-title"><span class="s-num">۲</span>✅ شرایط</span>دستگاه پوز فعال، واریز حقوق کارکنان.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۳</span>💵 نحوه محاسبه</span>امتیازدهی بر اساس <b>میزان واریز حقوق ماهیانه</b> انجام می‌شود. سقف: ۱ میلیارد تومان. کارمزد ۴٪.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">کارفرمایان با پوز فعال و واریز حقوق.</div>
+</div>
+<div class="acc-box c-green">
+<div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">دستگاه پوز فعال، واریز حقوق کارکنان.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">امتیازدهی بر اساس <b>میزان واریز حقوق ماهیانه</b> انجام می‌شود. سقف: ۱ میلیارد تومان. کارمزد ۴٪.</div>
+</div>
 <button class="speak-btn" onclick="readPlan('tooska', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- ================= حمایتی ================= -->
-<!-- نجم: طلایی -->
+<!-- نجم -->
 <div class="card" id="plan-najm" style="--theme-color: #f1c40f; --theme-light: #fef9e7; --theme-text: #8a6a0f;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نجم</div>
 <div class="c-body">
 <span class="badge">حمایتی - کد ۱۸۳</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>مددجویان، معلولان، بانوان سرپرست، عشایر.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 نحوه محاسبه</span>سقف: ۵۰۰ میلیون تومان. کارمزد ۲ تا ۴٪. <b>ضریب ۱۱۵٪ نسبت به طرح‌های عادی</b> (یعنی با معدل کمتر، وام بیشتری می‌گیرید).</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">مددجویان، معلولان، بانوان سرپرست، عشایر.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">سقف: ۵۰۰ میلیون تومان. کارمزد ۲ تا ۴٪. <b>ضریب ۱۱۵٪ نسبت به طرح‌های عادی</b> (یعنی با معدل کمتر، وام بیشتری می‌گیرید).</div>
+</div>
 <div id="calc-container-najm"></div>
 <button class="speak-btn" onclick="readPlan('najm', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- کرامت: سرمه‌ای -->
+<!-- کرامت (اصلاح شده) -->
 <div class="card" id="plan-karamat" style="--theme-color: #34495e; --theme-light: #e4e8eb; --theme-text: #1b2631;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح کرامت</div>
 <div class="c-body">
 <span class="badge">حمایتی - کد ۲۰۹</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>اشخاص حقوقی در حوزه بانکداری اجتماعی جهت پرداخت تسهیلات به افراد تحت پوشش خود (مستمری‌بگیران).</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات و سقف</span>سقف تسهیلات حقیقی: <b>۵ میلیارد ریال</b>. نرخ کارمزد: <b>۴٪</b>. سقف مدت بازپرداخت: <b>۳۶ ماه</b>.</div>
-<div class="s-box c-green"><span class="s-title"><span class="s-num">۳</span>💰 نحوه محاسبه</span>محاسبه امتیاز بر اساس واریز مستمری ماهیانه انجام می‌شود. نیازمند تفاهم‌نامه با نهاد حمایتی است.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">اشخاص حقوقی در حوزه بانکداری اجتماعی (سازمان‌ها و نهادهای حمایتی مانند کمیته امداد، بهزیستی، بنیاد علوی و ...) جهت پرداخت تسهیلات به افراد تحت پوشش خود (مستمری‌بگیران).</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💵 مشخصات و سقف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">سقف تسهیلات حقیقی: <b>۵ میلیارد ریال (۵۰۰ میلیون تومان)</b>. نرخ کارمزد: <b>۴٪</b>. سقف مدت بازپرداخت: <b>۳۶ ماه</b> (اقساطی).</div>
+</div>
+<div class="acc-box c-green">
+<div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">محاسبه امتیاز بر اساس واریز مستمری ماهیانه انجام می‌شود.</div>
+</div>
+<div class="acc-box c-red">
+<div class="acc-header"><span><span class="s-num">۴</span> 💵 کارمزد و ضمانت</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">نیازمند انعقاد تفاهم‌نامه با نهاد حمایتی مربوطه است.</div>
+</div>
 <div class="qbank" style="background-color: var(--theme-light); border-color: var(--theme-color);">
 <h4 style="color: var(--theme-color);">📲 درخواست از کیوبانک</h4>
 <div class="q-steps">
@@ -439,47 +543,74 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 </div>
 </div>
 
-<!-- رضوان: آبی آسمانی -->
+<!-- رضوان -->
 <div class="card" id="plan-radvan" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح رضوان</div>
 <div class="c-body">
 <span class="badge">حمایتی - کد ۱۸۱</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 نحوه محاسبه</span>مخصوص افراد معرفی‌شده از سوی این سازمان‌ها. سقف: ۵ میلیارد ریال. کارمزد ۲ تا ۴٪.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">مخصوص افراد معرفی‌شده از سوی این سازمان‌ها. سقف: ۵ میلیارد ریال. کارمزد ۲ تا ۴٪.</div>
+</div>
 <button class="speak-btn" onclick="readPlan('radvan', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- نصر: قهوه‌ای/عنابی -->
+<!-- نصر -->
 <div class="card" id="plan-nasr" style="--theme-color: #d35400; --theme-light: #fbeee6; --theme-text: #873600;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نصر (حقیقی)</div>
 <div class="c-body">
 <span class="badge">حمایتی - کد ۲۴۷/۲۵۷</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>افراد معرفی شده از سوی نهادهای حمایتی.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 نحوه محاسبه</span>سقف: ۱۵۰ میلیون تومان. کارمزد ۴٪ (از منابع بانک) یا صفر (از بانکداری اجتماعی).</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">افراد معرفی شده از سوی نهادهای حمایتی.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">سقف: ۱۵۰ میلیون تومان. کارمزد ۴٪ (از منابع بانک) یا صفر (از بانکداری اجتماعی).</div>
+</div>
 <button class="speak-btn" onclick="readPlan('nasr', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- ================= شرکتی ================= -->
-<!-- یاقوت: قرمز تیره -->
+<!-- یاقوت -->
 <div class="card" id="plan-yaghot" style="--theme-color: #c0392b; --theme-light: #fdeaea; --theme-text: #7b241c;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح یاقوت</div>
 <div class="c-body">
 <span class="badge">شرکتی - کد ۱۸۰/۸۵۰</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>سازمان‌ها و شرکت‌ها (برای معرفی کارکنان).</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 نحوه محاسبه</span>بر اساس <b>گردش منابع شرکت</b> نزد بانک و تفاهم‌نامه منعقده. سقف: ۵ میلیارد ریال (حقیقی) و ۱۵ میلیارد ریال (حقوقی). کارمزد ۰ تا ۴٪.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">سازمان‌ها و شرکت‌ها (برای معرفی کارکنان).</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">بر اساس <b>گردش منابع شرکت</b> نزد بانک و تفاهم‌نامه منعقده. سقف: ۵ میلیارد ریال (حقیقی) و ۱۵ میلیارد ریال (حقوقی). کارمزد ۰ تا ۴٪.</div>
+</div>
 <button class="speak-btn" onclick="readPlan('yaghot', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
+<!-- یاقوت با حفظ مبلغ ثابت (اصلاح شده) -->
 <div class="card" id="plan-yaghot_fixed" style="--theme-color: #c0392b; --theme-light: #fdeaea; --theme-text: #7b241c;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح یاقوت (با حفظ مبلغ ثابت)</div>
 <div class="c-body">
 <span class="badge">شرکتی - کد ۱۸۰/۸۵۰</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>اشخاص حقوقی که با حفظ مبلغ ثابت نزد بانک، برای کارکنان خود تسهیلات می‌گیرند.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 مشخصات</span>سقف: ۵ میلیارد ریال (حقیقی) و ۱۵ میلیارد ریال (حقوقی). کارمزد: ۴٪. مدت بازپرداخت: ۶۰ ماه.</div>
-<div class="s-box c-green"><span class="s-title"><span class="s-num">۳</span>💰 نحوه محاسبه</span>با حفظ مبلغ ثابت (حداکثر ۱۲ ماه)، میانگین آتی ایجاد می‌شود تا افراد معرفی‌شده وام بگیرند.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">کلیه سازمان‌ها، شرکت‌ها و اشخاص حقوقی که تمایل دارند با حفظ مبلغ ثابت نزد بانک، برای کارکنان معرفی‌شده خود تسهیلات بگیرند.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💵 مشخصات و سقف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">سقف تسهیلات: <b>۵ میلیارد ریال</b> برای اشخاص حقیقی و <b>۱۵ میلیارد ریال</b> برای اشخاص حقوقی. نرخ کارمزد: <b>۴٪</b>. سقف مدت بازپرداخت: <b>۶۰ ماه</b>.</div>
+</div>
+<div class="acc-box c-green">
+<div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">مشتری حقوقی با حفظ مبلغ ثابت (حداکثر تا ۱۲ ماه با امکان تمدید) میانگین آتی ایجاد می‌کند تا افراد معرفی‌شده بتوانند از تسهیلات استفاده کنند.</div>
+</div>
 <div class="qbank" style="background-color: var(--theme-light); border-color: var(--theme-color);">
 <h4 style="color: var(--theme-color);">📲 درخواست از کیوبانک</h4>
 <div class="q-steps">
@@ -492,24 +623,36 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 </div>
 </div>
 
-<!-- الماس: نقره‌ای/خاکستری -->
+<!-- الماس -->
 <div class="card" id="plan-almas" style="--theme-color: #7f8c8d; --theme-light: #f0f3f4; --theme-text: #424949;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح الماس</div>
 <div class="c-body">
 <span class="badge">شرکتی - تفاهم‌نامه</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>شرکت‌های سهامی و مشمول قانون تجارت (برای معرفی کارکنان).</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 نحوه محاسبه</span>حمایت بانک تا سقف ۵ میلیارد ریال. کارمزد ۴٪ (از منابع بانک) و ۲٪ (از منابع مشتری).</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">شرکت‌های سهامی و مشمول قانون تجارت (برای معرفی کارکنان).</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">حمایت بانک تا سقف ۵ میلیارد ریال. کارمزد ۴٪ (از منابع بانک) و ۲٪ (از منابع مشتری).</div>
+</div>
 <button class="speak-btn" onclick="readPlan('almas', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
-<!-- فیروزه: آبی فیروزه‌ای -->
+<!-- فیروزه -->
 <div class="card" id="plan-firoozeh" style="--theme-color: #1abc9c; --theme-light: #e0f2f1; --theme-text: #0e6655;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح فیروزه</div>
 <div class="c-body">
 <span class="badge">شرکتی - کد ۱۵۱</span>
-<div class="s-box c-blue"><span class="s-title"><span class="s-num">۱</span>🎯 جامعه هدف</span>شرکت‌هایی که حقوق کارکنان را از بانک واریز می‌کنند.</div>
-<div class="s-box c-orange"><span class="s-title"><span class="s-num">۲</span>💵 نحوه محاسبه</span>وام تا <b>حداکثر ۵ درصد مجموع حقوق واریزی ماهیانه</b> محاسبه می‌شود. سقف: ۵ میلیارد ریال. کارمزد ۴٪.</div>
+<div class="acc-box c-blue">
+<div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">شرکت‌هایی که حقوق کارکنان را از بانک واریز می‌کنند.</div>
+</div>
+<div class="acc-box c-yellow">
+<div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div>
+<div class="acc-body">وام تا <b>حداکثر ۵ درصد مجموع حقوق واریزی ماهیانه</b> محاسبه می‌شود. سقف: ۵ میلیارد ریال. کارمزد ۴٪.</div>
+</div>
 <button class="speak-btn" onclick="readPlan('firoozeh', this)">🔊 شنیدن توضیحات</button>
 </div>
 </div>
@@ -655,6 +798,14 @@ corporate: [
 ]
 };
 
+// رنگ‌های تم برای دکمه‌ها
+const planColors = {
+niloufar: '#3498db', noora: '#e74c3c', shams: '#f39c12', ardideh: '#9b59b6',
+naron: '#27ae60', sarv1: '#2ecc71', sarv2: '#2ecc71', tooska: '#16a085',
+najm: '#f1c40f', karamat: '#34495e', radvan: '#3498db', nasr: '#d35400',
+yaghot: '#c0392b', yaghot_fixed: '#c0392b', almas: '#7f8c8d', firoozeh: '#1abc9c'
+};
+
 function switchTab(panelId, btnElement) {
 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -691,7 +842,8 @@ function selectGuideCategory(cat) {
 const list = document.getElementById('guide-plans-list');
 list.innerHTML = '';
 plansList[cat].forEach(plan => {
-list.innerHTML += `<button type="button" class="btn btn-outline" onclick="selectGuidePlan('${plan.id}')">${plan.title}</button>`;
+let color = planColors[plan.id] || '#0a4d2e';
+list.innerHTML += `<button type="button" class="btn-plan" style="color: ${color}; border-color: ${color};" onclick="selectGuidePlan('${plan.id}')">${plan.title}</button>`;
 });
 showGuideStep(2);
 }
@@ -706,13 +858,30 @@ const clone = originalCard.cloneNode(true);
 clone.style.display = 'block';
 container.appendChild(clone);
 
-// فعال کردن پرده (آکاردئون) برای کارت کپی شده
+// فعال کردن پرده‌ی کیوبانک
 const qSteps = clone.querySelectorAll('.q-step');
 qSteps.forEach(step => {
-step.onclick = function(e) {
+step.addEventListener('click', function(e) {
 if(e.target.tagName.toLowerCase() === 'a') return;
 this.classList.toggle('active-q-step');
-};
+});
+});
+
+// فعال کردن پرده‌های توضیحات (جامعه هدف، شرایط و...)
+const accHeaders = clone.querySelectorAll('.acc-header');
+accHeaders.forEach(header => {
+header.addEventListener('click', function() {
+const parentBox = this.parentElement;
+const body = this.nextElementSibling;
+
+if (parentBox.classList.contains('active-acc')) {
+parentBox.classList.remove('active-acc');
+body.style.maxHeight = null;
+} else {
+parentBox.classList.add('active-acc');
+body.style.maxHeight = body.scrollHeight + "px";
+}
+});
 });
 
 const hasCalc = document.getElementById('calc-container-' + planId);
