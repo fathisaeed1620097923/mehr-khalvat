@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -159,6 +160,9 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 
 <!-- پنل کارمند -->
 <div class="content panel" id="panel-employee">
+<div style="text-align: left; margin-bottom: 15px;">
+<button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 12px;" onclick="changeCredentials()">🔐 تغییر نام کاربری / رمز عبور</button>
+</div>
 <div class="form-group">
 <label>واحد خود را انتخاب کنید:</label>
 <select id="e-department" onchange="startEmployeePolling()">
@@ -191,13 +195,17 @@ document.getElementById('notify-sound').play().catch(e => console.log("Sound blo
 setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 5000);
 }
 
-// 🔐 ورود امن با ارسال POST
+// 🔐 ورود با نام کاربری و رمز
 function askAdminPassword() {
-let pass = prompt("لطفاً رمز عبور کارمندان را وارد کنید:");
+let username = prompt("لطفاً نام کاربری خود را وارد کنید:");
+if (username === null || username === "") return;
+
+let pass = prompt("لطفاً رمز عبور خود را وارد کنید:");
 if (pass === null) return;
+
 fetch(SCRIPT_URL, {
 method: 'POST',
-body: JSON.stringify({action: 'login', pass: pass})
+body: JSON.stringify({action: 'login', username: username, pass: pass})
 })
 .then(res => res.json())
 .then(data => {
@@ -206,9 +214,45 @@ sessionStorage.setItem('adminToken', data.token);
 document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
 } else {
-alert("رمز عبور اشتباه است!");
+alert("نام کاربری یا رمز عبور اشتباه است!");
 }
 }).catch(() => alert("خطا در ارتباط با سرور."));
+}
+
+// 🔄 تغییر نام کاربری و رمز عبور
+function changeCredentials() {
+let oldUsername = prompt("نام کاربری فعلی خود را وارد کنید:");
+if (!oldUsername) return;
+
+let oldPass = prompt("رمز عبور فعلی خود را وارد کنید:");
+if (!oldPass) return;
+
+let newUsername = prompt("نام کاربری جدید خود را وارد کنید (اگر نمی‌خواهید تغییر کند، همان قبلی را بنویسید):", oldUsername);
+if (!newUsername) return;
+
+let newPass = prompt("رمز عبور جدید خود را وارد کنید:");
+if (!newPass) return;
+
+fetch(SCRIPT_URL, {
+method: 'POST',
+body: JSON.stringify({
+action: 'changeCredentials',
+oldUsername: oldUsername,
+oldPass: oldPass,
+newUsername: newUsername,
+newPass: newPass
+})
+})
+.then(res => res.json())
+.then(data => {
+if (data.success) {
+alert("✅ مشخصات با موفقیت تغییر کرد. از این به بعد با نام کاربری و رمز جدید وارد شوید.");
+location.reload();
+} else {
+alert("خطا: " + data.error);
+}
+})
+.catch(() => alert("خطا در ارتباط با سرور."));
 }
 
 function switchTab(panelId, btnElement) {
