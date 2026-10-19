@@ -91,15 +91,17 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 .q-steps{display: flex; flex-direction: column; gap: 6px; padding-top: 10px;}
 .q-step{background:#fff;border-radius:8px;font-size:12px;display:flex; flex-direction: column; border: 1px solid; cursor: pointer; transition: all 0.2s; margin-bottom: 5px;}
 .q-step-title { font-weight: bold; display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
-/* فلش کوچک برای هر مرحله */
 .q-step-title::after { content: '▼'; font-size: 10px; margin-right: auto; transition: transform 0.3s; }
 .q-step.active-q-step .q-step-title::after { transform: rotate(180deg); }
-
 .q-step-desc { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; font-size: 11.5px; color: #555; line-height: 1.7; padding: 0 12px 0 34px; }
 .q-step.active-q-step .q-step-desc { max-height: 300px; padding-bottom: 12px; }
 .q-num { color:#fff;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px; }
-.q-link{display:block;width:100%;padding:12px;color:#fff;border-radius:10px;font-weight:700;text-align:center;text-decoration:none;margin-top:10px}
 
+/* دکمه داخل توضیحات مرحله 2 */
+.action-link { display: inline-block; margin-top: 8px; padding: 6px 12px; background: #eaf3fd; color: #0066cc; border: 1px solid #0066cc; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 11px; transition: 0.2s; }
+.action-link:hover { background: #0066cc; color: #fff; }
+
+.q-link{display:block;width:100%;padding:12px;color:#fff;border-radius:10px;font-weight:700;text-align:center;text-decoration:none;margin-top:10px}
 .speak-btn{display:block;width:100%;padding:12px;background:#0a4d2e;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;font-weight:700;cursor:pointer;margin-top:10px}
 .speak-btn.active{background:#d4a017}
 
@@ -331,13 +333,13 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="qbank-content">
 <div class="q-steps">
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را از مارکت‌های معتبر جستجو کرده و روی گوشی خود نصب نمایید.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید</div><div class="q-step-desc">در منوی اصلی اپلیکیشن، به بخش افتتاح حساب مراجعه کنید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">برای دریافت وام، نیاز به حساب قرض‌الحسنه دارید. اگر این حساب را ندارید، از طریق لینک زیر در اپلیکیشن اقدام کنید:<br><a href="https://qbank24.ir/register" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نیلوفر را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link" style="background-color: var(--theme-color);">📲 دانلود کیوبانک</a></div>
 </div>
-<button class="speak-btn" onclick="readPlan('niloufar', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -354,13 +356,13 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="qbank-content">
 <div class="q-steps">
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را از مارکت‌های معتبر جستجو کرده و روی گوشی خود نصب نمایید.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید</div><div class="q-step-desc">در منوی اصلی اپلیکیشن، به بخش افتتاح حساب مراجعه کنید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">برای دریافت وام، نیاز به حساب قرض‌الحسنه دارید. اگر این حساب را ندارید، از طریق لینک زیر در اپلیکیشن اقدام کنید:<br><a href="https://qbank24.ir/register" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نورا را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link" style="background-color: var(--theme-color);">📲 دانلود کیوبانک</a></div>
 </div>
-<button class="speak-btn" onclick="readPlan('noora', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -372,7 +374,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">افراد کم‌برخوردار که ماهانه پس‌انداز می‌کنند.</div></div>
 <div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">واریز منظم ماهانه (حداقل ۲ میلیون).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">مبلغ وام بستگی به مدت و مبلغ واریز ماهانه دارد. سقف: ۹۰ میلیون تومان. کارمزد ۴٪.</div></div>
-<button class="speak-btn" onclick="readPlan('shams', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -383,7 +385,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <span class="badge">حمایتی - بدون تفاهم‌نامه</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اشخاص حقیقی (حمایتی).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💵 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body"><b>مبلغ وام = ۲ برابر</b> سپرده تودیعی مصالح در زمان درخواست. کارمزد: از منابع بانک ۴٪، از بانکداری اجتماعی صفر.</div></div>
-<button class="speak-btn" onclick="readPlan('ardideh', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -401,13 +403,13 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="qbank-content">
 <div class="q-steps">
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را از مارکت‌های معتبر جستجو کرده و روی گوشی خود نصب نمایید.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید</div><div class="q-step-desc">در منوی اصلی اپلیکیشن، به بخش افتتاح حساب مراجعه کنید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">برای دریافت وام، نیاز به حساب قرض‌الحسنه دارید. اگر این حساب را ندارید، از طریق لینک زیر در اپلیکیشن اقدام کنید:<br><a href="https://qbank24.ir/register" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> در بخش تسهیلات، نارون را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link" style="background-color: var(--theme-color);">📲 دانلود کیوبانک</a></div>
 </div>
-<button class="speak-btn" onclick="readPlan('naron', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -419,7 +421,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">دارندگان جواز کسب که تفاهم‌نامه ندارند.</div></div>
 <div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سپرده در قالب عقد صلح. انتظار ۲۰ تا ۶۰ روز.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">بر اساس مبلغ سپرده (صلح) و مدت انتظار، سقف وام تعیین می‌شود. <b>سقف: ۱.۵ میلیارد تومان.</b> کارمزد ۳ یا ۴٪.</div></div>
-<button class="speak-btn" onclick="readPlan('sarv1', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -430,7 +432,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <span class="badge">حمایتی - دارای تفاهم‌نامه</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اتحادیه‌ها، صرافی‌ها، واحدهای تولیدی بزرگ و اصناف واجد شرایط.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">حمایت بانک معادل <b>۱۰۰٪ آورده تفاهم‌نامه</b> است. مدت بازپرداخت ۱۲ یا ۲۴ ماه. کارمزد ۴٪.</div></div>
-<button class="speak-btn" onclick="readPlan('sarv2', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -442,7 +444,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">کارفرمایان با پوز فعال و واریز حقوق.</div></div>
 <div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">دستگاه پوز فعال، واریز حقوق کارکنان.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">امتیازدهی بر اساس <b>میزان واریز حقوق ماهیانه</b> انجام می‌شود. سقف: ۱ میلیارد تومان. کارمزد ۴٪.</div></div>
-<button class="speak-btn" onclick="readPlan('tooska', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -454,7 +456,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">مددجویان، معلولان، بانوان سرپرست، عشایر.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف: ۵۰۰ میلیون تومان. کارمزد ۲ تا ۴٪. <b>ضریب ۱۱۵٪ نسبت به طرح‌های عادی</b> (یعنی با معدل کمتر، وام بیشتری می‌گیرید).</div></div>
 <div id="calc-container-najm"></div>
-<button class="speak-btn" onclick="readPlan('najm', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -469,15 +471,15 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۴</span> 💵 کارمزد و ضمانت</span> <span class="acc-arrow">▼</span></div><div class="acc-body">نیازمند انعقاد تفاهم‌نامه با نهاد حمایتی مربوطه است.</div></div>
 <div class="qbank" style="background-color: var(--theme-light); border-color: var(--theme-color);">
 <div class="qbank-toggle" style="color: var(--theme-text);"><span>📲 درخواست از کیوبانک</span> <span class="qbank-arrow">▼</span></div>
-<div class="qbank-content">
+<div class="qbank-body-content">
 <div class="q-steps">
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید</div><div class="q-step-desc">در منوی اصلی اپلیکیشن، به بخش افتتاح حساب مراجعه کنید.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://qbank24.ir/register" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title""> style="سcolor: var(--قtheme-text);"><spanف class="q-num" style="background-color: var(--theme-color:);">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link" style="background-color: var(--theme-color);">📲 دانلود کیوبانک</a></div>
 </div>
-<button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -488,7 +490,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <span class="badge">حمایتی - کد ۱۸۱</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">مخصوص افراد معرفی‌شده از سوی این سازمان‌ها. سقف: ۵ میلیارد ریال. کارمزد ۲ تا ۴٪.</div></div>
-<button class="speak-btn" onclick="readPlan('radvan', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -498,8 +500,8 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="c-body">
 <span class="badge">حمایتی - کد ۲۴۷/۲۵۷</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">افراد معرفی شده از سوی نهادهای حمایتی.</div></div>
-<div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف: ۱۵۰ میلیون تومان. کارمزد ۴٪ (از منابع بانک) یا صفر (از بانکداری اجتماعی).</div></div>
-<button class="speak-btn" onclick="readPlan('nasr', this)">🔊 شنیدن توضیحات</button>
+<div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc ۱۵۰ میلیون تومان. کارمزد ۴٪ (از منابع بانک) یا صفر (از بانکداری اجتماعی).</div></div>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -510,7 +512,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <span class="badge">شرکتی - کد ۱۸۰/۸۵۰</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سازمان‌ها و شرکت‌ها (برای معرفی کارکنان).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">بر اساس <b>گردش منابع شرکت</b> نزد بانک و تفاهم‌نامه منعقده. سقف: ۵ میلیارد ریال (حقیقی) و ۱۵ میلیارد ریال (حقوقی). کارمزد ۰ تا ۴٪.</div></div>
-<button class="speak-btn" onclick="readPlan('yaghot', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -527,12 +529,13 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <div class="qbank-content">
 <div class="q-steps">
 <div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حفظ مبلغ ثابت</div><div class="q-step-desc">مبلغ توافقی را به مدت ۱ تا ۱۲ ماه در حساب خود نگه دارید تا میانگین ایجاد شود.</div></div>
-<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح یاقوت را انتخاب کنید.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://qbank24.ir/register" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">3</span> حفظ مبلغ ثابت</div><div class="q-step-desc">مبلغ توافقی را به مدت ۱ تا ۱۲ ماه در حساب خود نگه دارید تا میانگین ایجاد شود.</div></div>
+<div class="q-step" style="border-color: var(--theme-color);"><div class="q-step-title" style="color: var(--theme-text);"><span class="q-num" style="background-color: var(--theme-color);">4</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح یاقوت را انتخاب کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link" style="background-color: var(--theme-color);">📲 دانلود کیوبانک</a></div>
 </div>
-<button class="speak-btn" onclick="readPlan('yaghot_fixed', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -543,7 +546,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <span class="badge">شرکتی - تفاهم‌نامه</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">شرکت‌های سهامی و مشمول قانون تجارت (برای معرفی کارکنان).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">حمایت بانک تا سقف ۵ میلیارد ریال. کارمزد ۴٪ (از منابع بانک) و ۲٪ (از منابع مشتری).</div></div>
-<button class="speak-btn" onclick="readPlan('almas', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -554,7 +557,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 <span class="badge">شرکتی - کد ۱۵۱</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">شرکت‌هایی که حقوق کارکنان را از بانک واریز می‌کنند.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">وام تا <b>حداکثر ۵ درصد مجموع حقوق واریزی ماهیانه</b> محاسبه می‌شود. سقف: ۵ میلیارد ریال. کارمزد ۴٪.</div></div>
-<button class="speak-btn" onclick="readPlan('firoozeh', this)">🔊 شنیدن توضیحات</button>
+<button class="speak-btn">🔊 شنیدن توضیحات</button>
 </div>
 </div>
 
@@ -597,14 +600,17 @@ window.speechSynthesis.cancel();
 if (googleAudio) { googleAudio.pause(); googleAudio = null; }
 isPlaying = true;
 
-if ('speechSynthesis' in window) {
+if ('speechSynthesis' in window && persianVoice) {
 var u = new SpeechSynthesisUtterance(text);
-if (persianVoice) { u.voice = persianVoice; u.lang = 'fa-IR'; }
+u.voice = persianVoice;
+u.lang = 'fa-IR';
 u.rate = 0.9;
 u.onend = function() { isPlaying = false; };
 u.onerror = function() { playGoogle(text); };
 window.speechSynthesis.speak(u);
-} else { playGoogle(text); }
+} else {
+playGoogle(text);
+}
 }
 
 function playGoogle(text) {
@@ -757,6 +763,14 @@ const clone = originalCard.cloneNode(true);
 clone.style.display = 'block';
 container.appendChild(clone);
 
+// ✅ اتصال دکمه صدا در نسخه کپی شده (به جای استفاده از onclick درون HTML)
+const speakBtn = clone.querySelector('.speak-btn');
+if(speakBtn) {
+speakBtn.onclick = function() {
+readPlan(planId, this);
+};
+}
+
 // فعال کردن کشوی کیوبانک
 const qbankToggle = clone.querySelector('.qbank-toggle');
 const qbank = clone.querySelector('.qbank');
@@ -772,7 +786,7 @@ content.style.maxHeight = null;
 });
 }
 
-// ✅ فعال کردن پرده برای ۴ مرحله داخل کیوبانک (اضافه شده)
+// ✅ فعال کردن پرده برای ۴ مرحله داخل کیوبانک
 const qSteps = clone.querySelectorAll('.q-step');
 qSteps.forEach(step => {
 step.addEventListener('click', function(e) {
