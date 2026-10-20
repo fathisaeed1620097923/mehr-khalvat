@@ -1,745 +1,491 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سامانه جامع مهر</title>
+<title>ربات امنیتی با تنفس</title>
 <style>
-/* =========================================
-1. استایل‌های اصلی (کدهای دقیق خودتان)
-========================================= */
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, Arial, sans-serif; }
-body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; line-height: 1.8; }
-.container { background: #fff; width: 100%; max-width: 700px; border-radius: 20px; box-shadow: 0 10px 30px rgba(10,77,46,0.1); overflow: hidden; }
-.header { background: linear-gradient(135deg, #0a4d2e, #148a4f); color: #fff; padding: 20px; text-align: center; }
-.header h1 { font-size: 22px; margin-bottom: 5px; }
-.header p { font-size: 13px; opacity: 0.9; }
-.tabs { display: flex; background: #e9ecef; flex-wrap: wrap; }
-.tab-btn { flex: 1; padding: 15px 5px; border: none; background: transparent; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; min-width: 100px; position: relative; text-align: center; }
-.tab-btn.active { background: #fff; color: #0a4d2e; border-bottom-color: #0a4d2e; }
-.content { padding: 20px; }
-.panel { display: none; }
-.panel.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-/* استپر */
-.stepper { display: flex; justify-content: space-between; margin-bottom: 25px; position: relative; }
-.stepper::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #e0e0e0; z-index: 1; }
-.step-item { text-align: center; position: relative; z-index: 2; width: 33%; }
-.step-circle { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 2px solid #ccc; color: #999; line-height: 26px; margin: 0 auto 5px auto; font-weight: bold; transition: 0.3s; }
-.step-item.active .step-circle { border-color: #0a4d2e; background: #0a4d2e; color: #fff; box-shadow: 0 0 10px rgba(10,77,46,0.3); }
-.step-item.completed .step-circle { border-color: #27ae60; background: #27ae60; color: #fff; }
-.step-title { font-size: 11px; color: #666; font-weight: bold; }
-.step-item.active .step-title { color: #0a4d2e; }
-.form-step { display: none; }
-.form-step.active { display: block; animation: fadeIn 0.3s ease; }
-
-/* فرم‌ها و دکمه‌ها */
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #0a4d2e; }
-.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; transition: 0.3s; }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #148a4f; outline: none; }
-.btn { display: block; width: 100%; padding: 14px; background: #0a4d2e; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; outline: none; text-align: center;}
-.btn:hover { background: #083d24; }
-.btn-secondary { background: #d4a017; }
-.btn-outline { background: transparent; border: 2px solid #0a4d2e; color: #0a4d2e; }
-.btn-row { display: flex; gap: 10px; margin-top: 15px; }
-.btn-row .btn { margin-bottom: 0; }
-.camera-box { background: #faf8f3; border: 2px dashed #d4a017; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
-.camera-box img { width: 100%; max-width: 300px; border-radius: 10px; display: none; margin: 0 auto 10px auto; border: 2px solid #0a4d2e;}
-
-/* دکمه‌های انتخاب طرح و دسته‌بندی */
-.btn-plan { display: block; width: 100%; padding: 14px; background: #fff; border: 2px solid; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center; margin-bottom: 10px; }
-.btn-plan:hover { background: #f8f9fa; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-
-/* کارت طرح */
-.card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
-.c-title { font-size: 15.5px; font-weight: 700; padding: 14px 18px; text-align: center; border-bottom: 2px solid; transition: 0.3s;}
-.c-body { padding: 16px; }
-.badge { display: block; background: #d4a017; color: #fff; padding: 5px 14px; border-radius: 18px; font-size: 11px; font-weight: 700; text-align: center; margin: 0 auto 14px auto; width: fit-content; }
-
-/* آکاردئون‌های توضیحات */
-.acc-box { margin-bottom: 10px; border-radius: 10px; border-left: 5px solid; overflow: hidden; }
-.acc-header { padding: 12px 14px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
-.acc-header:hover { filter: brightness(0.95); }
-.acc-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 14px; font-size: 13px; line-height: 1.95; }
-.acc-box.active-acc .acc-body { padding: 0 14px 12px 14px; }
-.acc-arrow { transition: transform 0.3s; font-size: 10px; }
-.acc-box.active-acc .acc-arrow { transform: rotate(180deg); }
-.s-num { display: inline-block; color: #fff; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; font-size: 11px; font-weight: 800; margin-left: 8px; }
-
-.c-blue{background:#eaf3fd;color:#1a5490;border-left-color:#4a90d9}.c-blue .acc-header{color:#1a5490}.c-blue .s-num{background:#4a90d9}
-.c-green{background:#e8f5ec;color:#1e7a44;border-left-color:#27ae60}.c-green .acc-header{color:#1e7a44}.c-green .s-num{background:#27ae60}
-.c-yellow{background:#fef9e7;color:#8a6a0f;border-left-color:#d4a017}.c-yellow .acc-header{color:#8a6a0f}.c-yellow .s-num{background:#d4a017}
-.c-red{background:#fdeaea;color:#a0312b;border-left-color:#e74c3c}.c-red .acc-header{color:#a0312b}.c-red .s-num{background:#e74c3c}
-
-/* جداول */
-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-th, td { border: 1px solid #c8d6e5; padding: 8px; text-align: center; }
-th { background: #eaf3fd; color: #1a5490; font-weight: bold; }
-tr:nth-child(even) { background: #f8fbf9; }
-
-/* دو مستطیل کنار هم */
-.dual-action-container { margin-top: 15px; }
-.dual-action-btns { display: flex; gap: 10px; }
-.dual-btn { flex: 1; padding: 12px 5px; border: 2px solid var(--theme-color); border-radius: 8px; text-align: center; font-weight: bold; font-size: 13px; color: var(--theme-color); background: var(--theme-light); cursor: pointer; transition: 0.2s; }
-.dual-btn:hover { filter: brightness(0.9); }
-.dual-btn.active { background: var(--theme-color); color: #fff; }
-.dual-action-content { display: none; margin-top: 10px; padding: 15px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; animation: fadeIn 0.3s ease; }
-
-/* مراحل داخل کیوبانک */
-.q-steps{display: flex; flex-direction: column; gap: 6px;}
-.q-step{background:#fff;border-radius:8px;font-size:12px;display:flex; flex-direction: column; border: 1px solid #ddd; cursor: pointer; transition: all 0.2s; margin-bottom: 5px;}
-.q-step-title { font-weight: bold; display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: #333;}
-.q-step-title::after { content: '▼'; font-size: 10px; margin-right: auto; transition: transform 0.3s; }
-.q-step.active-q-step .q-step-title::after { transform: rotate(180deg); }
-.q-step-desc { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; font-size: 11.5px; color: #555; line-height: 1.7; padding: 0 12px 0 34px; }
-.q-step.active-q-step .q-step-desc { max-height: 300px; padding-bottom: 12px; }
-.q-num { color:#fff;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px; background: var(--theme-color);}
-
-.action-link { display: inline-block; margin-top: 8px; padding: 6px 12px; background: #eaf3fd; color: #0066cc; border: 1px solid #0066cc; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 11px; transition: 0.2s; }
-.action-link:hover { background: #0066cc; color: #fff; }
-.q-link{display:block;width:100%;padding:12px;color:#fff;border-radius:10px;font-weight:700;text-align:center;text-decoration:none;margin-top:10px; background: var(--theme-color);}
-
-/* ماشین حساب */
-.calc-box { background: transparent; padding: 0; margin: 0;}
-.calc-row { display: flex; gap: 10px; margin-bottom: 10px; }
-.calc-row .form-group { flex: 1; margin-bottom: 0; }
-.fee-row { display: flex; gap: 8px; margin-top: 5px; margin-bottom: 15px; }
-.fee-btn { flex: 1; padding: 8px; border: 2px solid var(--theme-color); background: #fff; color: var(--theme-color); border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-.fee-btn.active { background: var(--theme-color); color: #fff; }
-.res-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-.res-table th, .res-table td { border: 1px solid #c8d6e5; padding: 8px; text-align: center; }
-.res-table th { background: var(--theme-color); color: #fff; }
-.res-table tr:nth-child(even) { background: #f8fbf9; }
-
-.speak-btn{display:block;width:100%;padding:12px;background:#0a4d2e;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;font-weight:700;cursor:pointer;margin-top:15px}
-.speak-btn.active{background:#d4a017}
-
-/* نتایج و کارمند */
-.result-box { display: none; background: #e8f5ec; border: 2px solid #27ae60; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; }
-.result-box h3 { color: #1e7a44; margin-bottom: 10px; font-size: 18px; }
-.tracking-code { font-size: 26px; font-weight: bold; color: #d4a017; background: #fff; padding: 10px; border-radius: 8px; margin: 10px 0; letter-spacing: 2px; border: 1px dashed #d4a017; }
-.routing-info { font-size: 14px; color: #333; background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; }
-.ticket-card { background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.ticket-card h4 { color: #0a4d2e; margin-bottom: 10px; }
-.ticket-card p { font-size: 13px; margin-bottom: 8px; line-height: 1.5; }
-.btn-resolve { background: #27ae60; padding: 10px; font-size: 14px; margin-top: 10px; margin-bottom: 0;}
-.reply-box { margin-top: 15px; padding: 10px; background: #f0f8ff; border-right: 4px solid #2980b9; border-radius: 5px; font-size: 13px; display: none; }
-.admin-login-link { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px dashed #ccc; }
-.admin-login-link button { background: transparent; color: #888; border: none; cursor: pointer; text-decoration: underline; font-size: 12px; }
-.error { color: #c0392b; font-size: 12px; margin-top: 5px; display: none; }
-.toast { visibility: hidden; min-width: 250px; background-color: #c0392b; color: #fff; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 1000; top: 20px; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, top 0.3s; }
-.toast.show { visibility: visible; opacity: 1; top: 30px; }
-.badge-red { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
-
-/* =========================================
-2. استایل‌های ربات هوش مصنوعی (شناور)
-========================================= */
-#ai-float-btn {
-position: fixed; bottom: 25px; left: 25px; width: 65px; height: 65px;
-background: linear-gradient(135deg, #0a4d2e, #148a4f); border-radius: 50%;
-box-shadow: 0 8px 25px rgba(10, 77, 46, 0.4); cursor: pointer;
-display: flex; justify-content: center; align-items: center;
-z-index: 9999; transition: transform 0.3s ease, box-shadow 0.3s ease;
-animation: pulse-glow 2s infinite;
+body {
+background-color: #2c2c2c;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+height: 100vh;
+margin: 0;
+overflow: hidden;
+font-family: Tahoma, sans-serif;
+color: white;
 }
-#ai-float-btn:hover { transform: scale(1.1); box-shadow: 0 12px 30px rgba(10, 77, 46, 0.6); }
-#ai-float-btn svg { width: 35px; height: 35px; fill: white; }
-@keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
 
-#ai-chat-window {
-position: fixed; bottom: 100px; left: 25px; width: 350px; max-height: 520px;
-background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
-border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-border: 1px solid #d1d5db; display: none; flex-direction: column;
-overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s ease; opacity: 0; transform: translateY(20px);
+.robot-container {
+position: relative;
+/* انیمیشن تنفس برای کل ظرف */
+animation: breathe 4s ease-in-out infinite;
 }
-#ai-chat-window.active { display: flex; opacity: 1; transform: translateY(0); }
 
-.ai-header { background: linear-gradient(135deg, #0a4d2e, #148a4f); color: white; padding: 15px; display: flex; align-items: center; gap: 12px; }
-.ai-header-avatar { width: 40px; height: 40px; background: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 2px solid #d4a017; }
-.ai-header-avatar svg { width: 100%; height: 100%; }
-.ai-header h4 { margin: 0; font-size: 15px; font-weight: bold; }
-.ai-header p { margin: 0; font-size: 11px; opacity: 0.85; }
-.ai-header .close-btn { margin-right: auto; background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
+/* عکس ربات - شما می‌توانید آدرس عکس خودتان را اینجا قرار دهید */
+.robot-image {
+width: 300px;
+height: auto;
+border-radius: 20px;
+/* یک سایه ملایم برای جلوه بهتر */
+filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.5));
+}
 
-.ai-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #f8fafc; }
-.ai-msg { padding: 12px 16px; border-radius: 16px; font-size: 13.5px; line-height: 1.6; max-width: 88%; }
-.ai-msg.bot { background: #e8f5ec; color: #1a2e2a; align-self: flex-start; border-bottom-right-radius: 4px; border: 1px solid #cce8d8; }
-.ai-msg.user { background: #0a4d2e; color: white; align-self: flex-end; border-bottom-left-radius: 4px; }
+/* نقطه‌ای که لوگوها از آن خارج می‌شوند (ناحیه دهان) */
+.mouth-spawner {
+position: absolute;
+top: 45%; /* برای عکس شما تنظیم شد */
+left: 50%;
+transform: translate(-50%, -50%);
+pointer-events: none;
+z-index: 10;
+}
 
-.ai-footer { padding: 15px; background: white; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; align-items: center; }
-.ai-footer input { flex: 1; padding: 12px 15px; border: 1px solid #d1d5db; border-radius: 25px; font-family: inherit; font-size: 13px; outline: none; background: #f3f4f6;}
-.ai-footer input:focus { background: #fff; border-color: #148a4f; }
-.ai-footer button { width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 18px; transition: 0.2s;}
-.btn-mic { background: #e0f2fe; color: #0284c7; }
-.btn-mic.recording { background: #ef4444; color: white; animation: pulse 1.5s infinite; }
-.btn-send { background: #0a4d2e; color: white; }
+/* استایل لوگوی خارج شده */
+.emitted-logo {
+position: absolute;
+font-size: 24px;
+color: #00ffcc;
+text-shadow: 0 0 10px #00ffcc;
+opacity: 1;
+animation: floatUp 1s ease-out forwards; /* سریعتر شد تا با صحبت کردن هماهنگ باشد */
+}
 
-.highlight-guide { box-shadow: 0 0 0 4px rgba(212, 160, 23, 0.8) !important; border-color: #d4a017 !important; animation: pulse-highlight 1.5s infinite; background-color: #fffdf5 !important; }
-@keyframes pulse-highlight { 0% { box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.8); } 50% { box-shadow: 0 0 0 8px rgba(212, 160, 23, 0.2); } 100% { box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.8); } }
+/* دکمه شروع - برای رفع خطای میکروفن الزامی است */
+#start-btn {
+margin-top: 30px;
+padding: 12px 30px;
+font-size: 18px;
+background-color: #00ffcc;
+color: #1a1a1a;
+border: none;
+border-radius: 25px;
+cursor: pointer;
+font-weight: bold;
+box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4);
+transition: all 0.3s;
+}
+
+#start-btn:hover {
+background-color: #00ccaa;
+transform: scale(1.05);
+}
+
+/* متن وضعیت (نمایش اینکه ربات گوش می‌دهد یا صحبت می‌کند) */
+#status-text {
+margin-top: 15px;
+font-size: 16px;
+color: #00ffcc;
+min-height: 24px;
+}
+
+/* کی‌فریم‌های انیمیشن تنفس */
+@keyframes breathe {
+0%, 100% { transform: scale(1); filter: brightness(1); }
+50% { transform: scale(1.03); filter: brightness(1.1); }
+}
+
+/* کی‌فریم‌های انیمیشن خروج لوگو */
+@keyframes floatUp {
+0% { transform: translate(-50%, 0) scale(0.5); opacity: 1; }
+100% { transform: translate(-50%, -100px) scale(1.5); opacity: 0; }
+}
 </style>
 </head>
 <body>
 
-<div id="toast-notification" class="toast">پیام جدید!</div>
-<audio id="notify-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+<div class="robot-container">
+<!-- آدرس عکس ربات خود را اینجا قرار دهید -->
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/ESET_logo_and_wordmark.svg/2560px-ESET_logo_and_wordmark.svg.png" alt="Robot" class="robot-image" id="robot">
 
-<!-- =========================================
-ربات دستیار هوشمند
-========================================= -->
-<div id="ai-float-btn" onclick="toggleAIChat()" title="دستیار هوشمند مهر">
-<svg viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4V6H16A2 2 0 0 1 18 8V12A2 2 0 0 1 16 14H14V16A2 2 0 0 1 12 18A2 2 0 0 1 10 16V14H8A2 2 0 0 1 6 12V8A2 2 0 0 1 8 6H10V4A2 2 0 0 1 12 2M9 9A1 1 0 0 0 8 10A1 1 0 0 0 9 11A1 1 0 0 0 10 10A1 1 0 0 0 9 9M15 9A1 1 0 0 0 14 10A1 1 0 0 0 15 11A1 1 0 0 0 16 10A1 1 0 0 0 15 9Z"/></svg>
+<!-- نقطه خروج لوگو -->
+<div class="mouth-spawner" id="mouth"></div>
 </div>
 
-<div id="ai-chat-window">
-<div class="ai-header">
-<div class="ai-header-avatar">
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-<defs><linearGradient id="metal3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f8f9fa"/><stop offset="100%" stop-color="#495057"/></linearGradient></defs>
-<path d="M40,200 L160,200 L170,130 L30,130 Z" fill="#0a4d2e"/>
-<ellipse cx="100" cy="70" rx="45" ry="50" fill="url(#metal3)"/>
-<ellipse cx="80" cy="65" rx="10" ry="6" fill="#10b981"/>
-<ellipse cx="120" cy="65" rx="10" ry="6" fill="#10b981"/>
-</svg>
-</div>
-<div>
-<h4>دستیار هوشمند مهر</h4>
-<p id="ai-status">آماده راهنمایی</p>
-</div>
-<button class="close-btn" onclick="toggleAIChat()">×</button>
-</div>
-<div class="ai-body" id="ai-chat-log">
-<div class="ai-msg bot">سلام! من دستیار هوشمند شما هستم. برای صحبت با من روی میکروفون بزنید یا تایپ کنید.</div>
-</div>
-<div class="ai-footer">
-<button class="btn-mic" id="ai-mic-btn" onclick="toggleMic()" title="ضبط صدا">🎤</button>
-<input type="text" id="ai-chat-input" placeholder="دستور خود را بنویسید..." onkeypress="if(event.key==='Enter')sendAIMessage()">
-<button class="btn-send" onclick="sendAIMessage()">➤</button>
-</div>
-</div>
+<!-- دکمه شروع (برای اجازه گرفتن از مرورگر) -->
+<button id="start-btn">🎤 شروع مکالمه</button>
 
-<!-- =========================================
-بدنه اصلی سایت (دقیقاً کد شما با شناسه‌های اصلاح شده)
-========================================= -->
-<div class="container">
-<div class="header">
-<h1>🌿 سامانه جامع مهر</h1>
-<p>خدمات اعتباری و پشتیبانی</p>
-</div>
-
-<div class="tabs" id="main-tabs">
-<button class="tab-btn active" id="tab-customer" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
-<button class="tab-btn" id="tab-track" onclick="switchTab('track', this)">🔍 پیگیری</button>
-<button class="tab-btn" id="tab-guide" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
-<button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
-</div>
-
-<!-- ۱. پنل مشتری -->
-<div class="content panel active" id="panel-customer">
-<div class="stepper" id="stepper">
-<div class="step-item active" id="indicator-1"><div class="step-circle">1</div><div class="step-title">انتخاب شعبه</div></div>
-<div class="step-item" id="indicator-2"><div class="step-circle">2</div><div class="step-title">نوع مشکل</div></div>
-<div class="step-item" id="indicator-3"><div class="step-circle">3</div><div class="step-title">مشخصات و ثبت</div></div>
-</div>
-<form id="ticketForm" onsubmit="event.preventDefault(); submitCustomerForm();">
-<div class="form-step active" id="step-1">
-<div style="text-align: center; margin-bottom: 20px;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://fathisaeed1620097923.github.io/mehr-khalvat/" alt="QR Code" style="border: 2px solid #0a4d2e; border-radius: 10px; padding: 5px; background: #fff;"></div>
-<div class="form-group">
-<label>لطفاً شعبه خود را انتخاب کنید:</label>
-<select id="c-branch" required>
-<option value="">-- انتخاب کنید --</option>
-<option value="6400">6400 (مدیریت)</option>
-<option value="6401">6401</option><option value="6402">6402</option><option value="6403">6403</option>
-</select>
-</div>
-<button type="button" class="btn" onclick="nextStep(1)">مرحله بعد <span style="float:left;">&larr;</span></button>
-</div>
-<div class="form-step" id="step-2">
-<div class="form-group">
-<label>مشکل خود را انتخاب کنید:</label>
-<select id="c-problemType" required>
-<option value="">-- انتخاب کنید --</option>
-<option value="1">۱. وام (واریز نشده)</option><option value="2">۲. اعتبارسنجی</option><option value="13">۱۳. کارت گم شده</option><option value="14">۱۴. رمز فراموشی</option>
-</select>
-</div>
-<div class="btn-row">
-<button type="button" class="btn btn-outline" onclick="prevStep(2)">مرحله قبل</button>
-<button type="button" class="btn" onclick="nextStep(2)">مرحله بعد</button>
-</div>
-</div>
-<div class="form-step" id="step-3">
-<div class="form-group"><label>شماره همراه:</label><input type="tel" id="c-mobile" placeholder="مثلاً 09123456789" maxlength="11" required></div>
-<div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="مثلاً 0012345678" maxlength="10" required></div>
-<div class="form-group"><label>توضیح مختصر (اختیاری):</label><textarea id="c-description" placeholder="مشکل خود را کمی توضیح دهید..."></textarea></div>
-<div class="camera-box">
-<p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 پیوست عکس (اختیاری)</p>
-<img id="c-photoResult" alt="عکس گرفته شده">
-<div id="photo-options">
-<input type="file" id="c-fileInput" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
-<button type="button" class="btn btn-secondary" onclick="document.getElementById('c-fileInput').click()">انتخاب یا گرفتن عکس</button>
-</div>
-<div id="photo-remove-box" style="display: none;">
-<button type="button" class="btn btn-outline" style="border-color: #c0392b; color: #c0392b;" onclick="removePhoto()">حذف عکس انتخاب شده</button>
-</div>
-</div>
-<div class="btn-row">
-<button type="button" class="btn btn-outline" onclick="prevStep(3)">مرحله قبل</button>
-<button type="submit" class="btn" id="submitCustomerBtn">ثبت نهایی درخواست</button>
-</div>
-</div>
-</form>
-<div class="result-box" id="c-resultSection">
-<h3>✅ درخواست شما ثبت شد</h3>
-<p>کد پیگیری شما:</p>
-<div class="tracking-code" id="c-trackingCode">-----</div>
-<button class="btn" onclick="location.reload()" style="margin-top: 15px;">ثبت مشکل جدید</button>
-</div>
-</div>
-
-<!-- ۲. پنل پیگیری -->
-<div class="content panel" id="panel-track">
-<div style="text-align: center; margin-bottom: 20px;">
-<h2 style="color: #0a4d2e; margin-bottom: 10px;">پیگیری وضعیت</h2>
-<p style="font-size: 14px; color: #666;">کد پیگیری (عدد) خود را وارد کنید.</p>
-</div>
-<div class="form-group">
-<label>کد پیگیری:</label>
-<input type="text" id="track-code-input" placeholder="مثلاً 58421">
-</div>
-<button class="btn" onclick="startTracking()">مشاهده و پیگیری زنده</button>
-<div class="result-box" id="track-result-box" style="display: none;">
-<h3>وضعیت درخواست شما:</h3>
-<p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #d4a017;" id="track-status-text"></p>
-</div>
-</div>
-
-<!-- ۳. راهنمای تسهیلات (با ۴ دکمه شغل) -->
-<div class="content panel" id="panel-guide">
-<div class="stepper" id="guide-stepper">
-<div class="step-item active" id="g-ind-1"><div class="step-circle">1</div><div class="step-title">دسته‌بندی</div></div>
-<div class="step-item" id="g-ind-2"><div class="step-circle">2</div><div class="step-title">انتخاب طرح</div></div>
-<div class="step-item" id="g-ind-3"><div class="step-circle">3</div><div class="step-title">جزئیات و محاسبه</div></div>
-</div>
-<div class="form-step active" id="g-step-1">
-<div style="display:flex; flex-direction:column; gap:10px;">
-<button type="button" class="btn-plan" style="color: #3498db; border-color: #3498db;" onclick="selectGuideCategory('general')">🌟 بانکداری خرد و اجتماعی (نیلوفر، نورا، شمس، ارکیده)</button>
-<button type="button" class="btn-plan" style="color: #27ae60; border-color: #27ae60;" onclick="selectGuideCategory('guilds')">🏪 بانکداری اصناف (نارون، سرو، توسکا)</button>
-<button type="button" class="btn-plan" style="color: #d35400; border-color: #d35400;" onclick="selectGuideCategory('support')">🤝 طرح‌های حمایتی (نجم، کرامت، رضوان، نصر)</button>
-<button type="button" class="btn-plan" style="color: #34495e; border-color: #34495e;" onclick="selectGuideCategory('corporate')">🏢 بانکداری شرکتی (یاقوت، الماس، فیروزه)</button>
-</div>
-</div>
-<div class="form-step" id="g-step-2">
-<div id="guide-plans-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-<button type="button" class="btn btn-outline" style="margin-top:15px;" onclick="showGuideStep(1)">مرحله قبل</button>
-</div>
-<div class="form-step" id="g-step-3">
-<div id="guide-details-container"></div>
-<button type="button" class="btn btn-outline" style="margin-top:15px;" onclick="showGuideStep(2)">مرحله قبل</button>
-</div>
-</div>
-</div>
-
-<!-- محفظه مخفی برای نگهداری کارت‌های طرح‌ها (تمام ۱۶ طرح) -->
-<div id="hidden-plans" style="display:none;">
-<!-- طرح نیلوفر -->
-<div class="card" id="plan-niloufar" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
-<div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نیلوفر</div>
-<div class="c-body"><span class="badge">امتیازی - کد ۱۰۱</span>
-<div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">هر شخص حقیقی بالای ۱۸ سال که حساب قرض‌الحسنه پس‌انداز دارد.</div></div>
-<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step"><div class="q-step-title"><span class="q-num">1</span> نصب</div><div class="q-step-desc"><a href="https://qbank24.ir/downloads" target="_blank" class="action-link">دانلود</a></div></div><div class="q-step"><div class="q-step-title"><span class="q-num">2</span> افتتاح</div><div class="q-step-desc"><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح</a></div></div></div></div></div></div>
-</div>
-
-<!-- طرح نورا -->
-<div class="card" id="plan-noora" style="--theme-color: #e74c3c; --theme-light: #fdeaea; --theme-text: #a0312b;">
-<div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نورا</div>
-<div class="c-body"><span class="badge">امتیازی - کد ۱۸۲</span>
-<div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف ۵۰۰ میلیون تومان، کارمزد صفر.</div></div>
-<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه</div></div><div class="dual-action-content calc-content-wrapper"></div></div>
-</div>
-
-<!-- طرح ارکیده (با جدول) -->
-<div class="card" id="plan-ardideh" style="--theme-color: #9b59b6; --theme-light: #f0e8f8; --theme-text: #5e2a80;">
-<div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح ارکیده</div>
-<div class="c-body"><span class="badge">حمایتی</span>
-<div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اشخاص حقیقی (حمایتی).</div></div>
-<div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۲</span> 🌱 رویش مهر</span> <span class="acc-arrow">▼</span></div><div class="acc-body">در صورت فعال بودن طرح رویش مهر، <b>مدت زمان انتظار کاهش می‌یابد.</b></div></div>
-<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۳</span> 📊 جدول شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">
-<table><tr><th>مدت انتظار (روز)</th><th>بازپرداخت (ماه)</th><th>تسهیلات (م.ت)</th><th>صلح شده (م.ت)</th></tr>
-<tr><td>۳۰</td><td>۲۰</td><td>۲۰۰</td><td>۱۰۰</td></tr><tr><td>۶۰</td><td>۳۰</td><td>۳۰۰</td><td>۱۵۰</td></tr>
-<tr><td>۹۰</td><td>۴۰</td><td>۴۰۰</td><td>۲۰۰</td></tr><tr><td>۱۲۰</td><td>۵۰</td><td>۵۰۰</td><td>۲۵۰</td></tr></table>
-</div></div>
-<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 کیوبانک</div></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step"><div class="q-step-title"><span class="q-num">1</span> نصب</div><div class="q-step-desc"><a href="https://qbank24.ir/downloads" target="_blank" class="action-link">دانلود</a></div></div><div class="q-step"><div class="q-step-title"><span class="q-num">2</span> افتتاح</div><div class="q-step-desc"><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح</a></div></div></div></div></div></div>
-</div>
-
-<!-- طرح سرو ۱ (با جدول) -->
-<div class="card" id="plan-sarv1" style="--theme-color: #2ecc71; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
-<div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح سرو (بدون تفاهم)</div>
-<div class="c-body"><span class="badge">حمایتی</span>
-<div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۱</span> 🌱 رویش مهر</span> <span class="acc-arrow">▼</span></div><div class="acc-body">در صورت فعال بودن طرح رویش مهر، <b>مدت زمان انتظار کاهش می‌یابد.</b></div></div>
-<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> 📊 جدول</span> <span class="acc-arrow">▼</span></div><div class="acc-body">
-<table><tr><th>سقف (م.ت)</th><th>بازپرداخت (ماه)</th><th>انتظار (روز)</th><th>کارمزد</th></tr>
-<tr><td>۶۰۰</td><td>۷</td><td>۲۰</td><td>۴٪</td></tr><tr><td>۸۰۰</td><td>۹</td><td>۳۰</td><td>۳٪</td></tr>
-<tr><td>۱۰۰۰</td><td>۱۲</td><td>۳۰</td><td>۴٪</td></tr><tr><td>۱۵۰۰</td><td>۲۴</td><td>۶۰</td><td>۴٪</td></tr></table>
-</div></div>
-<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 کیوبانک</div></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step"><div class="q-step-title"><span class="q-num">1</span> نصب</div><div class="q-step-desc"><a href="https://qbank24.ir/downloads" target="_blank" class="action-link">دانلود</a></div></div><div class="q-step"><div class="q-step-title"><span class="q-num">2</span> افتتاح</div><div class="q-step-desc"><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح</a></div></div></div></div></div></div>
-</div>
-
-<!-- طرح سرو ۲ (با جدول) -->
-<div class="card" id="plan-sarv2" style="--theme-color: #2ecc71; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
-<div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح سرو (با تفاهم)</div>
-<div class="c-body"><span class="badge">حمایتی</span>
-<div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۱</span> 🌱 رویش مهر</span> <span class="acc-arrow">▼</span></div><div class="acc-body">در صورت فعال بودن طرح رویش مهر، <b>مدت زمان انتظار کاهش می‌یابد.</b></div></div>
-<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> 📊 جدول</span> <span class="acc-arrow">▼</span></div><div class="acc-body">
-<table><tr><th>بازپرداخت</th><th>انتظار</th><th>کارمزد</th><th>حمایت</th></tr>
-<tr><td>۱۲ ماه</td><td>۲۰ روز</td><td>۴٪</td><td>۱۰۰٪</td></tr><tr><td>۲۴ ماه</td><td>۴۰ روز</td><td>۴٪</td><td>۱۰۰٪</td></tr></table>
-</div></div>
-<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 کیوبانک</div></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step"><div class="q-step-title"><span class="q-num">1</span> نصب</div><div class="q-step-desc"><a href="https://qbank24.ir/downloads" target="_blank" class="action-link">دانلود</a></div></div><div class="q-step"><div class="q-step-title"><span class="q-num">2</span> افتتاح</div><div class="q-step-desc"><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح</a></div></div></div></div></div></div>
-</div>
-
-<!-- طرح نجم (با جدول) -->
-<div class="card" id="plan-najm" style="--theme-color: #f1c40f; --theme-light: #fef9e7; --theme-text: #8a6a0f;">
-<div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نجم</div>
-<div class="c-body"><span class="badge">حمایتی</span>
-<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۱</span> 📊 جدول</span> <span class="acc-arrow">▼</span></div><div class="acc-body">
-<table><tr><th>بازپرداخت</th><th>کارمزد</th><th>سقف تسهیلات</th></tr>
-<tr><td>تا ۶۰ ماه</td><td>۲ تا ۴ درصد</td><td>۵۰۰ میلیون تومان</td></tr></table>
-</div></div>
-<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 کیوبانک</div></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step"><div class="q-step-title"><span class="q-num">1</span> نصب</div><div class="q-step-desc"><a href="https://qbank24.ir/downloads" target="_blank" class="action-link">دانلود</a></div></div><div class="q-step"><div class="q-step-title"><span class="q-num">2</span> افتتاح</div><div class="q-step-desc"><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح</a></div></div></div></div></div></div>
-</div>
-</div>
+<!-- نمایش وضعیت ربات -->
+<div id="status-text">برای شروع دکمه بالا را بزنید</div>
 
 <script>
-// 🔴 لینک exec جدید خود را دقیقاً بین این دو دابل کوتیشن بچسبانید
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
+const mouthSpawner = document.getElementById('mouth');
+const startBtn = document.getElementById('start-btn');
+const statusText = document.getElementById('status-text');
 
-// ==========================================
-// ۱. توابع دو مستطیل (ماشین حساب و کیوبانک)
-// ==========================================
-function toggleCardAction(btn, type) {
-const container = btn.closest('.dual-action-container');
-const calcBtn = container.querySelector('.calc-btn-trigger');
-const qbankBtn = container.querySelector('.qbank-btn-trigger');
-const calcContent = container.querySelector('.calc-content-wrapper');
-const qbankContent = container.querySelector('.qbank-content-wrapper');
+const logos = ['🛡️', '🔒', '✨', '⚙️', '🟢', '💬'];
+let logoInterval;
 
-if(calcBtn) calcBtn.classList.remove('active');
-qbankBtn.classList.remove('active');
-calcContent.style.display = 'none';
-qbankContent.style.display = 'none';
-
-if (type === 'calc') {
-calcBtn.classList.add('active');
-calcContent.style.display = 'block';
-if (calcContent.innerHTML.trim() === '') {
-const cardId = btn.closest('.card').id;
-const planId = cardId.replace('plan-', '');
-renderCalculator(planId, calcContent);
-}
-} else if (type === 'qbank') {
-qbankBtn.classList.add('active');
-qbankContent.style.display = 'block';
-}
+// تابع ساخت لوگو
+function emitLogo() {
+const logo = document.createElement('div');
+logo.classList.add('emitted-logo');
+logo.innerText = logos[Math.floor(Math.random() * logos.length)];
+const randomX = (Math.random() - 0.5) * 30;
+logo.style.left = randomX + 'px';
+mouthSpawner.appendChild(logo);
+setTimeout(() => { logo.remove(); }, 1000);
 }
 
-// ==========================================
-// ۲. سیستم صوتی (TTS)
-// ==========================================
-var persianVoice = null;
-function loadVoices() {
-if (!('speechSynthesis' in window)) return;
-var voices = window.speechSynthesis.getVoices();
-for (var i = 0; i < voices.length; i++) {
-if (voices[i].lang === 'fa-IR' || voices[i].name.indexOf('Dariush') !== -1) {
-persianVoice = voices[i]; break;
-}
-}
-}
-window.speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
-
-function readText(text) {
-if (!text || !('speechSynthesis' in window)) return;
-window.speechSynthesis.cancel();
-var u = new SpeechSynthesisUtterance(text);
-if (persianVoice) { u.voice = persianVoice; u.lang = 'fa-IR'; }
-u.rate = 0.9;
-u.onstart = function() { document.getElementById('ai-status').innerText = "در حال صحبت..."; };
-u.onend = function() { document.getElementById('ai-status').innerText = "آماده راهنمایی"; };
-window.speechSynthesis.speak(u);
+// شروع خروج لوگوها (وقتی ربات حرف می‌زند)
+function startEmittingLogos() {
+logoInterval = setInterval(emitLogo, 200); // هر ۲۰۰ میلی ثانیه یک لوگو
 }
 
-// ==========================================
-// ۳. ماشین‌حساب
-// ==========================================
-const T4 = {6:[.312,.632,.949,1.265,1.581,1.897,2.213,2.529,2.846,3.162,3.478,3.794],12:[.187,.383,.574,.765,.957,1.148,1.340,1.531,1.722,1.914,2.105,2.296],18:[.152,.312,.469,.655,.781,.937,1.093,1.249,1.406,1.562,1.718,1.874],24:[.120,.248,.373,.497,.621,.745,.869,.993,1.118,1.242,1.366,1.490],30:[.096,.200,.300,.400,.500,.600,.701,.801,.901,1.002,1.102,1.202],36:[.080,.168,.253,.337,.421,.505,.589,.673,.758,.842,.926,1.010],42:[.069,.145,.218,.291,.364,.436,.509,.582,.655,.727,.800,.873],48:[.060,.128,.193,.257,.321,.385,.449,.513,.578,.642,.706,.770],54:[.053,.115,.173,.231,.289,.347,.404,.462,.520,.578,.635,.693],60:[.048,.104,.157,.209,.261,.313,.365,.417,.470,.522,.574,.666]};
-
-function renderCalculator(planId, container) {
-if(!container) return;
-let html = `<div class="calc-box"><div class="form-group"><label>مبلغ سپرده (تومان):</label><input type="text" id="dep-${planId}" placeholder="مثلاً 100,000,000"></div><div class="form-group"><label>دوره (ماه):</label><input type="number" id="per-${planId}" placeholder="بین ۱ تا ۱۲" min="1" max="12"></div><button type="button" class="btn btn-secondary" onclick="calculateLoan('${planId}')">محاسبه وام</button><div id="res-${planId}"></div></div>`;
-container.innerHTML = html;
-document.getElementById('dep-' + planId).addEventListener('input', function() { let r = this.value.replace(/[^\d]/g, ''); this.value = r ? parseInt(r).toLocaleString('en-US') : ''; });
+// توقف خروج لوگوها
+function stopEmittingLogos() {
+clearInterval(logoInterval);
 }
 
-function calculateLoan(planId) {
-const d = parseFloat(document.getElementById('dep-' + planId).value.replace(/,/g, '')) || 0;
-const p = parseInt(document.getElementById('per-' + planId).value) || 0;
-if (d <= 0) { alert('مبلغ سپرده را وارد کنید'); return; } if (p < 1 || p > 12) { alert('دوره باید بین ۱ تا ۱۲ ماه باشد'); return; }
-let table = T4;
-let h = `<table class="res-table"><thead><tr><th>مدت بازپرداخت</th><th>مبلغ وام (تومان)</th><th>قسط ماهانه (تومان)</th></tr></thead><tbody>`;
-[6, 12, 18, 24, 30, 36, 42, 48, 54, 60].forEach(rp => {
-let coeff = (table[rp][p - 1] || 0); let loanAmount = d * coeff;
-let feeAmount = loanAmount * (4 / 100) * (rp / 12); let installment = (loanAmount + feeAmount) / rp;
-h += `<tr><td>${rp} ماه</td><td><b style="color:#0a4d2e;">${Math.round(loanAmount).toLocaleString('fa-IR')}</b></td><td>${Math.round(installment).toLocaleString('fa-IR')}</td></tr>`;
-});
-document.getElementById('res-' + planId).innerHTML = h + `</tbody></table>`;
-}
+// --- بخش اول: سیستم صحبت کردن ربات (Text-to-Speech) ---
+function robotSpeak(text) {
+const synth = window.speechSynthesis;
+if (synth.speaking) synth.cancel(); // قطع صحبت قبلی
 
-// ==========================================
-// ۴. ناوبری سایت
-// ==========================================
-let currentStep = 1;
-let currentActiveTab = 'customer';
+const utterance = new SpeechSynthesisUtterance(text);
+utterance.lang = 'fa-IR'; // زبان فارسی
+utterance.rate = 1.0; // سرعت صحبت
 
-function switchTab(panelId, btnElement) {
-document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-document.getElementById('panel-' + panelId).classList.add('active');
-if(btnElement) btnElement.classList.add('active');
-currentActiveTab = panelId;
-}
-
-function showStep(step) {
-document.querySelectorAll('#panel-customer .form-step').forEach(el => el.classList.remove('active'));
-document.querySelectorAll('#stepper .step-item').forEach(el => el.classList.remove('active', 'completed'));
-document.getElementById('step-' + step).classList.add('active');
-for(let i=1; i<step; i++) { document.getElementById('indicator-' + i).classList.add('completed'); }
-document.getElementById('indicator-' + step).classList.add('active');
-currentStep = step;
-}
-
-function nextStep(current) {
-if(current === 1 && !document.getElementById('c-branch').value) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
-if(current === 2 && !document.getElementById('c-problemType').value) { alert('لطفاً نوع مشکل را انتخاب کنید.'); return; }
-showStep(current + 1);
-}
-function prevStep(current) { showStep(current - 1); }
-
-function showGuideStep(step) {
-document.querySelectorAll('#panel-guide .form-step').forEach(el => el.classList.remove('active'));
-document.querySelectorAll('#guide-stepper .step-item').forEach(el => el.classList.remove('active', 'completed'));
-document.getElementById('g-step-' + step).classList.add('active');
-for(let i=1; i<step; i++) { document.getElementById('g-ind-' + i).classList.add('completed'); }
-document.getElementById('g-ind-' + step).classList.add('active');
-}
-
-const plansList = {
-general: [ { id: 'niloufar', title: 'طرح نیلوفر' }, { id: 'noora', title: 'طرح نورا' }, { id: 'shams', title: 'طرح شمس' }, { id: 'ardideh', title: 'طرح ارکیده' } ],
-guilds: [ { id: 'naron', title: 'طرح نارون' }, { id: 'sarv1', title: 'طرح سرو (بدون تفاهم‌نامه)' }, { id: 'sarv2', title: 'طرح سرو (تفاهم‌نامه‌ای)' }, { id: 'tooska', title: 'طرح توسکا' } ],
-support: [ { id: 'najm', title: 'طرح نجم' }, { id: 'karamat', title: 'طرح کرامت' }, { id: 'radvan', title: 'طرح رضوان' }, { id: 'nasr', title: 'طرح نصر' } ],
-corporate: [ { id: 'yaghot', title: 'طرح یاقوت' }, { id: 'yaghot_fixed', title: 'طرح یاقوت (حفظ مبلغ ثابت)' }, { id: 'almas', title: 'طرح الماس' }, { id: 'firoozeh', title: 'طرح فیروزه' } ]
+utterance.onstart = () => {
+statusText.innerText = "ربات در حال صحبت است...";
+startEmittingLogos(); // لوگوها از دهان خارج می‌شوند
 };
-const planColors = { niloufar: '#3498db', noora: '#e74c3c', shams: '#f39c12', ardideh: '#9b59b6', naron: '#27ae60', sarv1: '#2ecc71', sarv2: '#2ecc71', tooska: '#16a085', najm: '#f1c40f', karamat: '#34495e', radvan: '#3498db', nasr: '#d35400', yaghot: '#c0392b', yaghot_fixed: '#c0392b', almas: '#7f8c8d', firoozeh: '#1abc9c' };
 
-function selectGuideCategory(cat) {
-const list = document.getElementById('guide-plans-list');
-list.innerHTML = '';
-plansList[cat].forEach(plan => {
-let color = planColors[plan.id] || '#0a4d2e';
-list.innerHTML += `<button type="button" class="btn-plan" style="color: ${color}; border-color: ${color};" onclick="selectGuidePlan('${plan.id}')">${plan.title}</button>`;
-});
-showGuideStep(2);
+utterance.onend = () => {
+stopEmittingLogos();
+startListening(); // بعد از صحبت ربات، دوباره به کاربر گوش می‌دهد
+};
+
+synth.speak(utterance);
 }
 
-function selectGuidePlan(planId) {
-const container = document.getElementById('guide-details-container');
-container.innerHTML = '';
-const originalCard = document.getElementById('plan-' + planId);
-if(originalCard) {
-const clone = originalCard.cloneNode(true);
-clone.style.display = 'block';
-container.appendChild(clone);
-const accHeaders = clone.querySelectorAll('.acc-header');
-accHeaders.forEach(header => {
-header.addEventListener('click', function() {
-const parentBox = this.parentElement;
-const body = this.nextElementSibling;
-if (parentBox.classList.contains('active-acc')) { parentBox.classList.remove('active-acc'); body.style.maxHeight = null; }
-else { parentBox.classList.add('active-acc'); body.style.maxHeight = body.scrollHeight + "px"; }
-});
-});
-}
-showGuideStep(3);
-}
+// --- بخش دوم: سیستم شنیدن صدای کاربر (Speech-to-Text) ---
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition;
 
-// ==========================================
-// ۵. هوش مصنوعی و میکروفون (اصلاح نهایی)
-// ==========================================
-function toggleAIChat() {
-const win = document.getElementById('ai-chat-window');
-win.classList.toggle('active');
-if (win.classList.contains('active') && !window.hasGreeted) {
-readText("سلام! من دستیار هوشمند شما هستم. برای صحبت با من روی میکروفون بزنید.");
-window.hasGreeted = true;
-}
-}
-
-function addAIMessage(sender, text) {
-const log = document.getElementById('ai-chat-log');
-const div = document.createElement('div');
-div.className = 'ai-msg ' + sender;
-div.innerHTML = text;
-log.appendChild(div);
-log.scrollTop = log.scrollHeight;
-if (sender === 'bot') readText(text.replace(/<[^>]+>/g, ''));
-}
-
-function sendAIMessage() {
-const input = document.getElementById('ai-chat-input');
-const text = input.value.trim();
-if (!text) return;
-addAIMessage('user', text);
-input.value = '';
-processAICommand(text);
-}
-
-function toEnglishDigits(str) {
-const persian = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
-for (let i = 0; i < 10; i++) str = str.replace(persian[i], i.toString());
-return str;
-}
-function highlightField(id) { const el = document.getElementById(id); if (!el) return; el.classList.add('highlight-guide'); el.focus(); setTimeout(() => el.classList.remove('highlight-guide'), 4000); }
-
-function processAICommand(originalText) {
-let text = toEnglishDigits(originalText).toLowerCase();
-let cleanText = text.replace(/\s+/g, '');
-
-// 1. ناوبری دقیق
-if (text.includes('ثبت') || text.includes('مشکل') || text.includes('شکایت')) {
-switchTab('customer', document.getElementById('tab-customer'));
-addAIMessage('bot', "شما را به صفحه ثبت مشکل بردم. لطفاً شماره موبایل خود را بگویید.");
-highlightField('c-mobile');
-setTimeout(() => { if(!isRecording) toggleMic(); }, 2000);
-return;
-}
-if (text.includes('پیگیری') || text.includes('وضعیت')) {
-switchTab('track', document.getElementById('tab-track'));
-addAIMessage('bot', "شما را به صفحه پیگیری بردم. کد پیگیری خود را بگویید.");
-highlightField('track-code-input');
-setTimeout(() => { if(!isRecording) toggleMic(); }, 2000);
-return;
-}
-if (text.includes('راهنما') || text.includes('تسهیلات') || text.includes('طرح')) {
-switchTab('guide', document.getElementById('tab-guide'));
-addAIMessage('bot', "شما را به صفحه راهنمای تسهیلات بردم. کدام طرح مد نظرتان است؟");
-return;
-}
-
-// 2. تشخیص طرح‌ها
-for (const [key, plan] of Object.entries(plansList.general.concat(plansList.guilds, plansList.support, plansList.corporate))) {
-if (text.includes(plan.title.replace("طرح ", ""))) {
-addAIMessage('bot', `اطلاعات ${plan.title} برای شما باز شد.`);
-switchTab('guide', document.getElementById('tab-guide'));
-selectGuidePlan(plan.id);
-return;
-}
-}
-
-// 3. تشخیص شماره موبایل و کد ملی
-if (currentActiveTab === 'customer') {
-const mobileMatch = cleanText.match(/(09\d{9})/);
-if (mobileMatch) {
-document.getElementById('c-mobile').value = mobileMatch[0];
-highlightField('c-mobile');
-addAIMessage('bot', `شماره موبایل <b>${mobileMatch[0]}</b> ثبت شد. حالا لطفاً کد ملی خود را بگویید.`);
-setTimeout(() => { if(!isRecording) toggleMic(); }, 2000);
-return;
-}
-const nationalIdMatch = cleanText.match(/\b(\d{10})\b/);
-if (nationalIdMatch && !nationalIdMatch[0].startsWith('09')) {
-document.getElementById('c-nationalId').value = nationalIdMatch[0];
-highlightField('c-nationalId');
-addAIMessage('bot', `کد ملی <b>${nationalIdMatch[0]}</b> ثبت شد.`);
-return;
-}
-}
-
-if (currentActiveTab === 'track') {
-const codeMatch = cleanText.match(/\b(\d{5})\b/);
-if (codeMatch) {
-document.getElementById('track-code-input').value = codeMatch[0];
-highlightField('track-code-input');
-addAIMessage('bot', `کد پیگیری <b>${codeMatch[0]}</b> ثبت شد.`);
-return;
-}
-}
-
-addAIMessage('bot', "متوجه نشدم. می‌توانید بگویید 'ثبت مشکل'، 'پیگیری'، یا نام طرحی مثل 'ارکیده'.");
-}
-
-let isRecording = false; let recognition = null;
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-recognition = new SR();
+if (SpeechRecognition) {
+recognition = new SpeechRecognition();
 recognition.lang = 'fa-IR';
 recognition.continuous = false;
+recognition.interimResults = false;
 
-recognition.onstart = function() {
-isRecording = true;
-document.getElementById('ai-mic-btn').classList.add('recording');
-document.getElementById('ai-status').innerText = "در حال گوش دادن...";
+recognition.onstart = () => {
+statusText.innerText = "🎤 صحبت کنید... (ربات گوش می‌دهد)";
 };
-recognition.onresult = function(e) {
-const transcript = e.results[0][0].transcript;
-document.getElementById('ai-chat-input').value = transcript;
-sendAIMessage();
-};
-recognition.onerror = function(e) {
-isRecording = false;
-document.getElementById('ai-mic-btn').classList.remove('recording');
-document.getElementById('ai-status').innerText = "آماده راهنمایی";
 
-if(e.error === 'not-allowed') {
-addAIMessage('bot', "دسترسی به میکروفون مسدود است. لطفاً از تنظیمات مرورگر (قفل کنار آدرس) اجازه دسترسی به میکروفون را بدهید.");
-} else if(e.error === 'no-speech') {
-addAIMessage('bot', "صدایی نشنیدم. لطفاً دوباره روی میکروفون بزنید و صحبت کنید.");
-} else if(e.error === 'network') {
-addAIMessage('bot', "مشکل در اتصال به اینترنت برای تشخیص صدا. لطفاً تایپ کنید.");
+recognition.onresult = (event) => {
+const userText = event.results[0][0].transcript;
+statusText.innerText = `شما گفتید: "${userText}"`;
+
+// اینجا می‌توانید منطق پردازش پاسخ ربات را قرار دهید
+processUserInput(
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ربات امنیتی با تنفس</title>
+<style>
+body {
+background-color: #2c2c2c;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+height: 100vh;
+margin: 0;
+overflow: hidden;
+font-family: Tahoma, sans-serif;
+color: white;
+}
+
+.robot-container {
+position: relative;
+/* انیمیشن تنفس برای کل ظرف */
+animation: breathe 4s ease-in-out infinite;
+}
+
+/* عکس ربات - شما می‌توانید آدرس عکس خودتان را اینجا قرار دهید */
+.robot-image {
+width: 300px;
+height: auto;
+border-radius: 20px;
+/* یک سایه ملایم برای جلوه بهتر */
+filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.5));
+}
+
+/* نقطه‌ای که لوگوها از آن خارج می‌شوند (ناحیه دهان) */
+.mouth-spawner {
+position: absolute;
+top: 45%; /* برای عکس شما تنظیم شد */
+left: 50%;
+transform: translate(-50%, -50%);
+pointer-events: none;
+z-index: 10;
+}
+
+/* استایل لوگوی خارج شده */
+.emitted-logo {
+position: absolute;
+font-size: 24px;
+color: #00ffcc;
+text-shadow: 0 0 10px #00ffcc;
+opacity: 1;
+animation: floatUp 1s ease-out forwards; /* سریعتر شد تا با صحبت کردن هماهنگ باشد */
+}
+
+/* دکمه شروع - برای رفع خطای میکروفن الزامی است */
+#start-btn {
+margin-top: 30px;
+padding: 12px 30px;
+font-size: 18px;
+background-color: #00ffcc;
+color: #1a1a1a;
+border: none;
+border-radius: 25px;
+cursor: pointer;
+font-weight: bold;
+box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4);
+transition: all 0.3s;
+}
+
+#start-btn:hover {
+background-color: #00ccaa;
+transform: scale(1.05);
+}
+
+/* متن وضعیت (نمایش اینکه ربات گوش می‌دهد یا صحبت می‌کند) */
+#status-text {
+margin-top: 15px;
+font-size: 16px;
+color: #00ffcc;
+min-height: 24px;
+}
+
+/* کی‌فریم‌های انیمیشن تنفس */
+@keyframes breathe {
+0%, 100% { transform: scale(1); filter: brightness(1); }
+50% { transform: scale(1.03); filter: brightness(1.1); }
+}
+
+/* کی‌فریم‌های انیمیشن خروج لوگو */
+@keyframes floatUp {
+0% { transform: translate(-50%, 0) scale(0.5); opacity: 1; }
+100% { transform: translate(-50%, -100px) scale(1.5); opacity: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="robot-container">
+<!-- آدرس عکس ربات خود را اینجا قرار دهید -->
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/ESET_logo_and_wordmark.svg/2560px-ESET_logo_and_wordmark.svg.png" alt="Robot" class="robot-image" id="robot">
+
+<!-- نقطه خروج لوگو -->
+<div class="mouth-spawner" id="mouth"></div>
+</div>
+
+<!-- دکمه شروع (برای اجازه گرفتن از مرورگر) -->
+<button id="start-btn">🎤 شروع مکالمه</button>
+
+<!-- نمایش وضعیت ربات -->
+<div id="status-text">برای شروع دکمه بالا را بزنید</div>
+
+<script>
+const mouthSpawner = document.getElementById('mouth');
+const startBtn = document.getElementById('start-btn');
+const statusText = document.getElementById('status-text');
+
+const logos = ['🛡️', '🔒', '✨', '⚙️', '🟢', '💬'];
+let logoInterval;
+
+// تابع ساخت لوگو
+function emitLogo() {
+const logo = document.createElement('div');
+logo.classList.add('emitted-logo');
+logo.innerText = logos[Math.floor(Math.random() * logos.length)];
+const randomX = (Math.random() - 0.5) * 30;
+logo.style.left = randomX + 'px';
+mouthSpawner.appendChild(logo);
+setTimeout(() => { logo.remove(); }, 1000);
+}
+
+// شروع خروج لوگوها (وقتی ربات حرف می‌زند)
+function startEmittingLogos() {
+logoInterval = setInterval(emitLogo, 200); // هر ۲۰۰ میلی ثانیه یک لوگو
+}
+
+// توقف خروج لوگوها
+function stopEmittingLogos() {
+clearInterval(logoInterval);
+}
+
+// --- بخش اول: سیستم صحبت کردن ربات (Text-to-Speech) ---
+function robotSpeak(text) {
+const synth = window.speechSynthesis;
+if (synth.speaking) synth.cancel(); // قطع صحبت قبلی
+
+const utterance = new SpeechSynthesisUtterance(text);
+utterance.lang = 'fa-IR'; // زبان فارسی
+utterance.rate = 1.0; // سرعت صحبت
+
+utterance.onstart = () => {
+statusText.innerText = "ربات در حال صحبت است...";
+startEmittingLogos(); // لوگوها از دهان خارج می‌شوند
+};
+
+utterance.onend = () => {
+stopEmittingLogos();
+startListening(); // بعد از صحبت ربات، دوباره به کاربر گوش می‌دهد
+};
+
+synth.speak(utterance);
+}
+
+// --- بخش دوم: سیستم شنیدن صدای کاربر (Speech-to-Text) ---
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition;
+
+if (SpeechRecognition) {
+recognition = new SpeechRecognition();
+recognition.lang = 'fa-IR';
+recognition.continuous = false;
+recognition.interimResults = false;
+
+recognition.onstart = () => {
+statusText.innerText = "🎤 صحبت کنید... (ربات گوش می‌دهد)";
+};
+
+recognition.onresult = (event) => {
+const userText = event.results[0][0].transcript;
+statusText.innerText = `شما گفتید: "${userText}"`;
+
+// اینجا می‌توانید منطق پردازش پاسخ ربات را قرار دهید
+processUserInput(userText);
+};
+
+recognition.onerror = (event) => {
+if (event.error === 'no-speech') {
+statusText.innerText = "صدایی شنیده نشد. دوباره تلاش کنید.";
+startListening(); // دوباره گوش بده
 } else {
-addAIMessage('bot', "مشکلی در دریافت صدا پیش آمد. لطفاً تایپ کنید.");
+statusText.innerText = "خطا در دریافت صدا. دکمه شروع را بزنید.";
 }
-};
-recognition.onend = function() {
-isRecording = false;
-document.getElementById('ai-mic-btn').classList.remove('recording');
-document.getElementById('ai-status').innerText = "آماده راهنمایی";
 };
 }
 
-function toggleMic() {
-if (!recognition) { alert("مرورگر شما از میکروفون پشتیبانی نمی‌کند."); return; }
-if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') { alert("میکروفون فقط در آدرس‌های HTTPS کار می‌کند."); return; }
-try {
-if (isRecording) recognition.stop(); else recognition.start();
-} catch(e) {
-addAIMessage('bot', "لطفاً یک لحظه صبر کنید و دوباره تلاش کنید.");
+function startListening() {
+if (recognition) {
+try { recognition.start(); } catch (e) { console.log(e); }
 }
 }
 
-// ==========================================
-// ۶. توابع بک‌اند
-// ==========================================
-function handleFileUpload(event) { alert('عکس انتخاب شد.'); }
-function removePhoto() { alert('عکس حذف شد.'); }
-function submitCustomerForm() {
-let mobile = document.getElementById('c-mobile').value;
-if (!/^09\d{9}$/.test(mobile)) { alert('شماره نامعتبر است.'); return; }
-let trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
-document.getElementById('ticketForm').style.display = 'none'; document.getElementById('stepper').style.display = 'none';
-document.getElementById('c-resultSection').style.display = 'block'; document.getElementById('c-trackingCode').textContent = trackingCode;
+// --- بخش سوم: هوش ربات (پاسخ دادن) ---
+function processUserInput(text) {
+statusText.innerText = "ربات در حال فکر کردن...";
+
+setTimeout(() => {
+// پاسخ‌های ساده (می‌توانید این را به هوش مصنوعی متصل کنید)
+let response = "";
+if (text.includes("سلام") || text.includes("خوبی")) {
+response = "سلام! من ربات امنیتی هستم. چطور می‌توانم کمکتان کنم؟";
+} else if (text.includes("امنیت") || text.includes("محافظت")) {
+response = "سیستم‌های امنیتی من فعال هستند و همه چیز را تحت نظر دارم.";
+} else if (text.includes("خداحافظ")) {
+response = "خداحافظ! روز خوبی داشته باشید.";
+} else {
+response = "متوجه شدم که گفتید: " + text + ". من در حال یادگیری هستم تا بهتر جواب بدهم.";
 }
-function startTracking() { document.getElementById('track-result-box').style.display = 'block'; document.getElementById('track-status-text').innerText = "در حال بررسی..."; }
+
+robotSpeak(response); // ربات جواب می‌دهد
+}, 1000);
+}
+
+// --- شروع کار با کلیک کاربر (رفع خطای میکروفن) ---
+startBtn.addEventListener('click', () => {
+// مخفی کردن دکمه بعد از کلیک
+startBtn.style.display = 'none';
+
+// درخواست دسترسی به میکروفن
+navigator.mediaDevices.getUserMedia({ audio: true })
+.then((stream) => {
+// اگر دسترسی داده شد، استریم تستی را ببند و شروع کن
+stream.getTracks().forEach(track => track.stop());
+
+// ربات اول سلام می‌کند
+robotSpeak("سلام! من ربات امنیتی شما هستم. لطفا صحبت کنید.");
+})
+.catch((err) => {
+console.error(err);
+alert("دسترسی به میکروفن مسدود شد. لطفاً از تنظیمات مرورگر (آیکون قفل کنار آدرس) اجازه دسترسی بدهید.");
+startBtn.style.display = 'block';
+});
+});
+</script>
+</body>
+</html>);
+};
+
+recognition.onerror = (event) => {
+if (event.error === 'no-speech') {
+statusText.innerText = "صدایی شنیده نشد. دوباره تلاش کنید.";
+startListening(); // دوباره گوش بده
+} else {
+statusText.innerText = "خطا در دریافت صدا. دکمه شروع را بزنید.";
+}
+};
+}
+
+function startListening() {
+if (recognition) {
+try { recognition.start(); } catch (e) { console.log(e); }
+}
+}
+
+// --- بخش سوم: هوش ربات (پاسخ دادن) ---
+function processUserInput(text) {
+statusText.innerText = "ربات در حال فکر کردن...";
+
+setTimeout(() => {
+// پاسخ‌های ساده (می‌توانید این را به هوش مصنوعی متصل کنید)
+let response = "";
+if (text.includes("سلام") || text.includes("خوبی")) {
+response = "سلام! من ربات امنیتی هستم. چطور می‌توانم کمکتان کنم؟";
+} else if (text.includes("امنیت") || text.includes("محافظت")) {
+response = "سیستم‌های امنیتی من فعال هستند و همه چیز را تحت نظر دارم.";
+} else if (text.includes("خداحافظ")) {
+response = "خداحافظ! روز خوبی داشته باشید.";
+} else {
+response = "متوجه شدم که گفتید: " + text + ". من در حال یادگیری هستم تا بهتر جواب بدهم.";
+}
+
+robotSpeak(response); // ربات جواب می‌دهد
+}, 1000);
+}
+
+// --- شروع کار با کلیک کاربر (رفع خطای میکروفن) ---
+startBtn.addEventListener('click', () => {
+// مخفی کردن دکمه بعد از کلیک
+startBtn.style.display = 'none';
+
+// درخواست دسترسی به میکروفن
+navigator.mediaDevices.getUserMedia({ audio: true })
+.then((stream) => {
+// اگر دسترسی داده شد، استریم تستی را ببند و شروع کن
+stream.getTracks().forEach(track => track.stop());
+
+// ربات اول سلام می‌کند
+robotSpeak("سلام! من ربات امنیتی شما هستم. لطفا صحبت کنید.");
+})
+.catch((err) => {
+console.error(err);
+alert("دسترسی به میکروفن مسدود شد. لطفاً از تنظیمات مرورگر (آیکون قفل کنار آدرس) اجازه دسترسی بدهید.");
+startBtn.style.display = 'block';
+});
+});
 </script>
 </body>
 </html>
