@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سامانه جامع مهر | هوش مصنوعی همراه</title>
+<title>سامانه جامع مهر | دستیار هوشمند</title>
 <style>
 /* =========================================
 1. استایل‌های اصلی سایت (دقیقاً کد اولیه شما)
@@ -118,95 +118,166 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 .badge-red { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
 
 /* =========================================
-2. استایل‌های آواتار و پنل هوش مصنوعی
+2. استایل‌های دستیار هوشمند (شناور و حرفه‌ای)
 ========================================= */
-#robot-overlay {
-position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-background: radial-gradient(circle at center, #0b2c1d 0%, #030f08 100%);
-z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center;
-padding: 20px; transition: opacity 0.6s ease, visibility 0.6s ease; overflow-y: auto;
+#ai-assistant-btn {
+position: fixed;
+bottom: 25px;
+left: 25px;
+width: 65px;
+height: 65px;
+background: linear-gradient(135deg, #0a4d2e, #148a4f);
+border-radius: 50%;
+box-shadow: 0 8px 25px rgba(10, 77, 46, 0.4);
+cursor: pointer;
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 9999;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+animation: pulse-glow 2s infinite;
 }
-#robot-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.overlay-inner { display: flex; flex-direction: column; align-items: center; max-width: 500px; width: 100%; animation: slideUp 0.8s ease; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+#ai-assistant-btn:hover {
+transform: scale(1.1);
+box-shadow: 0 12px 30px rgba(10, 77, 46, 0.6);
+}
+#ai-assistant-btn svg {
+width: 35px;
+height: 35px;
+fill: white;
+}
+@keyframes pulse-glow {
+0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
 
-/* ربات انسان‌نما با لباس بانک (مشابه تصویر شما) */
-.robot-humanoid {
-width: 200px; height: 300px; position: relative;
-filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
-animation: floaty 4s ease-in-out infinite;
+#ai-chat-window {
+position: fixed;
+bottom: 100px;
+left: 25px;
+width: 350px;
+max-height: 550px;
+background: rgba(255, 255, 255, 0.98);
+backdrop-filter: blur(15px);
+border-radius: 20px;
+box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+border: 1px solid #d1d5db;
+display: none;
+flex-direction: column;
+overflow: hidden;
+z-index: 10000;
+transition: opacity 0.3s ease, transform 0.3s ease;
+transform: translateY(20px);
+opacity: 0;
 }
-@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+#ai-chat-window.active {
+display: flex;
+transform: translateY(0);
+opacity: 1;
+}
 
-.speech-bubble {
-background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px;
-padding: 20px; margin-top: 20px; max-width: 450px; text-align: right; position: relative;
-box-shadow: 0 10px 30px rgba(0,0,0,0.3); font-size: 15px; line-height: 1.8; color: #1a2e2a;
-border: 2px solid #d4a017; width: 100%;
+.ai-chat-header {
+background: linear-gradient(135deg, #0a4d2e, #148a4f);
+color: white;
+padding: 15px 20px;
+display: flex;
+align-items: center;
+gap: 12px;
 }
-.speech-bubble::before {
-content: ''; position: absolute; top: -15px; right: 50%; transform: translateX(50%);
-border-width: 0 12px 15px 12px; border-style: solid; border-color: transparent transparent #d4a017 transparent;
+.ai-chat-header .ai-avatar {
+width: 40px;
+height: 40px;
+background: white;
+border-radius: 50%;
+display: flex;
+justify-content: center;
+align-items: center;
+box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+.ai-chat-header .ai-avatar svg { width: 25px; height: 25px; fill: #0a4d2e; }
+.ai-chat-header h4 { margin: 0; font-size: 15px; font-weight: bold; }
+.ai-chat-header p { margin: 0; font-size: 11px; opacity: 0.8; }
+.ai-chat-header .close-btn {
+margin-right: auto;
+background: transparent;
+border: none;
+color: white;
+font-size: 24px;
+cursor: pointer;
+opacity: 0.7;
+transition: 0.2s;
+}
+.ai-chat-header .close-btn:hover { opacity: 1; }
+
+.ai-chat-body {
+flex: 1;
+padding: 20px;
+overflow-y: auto;
+display: flex;
+flex-direction: column;
+gap: 15px;
+background: #f9fafb;
 }
 
-.start-chat-btn {
-margin-top: 20px; padding: 15px 40px; background: linear-gradient(135deg, #d4a017, #f39c12); color: #fff; border: none; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; font-family: inherit; box-shadow: 0 8px 20px rgba(212, 160, 23, 0.4); transition: 0.2s;
+.ai-msg {
+padding: 12px 16px;
+border-radius: 18px;
+font-size: 13.5px;
+line-height: 1.6;
+max-width: 85%;
+animation: slideUp 0.3s ease;
 }
-.start-chat-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(212, 160, 23, 0.6); }
-.skip-btn {
-margin-top: 15px; background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 20px; font-family: inherit; font-size: 12px; cursor: pointer; transition: 0.2s;
+.ai-msg.bot {
+background: #e8f5ec;
+color: #1a2e2a;
+align-self: flex-start;
+border-bottom-right-radius: 4px;
+border: 1px solid #cce8d8;
 }
-.skip-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.ai-msg.user {
+background: #0a4d2e;
+color: white;
+align-self: flex-end;
+border-bottom-left-radius: 4px;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* پنل شناور هوشمند (AI Panel) */
-#ai-panel {
-position: fixed; bottom: 20px; left: 20px; width: 340px;
-background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
-border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.25); border: 1px solid #cbd5e1;
-z-index: 10000; display: none; flex-direction: column; overflow: hidden;
-transition: all 0.3s ease;
+.ai-chat-footer {
+padding: 15px;
+background: white;
+border-top: 1px solid #e5e7eb;
+display: flex;
+gap: 10px;
+align-items: center;
 }
-#ai-panel.active { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-@keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-.ai-header {
-background: linear-gradient(135deg, #0a4d2e, #148a4f); padding: 15px;
-display: flex; align-items: center; gap: 10px; color: #fff;
+.ai-chat-footer input {
+flex: 1;
+padding: 12px 16px;
+border: 1px solid #d1d5db;
+border-radius: 25px;
+font-family: inherit;
+font-size: 13px;
+outline: none;
+transition: 0.2s;
 }
-.ai-header img { width: 35px; height: 35px; filter: drop-shadow(0 0 5px #fff); background: #fff; border-radius: 50%; padding: 2px;}
-.ai-header h4 { margin: 0; font-size: 14px; }
-.ai-header span { font-size: 11px; opacity: 0.8; }
-
-.ai-body {
-padding: 15px; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;
+.ai-chat-footer input:focus { border-color: #148a4f; box-shadow: 0 0 0 3px rgba(20, 138, 79, 0.1); }
+.ai-chat-footer button {
+width: 42px;
+height: 42px;
+border-radius: 50%;
+border: none;
+cursor: pointer;
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 18px;
+transition: 0.2s;
 }
-.msg { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; max-width: 90%; }
-.msg.bot { background: #e8f5ec; color: #1a2e2a; align-self: flex-start; border-bottom-right-radius: 2px; border: 1px solid #cce8d8;}
-.msg.user { background: #0a4d2e; color: #fff; align-self: flex-end; border-bottom-left-radius: 2px; }
-
-.ai-footer {
-padding: 10px; background: #fff; border-top: 1px solid #e5e7eb; display: flex; gap: 8px;
-}
-.ai-footer input {
-flex: 1; padding: 10px 15px; border: 1px solid #d1d5db; border-radius: 20px; font-family: inherit; font-size: 13px; outline: none;
-}
-.ai-footer button {
-width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.2s;
-}
-.btn-mic { background: #e0f2fe; color: #0284c7; }
-.btn-mic.recording { background: #ef4444; color: #fff; animation: pulse 1.5s infinite; }
-.btn-send { background: #0a4d2e; color: #fff; }
-
-/* آواتار کوچک شناور */
-#floating-avatar {
-position: fixed; bottom: 20px; left: 20px; width: 65px; height: 65px;
-background: linear-gradient(135deg, #0a4d2e, #148a4f); border-radius: 50%;
-box-shadow: 0 4px 20px rgba(10,77,46,0.5); cursor: pointer; z-index: 9999;
-display: none; align-items: center; justify-content: center; border: 2px solid #fff;
-transition: transform 0.3s;
-}
-#floating-avatar:hover { transform: scale(1.1); }
-#floating-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.btn-mic-ai { background: #e0f2fe; color: #0284c7; }
+.btn-mic-ai.recording { background: #ef4444; color: white; animation: pulse 1.5s infinite; }
+.btn-send-ai { background: #0a4d2e; color: white; }
+.btn-send-ai:hover { background: #083d24; }
 
 /* افکت هایلایت */
 .highlight-guide {
@@ -229,112 +300,33 @@ background-color: #fffdf5 !important;
 <audio id="notify-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <!-- =========================================
-صفحه خوش‌آمدگویی ربات
+دکمه شناور دستیار هوشمند
 ========================================= -->
-<div id="robot-overlay">
-<div class="overlay-inner">
-
-<!-- ربات انسان‌نمای فلزی (شبیه تصویر) -->
-<div class="robot-humanoid">
-<svg viewBox="0 0 240 320" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<linearGradient id="metalWhite" x1="0%" y1="0%" x2="100%" y2="100%">
-<stop offset="0%" stop-color="#ffffff"/>
-<stop offset="50%" stop-color="#e0e0e0"/>
-<stop offset="100%" stop-color="#a0a0a0"/>
-</linearGradient>
-<linearGradient id="metalDark" x1="0%" y1="0%" x2="100%" y2="100%">
-<stop offset="0%" stop-color="#555"/>
-<stop offset="100%" stop-color="#222"/>
-</linearGradient>
-<linearGradient id="greenBank" x1="0%" y1="0%" x2="0%" y2="100%">
-<stop offset="0%" stop-color="#148a4f"/>
-<stop offset="100%" stop-color="#0a4d2e"/>
-</linearGradient>
-<radialGradient id="eyeGlow" cx="50%" cy="50%">
-<stop offset="0%" stop-color="#fff"/>
-<stop offset="30%" stop-color="#a3e4d7"/>
-<stop offset="100%" stop-color="#0a4d2e"/>
-</radialGradient>
-</defs>
-
-<!-- گردن و سیم‌ها -->
-<rect x="105" y="100" width="30" height="50" fill="url(#metalDark)"/>
-<rect x="110" y="100" width="5" height="50" fill="#148a4f"/>
-<rect x="125" y="100" width="5" height="50" fill="#148a4f"/>
-<path d="M95,150 L145,150 L155,170 L85,170 Z" fill="url(#metalWhite)"/>
-
-<!-- بدن و کت سبز -->
-<path d="M60,170 L180,170 L200,320 L40,320 Z" fill="url(#greenBank)"/>
-
-<!-- یقه فلزی -->
-<path d="M90,170 L120,210 L150,170 L135,165 L120,190 L105,165 Z" fill="url(#metalWhite)"/>
-
-<!-- دست‌های ضربدری (فلزی) -->
-<g>
-<path d="M60,200 Q40,240 50,280 L80,270 Q70,240 80,200 Z" fill="url(#metalWhite)"/>
-<path d="M180,200 Q200,240 190,280 L160,270 Q170,240 160,200 Z" fill="url(#metalWhite)"/>
-<rect x="50" y="270" width="100" height="25" rx="10" fill="url(#metalWhite)" transform="rotate(15 100 280)"/>
-<rect x="90" y="280" width="100" height="25" rx="10" fill="url(#metalWhite)" transform="rotate(-15 140 290)"/>
-</g>
-
-<!-- لوگوی مهر ایران روی سینه -->
-<g transform="translate(120, 240)">
-<circle r="22" fill="#fff" stroke="#d4a017" stroke-width="3"/>
-<text y="-3" text-anchor="middle" font-size="10" font-weight="bold" fill="#0a4d2e" font-family="Tahoma">بانک</text>
-<text y="6" text-anchor="middle" font-size="6" fill="#0a4d2e" font-family="Tahoma">قرض الحسنه</text>
-<text y="14" text-anchor="middle" font-size="7" font-weight="bold" fill="#148a4f" font-family="Tahoma">مهر ایران</text>
-</g>
-
-<!-- سر (فلزی) -->
-<ellipse cx="120" cy="70" rx="40" ry="50" fill="url(#metalWhite)"/>
-<path d="M95,40 L95,90" stroke="#ccc" stroke-width="2"/>
-<path d="M145,40 L145,90" stroke="#ccc" stroke-width="2"/>
-<path d="M120,20 L120,35" stroke="#aaa" stroke-width="2"/>
-
-<!-- چشم‌ها -->
-<ellipse cx="100" cy="65" rx="8" ry="5" fill="url(#eyeGlow)"/>
-<ellipse cx="140" cy="65" rx="8" ry="5" fill="url(#eyeGlow)"/>
-
-<!-- دهان -->
-<path d="M105,90 Q120,95 135,90" stroke="#555" stroke-width="2" fill="none"/>
-</svg>
+<div id="ai-assistant-btn" onclick="toggleAIChat()">
+<svg viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4V6H16A2 2 0 0 1 18 8V12A2 2 0 0 1 16 14H14V16A2 2 0 0 1 12 18A2 2 0 0 1 10 16V14H8A2 2 0 0 1 6 12V8A2 2 0 0 1 8 6H10V4A2 2 0 0 1 12 2M9 9A1 1 0 0 0 8 10A1 1 0 0 0 9 11A1 1 0 0 0 10 10A1 1 0 0 0 9 9M15 9A1 1 0 0 0 14 10A1 1 0 0 0 15 11A1 1 0 0 0 16 10A1 1 0 0 0 15 9Z"/></svg>
 </div>
 
-<div class="speech-bubble" id="overlay-speech">
-سلام و درود! من <b>هوش مصنوعی بانک مهر ایران</b> هستم.<br>چطور می‌توانم امروز به شما کمک کنم؟
+<!-- =========================================
+پنجره چت دستیار هوشمند
+========================================= -->
+<div id="ai-chat-window">
+<div class="ai-chat-header">
+<div class="ai-avatar">
+<svg viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4V6H16A2 2 0 0 1 18 8V12A2 2 0 0 1 16 14H14V16A2 2 0 0 1 12 18A2 2 0 0 1 10 16V14H8A2 2 0 0 1 6 12V8A2 2 0 0 1 8 6H10V4A2 2 0 0 1 12 2M9 9A1 1 0 0 0 8 10A1 1 0 0 0 9 11A1 1 0 0 0 10 10A1 1 0 0 0 9 9M15 9A1 1 0 0 0 14 10A1 1 0 0 0 15 11A1 1 0 0 0 16 10A1 1 0 0 0 15 9Z"/></svg>
 </div>
-
-<button class="start-chat-btn" id="start-chat-btn" onclick="startRobotChat()">
-💬 شروع مکالمه (متنی و صوتی)
-</button>
-
-<button class="skip-btn" onclick="closeRobotOverlay()">ورود به سامانه بدون مشاوره</button>
-</div>
-</div>
-
-<!-- آواتار کوچک (زمانی که پنل بسته است) -->
-<div id="floating-avatar" onclick="toggleAIPanel()">
-<img src="https://upload.wikimedia.org/wikipedia/fa/thumb/2/2b/Bank_Qarz_Al-Hasaneh_Mehr_Iran_Logo.png/200px-Bank_Qarz_Al-Hasaneh_Mehr_Iran_Logo.png" alt="Mehr AI">
-</div>
-
-<!-- پنل شناور هوش مصنوعی (AI Panel) -->
-<div id="ai-panel">
-<div class="ai-header">
-<img src="https://upload.wikimedia.org/wikipedia/fa/thumb/2/2b/Bank_Qarz_Al-Hasaneh_Mehr_Iran_Logo.png/200px-Bank_Qarz_Al-Hasaneh_Mehr_Iran_Logo.png" alt="Logo">
 <div>
-<h4>هوش مصنوعی مهر</h4>
-<span id="ai-status">آماده دریافت دستور</span>
+<h4>دستیار هوشمند مهر</h4>
+<p>آماده شنیدن دستورات شما</p>
 </div>
-<button onclick="toggleAIPanel()" style="margin-right:auto; background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px;">×</button>
+<button class="close-btn" onclick="toggleAIChat()">×</button>
 </div>
-<div class="ai-body" id="ai-chat-log">
-<div class="msg bot">سلام! من در هر صفحه‌ای که باشید به شما کمک می‌کنم. کافیست روی میکروفون کلیک کنید و بگویید چه می‌خواهید.</div>
+<div class="ai-chat-body" id="ai-chat-log">
+<div class="ai-msg bot">سلام! من دستیار هوشمند شما هستم. می‌توانید با میکروفون صحبت کنید یا بنویسید. مثلاً بگویید: "شماره موبایل من 09123456789 است" یا "برو به راهنمای تسهیلات".</div>
 </div>
-<div class="ai-footer">
-<button class="btn-mic" id="ai-mic-btn" onclick="toggleMic()" title="ضبط صدا">🎤</button>
+<div class="ai-chat-footer">
+<button class="btn-mic-ai" id="ai-mic-btn" onclick="toggleMic()" title="ضبط صدا">🎤</button>
 <input type="text" id="ai-chat-input" placeholder="دستور خود را بنویسید..." onkeypress="if(event.key==='Enter')sendAIMessage()">
-<button class="btn-send" onclick="sendAIMessage()">➤</button>
+<button class="btn-send-ai" onclick="sendAIMessage()">➤</button>
 </div>
 </div>
 
@@ -494,7 +486,7 @@ background-color: #fffdf5 !important;
 </div>
 
 <!-- =========================================
-محفظه مخفی: تمام ۱۶ طرح با جزئیات کامل (کپی از کد اولیه)
+محفظه مخفی: تمام ۱۶ طرح (با ۴ مرحله کامل کیوبانک و لینک اصلی)
 ========================================= -->
 <div id="hidden-plans" style="display:none;">
 <!-- 1. نیلوفر -->
@@ -513,8 +505,10 @@ background-color: #fffdf5 !important;
 <div class="dual-action-content calc-content-wrapper"></div>
 <div class="dual-action-content qbank-content-wrapper">
 <div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> نصب کیوبانک</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> افتتاح حساب</div><div class="q-step-desc"><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نیلوفر را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
 </div>
 <a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
 </div>
@@ -536,6 +530,15 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نورا را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('noora', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -554,6 +557,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مبلغ را به صورت ماهانه واریز کنید و سپس طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('shams', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -572,6 +583,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('ardideh', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -591,6 +610,15 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نارون را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('naron', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -609,6 +637,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('sarv1', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -627,6 +663,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('sarv2', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -645,6 +689,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('tooska', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -663,6 +715,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('najm', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -681,6 +741,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -699,6 +767,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('radvan', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -717,6 +793,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('nasr', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -735,6 +819,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('yaghot', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -753,6 +845,15 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> حفظ مبلغ ثابت</div><div class="q-step-desc">مبلغ توافقی را به مدت ۱ تا ۱۲ ماه در حساب خود نگه دارید تا میانگین ایجاد شود.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح یاقوت را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('yaghot_fixed', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -771,6 +872,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('almas', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -789,6 +898,14 @@ background-color: #fffdf5 !important;
 <div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
 </div>
 <div class="dual-action-content calc-content-wrapper"></div>
+<div class="dual-action-content qbank-content-wrapper">
+<div class="q-steps">
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
+<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
+</div>
+<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
+</div>
 </div>
 <button class="speak-btn" onclick="readPlan('firoozeh', this)">🔊 شنیدن توضیحات</button>
 </div>
@@ -800,7 +917,7 @@ background-color: #fffdf5 !important;
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
 
 // ==========================================
-// 1. سیستم صوتی (TTS) - کپی دقیق کد سالم اولیه
+// 1. سیستم صوتی (TTS)
 // ==========================================
 var persianVoice = null;
 var isPlaying = false;
@@ -938,14 +1055,6 @@ function nextStep(current) {
 if(current === 1 && !document.getElementById('c-branch').value) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
 if(current === 2 && !document.getElementById('c-problemType').value) { alert('لطفاً نوع مشکل را انتخاب کنید.'); return; }
 showStep(current + 1);
-
-if(current === 1) {
-showAIPanel("عالی! حالا نوع مشکل خود را انتخاب کنید. می‌توانید بگویید 'مشکل من وام است' یا 'کارت گم شده'.");
-highlightField('c-problemType');
-} else if(current === 2) {
-showAIPanel("بسیار خوب. حالا لطفاً شماره موبایل و کد ملی خود را وارد کنید. می‌توانید بگویید: 'شماره من 09123456789 است'.");
-highlightField('c-mobile');
-}
 }
 function prevStep(current) { showStep(current - 1); }
 
@@ -1162,272 +1271,4 @@ let payload = {
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
 imageBase64: photoBase64, department: department, trackingCode: trackingCode,
-branch: document.getElementById('c-branch').value
-};
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-.then(res => res.json()).then(data => {
-if(data.result === 'error') { alert("خطا: " + data.error); document.getElementById('submitCustomerBtn').innerText = "ثبت نهایی درخواست"; return; }
-document.getElementById('ticketForm').style.display = 'none';
-document.getElementById('stepper').style.display = 'none';
-document.getElementById('c-resultSection').style.display = 'block';
-document.getElementById('c-trackingCode').textContent = trackingCode;
-document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`;
-}).catch(err => { alert("خطا در ارتباط."); document.getElementById('submitCustomerBtn').innerText = "ثبت نهایی درخواست"; });
-}
-function startTracking() {
-let code = document.getElementById('track-code-input').value;
-if(!code) { alert('لطفاً کد پیگیری را وارد کنید.'); return; }
-document.getElementById('track-result-box').style.display = 'block';
-document.getElementById('track-status-text').innerText = "در حال دریافت...";
-if(trackInterval) clearInterval(trackInterval);
-const fetchStatus = () => {
-if(SCRIPT_URL.includes("لینک_exec")) {
-document.getElementById('track-status-text').innerText = "در حال بررسی";
-document.getElementById('track-dept-text').innerText = "ارجاع به: اعتبارات";
-return;
-}
-fetch(SCRIPT_URL + "?action=trackTicket&code=" + code)
-.then(res => res.json()).then(data => {
-if(data.found) {
-document.getElementById('track-status-text').innerText = data.status;
-document.getElementById('track-dept-text').innerText = "ارجاع به: " + data.department;
-if(data.reply && data.reply.trim() !== "") { document.getElementById('track-reply-box').style.display = 'block'; document.getElementById('track-reply-text').innerText = data.reply; } else { document.getElementById('track-reply-box').style.display = 'none'; }
-if(lastTrackStatus !== "" && lastTrackStatus !== data.status) { showToast("وضعیت درخواست شما تغییر کرد!"); }
-lastTrackStatus = data.status;
-} else {
-document.getElementById('track-status-text').innerText = "کد یافت نشد!";
-if(trackInterval) clearInterval(trackInterval);
-}
-}).catch(err => { document.getElementById('track-status-text').innerText = "خطا در ارتباط."; });
-};
-fetchStatus();
-trackInterval = setInterval(fetchStatus, 15000);
-}
-
-// ==========================================
-// 4. هوش مصنوعی محلی (Local AI Engine) - در همه صفحات
-// ==========================================
-let isRecording = false;
-let recognition = null;
-
-function toggleAIPanel() {
-const panel = document.getElementById('ai-panel');
-const avatar = document.getElementById('floating-avatar');
-if(panel.classList.contains('active')) {
-panel.classList.remove('active');
-avatar.style.display = 'flex';
-} else {
-panel.classList.add('active');
-avatar.style.display = 'none';
-}
-}
-
-function showAIPanel(message) {
-const panel = document.getElementById('ai-panel');
-if(!panel.classList.contains('active')) {
-panel.classList.add('active');
-document.getElementById('floating-avatar').style.display = 'none';
-}
-if(message) {
-addAIMessage('bot', message);
-readText(message);
-}
-}
-
-function addAIMessage(sender, text) {
-const log = document.getElementById('ai-chat-log');
-const div = document.createElement('div');
-div.className = 'msg ' + sender;
-div.innerHTML = text;
-log.appendChild(div);
-log.scrollTop = log.scrollHeight;
-}
-
-function sendAIMessage() {
-const input = document.getElementById('ai-chat-input');
-const text = input.value.trim();
-if(!text) return;
-addAIMessage('user', text);
-input.value = '';
-processAI(text);
-}
-
-// تابع کمکی برای تبدیل اعداد فارسی به انگلیسی
-function toEnglishDigits(str) {
-const persian = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
-for (let i = 0; i < 10; i++) str = str.replace(persian[i], i.toString());
-return str;
-}
-
-// 🧠 موتور هوش مصنوعی محلی (درک نیت و استخراج موجودیت‌ها)
-function processAI(originalText) {
-const text = toEnglishDigits(originalText);
-const t = text.toLowerCase();
-
-let actionTaken = false;
-
-// 1. اگر در تب "ثبت مشکل" هستیم
-if(currentActiveTab === 'customer') {
-// استخراج موبایل
-const mobileMatch = t.match(/(09\d{9})/);
-if(mobileMatch) {
-document.getElementById('c-mobile').value = mobileMatch[0];
-highlightField('c-mobile');
-addAIMessage('bot', `✅ شماره موبایل <b>${mobileMatch[0]}</b> استخراج و ثبت شد.`);
-readText("شماره موبایل ثبت شد.");
-actionTaken = true;
-}
-
-// استخراج کد ملی
-const nationalIdMatch = t.match(/\b(\d{10})\b/);
-if(nationalIdMatch && !nationalIdMatch[0].startsWith('09')) {
-document.getElementById('c-nationalId').value = nationalIdMatch[0];
-highlightField('c-nationalId');
-addAIMessage('bot', `✅ کد ملی <b>${nationalIdMatch[0]}</b> استخراج و ثبت شد.`);
-readText("کد ملی ثبت شد.");
-actionTaken = true;
-}
-
-// تشخیص نوع مشکل
-const select = document.getElementById('c-problemType');
-const issueKeywords = { 'وام': ['وام', 'قسط', 'تسهیلات', 'اعتبار'], 'کارت': ['کارت', 'گم شده', 'مسدود'], 'رمز': ['رمز', 'پسورد', 'فراموشی'], 'چک': ['چک', 'سفته'] };
-let matchedIndex = -1;
-for (const [key, words] of Object.entries(issueKeywords)) {
-if (words.some(w => t.includes(w))) {
-for(let i=0; i<select.options.length; i++) {
-if(select.options[i].text.includes(key)) { matchedIndex = i; break; }
-}
-}
-}
-if(matchedIndex !== -1) {
-select.selectedIndex = matchedIndex;
-highlightField('c-problemType');
-addAIMessage('bot', `✅ نوع مشکل <b>${select.options[matchedIndex].text}</b> انتخاب شد.`);
-readText("نوع مشکل انتخاب شد.");
-actionTaken = true;
-}
-}
-
-// 2. اگر در تب "پیگیری" هستیم
-if(currentActiveTab === 'track') {
-const codeMatch = t.match(/\b(\d{5})\b/);
-if(codeMatch) {
-document.getElementById('track-code-input').value = codeMatch[0];
-highlightField('track-code-input');
-addAIMessage('bot', `✅ کد پیگیری <b>${codeMatch[0]}</b> وارد شد. در حال استعلام...`);
-readText("کد پیگیری وارد شد. در حال استعلام.");
-document.getElementById('btn-track-submit').click();
-actionTaken = true;
-}
-}
-
-// 3. اگر در تب "راهنما" هستیم
-if(currentActiveTab === 'guide') {
-const planNames = ['نیلوفر', 'نورا', 'شمس', 'ارکیده', 'نارون', 'سرو', 'توسکا', 'نجم', 'کرامت', 'رضوان', 'نصر', 'یاقوت', 'الماس', 'فیروزه'];
-for(let pName of planNames) {
-if(t.includes(pName)) {
-// پیدا کردن آیدی طرح
-let planId = Object.keys(pTtexts).find(k => pTtexts[k].includes(pName));
-if(planId) {
-navToPlan(planId);
-addAIMessage('bot', `✅ شما را به طرح <b>${pName}</b> هدایت کردم.`);
-readText(`شما را به طرح ${pName} هدایت کردم.`);
-actionTaken = true;
-break;
-}
-}
-}
-}
-
-// 4. ناوبری هوشمند
-if(t.includes('ثبت مشکل') || t.includes('شکایت')) {
-const btn = document.getElementById('tab-customer');
-switchTab('customer', btn);
-addAIMessage('bot', "شما را به صفحه ثبت مشکل هدایت کردم. حالا می‌توانم فیلدها را برایتان پر کنم.");
-readText("شما را به صفحه ثبت مشکل هدایت کردم.");
-actionTaken = true;
-} else if(t.includes('پیگیری') || t.includes('وضعیت')) {
-const btn = document.getElementById('tab-track');
-switchTab('track', btn);
-addAIMessage('bot', "شما را به صفحه پیگیری هدایت کردم. کد پیگیری خود را بگویید.");
-readText("شما را به صفحه پیگیری هدایت کردم. کد پیگیری خود را بگویید.");
-actionTaken = true;
-} else if(t.includes('راهنما') || t.includes('طرح‌ها') || t.includes('تسهیلات')) {
-const btn = document.getElementById('tab-guide');
-switchTab('guide', btn);
-addAIMessage('bot', "شما را به صفحه راهنمای تسهیلات هدایت کردم. نام طرح مورد نظر خود را بگویید.");
-readText("شما را به صفحه راهنمای تسهیلات هدایت کردم.");
-actionTaken = true;
-}
-
-if(!actionTaken) {
-addAIMessage('bot', "متوجه نشدم. لطفاً بگویید چه کاری می‌خواهید انجام دهید (مثلاً: ثبت مشکل، پیگیری، یا نام یک طرح).");
-readText("متوجه نشدم. لطفا واضح تر بگویید.");
-}
-}
-
-// هدایت به طرح خاص
-function navToPlan(planId) {
-const btn = document.getElementById('tab-guide');
-if(currentActiveTab !== 'guide') switchTab('guide', btn);
-
-// پیدا کردن دسته‌بندی
-let cat = 'general';
-if(['naron','sarv1','sarv2','tooska'].includes(planId)) cat = 'guilds';
-if(['najm','karamat','radvan','nasr'].includes(planId)) cat = 'support';
-if(['yaghot','yaghot_fixed','almas','firoozeh'].includes(planId)) cat = 'corporate';
-
-selectGuideCategory(cat);
-setTimeout(() => selectGuidePlan(planId), 100);
-}
-
-function highlightField(id) {
-const el = document.getElementById(id);
-if(!el) return;
-el.classList.add('highlight-guide');
-el.scrollIntoView({behavior: 'smooth', block: 'center'});
-setTimeout(() => el.classList.remove('highlight-guide'), 4000);
-}
-
-// راه‌اندازی میکروفون
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-recognition = new SR();
-recognition.lang = 'fa-IR';
-recognition.continuous = false;
-recognition.onstart = function() { isRecording = true; document.getElementById('ai-mic-btn').classList.add('recording'); };
-recognition.onresult = function(e) {
-const transcript = e.results[0][0].transcript;
-document.getElementById('ai-chat-input').value = transcript;
-sendAIMessage();
-};
-recognition.onerror = function() { isRecording = false; document.getElementById('ai-mic-btn').classList.remove('recording'); };
-recognition.onend = function() { isRecording = false; document.getElementById('ai-mic-btn').classList.remove('recording'); };
-}
-
-function toggleMic() {
-if (!recognition) { alert("مرورگر شما از میکروفون پشتیبانی نمی‌کند."); return; }
-if (isRecording) recognition.stop(); else recognition.start();
-}
-
-// ==========================================
-// 5. منطق صفحه خوش‌آمدگویی
-// ==========================================
-function startRobotChat() {
-document.getElementById('robot-overlay').classList.add('hidden');
-document.getElementById('floating-avatar').style.display = 'flex';
-const btn = document.getElementById('tab-customer');
-switchTab('customer', btn);
-setTimeout(() => {
-showAIPanel("سلام! من دستیار شما هستم. منوی کشویی شعبه را باز کنید و شعبه خود را انتخاب کنید تا مرحله بعد برویم.");
-}, 500);
-}
-
-function closeRobotOverlay() {
-document.getElementById('robot-overlay').classList.add('hidden');
-document.getElementById('floating-avatar').style.display = 'flex';
-stopAudio();
-}
-</script>
-</body>
-</html>
+branch: document.getElementById
