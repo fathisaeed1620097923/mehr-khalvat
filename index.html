@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سامانه جامع مهر | هوش مصنوعی محلی</title>
+<title>سامانه جامع مهر | هوش مصنوعی همراه</title>
 <style>
 /* =========================================
 1. استایل‌های اصلی سایت (دقیقاً کد اولیه شما)
@@ -118,7 +118,7 @@ ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
 .badge-red { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
 
 /* =========================================
-2. استایل‌های ربات هوش مصنوعی (طراحی مدرن و بانکی)
+2. استایل‌های آواتار و پنل هوش مصنوعی
 ========================================= */
 #robot-overlay {
 position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -130,80 +130,72 @@ padding: 20px; transition: opacity 0.6s ease, visibility 0.6s ease; overflow-y: 
 .overlay-inner { display: flex; flex-direction: column; align-items: center; max-width: 500px; width: 100%; animation: slideUp 0.8s ease; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-/* هولوگرام ربات (مدرن) */
-.robot-hologram {
-width: 180px; height: 180px; position: relative;
-filter: drop-shadow(0 0 25px rgba(16, 185, 129, 0.6));
-animation: pulse-hologram 3s infinite alternate;
+/* ربات انسان‌نما با لباس بانک (مشابه تصویر شما) */
+.robot-humanoid {
+width: 200px; height: 300px; position: relative;
+filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
+animation: floaty 4s ease-in-out infinite;
 }
-@keyframes pulse-hologram {
-0% { filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4)); transform: scale(1); }
-100% { filter: drop-shadow(0 0 40px rgba(16, 185, 129, 0.9)); transform: scale(1.05); }
-}
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 
-/* حباب گفتگو */
 .speech-bubble {
-background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 20px;
+background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px;
 padding: 20px; margin-top: 20px; max-width: 450px; text-align: right; position: relative;
-box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 15px; line-height: 1.8; color: #fff;
-border: 1px solid rgba(255,255,255,0.2); width: 100%;
+box-shadow: 0 10px 30px rgba(0,0,0,0.3); font-size: 15px; line-height: 1.8; color: #1a2e2a;
+border: 2px solid #d4a017; width: 100%;
 }
 .speech-bubble::before {
-content: ''; position: absolute; top: -10px; right: 50%; transform: translateX(50%);
-border-width: 0 10px 10px 10px; border-style: solid; border-color: transparent transparent rgba(255,255,255,0.1) transparent;
+content: ''; position: absolute; top: -15px; right: 50%; transform: translateX(50%);
+border-width: 0 12px 15px 12px; border-style: solid; border-color: transparent transparent #d4a017 transparent;
 }
 
-/* دکمه شروع */
 .start-chat-btn {
-margin-top: 25px; padding: 15px 40px; background: linear-gradient(135deg, #10b981, #047857);
-color: #fff; border: none; border-radius: 30px; font-size: 16px; font-weight: bold;
-cursor: pointer; font-family: inherit; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4); transition: 0.2s;
+margin-top: 20px; padding: 15px 40px; background: linear-gradient(135deg, #d4a017, #f39c12); color: #fff; border: none; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; font-family: inherit; box-shadow: 0 8px 20px rgba(212, 160, 23, 0.4); transition: 0.2s;
 }
-.start-chat-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.6); }
+.start-chat-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(212, 160, 23, 0.6); }
 .skip-btn {
-margin-top: 15px; background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.3);
-padding: 8px 20px; border-radius: 20px; font-family: inherit; font-size: 12px; cursor: pointer; transition: 0.2s;
+margin-top: 15px; background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 20px; font-family: inherit; font-size: 12px; cursor: pointer; transition: 0.2s;
 }
 .skip-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
-/* پنل شناور هوشمند (Assistant Panel) */
-#assistant-panel {
+/* پنل شناور هوشمند (AI Panel) */
+#ai-panel {
 position: fixed; bottom: 20px; left: 20px; width: 340px;
 background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
 border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.25); border: 1px solid #cbd5e1;
 z-index: 10000; display: none; flex-direction: column; overflow: hidden;
 transition: all 0.3s ease;
 }
-#assistant-panel.active { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+#ai-panel.active { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-.assistant-header {
+.ai-header {
 background: linear-gradient(135deg, #0a4d2e, #148a4f); padding: 15px;
 display: flex; align-items: center; gap: 10px; color: #fff;
 }
-.assistant-header svg { width: 30px; height: 30px; fill: #fff; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
-.assistant-header h4 { margin: 0; font-size: 14px; }
-.assistant-header span { font-size: 11px; opacity: 0.8; }
+.ai-header img { width: 35px; height: 35px; filter: drop-shadow(0 0 5px #fff); background: #fff; border-radius: 50%; padding: 2px;}
+.ai-header h4 { margin: 0; font-size: 14px; }
+.ai-header span { font-size: 11px; opacity: 0.8; }
 
-.assistant-body {
+.ai-body {
 padding: 15px; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;
 }
 .msg { padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; max-width: 90%; }
-.msg.bot { background: #ecfdf5; color: #064e3b; align-self: flex-start; border-bottom-right-radius: 2px; border: 1px solid #a7f3d0;}
+.msg.bot { background: #e8f5ec; color: #1a2e2a; align-self: flex-start; border-bottom-right-radius: 2px; border: 1px solid #cce8d8;}
 .msg.user { background: #0a4d2e; color: #fff; align-self: flex-end; border-bottom-left-radius: 2px; }
 
-.assistant-footer {
-padding: 10px; background: #fff; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;
+.ai-footer {
+padding: 10px; background: #fff; border-top: 1px solid #e5e7eb; display: flex; gap: 8px;
 }
-.assistant-footer input {
-flex: 1; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 20px; font-family: inherit; font-size: 13px; outline: none;
+.ai-footer input {
+flex: 1; padding: 10px 15px; border: 1px solid #d1d5db; border-radius: 20px; font-family: inherit; font-size: 13px; outline: none;
 }
-.assistant-footer button {
+.ai-footer button {
 width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.2s;
 }
-.btn-mic-panel { background: #e0f2fe; color: #0284c7; }
-.btn-mic-panel.recording { background: #ef4444; color: #fff; animation: pulse 1.5s infinite; }
-.btn-send-panel { background: #0a4d2e; color: #fff; }
+.btn-mic { background: #e0f2fe; color: #0284c7; }
+.btn-mic.recording { background: #ef4444; color: #fff; animation: pulse 1.5s infinite; }
+.btn-send { background: #0a4d2e; color: #fff; }
 
 /* آواتار کوچک شناور */
 #floating-avatar {
@@ -214,9 +206,9 @@ display: none; align-items: center; justify-content: center; border: 2px solid #
 transition: transform 0.3s;
 }
 #floating-avatar:hover { transform: scale(1.1); }
-#floating-avatar svg { width: 35px; height: 35px; fill: #fff; }
+#floating-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
-/* افکت هایلایت برای فیلدهایی که هوش مصنوعی پر می‌کند */
+/* افکت هایلایت */
 .highlight-guide {
 box-shadow: 0 0 0 4px rgba(212, 160, 23, 0.8) !important;
 border-color: #d4a017 !important;
@@ -242,34 +234,75 @@ background-color: #fffdf5 !important;
 <div id="robot-overlay">
 <div class="overlay-inner">
 
-<!-- هولوگرام ربات مدرن -->
-<div class="robot-hologram">
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<!-- ربات انسان‌نمای فلزی (شبیه تصویر) -->
+<div class="robot-humanoid">
+<svg viewBox="0 0 240 320" xmlns="http://www.w3.org/2000/svg">
 <defs>
-<linearGradient id="hologramGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-<stop offset="0%" stop-color="#34d399" stop-opacity="1"/>
-<stop offset="100%" stop-color="#047857" stop-opacity="0.8"/>
+<linearGradient id="metalWhite" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#ffffff"/>
+<stop offset="50%" stop-color="#e0e0e0"/>
+<stop offset="100%" stop-color="#a0a0a0"/>
 </linearGradient>
-<radialGradient id="glow" cx="50%" cy="50%" r="50%">
-<stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.8"/>
-<stop offset="100%" stop-color="#6ee7b7" stop-opacity="0"/>
+<linearGradient id="metalDark" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#555"/>
+<stop offset="100%" stop-color="#222"/>
+</linearGradient>
+<linearGradient id="greenBank" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#148a4f"/>
+<stop offset="100%" stop-color="#0a4d2e"/>
+</linearGradient>
+<radialGradient id="eyeGlow" cx="50%" cy="50%">
+<stop offset="0%" stop-color="#fff"/>
+<stop offset="30%" stop-color="#a3e4d7"/>
+<stop offset="100%" stop-color="#0a4d2e"/>
 </radialGradient>
 </defs>
-<circle cx="100" cy="100" r="80" fill="none" stroke="url(#hologramGrad)" stroke-width="2" stroke-dasharray="10 5">
-<animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="10s" repeatCount="indefinite"/>
-</circle>
-<circle cx="100" cy="100" r="70" fill="none" stroke="#34d399" stroke-width="1" opacity="0.5">
-<animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="8s" repeatCount="indefinite"/>
-</circle>
-<rect x="70" y="60" width="60" height="70" rx="15" fill="url(#hologramGrad)" opacity="0.9"/>
-<rect x="80" y="75" width="40" height="15" rx="5" fill="#064e3b" opacity="0.8"/>
-<circle cx="100" cy="115" r="10" fill="url(#glow)"/>
-<text x="100" y="145" text-anchor="middle" font-size="10" font-weight="bold" fill="#fff" font-family="Tahoma">مهر ایران</text>
+
+<!-- گردن و سیم‌ها -->
+<rect x="105" y="100" width="30" height="50" fill="url(#metalDark)"/>
+<rect x="110" y="100" width="5" height="50" fill="#148a4f"/>
+<rect x="125" y="100" width="5" height="50" fill="#148a4f"/>
+<path d="M95,150 L145,150 L155,170 L85,170 Z" fill="url(#metalWhite)"/>
+
+<!-- بدن و کت سبز -->
+<path d="M60,170 L180,170 L200,320 L40,320 Z" fill="url(#greenBank)"/>
+
+<!-- یقه فلزی -->
+<path d="M90,170 L120,210 L150,170 L135,165 L120,190 L105,165 Z" fill="url(#metalWhite)"/>
+
+<!-- دست‌های ضربدری (فلزی) -->
+<g>
+<path d="M60,200 Q40,240 50,280 L80,270 Q70,240 80,200 Z" fill="url(#metalWhite)"/>
+<path d="M180,200 Q200,240 190,280 L160,270 Q170,240 160,200 Z" fill="url(#metalWhite)"/>
+<rect x="50" y="270" width="100" height="25" rx="10" fill="url(#metalWhite)" transform="rotate(15 100 280)"/>
+<rect x="90" y="280" width="100" height="25" rx="10" fill="url(#metalWhite)" transform="rotate(-15 140 290)"/>
+</g>
+
+<!-- لوگوی مهر ایران روی سینه -->
+<g transform="translate(120, 240)">
+<circle r="22" fill="#fff" stroke="#d4a017" stroke-width="3"/>
+<text y="-3" text-anchor="middle" font-size="10" font-weight="bold" fill="#0a4d2e" font-family="Tahoma">بانک</text>
+<text y="6" text-anchor="middle" font-size="6" fill="#0a4d2e" font-family="Tahoma">قرض الحسنه</text>
+<text y="14" text-anchor="middle" font-size="7" font-weight="bold" fill="#148a4f" font-family="Tahoma">مهر ایران</text>
+</g>
+
+<!-- سر (فلزی) -->
+<ellipse cx="120" cy="70" rx="40" ry="50" fill="url(#metalWhite)"/>
+<path d="M95,40 L95,90" stroke="#ccc" stroke-width="2"/>
+<path d="M145,40 L145,90" stroke="#ccc" stroke-width="2"/>
+<path d="M120,20 L120,35" stroke="#aaa" stroke-width="2"/>
+
+<!-- چشم‌ها -->
+<ellipse cx="100" cy="65" rx="8" ry="5" fill="url(#eyeGlow)"/>
+<ellipse cx="140" cy="65" rx="8" ry="5" fill="url(#eyeGlow)"/>
+
+<!-- دهان -->
+<path d="M105,90 Q120,95 135,90" stroke="#555" stroke-width="2" fill="none"/>
 </svg>
 </div>
 
 <div class="speech-bubble" id="overlay-speech">
-سلام و درود! من <b>هوش مصنوعی محلی بانک مهر ایران</b> هستم.<br>آماده‌ام تا شما را در ثبت مشکلات و انتخاب طرح‌های تسهیلاتی راهنمایی کنم.
+سلام و درود! من <b>هوش مصنوعی بانک مهر ایران</b> هستم.<br>چطور می‌توانم امروز به شما کمک کنم؟
 </div>
 
 <button class="start-chat-btn" id="start-chat-btn" onclick="startRobotChat()">
@@ -281,27 +314,27 @@ background-color: #fffdf5 !important;
 </div>
 
 <!-- آواتار کوچک (زمانی که پنل بسته است) -->
-<div id="floating-avatar" onclick="toggleAssistantPanel()">
-<svg viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4V6H16A2 2 0 0 1 18 8V12A2 2 0 0 1 16 14H14V16A2 2 0 0 1 12 18A2 2 0 0 1 10 16V14H8A2 2 0 0 1 6 12V8A2 2 0 0 1 8 6H10V4A2 2 0 0 1 12 2M9 9A1 1 0 0 0 8 10A1 1 0 0 0 9 11A1 1 0 0 0 10 10A1 1 0 0 0 9 9M15 9A1 1 0 0 0 14 10A1 1 0 0 0 15 11A1 1 0 0 0 16 10A1 1 0 0 0 15 9Z"/></svg>
+<div id="floating-avatar" onclick="toggleAIPanel()">
+<img src="https://upload.wikimedia.org/wikipedia/fa/thumb/2/2b/Bank_Qarz_Al-Hasaneh_Mehr_Iran_Logo.png/200px-Bank_Qarz_Al-Hasaneh_Mehr_Iran_Logo.png" alt="Mehr AI">
 </div>
 
-<!-- پنل شناور هوشمند (Local AI Engine) -->
-<div id="assistant-panel">
-<div class="assistant-header">
-<svg viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4V6H16A2 2 0 0 1 18 8V12A2 2 0 0 1 16 14H14V16A2 2 0 0 1 12 18A2 2 0 0 1 10 16V14H8A2 2 0 0 1 6 12V8A2 2 0 0 1 8 6H10V4A2 2 0 0 1 12 2M9 9A1 1 0 0 0 8 10A1 1 0 0 0 9 11A1 1 0 0 0 10 10A1 1 0 0 0 9 9M15 9A1 1 0 0 0 14 10A1 1 0 0 0 15 11A1 1 0 0 0 16 10A1 1 0 0 0 15 9Z"/></svg>
+<!-- پنل شناور هوش مصنوعی (AI Panel) -->
+<div id="ai-panel">
+<div class="ai-header">
+<img src="https://upload.wikimedia.org/wikipedia/fa/thumb/2/2b/Bank_Qarz_Al-Hasaneh_Mehr_Iran_Logo.png/200px-Bank_Qarz_Al-Hasaneh_Mehr_Iran_Logo.png" alt="Logo">
 <div>
 <h4>هوش مصنوعی مهر</h4>
-<span id="assistant-status">در خدمت شما (آفلاین)</span>
+<span id="ai-status">آماده دریافت دستور</span>
 </div>
-<button onclick="toggleAssistantPanel()" style="margin-right:auto; background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px;">×</button>
+<button onclick="toggleAIPanel()" style="margin-right:auto; background:transparent; border:none; color:#fff; cursor:pointer; font-size:18px;">×</button>
 </div>
-<div class="assistant-body" id="assistant-chat-log">
-<div class="msg bot">سلام! من اینجا هستم تا در پر کردن فرم به شما کمک کنم. کافیست روی میکروفون کلیک کنید و بگویید (مثلاً: "شماره موبایل من 09123456789 است").</div>
+<div class="ai-body" id="ai-chat-log">
+<div class="msg bot">سلام! من در هر صفحه‌ای که باشید به شما کمک می‌کنم. کافیست روی میکروفون کلیک کنید و بگویید چه می‌خواهید.</div>
 </div>
-<div class="assistant-footer">
-<button class="btn-mic-panel" id="panel-mic-btn" onclick="togglePanelMic()" title="ضبط صدا">🎤</button>
-<input type="text" id="panel-chat-input" placeholder="پیام خود را بنویسید..." onkeypress="if(event.key==='Enter')sendPanelMessage()">
-<button class="btn-send-panel" onclick="sendPanelMessage()">➤</button>
+<div class="ai-footer">
+<button class="btn-mic" id="ai-mic-btn" onclick="toggleMic()" title="ضبط صدا">🎤</button>
+<input type="text" id="ai-chat-input" placeholder="دستور خود را بنویسید..." onkeypress="if(event.key==='Enter')sendAIMessage()">
+<button class="btn-send" onclick="sendAIMessage()">➤</button>
 </div>
 </div>
 
@@ -315,9 +348,9 @@ background-color: #fffdf5 !important;
 </div>
 
 <div class="tabs" id="main-tabs">
-<button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
-<button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری</button>
-<button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
+<button class="tab-btn active" id="tab-customer" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
+<button class="tab-btn" id="tab-track" onclick="switchTab('track', this)">🔍 پیگیری</button>
+<button class="tab-btn" id="tab-guide" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
 </div>
 
@@ -402,7 +435,7 @@ background-color: #fffdf5 !important;
 <p style="font-size: 14px; color: #666;">کد پیگیری (عدد) خود را وارد کنید.</p>
 </div>
 <div class="form-group"><label>کد پیگیری:</label><input type="text" id="track-code-input" placeholder="مثلاً 58421"></div>
-<button class="btn" onclick="startTracking()">مشاهده و پیگیری زنده</button>
+<button class="btn" id="btn-track-submit" onclick="startTracking()">مشاهده و پیگیری زنده</button>
 <div class="result-box" id="track-result-box" style="display: none;">
 <h3>وضعیت درخواست شما:</h3>
 <p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #d4a017;" id="track-status-text"></p>
@@ -461,7 +494,7 @@ background-color: #fffdf5 !important;
 </div>
 
 <!-- =========================================
-محفظه مخفی: تمام ۱۶ طرح با جزئیات کامل (کپی دقیق)
+محفظه مخفی: تمام ۱۶ طرح با جزئیات کامل (کپی از کد اولیه)
 ========================================= -->
 <div id="hidden-plans" style="display:none;">
 <!-- 1. نیلوفر -->
@@ -871,6 +904,7 @@ let lastTrackStatus = "";
 let trackInterval = null;
 let employeeInterval = null;
 let seenTicketRows = new Set();
+let currentActiveTab = 'customer'; // تشخیص تب فعال برای هوش مصنوعی
 
 const plansList = {
 general: [ { id: 'niloufar', title: 'طرح نیلوفر' }, { id: 'noora', title: 'طرح نورا' }, { id: 'shams', title: 'طرح شمس' }, { id: 'ardideh', title: 'طرح ارکیده' } ],
@@ -886,15 +920,9 @@ document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('panel-' + panelId).classList.add('active');
 btnElement.classList.add('active');
+currentActiveTab = panelId;
 if(panelId === 'employee') { document.getElementById('tab-badge').style.display = 'none'; }
 stopAudio();
-
-if(panelId === 'customer') {
-showAssistantPanel("سلام! من اینجا هستم تا در پر کردن فرم به شما کمک کنم. لطفاً شعبه خود را انتخاب کنید یا با میکروفون صحبت کنید تا من انتخاب کنم.");
-} else {
-document.getElementById('assistant-panel').classList.remove('active');
-document.getElementById('floating-avatar').style.display = 'flex';
-}
 }
 
 function showStep(step) {
@@ -912,10 +940,10 @@ if(current === 2 && !document.getElementById('c-problemType').value) { alert('ل
 showStep(current + 1);
 
 if(current === 1) {
-showAssistantPanel("عالی! حالا نوع مشکل خود را انتخاب کنید. می‌توانید بگویید 'مشکل من وام است' یا 'کارت گم شده'.");
+showAIPanel("عالی! حالا نوع مشکل خود را انتخاب کنید. می‌توانید بگویید 'مشکل من وام است' یا 'کارت گم شده'.");
 highlightField('c-problemType');
 } else if(current === 2) {
-showAssistantPanel("بسیار خوب. حالا لطفاً شماره موبایل و کد ملی خود را وارد کنید. می‌توانید بگویید: 'شماره من 09123456789 است'.");
+showAIPanel("بسیار خوب. حالا لطفاً شماره موبایل و کد ملی خود را وارد کنید. می‌توانید بگویید: 'شماره من 09123456789 است'.");
 highlightField('c-mobile');
 }
 }
@@ -1177,22 +1205,13 @@ trackInterval = setInterval(fetchStatus, 15000);
 }
 
 // ==========================================
-// 4. هوش مصنوعی محلی (Local AI Engine) + دستیار صوتی
+// 4. هوش مصنوعی محلی (Local AI Engine) - در همه صفحات
 // ==========================================
-let panelIsRecording = false;
-let panelRecognition = null;
+let isRecording = false;
+let recognition = null;
 
-// تابع تبدیل اعداد فارسی به انگلیسی
-function normalizePersianNumbers(str) {
-const persianNumbers = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
-for (let i = 0; i < 10; i++) {
-str = str.replace(persianNumbers[i], i.toString());
-}
-return str;
-}
-
-function toggleAssistantPanel() {
-const panel = document.getElementById('assistant-panel');
+function toggleAIPanel() {
+const panel = document.getElementById('ai-panel');
 const avatar = document.getElementById('floating-avatar');
 if(panel.classList.contains('active')) {
 panel.classList.remove('active');
@@ -1203,19 +1222,20 @@ avatar.style.display = 'none';
 }
 }
 
-function showAssistantPanel(message) {
-const panel = document.getElementById('assistant-panel');
+function showAIPanel(message) {
+const panel = document.getElementById('ai-panel');
+if(!panel.classList.contains('active')) {
 panel.classList.add('active');
 document.getElementById('floating-avatar').style.display = 'none';
-
+}
 if(message) {
-addPanelMessage('bot', message);
+addAIMessage('bot', message);
 readText(message);
 }
 }
 
-function addPanelMessage(sender, text) {
-const log = document.getElementById('assistant-chat-log');
+function addAIMessage(sender, text) {
+const log = document.getElementById('ai-chat-log');
 const div = document.createElement('div');
 div.className = 'msg ' + sender;
 div.innerHTML = text;
@@ -1223,117 +1243,171 @@ log.appendChild(div);
 log.scrollTop = log.scrollHeight;
 }
 
-function sendPanelMessage() {
-const input = document.getElementById('panel-chat-input');
+function sendAIMessage() {
+const input = document.getElementById('ai-chat-input');
 const text = input.value.trim();
 if(!text) return;
-addPanelMessage('user', text);
+addAIMessage('user', text);
 input.value = '';
-processLocalAI(text);
+processAI(text);
 }
 
-// 🧠 موتور هوش مصنوعی محلی (تحلیل نیت و استخراج موجودیت‌ها)
-function processLocalAI(originalText) {
-const text = normalizePersianNumbers(originalText);
+// تابع کمکی برای تبدیل اعداد فارسی به انگلیسی
+function toEnglishDigits(str) {
+const persian = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
+for (let i = 0; i < 10; i++) str = str.replace(persian[i], i.toString());
+return str;
+}
+
+// 🧠 موتور هوش مصنوعی محلی (درک نیت و استخراج موجودیت‌ها)
+function processAI(originalText) {
+const text = toEnglishDigits(originalText);
 const t = text.toLowerCase();
-// 1. بررسی اینکه آیا در صفحه ثبت مشکل هستیم
-if(document.getElementById('panel-customer').classList.contains('active')) {
+
 let actionTaken = false;
 
-// استخراج شماره موبایل (09xxxxxxxxx)
+// 1. اگر در تب "ثبت مشکل" هستیم
+if(currentActiveTab === 'customer') {
+// استخراج موبایل
 const mobileMatch = t.match(/(09\d{9})/);
 if(mobileMatch) {
 document.getElementById('c-mobile').value = mobileMatch[0];
 highlightField('c-mobile');
-addPanelMessage('bot', `✅ شماره موبایل <b>${mobileMatch[0]}</b> استخراج و ثبت شد.`);
+addAIMessage('bot', `✅ شماره موبایل <b>${mobileMatch[0]}</b> استخراج و ثبت شد.`);
 readText("شماره موبایل ثبت شد.");
 actionTaken = true;
 }
 
-// استخراج کد ملی (10 رقم که با 09 شروع نشود)
+// استخراج کد ملی
 const nationalIdMatch = t.match(/\b(\d{10})\b/);
 if(nationalIdMatch && !nationalIdMatch[0].startsWith('09')) {
 document.getElementById('c-nationalId').value = nationalIdMatch[0];
 highlightField('c-nationalId');
-addPanelMessage('bot', `✅ کد ملی <b>${nationalIdMatch[0]}</b> استخراج و ثبت شد.`);
+addAIMessage('bot', `✅ کد ملی <b>${nationalIdMatch[0]}</b> استخراج و ثبت شد.`);
 readText("کد ملی ثبت شد.");
 actionTaken = true;
 }
 
 // تشخیص نوع مشکل
 const select = document.getElementById('c-problemType');
-const issueKeywords = {
-'وام': ['وام', 'قسط', 'تسهیلات', 'اعتبار'],
-'کارت': ['کارت', 'گم شده', 'مسدود'],
-'رمز': ['رمز', 'پسورد', 'فراموشی'],
-'چک': ['چک', 'سفته']
-};
-
-let matchedIssueIndex = -1;
+const issueKeywords = { 'وام': ['وام', 'قسط', 'تسهیلات', 'اعتبار'], 'کارت': ['کارت', 'گم شده', 'مسدود'], 'رمز': ['رمز', 'پسورد', 'فراموشی'], 'چک': ['چک', 'سفته'] };
+let matchedIndex = -1;
 for (const [key, words] of Object.entries(issueKeywords)) {
 if (words.some(w => t.includes(w))) {
-// پیدا کردن گزینه مربوطه در سلکت
 for(let i=0; i<select.options.length; i++) {
-if(select.options[i].text.includes(key)) {
-matchedIssueIndex = i;
+if(select.options[i].text.includes(key)) { matchedIndex = i; break; }
+}
+}
+}
+if(matchedIndex !== -1) {
+select.selectedIndex = matchedIndex;
+highlightField('c-problemType');
+addAIMessage('bot', `✅ نوع مشکل <b>${select.options[matchedIndex].text}</b> انتخاب شد.`);
+readText("نوع مشکل انتخاب شد.");
+actionTaken = true;
+}
+}
+
+// 2. اگر در تب "پیگیری" هستیم
+if(currentActiveTab === 'track') {
+const codeMatch = t.match(/\b(\d{5})\b/);
+if(codeMatch) {
+document.getElementById('track-code-input').value = codeMatch[0];
+highlightField('track-code-input');
+addAIMessage('bot', `✅ کد پیگیری <b>${codeMatch[0]}</b> وارد شد. در حال استعلام...`);
+readText("کد پیگیری وارد شد. در حال استعلام.");
+document.getElementById('btn-track-submit').click();
+actionTaken = true;
+}
+}
+
+// 3. اگر در تب "راهنما" هستیم
+if(currentActiveTab === 'guide') {
+const planNames = ['نیلوفر', 'نورا', 'شمس', 'ارکیده', 'نارون', 'سرو', 'توسکا', 'نجم', 'کرامت', 'رضوان', 'نصر', 'یاقوت', 'الماس', 'فیروزه'];
+for(let pName of planNames) {
+if(t.includes(pName)) {
+// پیدا کردن آیدی طرح
+let planId = Object.keys(pTtexts).find(k => pTtexts[k].includes(pName));
+if(planId) {
+navToPlan(planId);
+addAIMessage('bot', `✅ شما را به طرح <b>${pName}</b> هدایت کردم.`);
+readText(`شما را به طرح ${pName} هدایت کردم.`);
+actionTaken = true;
 break;
 }
 }
 }
 }
 
-if(matchedIssueIndex !== -1) {
-select.selectedIndex = matchedIssueIndex;
-highlightField('c-problemType');
-addPanelMessage('bot', `✅ نوع مشکل <b>${select.options[matchedIssueIndex].text}</b> انتخاب شد.`);
-readText("نوع مشکل انتخاب شد.");
+// 4. ناوبری هوشمند
+if(t.includes('ثبت مشکل') || t.includes('شکایت')) {
+const btn = document.getElementById('tab-customer');
+switchTab('customer', btn);
+addAIMessage('bot', "شما را به صفحه ثبت مشکل هدایت کردم. حالا می‌توانم فیلدها را برایتان پر کنم.");
+readText("شما را به صفحه ثبت مشکل هدایت کردم.");
+actionTaken = true;
+} else if(t.includes('پیگیری') || t.includes('وضعیت')) {
+const btn = document.getElementById('tab-track');
+switchTab('track', btn);
+addAIMessage('bot', "شما را به صفحه پیگیری هدایت کردم. کد پیگیری خود را بگویید.");
+readText("شما را به صفحه پیگیری هدایت کردم. کد پیگیری خود را بگویید.");
+actionTaken = true;
+} else if(t.includes('راهنما') || t.includes('طرح‌ها') || t.includes('تسهیلات')) {
+const btn = document.getElementById('tab-guide');
+switchTab('guide', btn);
+addAIMessage('bot', "شما را به صفحه راهنمای تسهیلات هدایت کردم. نام طرح مورد نظر خود را بگویید.");
+readText("شما را به صفحه راهنمای تسهیلات هدایت کردم.");
 actionTaken = true;
 }
 
 if(!actionTaken) {
-addPanelMessage('bot', "متوجه نشدم. لطفاً شماره موبایل، کد ملی یا کلماتی مثل (وام، کارت، رمز) را واضح‌تر بگویید.");
+addAIMessage('bot', "متوجه نشدم. لطفاً بگویید چه کاری می‌خواهید انجام دهید (مثلاً: ثبت مشکل، پیگیری، یا نام یک طرح).");
 readText("متوجه نشدم. لطفا واضح تر بگویید.");
 }
-} else {
-// اگر در صفحه دیگری بودیم، کاربر را به فرم هدایت کن
-if(t.includes('مشکل') || t.includes('ثبت') || t.includes('شکایت')) {
-const btn = document.querySelector('button[onclick*="switchTab(\'customer\'"]');
-if(btn) switchTab('customer', btn);
-addPanelMessage('bot', "شما را به صفحه ثبت مشکل هدایت کردم. حالا می‌توانم فیلدها را برایتان پر کنم.");
-readText("شما را به صفحه ثبت مشکل هدایت کردم.");
-} else {
-addPanelMessage('bot', "من در صفحه ثبت مشکل می‌توانم فرم را برای شما پر کنم. لطفاً به تب ثبت مشکل بروید یا بگویید 'ثبت مشکل'.");
-readText("لطفا به تب ثبت مشکل بروید.");
 }
-}
+
+// هدایت به طرح خاص
+function navToPlan(planId) {
+const btn = document.getElementById('tab-guide');
+if(currentActiveTab !== 'guide') switchTab('guide', btn);
+
+// پیدا کردن دسته‌بندی
+let cat = 'general';
+if(['naron','sarv1','sarv2','tooska'].includes(planId)) cat = 'guilds';
+if(['najm','karamat','radvan','nasr'].includes(planId)) cat = 'support';
+if(['yaghot','yaghot_fixed','almas','firoozeh'].includes(planId)) cat = 'corporate';
+
+selectGuideCategory(cat);
+setTimeout(() => selectGuidePlan(planId), 100);
 }
 
 function highlightField(id) {
 const el = document.getElementById(id);
+if(!el) return;
 el.classList.add('highlight-guide');
 el.scrollIntoView({behavior: 'smooth', block: 'center'});
 setTimeout(() => el.classList.remove('highlight-guide'), 4000);
 }
 
-// راه‌اندازی میکروفون پنل
+// راه‌اندازی میکروفون
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-panelRecognition = new SR();
-panelRecognition.lang = 'fa-IR';
-panelRecognition.continuous = false;
-panelRecognition.onstart = function() { panelIsRecording = true; document.getElementById('panel-mic-btn').classList.add('recording'); };
-panelRecognition.onresult = function(e) {
+recognition = new SR();
+recognition.lang = 'fa-IR';
+recognition.continuous = false;
+recognition.onstart = function() { isRecording = true; document.getElementById('ai-mic-btn').classList.add('recording'); };
+recognition.onresult = function(e) {
 const transcript = e.results[0][0].transcript;
-document.getElementById('panel-chat-input').value = transcript;
-sendPanelMessage();
+document.getElementById('ai-chat-input').value = transcript;
+sendAIMessage();
 };
-panelRecognition.onerror = function() { panelIsRecording = false; document.getElementById('panel-mic-btn').classList.remove('recording'); };
-panelRecognition.onend = function() { panelIsRecording = false; document.getElementById('panel-mic-btn').classList.remove('recording'); };
+recognition.onerror = function() { isRecording = false; document.getElementById('ai-mic-btn').classList.remove('recording'); };
+recognition.onend = function() { isRecording = false; document.getElementById('ai-mic-btn').classList.remove('recording'); };
 }
 
-function togglePanelMic() {
-if (!panelRecognition) { alert("مرورگر شما از میکروفون پشتیبانی نمی‌کند."); return; }
-if (panelIsRecording) panelRecognition.stop(); else panelRecognition.start();
+function toggleMic() {
+if (!recognition) { alert("مرورگر شما از میکروفون پشتیبانی نمی‌کند."); return; }
+if (isRecording) recognition.stop(); else recognition.start();
 }
 
 // ==========================================
@@ -1342,11 +1416,10 @@ if (panelIsRecording) panelRecognition.stop(); else panelRecognition.start();
 function startRobotChat() {
 document.getElementById('robot-overlay').classList.add('hidden');
 document.getElementById('floating-avatar').style.display = 'flex';
-// انتقال به تب ثبت مشکل برای شروع
-const btn = document.querySelector('button[onclick*="switchTab(\'customer\'"]');
-if(btn) switchTab('customer', btn);
+const btn = document.getElementById('tab-customer');
+switchTab('customer', btn);
 setTimeout(() => {
-showAssistantPanel("سلام! من دستیار شما هستم. منوی کشویی شعبه را باز کنید و شعبه خود را انتخاب کنید تا مرحله بعد برویم.");
+showAIPanel("سلام! من دستیار شما هستم. منوی کشویی شعبه را باز کنید و شعبه خود را انتخاب کنید تا مرحله بعد برویم.");
 }, 500);
 }
 
