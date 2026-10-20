@@ -624,7 +624,7 @@ showGuideStep(3);
 }
 
 // ==========================================
-// ۵. هوش مصنوعی و میکروفون (اصلاح شده)
+// ۵. هوش مصنوعی و میکروفون (اصلاح شده و بدون باگ)
 // ==========================================
 function toggleAIChat() {
 const win = document.getElementById('ai-chat-window');
@@ -728,6 +728,9 @@ return;
 addAIMessage('bot', "متوجه نشدم. می‌توانید بگویید 'ثبت مشکل'، 'پیگیری'، یا نام طرحی مثل 'ارکیده'.");
 }
 
+// ==========================================
+// بخش اصلاح شده میکروفن (حل مشکل خطای درجا)
+// ==========================================
 let isRecording = false; let recognition = null;
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -749,8 +752,13 @@ recognition.onerror = function(e) {
 isRecording = false;
 document.getElementById('ai-mic-btn').classList.remove('recording');
 document.getElementById('ai-status').innerText = "خطا در میکروفون";
-if(e.error === 'not-allowed') alert("دسترسی به میکروفون مسدود است. لطفاً در تنظیمات مرورگر اجازه دهید.");
-else addAIMessage('bot', "خطا در دریافت صدا. لطفاً تایپ کنید.");
+if(e.error === 'not-allowed') {
+alert("دسترسی به میکروفون مسدود است. لطفاً در تنظیمات مرورگر (آیکون قفل) اجازه دهید.");
+} else if (e.error === 'network') {
+alert("خطای شبکه. اتصال اینترنت یا فیلترشکن خود را بررسی کنید.");
+} else {
+addAIMessage('bot', "خطا در دریافت صدا. لطفاً تایپ کنید.");
+}
 };
 recognition.onend = function() {
 isRecording = false;
@@ -758,10 +766,24 @@ document.getElementById('ai-mic-btn').classList.remove('recording');
 document.getElementById('ai-status').innerText = "آماده راهنمایی";
 };
 }
+
 function toggleMic() {
 if (!recognition) { alert("مرورگر شما از میکروفون پشتیبانی نمی‌کند."); return; }
 if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') { alert("میکروفون فقط در آدرس‌های HTTPS کار می‌کند."); return; }
-if (isRecording) recognition.stop(); else recognition.start();
+
+if (isRecording) {
+recognition.stop();
+} else {
+// درخواست اجازه صریح از مرورگر قبل از شروع
+navigator.mediaDevices.getUserMedia({ audio: true })
+.then(function(stream) {
+stream.getTracks().forEach(track => track.stop()); // بستن استریم تستی
+try { recognition.start(); } catch (err) { console.error(err); }
+})
+.catch(function(err) {
+alert("شما دسترسی میکروفن را رد کردید. لطفاً از تنظیمات مرورگر اجازه بدهید.");
+});
+}
 }
 
 // ==========================================
