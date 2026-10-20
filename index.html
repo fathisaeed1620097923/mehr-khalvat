@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سامانه جامع مهر</title>
 <style>
-/* =========================================
-استایل‌های اصلی (کدهای شما)
-========================================= */
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, Arial, sans-serif; }
 body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; line-height: 1.8; }
 .container { background: #fff; width: 100%; max-width: 700px; border-radius: 20px; box-shadow: 0 10px 30px rgba(10,77,46,0.1); overflow: hidden; }
@@ -136,57 +133,6 @@ tr:nth-child(even) { background: #f8fbf9; }
 .toast { visibility: hidden; min-width: 250px; background-color: #c0392b; color: #fff; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 1000; top: 20px; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, top 0.3s; }
 .toast.show { visibility: visible; opacity: 1; top: 30px; }
 .badge-red { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
-
-/* =========================================
-استایل‌های دستیار هوشمند (AI Assistant)
-========================================= */
-#ai-float-btn {
-position: fixed; bottom: 25px; left: 25px; width: 65px; height: 65px;
-background: linear-gradient(135deg, #0a4d2e, #148a4f); border-radius: 50%;
-box-shadow: 0 8px 25px rgba(10, 77, 46, 0.4); cursor: pointer;
-display: flex; justify-content: center; align-items: center;
-z-index: 9999; transition: transform 0.3s ease, box-shadow 0.3s ease;
-animation: pulse-glow 2s infinite;
-}
-#ai-float-btn:hover { transform: scale(1.1); box-shadow: 0 12px 30px rgba(10, 77, 46, 0.6); }
-#ai-float-btn svg { width: 35px; height: 35px; fill: white; }
-@keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
-
-#ai-chat-window {
-position: fixed; bottom: 100px; left: 25px; width: 350px; max-height: 520px;
-background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
-border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-border: 1px solid #d1d5db; display: none; flex-direction: column;
-overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s ease; opacity: 0; transform: translateY(20px);
-}
-#ai-chat-window.active { display: flex; opacity: 1; transform: translateY(0); }
-
-.ai-header { background: linear-gradient(135deg, #0a4d2e, #148a4f); color: white; padding: 15px; display: flex; align-items: center; gap: 12px; }
-.ai-header-avatar {
-width: 40px; height: 40px; background: #fff; border-radius: 50%;
-display: flex; justify-content: center; align-items: center; overflow: hidden; border: 2px solid #d4a017;
-}
-.ai-header-avatar svg { width: 100%; height: 100%; }
-.ai-header h4 { margin: 0; font-size: 15px; font-weight: bold; }
-.ai-header p { margin: 0; font-size: 11px; opacity: 0.85; }
-.ai-header .close-btn { margin-right: auto; background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
-
-.ai-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #f8fafc; }
-.ai-msg { padding: 12px 16px; border-radius: 16px; font-size: 13.5px; line-height: 1.6; max-width: 88%; }
-.ai-msg.bot { background: #e8f5ec; color: #1a2e2a; align-self: flex-start; border-bottom-right-radius: 4px; border: 1px solid #cce8d8; }
-.ai-msg.user { background: #0a4d2e; color: white; align-self: flex-end; border-bottom-left-radius: 4px; }
-
-.ai-footer { padding: 15px; background: white; border-top: 1px solid #e5e7eb; display: flex; gap: 10px; align-items: center; }
-.ai-footer input { flex: 1; padding: 12px 15px; border: 1px solid #d1d5db; border-radius: 25px; font-family: inherit; font-size: 13px; outline: none; background: #f3f4f6;}
-.ai-footer input:focus { background: #fff; border-color: #148a4f; }
-.ai-footer button { width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 18px; transition: 0.2s;}
-.btn-mic { background: #e0f2fe; color: #0284c7; }
-.btn-mic.recording { background: #ef4444; color: white; animation: pulse 1.5s infinite; }
-.btn-send { background: #0a4d2e; color: white; }
-
-/* افکت هایلایت هوش مصنوعی */
-.highlight-guide { box-shadow: 0 0 0 4px rgba(212, 160, 23, 0.8) !important; border-color: #d4a017 !important; animation: pulse-highlight 1.5s infinite; background-color: #fffdf5 !important; }
-@keyframes pulse-highlight { 0% { box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.8); } 50% { box-shadow: 0 0 0 8px rgba(212, 160, 23, 0.2); } 100% { box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.8); } }
 </style>
 </head>
 <body>
@@ -194,45 +140,6 @@ display: flex; justify-content: center; align-items: center; overflow: hidden; b
 <div id="toast-notification" class="toast">پیام جدید!</div>
 <audio id="notify-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
-<!-- =========================================
-دستیار هوشمند (AI Assistant)
-========================================= -->
-<div id="ai-float-btn" onclick="toggleAIChat()" title="دستیار هوشمند مهر">
-<svg viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4V6H16A2 2 0 0 1 18 8V12A2 2 0 0 1 16 14H14V16A2 2 0 0 1 12 18A2 2 0 0 1 10 16V14H8A2 2 0 0 1 6 12V8A2 2 0 0 1 8 6H10V4A2 2 0 0 1 12 2M9 9A1 1 0 0 0 8 10A1 1 0 0 0 9 11A1 1 0 0 0 10 10A1 1 0 0 0 9 9M15 9A1 1 0 0 0 14 10A1 1 0 0 0 15 11A1 1 0 0 0 16 10A1 1 0 0 0 15 9Z"/></svg>
-</div>
-
-<div id="ai-chat-window">
-<div class="ai-header">
-<div class="ai-header-avatar">
-<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<linearGradient id="metal3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f8f9fa"/><stop offset="100%" stop-color="#495057"/></linearGradient>
-</defs>
-<path d="M40,200 L160,200 L170,130 L30,130 Z" fill="#0a4d2e"/>
-<ellipse cx="100" cy="70" rx="45" ry="50" fill="url(#metal3)"/>
-<ellipse cx="80" cy="65" rx="10" ry="6" fill="#10b981"/>
-<ellipse cx="120" cy="65" rx="10" ry="6" fill="#10b981"/>
-</svg>
-</div>
-<div>
-<h4>دستیار هوشمند مهر</h4>
-<p id="ai-status">آماده راهنمایی</p>
-</div>
-<button class="close-btn" onclick="toggleAIChat()">×</button>
-</div>
-<div class="ai-body" id="ai-chat-log">
-<div class="ai-msg bot">سلام! من دستیار هوشمند شما هستم. برای ثبت سریع شماره موبایل یا کد ملی، روی میکروفون بزنید و صحبت کنید؛ به صورت خودکار در فرم نوشته می‌شود. همچنین می‌توانید بگویید "برو مرحله بعد".</div>
-</div>
-<div class="ai-footer">
-<button class="btn-mic" id="ai-mic-btn" onclick="toggleMic()" title="ضبط صدا">🎤</button>
-<input type="text" id="ai-chat-input" placeholder="دستور خود را بنویسید..." onkeypress="if(event.key==='Enter')sendAIMessage()">
-<button class="btn-send" onclick="sendAIMessage()">➤</button>
-</div>
-</div>
-
-<!-- =========================================
-بدنه اصلی سایت
-========================================= -->
 <div class="container">
 <div class="header">
 <h1>🌿 سامانه جامع مهر</h1>
@@ -484,7 +391,7 @@ display: flex; justify-content: center; align-items: center; overflow: hidden; b
 </div>
 </div>
 
-<!-- ارکیده -->
+<!-- ارکیده (تکمیل شده با جدول و رویش مهر) -->
 <div class="card" id="plan-ardideh" style="--theme-color: #9b59b6; --theme-light: #f0e8f8; --theme-text: #5e2a80;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح ارکیده</div>
 <div class="c-body">
@@ -548,7 +455,7 @@ display: flex; justify-content: center; align-items: center; overflow: hidden; b
 </div>
 </div>
 
-<!-- سرو 1 -->
+<!-- سرو 1 (تکمیل شده با جدول و رویش مهر) -->
 <div class="card" id="plan-sarv1" style="--theme-color: #2ecc71; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح سرو (بدون تفاهم‌نامه)</div>
 <div class="c-body">
@@ -586,7 +493,7 @@ display: flex; justify-content: center; align-items: center; overflow: hidden; b
 </div>
 </div>
 
-<!-- سرو 2 -->
+<!-- سرو 2 (تکمیل شده با جدول و رویش مهر) -->
 <div class="card" id="plan-sarv2" style="--theme-color: #2ecc71; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح سرو (تفاهم‌نامه‌ای)</div>
 <div class="c-body">
@@ -646,7 +553,7 @@ display: flex; justify-content: center; align-items: center; overflow: hidden; b
 </div>
 </div>
 
-<!-- نجم -->
+<!-- نجم (تکمیل شده با جدول) -->
 <div class="card" id="plan-najm" style="--theme-color: #f1c40f; --theme-light: #fef9e7; --theme-text: #8a6a0f;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نجم</div>
 <div class="c-body">
@@ -1009,7 +916,6 @@ let lastTrackStatus = "";
 let trackInterval = null;
 let employeeInterval = null;
 let seenTicketRows = new Set();
-let currentActiveTab = 'customer';
 
 const plansList = {
 general: [
@@ -1050,7 +956,6 @@ document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('panel-' + panelId).classList.add('active');
 btnElement.classList.add('active');
-currentActiveTab = panelId;
 if(panelId === 'employee') { document.getElementById('tab-badge').style.display = 'none'; }
 stopAudio();
 }
@@ -1351,4 +1256,97 @@ fetch(SCRIPT_URL + "?action=trackTicket&code=" + code)
 if(data.found) {
 document.getElementById('track-status-text').innerText = data.status;
 document.getElementById('track-dept-text').innerText = "ارجاع به: " + data.department;
-if(data.reply && data.reply.trim() !== "")
+if(data.reply && data.reply.trim() !== "") { document.getElementById('track-reply-box').style.display = 'block'; document.getElementById('track-reply-text').innerText = data.reply; } else { document.getElementById('track-reply-box').style.display = 'none'; }
+if(lastTrackStatus !== "" && lastTrackStatus !== data.status) { showToast("وضعیت درخواست شما تغییر کرد!"); }
+lastTrackStatus = data.status;
+} else {
+document.getElementById('track-status-text').innerText = "کد یافت نشد!";
+if(trackInterval) clearInterval(trackInterval);
+}
+})
+.catch(err => { document.getElementById('track-status-text').innerText = "خطا در ارتباط."; });
+};
+fetchStatus();
+trackInterval = setInterval(fetchStatus, 15000);
+}
+
+function startEmployeePolling() {
+const dept = document.getElementById('e-department').value;
+if (!dept) { document.getElementById('employee-ticket-list').innerHTML = ''; return; }
+if(employeeInterval) clearInterval(employeeInterval);
+seenTicketRows.clear();
+fetchDepartmentTickets(true);
+employeeInterval = setInterval(() => {
+const token = sessionStorage.getItem('adminToken');
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
+.then(res => res.json())
+.then(tickets => {
+let hasNew = false;
+tickets.forEach(t => {
+if (t.department === dept && t.status !== 'حل شد' && !seenTicketRows.has(t.row)) { hasNew = true; }
+});
+if (hasNew) {
+showToast("تیکت جدیدی برای واحد شما ثبت شد!");
+document.getElementById('tab-badge').style.display = 'inline-block';
+fetchDepartmentTickets(false);
+}
+});
+}, 15000);
+}
+
+function fetchDepartmentTickets(isInitial = false) {
+const dept = document.getElementById('e-department').value;
+const listContainer = document.getElementById('employee-ticket-list');
+const token = sessionStorage.getItem('adminToken');
+
+if(isInitial) { listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت اطلاعات...</p>'; }
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
+.then(res => res.json())
+.then(tickets => {
+if(tickets.error) { listContainer.innerHTML = '<p style="text-align:center; color: red;">دسترسی غیرمجاز.</p>'; return; }
+
+let deptTickets = tickets.filter(t => t.department === dept && t.status !== 'حل شد');
+listContainer.innerHTML = '';
+if (deptTickets.length === 0) {
+listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ تیکت باز و جدیدی برای این واحد وجود ندارد.</p>';
+return;
+}
+deptTickets.forEach(ticket => {
+seenTicketRows.add(ticket.row);
+let imageHtml = "";
+if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) {
+imageHtml = `
+<div style="margin-top:10px; text-align:center;">
+<p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p>
+<a href="${ticket.imageUrl}" target="_blank">
+<img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;">
+</a>
+</div>`;
+}
+let html = `
+<div class="ticket-card">
+<h4>کد پیگیری: ${ticket.trackingCode} (شعبه: ${ticket.branch})</h4>
+<p><strong>مشخصات مشتری:</strong> ${ticket.name}</p>
+<p><strong>مشکل:</strong> ${ticket.description}</p>
+${imageHtml}
+<div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-${ticket.row}" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div>
+<button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button>
+</div>`;
+listContainer.innerHTML += html;
+});
+})
+.catch(err => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا.</p>'; });
+}
+
+function resolveTicket(row, btnElement) {
+btnElement.innerText = "در حال ذخیره...";
+let replyText = document.getElementById('reply-' + row).value;
+let payload = { action: 'updateStatus', row: row, status: 'حل شد', reply: replyText };
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+.then(() => { alert('تیکت حل شد.'); fetchDepartmentTickets(true); })
+.catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; });
+}
+</script>
+</body>
+</html>
