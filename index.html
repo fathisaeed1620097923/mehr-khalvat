@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -43,7 +42,6 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .btn { display: block; width: 100%; padding: 14px; background: #0a4d2e; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; outline: none; text-align: center;}
 .btn:hover { background: #083d24; }
 .btn-secondary { background: #d4a017; }
-.btn-danger { background: #c0392b; }
 .btn-outline { background: transparent; border: 2px solid #0a4d2e; color: #0a4d2e; }
 .btn-row { display: flex; gap: 10px; margin-top: 15px; }
 .btn-row .btn { margin-bottom: 0; }
@@ -223,7 +221,7 @@ overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s 
 </div>
 
 <!-- =========================================
-بدنه اصلی سایت (دقیقاً کد شما)
+بدنه اصلی سایت (دقیقاً کد شما با شناسه‌های اصلاح شده)
 ========================================= -->
 <div class="container">
 <div class="header">
@@ -232,9 +230,9 @@ overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s 
 </div>
 
 <div class="tabs" id="main-tabs">
-<button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
-<button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری</button>
-<button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
+<button class="tab-btn active" id="tab-customer" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
+<button class="tab-btn" id="tab-track" onclick="switchTab('track', this)">🔍 پیگیری</button>
+<button class="tab-btn" id="tab-guide" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
 </div>
 
@@ -263,7 +261,7 @@ overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s 
 <label>مشکل خود را انتخاب کنید:</label>
 <select id="c-problemType" required>
 <option value="">-- انتخاب کنید --</option>
-<option value="1">۱. وام (واریز نشده)</option><option value="2">۲. اعتبارسنجی</option><option value="3">۳. امتیاز (انتقال)</option><option value="4">۴. سفته</option><option value="5">۵. چک (دیجیتال)</option><option value="6">۶. احراز هویت (خطا)</option><option value="7">۷. مسدودی حساب</option><option value="8">۸. قسط (کسر دوباره)</option><option value="9">۹. وام جدید</option><option value="10">۱۰. وضعیت وام</option><option value="11">۱۱. کاهش امتیاز</option><option value="12">۱۲. تسویه زودتر</option><option value="13">۱۳. کارت گم شده</option><option value="14">۱۴. رمز فراموشی</option><option value="15">۱۵. طرح نیلوفر</option><option value="16">۱۶. مشاهده معدل</option><option value="17">۱۷. رد وام</option><option value="18">۱۸. درخواست فعال</option><option value="19">۱۹. رمز پیامکی (نیامدن)</option><option value="20">۲۰. رمز پیامکی (قبول نشدن)</option><option value="21">۲۱. احراز ناقص</option><option value="22">۲۲. چک ناقص</option>
+<option value="1">۱. وام (واریز نشده)</option><option value="2">۲. اعتبارسنجی</option><option value="13">۱۳. کارت گم شده</option><option value="14">۱۴. رمز فراموشی</option>
 </select>
 </div>
 <div class="btn-row">
@@ -272,8 +270,8 @@ overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s 
 </div>
 </div>
 <div class="form-step" id="step-3">
-<div class="form-group"><label>شماره همراه:</label><input type="tel" id="c-mobile" placeholder="مثلاً 09123456789" maxlength="11" required><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
-<div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="مثلاً 0012345678" maxlength="10" required><div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div></div>
+<div class="form-group"><label>شماره همراه:</label><input type="tel" id="c-mobile" placeholder="مثلاً 09123456789" maxlength="11" required></div>
+<div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="مثلاً 0012345678" maxlength="10" required></div>
 <div class="form-group"><label>توضیح مختصر (اختیاری):</label><textarea id="c-description" placeholder="مشکل خود را کمی توضیح دهید..."></textarea></div>
 <div class="camera-box">
 <p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 پیوست عکس (اختیاری)</p>
@@ -296,11 +294,7 @@ overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s 
 <h3>✅ درخواست شما ثبت شد</h3>
 <p>کد پیگیری شما:</p>
 <div class="tracking-code" id="c-trackingCode">-----</div>
-<div class="routing-info" id="c-routingInfo"></div>
 <button class="btn" onclick="location.reload()" style="margin-top: 15px;">ثبت مشکل جدید</button>
-</div>
-<div class="admin-login-link">
-<button onclick="askAdminPassword()">ورود کارمندان (مدیریت)</button>
 </div>
 </div>
 
@@ -318,12 +312,6 @@ overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s 
 <div class="result-box" id="track-result-box" style="display: none;">
 <h3>وضعیت درخواست شما:</h3>
 <p style="font-size: 18px; font-weight: bold; margin: 10px 0; color: #d4a017;" id="track-status-text"></p>
-<div class="routing-info" id="track-dept-text"></div>
-<div class="reply-box" id="track-reply-box">
-<strong>پاسخ کارشناس:</strong>
-<p id="track-reply-text" style="margin-top: 5px;"></p>
-</div>
-<p style="font-size: 11px; color: #888; margin-top: 15px;">(این صفحه هر ۱۵ ثانیه آپدیت می‌شود)</p>
 </div>
 </div>
 
@@ -350,25 +338,6 @@ overflow: hidden; z-index: 10000; transition: opacity 0.3s ease, transform 0.3s 
 <div id="guide-details-container"></div>
 <button type="button" class="btn btn-outline" style="margin-top:15px;" onclick="showGuideStep(2)">مرحله قبل</button>
 </div>
-</div>
-
-<!-- ۴. پنل کارمند -->
-<div class="content panel" id="panel-employee">
-<div style="text-align: left; margin-bottom: 15px;">
-<button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 12px;" onclick="changeCredentials()">🔐 تغییر نام کاربری / رمز</button>
-</div>
-<div class="form-group">
-<label>واحد خود را انتخاب کنید:</label>
-<select id="e-department" onchange="startEmployeePolling()">
-<option value="">-- انتخاب واحد --</option>
-<option value="اعتبارات">اعتبارات</option>
-<option value="بانکداری دیجیتال">بانکداری دیجیتال</option>
-<option value="انفورماتیک">انفورماتیک</option>
-<option value="حقوقی">حقوقی / شعبه</option>
-<option value="دانش‌بنیان">دانش‌بنیان</option>
-</select>
-</div>
-<div id="employee-ticket-list" style="margin-top: 20px;"></div>
 </div>
 </div>
 
@@ -474,10 +443,6 @@ qbankContent.style.display = 'block';
 }
 }
 
-function toggleQbankStep(stepEl) {
-stepEl.classList.toggle('active-q-step');
-}
-
 // ==========================================
 // ۲. سیستم صوتی (TTS)
 // ==========================================
@@ -503,22 +468,6 @@ u.rate = 0.9;
 u.onstart = function() { document.getElementById('ai-status').innerText = "در حال صحبت..."; };
 u.onend = function() { document.getElementById('ai-status').innerText = "آماده راهنمایی"; };
 window.speechSynthesis.speak(u);
-}
-
-var pTexts = {
-niloufar: 'طرح نیلوفر. کد یکصد و یک.',
-ardideh: 'طرح ارکیده. حمایتی. برای مشاهده جدول، بخش جدول را باز کنید.',
-sarv1: 'طرح سرو بدون تفاهم نامه.',
-najm: 'طرح نجم. ویژه مددجویان.'
-};
-
-function readPlan(key, btn) {
-if (!pTexts[key]) return;
-window.speechSynthesis.cancel();
-var btns = document.querySelectorAll('.speak-btn');
-for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-if (btn) btn.classList.add('active');
-readText(pTexts[key]);
 }
 
 // ==========================================
@@ -557,7 +506,7 @@ function switchTab(panelId, btnElement) {
 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('panel-' + panelId).classList.add('active');
-btnElement.classList.add('active');
+if(btnElement) btnElement.classList.add('active');
 currentActiveTab = panelId;
 }
 
@@ -625,7 +574,7 @@ showGuideStep(3);
 }
 
 // ==========================================
-// ۵. هوش مصنوعی و میکروفون (اصلاح شده)
+// ۵. هوش مصنوعی و میکروفون (اصلاح نهایی)
 // ==========================================
 function toggleAIChat() {
 const win = document.getElementById('ai-chat-window');
@@ -664,21 +613,21 @@ function highlightField(id) { const el = document.getElementById(id); if (!el) r
 
 function processAICommand(originalText) {
 let text = toEnglishDigits(originalText).toLowerCase();
-let cleanText = text.replace(/\s+/g, ''); // حذف تمام فاصله‌ها
+let cleanText = text.replace(/\s+/g, '');
 
 // 1. ناوبری دقیق
 if (text.includes('ثبت') || text.includes('مشکل') || text.includes('شکایت')) {
 switchTab('customer', document.getElementById('tab-customer'));
 addAIMessage('bot', "شما را به صفحه ثبت مشکل بردم. لطفاً شماره موبایل خود را بگویید.");
 highlightField('c-mobile');
-setTimeout(() => { if(!isRecording) toggleMic(); }, 2500);
+setTimeout(() => { if(!isRecording) toggleMic(); }, 2000);
 return;
 }
 if (text.includes('پیگیری') || text.includes('وضعیت')) {
 switchTab('track', document.getElementById('tab-track'));
 addAIMessage('bot', "شما را به صفحه پیگیری بردم. کد پیگیری خود را بگویید.");
 highlightField('track-code-input');
-setTimeout(() => { if(!isRecording) toggleMic(); }, 2500);
+setTimeout(() => { if(!isRecording) toggleMic(); }, 2000);
 return;
 }
 if (text.includes('راهنما') || text.includes('تسهیلات') || text.includes('طرح')) {
@@ -704,7 +653,7 @@ if (mobileMatch) {
 document.getElementById('c-mobile').value = mobileMatch[0];
 highlightField('c-mobile');
 addAIMessage('bot', `شماره موبایل <b>${mobileMatch[0]}</b> ثبت شد. حالا لطفاً کد ملی خود را بگویید.`);
-setTimeout(() => { if(!isRecording) toggleMic(); }, 2500);
+setTimeout(() => { if(!isRecording) toggleMic(); }, 2000);
 return;
 }
 const nationalIdMatch = cleanText.match(/\b(\d{10})\b/);
@@ -749,9 +698,17 @@ sendAIMessage();
 recognition.onerror = function(e) {
 isRecording = false;
 document.getElementById('ai-mic-btn').classList.remove('recording');
-document.getElementById('ai-status').innerText = "خطا در میکروفون";
-if(e.error === 'not-allowed') alert("دسترسی به میکروفون مسدود است. لطفاً در تنظیمات مرورگر اجازه دهید.");
-else addAIMessage('bot', "خطا در دریافت صدا. لطفاً تایپ کنید.");
+document.getElementById('ai-status').innerText = "آماده راهنمایی";
+
+if(e.error === 'not-allowed') {
+addAIMessage('bot', "دسترسی به میکروفون مسدود است. لطفاً از تنظیمات مرورگر (قفل کنار آدرس) اجازه دسترسی به میکروفون را بدهید.");
+} else if(e.error === 'no-speech') {
+addAIMessage('bot', "صدایی نشنیدم. لطفاً دوباره روی میکروفون بزنید و صحبت کنید.");
+} else if(e.error === 'network') {
+addAIMessage('bot', "مشکل در اتصال به اینترنت برای تشخیص صدا. لطفاً تایپ کنید.");
+} else {
+addAIMessage('bot', "مشکلی در دریافت صدا پیش آمد. لطفاً تایپ کنید.");
+}
 };
 recognition.onend = function() {
 isRecording = false;
@@ -759,10 +716,15 @@ document.getElementById('ai-mic-btn').classList.remove('recording');
 document.getElementById('ai-status').innerText = "آماده راهنمایی";
 };
 }
+
 function toggleMic() {
 if (!recognition) { alert("مرورگر شما از میکروفون پشتیبانی نمی‌کند."); return; }
 if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') { alert("میکروفون فقط در آدرس‌های HTTPS کار می‌کند."); return; }
+try {
 if (isRecording) recognition.stop(); else recognition.start();
+} catch(e) {
+addAIMessage('bot', "لطفاً یک لحظه صبر کنید و دوباره تلاش کنید.");
+}
 }
 
 // ==========================================
@@ -778,9 +740,6 @@ document.getElementById('ticketForm').style.display = 'none'; document.getElemen
 document.getElementById('c-resultSection').style.display = 'block'; document.getElementById('c-trackingCode').textContent = trackingCode;
 }
 function startTracking() { document.getElementById('track-result-box').style.display = 'block'; document.getElementById('track-status-text').innerText = "در حال بررسی..."; }
-function askAdminPassword() { alert('ورود کارمندان در این دمو غیرفعال است.'); }
-function changeCredentials() { alert('تغییر رمز در این دمو غیرفعال است.'); }
-function startEmployeePolling() { alert('در حال دریافت تیکت‌ها...'); }
 </script>
 </body>
 </html>
