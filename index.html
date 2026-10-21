@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -111,27 +110,41 @@ tr:nth-child(even) { background: #f8fbf9; }
 .toast.show { visibility: visible; opacity: 1; top: 30px; }
 .badge-red { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
 
-/* ---- افزوده شده: کادر امضا ---- */
+/* کادر امضا */
 .signature-wrap { border: 2px dashed #0a4d2e; border-radius: 12px; background: #fff; padding: 6px; margin-bottom: 8px; }
 .signature-wrap canvas { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; border-radius: 8px; background: #fff; }
 .signature-hint { font-size: 11px; color: #666; margin-bottom: 6px; }
 
-/* ---- افزوده شده: استایل چاپ / دانلود PDF ---- */
+/* بخش حساب بانکی */
+.bank-section { background: #faf8f3; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 2px solid #e0e0e0; }
+.bank-section h3 { color: #0a4d2e; font-size: 15px; margin-bottom: 12px; }
+.iban-input-wrap { display: flex; align-items: center; direction: ltr; }
+.iban-prefix { background: #0a4d2e; color: #fff; padding: 12px 14px; border-radius: 0 10px 10px 0; font-weight: bold; font-size: 14px; }
+.iban-input-wrap input { border-radius: 10px 0 0 10px !important; border-left: none !important; direction: ltr; text-align: left; letter-spacing: 1px; }
+.field-hint { font-size: 11px; color: #888; margin-top: 4px; }
+.field-error { color: #c0392b; font-size: 12px; margin-top: 5px; display: none; }
+
+/* 🔴 اصلاح مهم: مخفی کردن زورکی بخش طرح‌ها تا ظاهر سایت به هم نریزد */
+#hidden-plans { display: none !important; }
+
+/* چاپ */
 @media print {
 body { background: #fff !important; padding: 0 !important; }
 .tabs, .tab-btn, .header, .admin-login-link, .stepper,
 .btn, .btn-row, .btn-plan, .speak-btn, .camera-box button,
 #photo-options, #photo-remove-box, .badge, #toast-notification,
-.signature-hint, #employee-tab-btn { display: none !important; }
+.signature-hint, #employee-tab-btn, .signature-wrap button,
+.field-hint, .iban-prefix ~ .field-hint { display: none !important; }
 .container { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
 .content { padding: 0 !important; }
 .panel { display: none !important; }
 .panel.active { display: block !important; }
-#panel-customer.active .form-step,
-#panel-pos.active .form-step { display: block !important; }
+#panel-customer.active .form-step, #panel-pos.active .form-step { display: block !important; }
 .result-box { display: block !important; }
 .form-group input, .form-group select, .form-group textarea { border: 1px solid #333 !important; background: #fff !important; }
-.signature-wrap { border: 1px solid #333 !important; }
+.signature-wrap { border: 1px solid #333 !important; page-break-inside: avoid; }
+.signature-wrap canvas { display: block !important; }
+.bank-section { border: 1px solid #333 !important; background: #fff !important; page-break-inside: avoid; }
 .acc-body { max-height: none !important; }
 .footer-print-note { display: block !important; }
 }
@@ -218,13 +231,10 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
-<!-- ✨ افزوده شده: کادر امضای مشتری در فرم تیکت -->
 <div class="form-group">
 <label>✍️ امضای مشتری (الزامی):</label>
 <p class="signature-hint">با انگشت (روی موبایل) یا با ماوس در کادر زیر امضا کنید.</p>
-<div class="signature-wrap">
-<canvas id="signature-canvas-ticket" width="600" height="200"></canvas>
-</div>
+<div class="signature-wrap"><canvas id="signature-canvas-ticket" width="600" height="200"></canvas></div>
 <button type="button" class="btn btn-outline" style="margin-top: 8px;" onclick="clearSignature('ticket')">🧹 پاک کردن امضا</button>
 </div>
 
@@ -232,7 +242,6 @@ body { background: #fff !important; padding: 0 !important; }
 <button type="button" class="btn btn-outline" onclick="prevStep(3)">مرحله قبل</button>
 <button type="submit" class="btn" id="submitCustomerBtn">ثبت نهایی درخواست</button>
 </div>
-<!-- ✨ افزوده شده: دکمه چاپ / دانلود PDF -->
 <button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="window.print()">🖨️ چاپ / دانلود PDF فرم</button>
 <p style="font-size: 11px; color:#888; text-align:center; margin-top: 6px;">در پنجره چاپ، گزینه «Save as PDF» را برای دانلود انتخاب کنید.</p>
 </div>
@@ -243,7 +252,6 @@ body { background: #fff !important; padding: 0 !important; }
 <p>کد پیگیری شما:</p>
 <div class="tracking-code" id="c-trackingCode">-----</div>
 <div class="routing-info" id="c-routingInfo"></div>
-<!-- ✨ افزوده شده: چاپ رسید -->
 <button class="btn btn-secondary" onclick="window.print()" style="margin-top: 15px;">🖨️ چاپ / دانلود رسید</button>
 <button class="btn" onclick="location.reload()" style="margin-top: 15px;">ثبت مشکل جدید</button>
 <div class="footer-print-note">این رسید توسط سامانه جامع مهر صادر شده است.</div>
@@ -310,23 +318,39 @@ body { background: #fff !important; padding: 0 !important; }
 <div class="content panel" id="panel-pos">
 <div style="text-align: center; margin-bottom: 20px;">
 <h2 style="color: #0a4d2e; margin-bottom: 10px;">درخواست دستگاه کارتخوان (پوز)</h2>
-<p style="font-size: 14px; color: #666;">لطفاً فرم زیر را پر کرده و مدارک خود را بارگذاری کنید.</p>
+<p style="font-size: 14px; color: #666;">لطفاً فرم زیر را به‌طور کامل پر کرده و مدارک خود را بارگذاری کنید.</p>
 </div>
 <form id="posForm" onsubmit="event.preventDefault(); submitPOSForm();">
-<div class="form-group"><label>نام و نام خانوادگی:</label><input type="text" id="pos-name" required></div>
-<div class="form-group"><label>کد ملی:</label><input type="text" id="pos-nid" maxlength="10" required></div>
-<div class="form-group"><label>شماره تماس:</label><input type="tel" id="pos-phone" maxlength="11" required></div>
+
+<h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">👤 اطلاعات شخصی / پذیرنده</h3>
+<div class="form-group"><label>نام و نام خانوادگی / نام شرکت:</label><input type="text" id="pos-name" required></div>
+<div class="form-group"><label>کد ملی / شناسه ملی:</label><input type="text" id="pos-nid" maxlength="11" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"><div class="field-hint">برای اشخاص حقیقی ۱۰ رقم و برای اشخاص حقوقی ۱۱ رقم.</div></div>
+<div class="form-group"><label>شماره تماس همراه:</label><input type="tel" id="pos-phone" maxlength="11" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"><div class="field-error" id="pos-phone-error">شماره همراه باید با ۰۹ شروع شود و ۱۱ رقم باشد.</div></div>
+<div class="form-group"><label>شماره تلفن ثابت (با کد شهر):</label><input type="tel" id="pos-landline" placeholder="مثلاً 02112345678" maxlength="11" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"></div>
+<div class="form-group"><label>ایمیل (اختیاری):</label><input type="email" id="pos-email" placeholder="name@example.com"></div>
+
+<h3 style="color:#0a4d2e; font-size:15px; margin: 20px 0 12px;">🏪 اطلاعات کسب و کار</h3>
 <div class="form-group"><label>نام کسب و کار (فروشگاه/شرکت):</label><input type="text" id="pos-business" required></div>
 <div class="form-group">
 <label>نوع کسب و کار:</label>
 <select id="pos-type" required>
+<option value="">-- انتخاب کنید --</option>
 <option value="فروشگاهی">فروشگاهی</option>
 <option value="خدماتی">خدماتی</option>
+<option value="رستوران / کافه">رستوران / کافه</option>
+<option value="پزشکی / درمانی">پزشکی / درمانی</option>
+<option value="آموزشی">آموزشی</option>
 <option value="سایر">سایر</option>
 </select>
 </div>
+<div class="form-group"><label>شماره جواز کسب / پروانه بهره‌برداری (اختیاری):</label><input type="text" id="pos-license"></div>
+<div class="form-group"><label>کد اقتصادی (اختیاری - مخصوص اشخاص حقوقی):</label><input type="text" id="pos-eco-code" maxlength="14" oninput="this.value = this.value.replace(/[^0-9]/g,'');"></div>
 
-<!-- ✨ افزوده شده: نوع دستگاه پوز درخواستی -->
+<h3 style="color:#0a4d2e; font-size:15px; margin: 20px 0 12px;">📍 آدرس محل کسب و کار</h3>
+<div class="form-group"><label>آدرس دقیق:</label><textarea id="pos-address" rows="3" required></textarea></div>
+<div class="form-group"><label>کد پستی (۱۰ رقم):</label><input type="text" id="pos-postal" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"><div class="field-error" id="pos-postal-error">کد پستی باید دقیقاً ۱۰ رقم باشد.</div></div>
+
+<h3 style="color:#0a4d2e; font-size:15px; margin: 20px 0 12px;">📟 نوع دستگاه</h3>
 <div class="form-group">
 <label>نوع دستگاه پوز درخواستی:</label>
 <select id="pos-deviceType" required>
@@ -335,25 +359,63 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="بی‌سیم (سیار / GPRS)">بی‌سیم (سیار / GPRS)</option>
 <option value="Dial-up">Dial-up</option>
 <option value="PC POS">PC POS</option>
+<option value="اندرویدی">اندرویدی</option>
 </select>
 </div>
 
-<div class="form-group"><label>آدرس دقیق محل کسب و کار:</label><textarea id="pos-address" rows="3" required></textarea></div>
+<div class="bank-section">
+<h3>💳 اطلاعات حساب بانکی (جهت تسویه)</h3>
+<div class="form-group">
+<label>بانک عامل:</label>
+<select id="pos-bank" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="بانک ملی ایران">بانک ملی ایران</option>
+<option value="بانک ملت">بانک ملت</option>
+<option value="بانک صادرات ایران">بانک صادرات ایران</option>
+<option value="بانک تجارت">بانک تجارت</option>
+<option value="بانک سپه">بانک سپه</option>
+<option value="بانک پاسارگاد">بانک پاسارگاد</option>
+<option value="بانک سامان">بانک سامان</option>
+<option value="بانک پارسیان">بانک پارسیان</option>
+<option value="بانک کشاورزی">بانک کشاورزی</option>
+<option value="بانک مسکن">بانک مسکن</option>
+<option value="بانک رفاه کارگران">بانک رفاه کارگران</option>
+<option value="بانک شهر">بانک شهر</option>
+<option value="بانک آینده">بانک آینده</option>
+<option value="بانک اقتصاد نوین">بانک اقتصاد نوین</option>
+<option value="سایر">سایر</option>
+</select>
+</div>
+<div class="form-group">
+<label>شماره شبا (۲۴ رقم - بدون IR):</label>
+<div class="iban-input-wrap">
+<span class="iban-prefix">IR</span>
+<input type="text" id="pos-iban" placeholder="مثلاً 120000000000000000000000" maxlength="24" required oninput="this.value = this.value.replace(/[^0-9]/g,'');">
+</div>
+<div class="field-hint">پس از IR، دقیقاً ۲۴ رقم شبا خود را وارد کنید.</div>
+<div class="field-error" id="pos-iban-error">شبا باید دقیقاً ۲۴ رقم باشد.</div>
+</div>
+<div class="form-group">
+<label>شماره حساب:</label>
+<input type="text" id="pos-account" placeholder="مثلاً 1234567890" maxlength="20" required oninput="this.value = this.value.replace(/[^0-9]/g,'');">
+</div>
+<div class="form-group">
+<label>نام صاحب حساب (باید دقیقاً با نام پذیرنده یکسان باشد):</label>
+<input type="text" id="pos-account-holder" required>
+</div>
+</div>
 
 <div class="camera-box">
-<p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 آپلود مدارک (کارت ملی، جواز، سند)</p>
+<p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 آپلود مدارک (کارت ملی، جواز کسب، سند محل)</p>
 <input type="file" id="pos-docs" multiple accept="image/*,application/pdf" style="display: none;" onchange="updatePOSFileList()">
 <button type="button" class="btn btn-secondary" onclick="document.getElementById('pos-docs').click()">انتخاب فایل‌های مدارک</button>
 <div id="pos-file-list" style="margin-top: 10px; font-size: 12px; color: #1e7a44; font-weight: bold;"></div>
 </div>
 
-<!-- ✨ افزوده شده: کادر امضای مشتری در فرم پوز -->
 <div class="form-group">
 <label>✍️ امضای مشتری (الزامی):</label>
 <p class="signature-hint">با انگشت (روی موبایل) یا با ماوس در کادر زیر امضا کنید.</p>
-<div class="signature-wrap">
-<canvas id="signature-canvas-pos" width="600" height="200"></canvas>
-</div>
+<div class="signature-wrap"><canvas id="signature-canvas-pos" width="600" height="200"></canvas></div>
 <button type="button" class="btn btn-outline" style="margin-top: 8px;" onclick="clearSignature('pos')">🧹 پاک کردن امضا</button>
 </div>
 
@@ -363,6 +425,7 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 <p style="font-size: 11px; color:#888; text-align:center; margin-top: 6px;">در پنجره چاپ، گزینه «Save as PDF» را برای دانلود انتخاب کنید.</p>
 </form>
+
 <div class="result-box" id="pos-resultSection">
 <h3>✅ درخواست پوز شما ثبت شد</h3>
 <p style="font-size: 14px; margin-top: 10px;">کارشناسان ما پس از بررسی مدارک با شما تماس خواهند گرفت.</p>
@@ -386,7 +449,6 @@ body { background: #fff !important; padding: 0 !important; }
 </select>
 </div>
 
-<!-- بخش تیکت‌ها -->
 <div id="emp-tickets-section">
 <div class="form-group">
 <label>واحد خود را انتخاب کنید:</label>
@@ -402,7 +464,6 @@ body { background: #fff !important; padding: 0 !important; }
 <div id="employee-ticket-list" style="margin-top: 20px;"></div>
 </div>
 
-<!-- بخش پوزها -->
 <div id="emp-pos-section" style="display: none;">
 <div id="employee-pos-list" style="margin-top: 20px;"></div>
 </div>
@@ -410,7 +471,7 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
-<!-- محفظه مخفی طرح‌ها (بدون تغییر) -->
+<!-- محفظه مخفی طرح‌ها -->
 <div id="hidden-plans" style="display:none;">
 <div class="card" id="plan-niloufar" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نیلوفر</div>
@@ -490,12 +551,12 @@ body { background: #fff !important; padding: 0 !important; }
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اشخاص حقوقی در حوزه بانکداری اجتماعی جهت پرداخت تسهیلات به مستمری‌بگیران.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💵 مشخصات و سقف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف تسهیلات حقیقی: <b>۵ میلیارد ریال (۵۰۰ میلیون تومان)</b>. نرخ کارمزد: <b>۴٪</b>. سقف مدت بازپرداخت: <b>۳۶ ماه</b>.</div></div>
 <div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۴</span> 💵 کارمزد و ضمانت</span> <span class="acc-arrow">▼</span></div><div class="acc-body">نیازمند انعقاد تفاهم‌نامه با نهاد حمایتی مربوطه است.</div></div>
-<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc class-content-wrapper"></div><div class="dual-action-content qbank-content="-wrapper"><div class="qacc-box c-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button></div></div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button></div></div>
 
 <div class="card" id="plan-radvan" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح رضوان</div>
 <div class="c-body"><span class="badge">حمایتی - کد ۱۸۱</span>
-<div-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div></div>
+<div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">مخصوص افراد معرفی‌شده از سوی این سازمان‌ها. سقف: ۵ میلیارد ریال. کارمزد ۲ تا ۴٪.</div></div>
 <div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('radvan', this)">🔊 شنیدن توضیحات</button></div></div>
 
@@ -536,87 +597,39 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 <script>
-// 🔴 لینک exec خود را دقیقاً بین این دو دابل کوتیشن بچسبانید
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
 
-/* ============================================================
-✨ افزوده شده: پیاده‌سازی کادر امضا (بدون وابستگی به کتابخانه)
-============================================================ */
+/* ===== کادر امضا ===== */
 const signatures = {};
-
 function initSignature(canvasId) {
 const canvas = document.getElementById(canvasId);
 if (!canvas) return null;
 const ctx = canvas.getContext('2d');
-ctx.lineWidth = 2.5;
-ctx.lineCap = 'round';
-ctx.lineJoin = 'round';
-ctx.strokeStyle = '#0a4d2e';
-let isDrawing = false;
-let lastX = 0, lastY = 0;
-let isEmpty = true;
-
+ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#0a4d2e';
+let isDrawing = false, lastX = 0, lastY = 0, isEmpty = true;
 function getPos(e) {
 const r = canvas.getBoundingClientRect();
 const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
 const scaleX = canvas.width / (r.width || 1);
 const scaleY = canvas.height / (r.height || 1);
-return {
-x: (touch.clientX - r.left) * scaleX,
-y: (touch.clientY - r.top) * scaleY
-};
+return { x: (touch.clientX - r.left) * scaleX, y: (touch.clientY - r.top) * scaleY };
 }
-
-function start(e) {
-e.preventDefault();
-isDrawing = true;
-const p = getPos(e);
-lastX = p.x; lastY = p.y;
-ctx.beginPath();
-ctx.moveTo(lastX, lastY);
-}
-function move(e) {
-if (!isDrawing) return;
-e.preventDefault();
-const p = getPos(e);
-ctx.lineTo(p.x, p.y);
-ctx.stroke();
-ctx.beginPath();
-ctx.moveTo(p.x, p.y);
-lastX = p.x; lastY = p.y;
-isEmpty = false;
-}
-function end(e) {
-if (e && e.preventDefault) e.preventDefault();
-isDrawing = false;
-ctx.beginPath();
-}
-
-canvas.addEventListener('mousedown', start);
-canvas.addEventListener('mousemove', move);
-canvas.addEventListener('mouseup', end);
-canvas.addEventListener('mouseleave', end);
+function start(e) { e.preventDefault(); isDrawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; ctx.beginPath(); ctx.moveTo(lastX, lastY); }
+function move(e) { if (!isDrawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y); lastX = p.x; lastY = p.y; isEmpty = false; }
+function end(e) { if (e && e.preventDefault) e.preventDefault(); isDrawing = false; ctx.beginPath(); }
+canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move);
+canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
 canvas.addEventListener('touchstart', start, {passive: false});
 canvas.addEventListener('touchmove', move, {passive: false});
 canvas.addEventListener('touchend', end, {passive: false});
 canvas.addEventListener('touchcancel', end, {passive: false});
-
-return {
-clear: function() { ctx.clearRect(0, 0, canvas.width, canvas.height); isEmpty = true; },
-isEmpty: function() { return isEmpty; },
-getDataURL: function() { return isEmpty ? '' : canvas.toDataURL('image/png'); }
-};
+return { clear: function(){ ctx.clearRect(0,0,canvas.width,canvas.height); isEmpty = true; }, isEmpty: function(){ return isEmpty; }, getDataURL: function(){ return isEmpty ? '' : canvas.toDataURL('image/png'); } };
 }
-
-function clearSignature(key) {
-if (signatures[key]) signatures[key].clear();
-}
-
+function clearSignature(key) { if (signatures[key]) signatures[key].clear(); }
 document.addEventListener('DOMContentLoaded', function() {
 signatures['ticket'] = initSignature('signature-canvas-ticket');
 signatures['pos'] = initSignature('signature-canvas-pos');
 });
-/* ============================================================ */
 
 function toggleCardAction(btn, type) {
 const container = btn.closest('.dual-action-container');
@@ -624,93 +637,57 @@ const calcBtn = container.querySelector('.calc-btn-trigger');
 const qbankBtn = container.querySelector('.qbank-btn-trigger');
 const calcContent = container.querySelector('.calc-content-wrapper');
 const qbankContent = container.querySelector('.qbank-content-wrapper');
-calcBtn.classList.remove('active');
-qbankBtn.classList.remove('active');
-calcContent.style.display = 'none';
-qbankContent.style.display = 'none';
-if (type === 'calc') {
-calcBtn.classList.add('active');
-calcContent.style.display = 'block';
-if (calcContent.innerHTML.trim() === '') {
-const cardId = btn.closest('.card').id;
-const planId = cardId.replace('plan-', '');
-renderCalculator(planId, calcContent);
+calcBtn.classList.remove('active'); qbankBtn.classList.remove('active');
+calcContent.style.display = 'none'; qbankContent.style.display = 'none';
+if (type === 'calc') { calcBtn.classList.add('active'); calcContent.style.display = 'block'; if (calcContent.innerHTML.trim() === '') { const planId = btn.closest('.card').id.replace('plan-', ''); renderCalculator(planId, calcContent); } }
+else if (type === 'qbank') { qbankBtn.classList.add('active'); qbankContent.style.display = 'block'; }
 }
-} else if (type === 'qbank') {
-qbankBtn.classList.add('active');
-qbankContent.style.display = 'block';
-}
-}
-
 function toggleQbankStep(stepEl) { stepEl.classList.toggle('active-q-step'); }
 
-var persianVoice = null;
-var isPlaying = false;
-var googleAudio = null;
-
+/* 🔴 اصلاح باگ مرورگرها در پشتیبانی از صدای فارسی */
+var persianVoice = null, isPlaying = false, googleAudio = null;
 function loadVoices() {
 if (!('speechSynthesis' in window)) return;
 var voices = window.speechSynthesis.getVoices();
 for (var i = 0; i < voices.length; i++) {
 if (voices[i].lang === 'fa-IR' || voices[i].name.indexOf('Dariush') !== -1 || voices[i].name.indexOf('Laila') !== -1) {
-persianVoice = voices[i]; break;
+persianVoice = voices[i];
+break;
 }
 }
 }
+if ('speechSynthesis' in window) {
 window.speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
-
-document.addEventListener('touchstart', function() {
-if ('speechSynthesis' in window) {
-var u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u);
 }
-}, { once: true });
 
+document.addEventListener('touchstart', function() { if ('speechSynthesis' in window) { var u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); } }, { once: true });
 function readText(text) {
 if (!text) return;
-window.speechSynthesis.cancel();
-if (googleAudio) { googleAudio.pause(); googleAudio = null; }
-isPlaying = true;
+if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+if (googleAudio) { googleAudio.pause(); googleAudio = null; } isPlaying = true;
 if ('speechSynthesis' in window) {
 var u = new SpeechSynthesisUtterance(text);
 if (persianVoice) { u.voice = persianVoice; u.lang = 'fa-IR'; }
 u.rate = 0.9;
-u.onend = function() { isPlaying = false; };
-u.onerror = function() { playGoogle(text); };
+u.onend = function(){ isPlaying = false; };
+u.onerror = function(){ playGoogle(text); };
 window.speechSynthesis.speak(u);
-} else { playGoogle(text); }
+} else {
+playGoogle(text);
 }
-
-function playGoogle(text) {
-var chunks = text.match(/.{1,150}([.!?]|$)/g) || [text];
-var i = 0;
-function next() {
-if (i >= chunks.length || !isPlaying) return;
-var chunk = chunks[i].trim();
-if (!chunk) { i++; next(); return; }
-var url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fa&q=' + encodeURIComponent(chunk);
-googleAudio = new Audio(url);
-googleAudio.onended = function() { i++; next(); };
-googleAudio.onerror = function() { isPlaying = false; };
-googleAudio.play().catch(function() { isPlaying = false; });
 }
-next();
-}
-
-function stopAudio() {
-isPlaying = false;
-window.speechSynthesis.cancel();
-if (googleAudio) { googleAudio.pause(); googleAudio = null; }
-}
+function playGoogle(text) { var chunks = text.match(/.{1,150}([.!?]|$)/g) || [text]; var i = 0; function next() { if (i >= chunks.length || !isPlaying) return; var chunk = chunks[i].trim(); if (!chunk) { i++; next(); return; } var url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fa&q=' + encodeURIComponent(chunk); googleAudio = new Audio(url); googleAudio.onended = function(){ i++; next(); }; googleAudio.onerror = function(){ isPlaying = false; }; googleAudio.play().catch(function(){ isPlaying = false; }); } next(); }
+function stopAudio() { isPlaying = false; if ('speechSynthesis' in window) window.speechSynthesis.cancel(); if (googleAudio) { googleAudio.pause(); googleAudio = null; } }
 
 var pTexts = {
 niloufar: 'طرح نیلوفر. کد یکصد و یک. سقف پانصد میلیون تومان. کارمزد دو تا چهار درصد.',
 noora: 'طرح نورا. کد یکصد و هشتاد و دو. بدون کارمزد. سقف پانصد میلیون تومان.',
 shams: 'طرح شمس. پس انداز ماهیانه.',
-ardideh: 'طرح ارکیده. حمایتی بدون تفاهم نامه. دو برابر سپرده. برای مشاهده جدول، بخش جدول شرایط را باز کنید. در صورت فعال بودن طرح رویش مهر، مدت انتظار کاهش می یابد.',
+ardideh: 'طرح ارکیده. حمایتی بدون تفاهم نامه. دو برابر سپرده.',
 naron: 'طرح نارون. ویژه اصناف. سقف یک میلیارد تومان.',
-sarv1: 'طرح سرو بدون تفاهم نامه. برای دارندگان جواز کسب. در صورت فعال بودن طرح رویش مهر، مدت انتظار کاهش می یابد.',
-sarv2: 'طرح سرو با تفاهم نامه. برای اتحادیه ها. در صورت فعال بودن طرح رویش مهر، مدت انتظار کاهش می یابد.',
+sarv1: 'طرح سرو بدون تفاهم نامه. برای دارندگان جواز کسب.',
+sarv2: 'طرح سرو با تفاهم نامه. برای اتحادیه ها.',
 tooska: 'طرح توسکا. کارفرمایان با پوز فعال.',
 najm: 'طرح نجم. ویژه مددجویان. ضریب یکصد و پانزده درصد.',
 karamat: 'طرح کرامت. دریافت کنندگان مستمری.',
@@ -721,15 +698,7 @@ yaghot_fixed: 'طرح یاقوت با حفظ مبلغ ثابت.',
 almas: 'طرح الماس. شرکت های سهامی.',
 firoozeh: 'طرح فیروزه. شرکت هایی که حقوق کارکنان را واریز می کنند.'
 };
-
-function readPlan(key, btn) {
-if (!pTexts[key]) return;
-stopAudio();
-var btns = document.querySelectorAll('.speak-btn');
-for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-if (btn) btn.classList.add('active');
-readText(pTexts[key]);
-}
+function readPlan(key, btn) { if (!pTexts[key]) return; stopAudio(); var btns = document.querySelectorAll('.speak-btn'); for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active'); if (btn) btn.classList.add('active'); readText(pTexts[key]); }
 
 const T4 = {6:[.312,.632,.949,1.265,1.581,1.897,2.213,2.529,2.846,3.162,3.478,3.794],12:[.187,.383,.574,.765,.957,1.148,1.340,1.531,1.722,1.914,2.105,2.296],18:[.152,.312,.469,.655,.781,.937,1.093,1.249,1.406,1.562,1.718,1.874],24:[.120,.248,.373,.497,.621,.745,.869,.993,1.118,1.242,1.366,1.490],30:[.096,.200,.300,.400,.500,.600,.701,.801,.901,1.002,1.102,1.202],36:[.080,.168,.253,.337,.421,.505,.589,.673,.758,.842,.926,1.010],42:[.069,.145,.218,.291,.364,.436,.509,.582,.655,.727,.800,.873],48:[.060,.128,.193,.257,.321,.385,.449,.513,.578,.642,.706,.770],54:[.053,.115,.173,.231,.289,.347,.404,.462,.520,.578,.635,.693],60:[.048,.104,.157,.209,.261,.313,.365,.417,.470,.522,.574,.666]};
 const T3 = {6:[.281,.569,.854,1.138,1.423,1.707,1.992,2.276,2.561,2.846,3.130,3.415],12:[.168,.344,.517,.689,.861,1.033,1.206,1.378,1.550,1.722,1.895,2.067],18:[.114,.234,.352,.469,.586,.703,.821,.938,1.055,1.172,1.290,1.407],24:[.108,.224,.335,.447,.559,.671,.782,.894,1.006,1.118,1.229,1.341],30:[.086,.180,.270,.360,.450,.540,.631,.721,.811,.902,.992,1.082],36:[.072,.152,.227,.303,.379,.455,.530,.606,.682,.758,.832,.909],42:[.062,.131,.196,.262,.327,.393,.458,.524,.589,.655,.720,.786],48:[.054,.116,.173,.231,.289,.347,.404,.462,.520,.578,.635,.693],54:[.043,.094,.141,.188,.235,.282,.329,.376,.423,.470,.516,.563],60:[.043,.094,.141,.188,.235,.282,.329,.376,.423,.470,.516,.563]};
@@ -748,13 +717,7 @@ guilds: [ { id: 'naron', title: 'طرح نارون' }, { id: 'sarv1', title: 'ط
 support: [ { id: 'najm', title: 'طرح نجم' }, { id: 'karamat', title: 'طرح کرامت' }, { id: 'radvan', title: 'طرح رضوان' }, { id: 'nasr', title: 'طرح نصر' } ],
 corporate: [ { id: 'yaghot', title: 'طرح یاقوت' }, { id: 'yaghot_fixed', title: 'طرح یاقوت (با حفظ مبلغ ثابت)' }, { id: 'almas', title: 'طرح الماس' }, { id: 'firoozeh', title: 'طرح فیروزه' } ]
 };
-
-const planColors = {
-niloufar: '#3498db', noora: '#e74c3c', shams: '#f39c12', ardideh: '#9b59b6',
-naron: '#27ae60', sarv1: '#2ecc71', sarv2: '#2ecc71', tooska: '#16a085',
-najm: '#f1c40f', karamat: '#34495e', radvan: '#3498db', nasr: '#d35400',
-yaghot: '#c0392b', yaghot_fixed: '#c0392b', almas: '#7f8c8d', firoozeh: '#1abc9c'
-};
+const planColors = { niloufar: '#3498db', noora: '#e74c3c', shams: '#f39c12', ardideh: '#9b59b6', naron: '#27ae60', sarv1: '#2ecc71', sarv2: '#2ecc71', tooska: '#16a085', najm: '#f1c40f', karamat: '#34495e', radvan: '#3498db', nasr: '#d35400', yaghot: '#c0392b', yaghot_fixed: '#c0392b', almas: '#7f8c8d', firoozeh: '#1abc9c' };
 
 function switchTab(panelId, btnElement) {
 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -764,7 +727,6 @@ btnElement.classList.add('active');
 if(panelId === 'employee') { document.getElementById('tab-badge').style.display = 'none'; }
 stopAudio();
 }
-
 function showStep(step) {
 document.querySelectorAll('#panel-customer .form-step').forEach(el => el.classList.remove('active'));
 document.querySelectorAll('#stepper .step-item').forEach(el => el.classList.remove('active', 'completed'));
@@ -787,7 +749,6 @@ document.getElementById('g-step-' + step).classList.add('active');
 for(let i=1; i<step; i++) { document.getElementById('g-ind-' + i).classList.add('completed'); }
 document.getElementById('g-ind-' + step).classList.add('active');
 }
-
 function selectGuideCategory(cat) {
 const list = document.getElementById('guide-plans-list');
 list.innerHTML = '';
@@ -797,7 +758,6 @@ list.innerHTML += `<button type="button" class="btn-plan" style="color: ${color}
 });
 showGuideStep(2);
 }
-
 function selectGuidePlan(planId) {
 const container = document.getElementById('guide-details-container');
 container.innerHTML = '';
@@ -811,94 +771,50 @@ accHeaders.forEach(header => {
 header.addEventListener('click', function() {
 const parentBox = this.parentElement;
 const body = this.nextElementSibling;
-if (parentBox.classList.contains('active-acc')) {
-parentBox.classList.remove('active-acc');
-body.style.maxHeight = null;
-} else {
-parentBox.classList.add('active-acc');
-body.style.maxHeight = body.scrollHeight + "px";
-}
+if (parentBox.classList.contains('active-acc')) { parentBox.classList.remove('active-acc'); body.style.maxHeight = null; }
+else { parentBox.classList.add('active-acc'); body.style.maxHeight = body.scrollHeight + "px"; }
 });
 });
 }
 showGuideStep(3);
 }
-
 function renderCalculator(planId, container) {
 if(!container) return;
 let maxLoan = 500000000; let defaultFee = 4; let showFeeSelector = true; let multiplier = 1.0;
 if(planId === 'noora') { showFeeSelector = false; defaultFee = 0; }
 if(planId === 'najm') { multiplier = 1.15; }
 if(planId === 'naron') { maxLoan = 1000000000; }
-let html = `
-<div class="calc-box">
-<div class="form-group"><label>مبلغ سپرده / معدل (تومان):</label><input type="text" id="dep-${planId}" placeholder="مثلاً 100,000,000"></div>
-<div class="form-group"><label>دوره معدل‌گیری (ماه):</label><input type="number" id="per-${planId}" placeholder="بین ۱ تا ۱۲" min="1" max="12"></div>
-`;
-if(showFeeSelector) {
-html += `
-<label>نرخ کارمزد:</label>
-<div class="fee-row" id="fee-row-${planId}">
-<button type="button" class="fee-btn ${defaultFee === 4 ? 'active' : ''}" onclick="setFee('${planId}', 4)">۴٪</button>
-<button type="button" class="fee-btn ${defaultFee === 3 ? 'active' : ''}" onclick="setFee('${planId}', 3)">۳٪</button>
-<button type="button" class="fee-btn ${defaultFee === 2 ? 'active' : ''}" onclick="setFee('${planId}', 2)">۲٪</button>
-</div>
-`;
-}
-html += `
-<button type="button" class="btn btn-secondary" onclick="calculateLoan('${planId}', ${maxLoan}, ${defaultFee}, ${multiplier})">محاسبه وام</button>
-<div id="res-${planId}"></div>
-</div>
-`;
+let html = `<div class="calc-box"><div class="form-group"><label>مبلغ سپرده / معدل (تومان):</label><input type="text" id="dep-${planId}" placeholder="مثلاً 100,000,000"></div><div class="form-group"><label>دوره معدل‌گیری (ماه):</label><input type="number" id="per-${planId}" placeholder="بین ۱ تا ۱۲" min="1" max="12"></div>`;
+if(showFeeSelector) { html += `<label>نرخ کارمزد:</label><div class="fee-row" id="fee-row-${planId}"><button type="button" class="fee-btn ${defaultFee === 4 ? 'active' : ''}" onclick="setFee('${planId}', 4)">۴٪</button><button type="button" class="fee-btn ${defaultFee === 3 ? 'active' : ''}" onclick="setFee('${planId}', 3)">۳٪</button><button type="button" class="fee-btn ${defaultFee === 2 ? 'active' : ''}" onclick="setFee('${planId}', 2)">۲٪</button></div>`; }
+html += `<button type="button" class="btn btn-secondary" onclick="calculateLoan('${planId}', ${maxLoan}, ${defaultFee}, ${multiplier})">محاسبه وام</button><div id="res-${planId}"></div></div>`;
 container.innerHTML = html;
-document.getElementById('dep-' + planId).addEventListener('input', function() {
-let r = this.value.replace(/[^\d]/g, '');
-this.value = r ? parseInt(r).toLocaleString('en-US') : '';
-});
+document.getElementById('dep-' + planId).addEventListener('input', function() { let r = this.value.replace(/[^\d]/g, ''); this.value = r ? parseInt(r).toLocaleString('en-US') : ''; });
 }
-
 function setFee(planId, rate) {
 window['fee_' + planId] = rate;
 const row = document.getElementById('fee-row-' + planId);
-const btns = row.querySelectorAll('.fee-btn');
-btns.forEach(b => {
-if(b.innerText.includes(rate)) b.classList.add('active');
-else b.classList.remove('active');
-});
+row.querySelectorAll('.fee-btn').forEach(b => { if(b.innerText.includes(rate)) b.classList.add('active'); else b.classList.remove('active'); });
 }
-
 function calculateLoan(planId, maxLoan, defaultFee, multiplier) {
-const depEl = document.getElementById('dep-' + planId);
-const perEl = document.getElementById('per-' + planId);
-const resEl = document.getElementById('res-' + planId);
-let d = parseFloat(depEl.value.replace(/,/g, '')) || 0;
-let p = parseInt(perEl.value) || 0;
+const depEl = document.getElementById('dep-' + planId), perEl = document.getElementById('per-' + planId), resEl = document.getElementById('res-' + planId);
+let d = parseFloat(depEl.value.replace(/,/g, '')) || 0, p = parseInt(perEl.value) || 0;
 if (d <= 0) { alert('مبلغ سپرده را وارد کنید'); return; }
 if (p < 1 || p > 12) { alert('دوره معدل‌گیری باید بین ۱ تا ۱۲ ماه باشد'); return; }
 let feeRate = window['fee_' + planId] || defaultFee;
-let table = T4;
-if(feeRate === 3) table = T3;
-if(feeRate === 2) table = T2;
-if(planId === 'noora') table = TN;
+let table = T4; if(feeRate === 3) table = T3; if(feeRate === 2) table = T2; if(planId === 'noora') table = TN;
 let h = `<table class="res-table"><thead><tr><th>مدت بازپرداخت</th><th>مبلغ وام (تومان)</th><th>قسط ماهانه (تومان)</th></tr></thead><tbody>`;
-let periods = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60];
-periods.forEach(rp => {
-let baseCoeff = table[rp][p - 1] || 0;
-let coeff = baseCoeff * multiplier;
-let loanAmount = d * coeff;
-if (loanAmount > maxLoan) loanAmount = maxLoan;
-let feeAmount = loanAmount * (feeRate / 100) * (rp / 12);
-let installment = (loanAmount + feeAmount) / rp;
+[6, 12, 18, 24, 30, 36, 42, 48, 54, 60].forEach(rp => {
+let coeff = (table[rp][p - 1] || 0) * multiplier;
+let loanAmount = Math.min(d * coeff, maxLoan);
+let installment = (loanAmount + loanAmount * (feeRate / 100) * (rp / 12)) / rp;
 h += `<tr><td>${rp} ماه</td><td><b style="color:#0a4d2e;">${Math.round(loanAmount).toLocaleString('fa-IR')}</b></td><td>${Math.round(installment).toLocaleString('fa-IR')}</td></tr>`;
 });
-h += `</tbody></table>`;
-resEl.innerHTML = h;
+resEl.innerHTML = h + `</tbody></table>`;
 }
 
 function showToast(message) {
 const toast = document.getElementById('toast-notification');
-toast.innerText = message;
-toast.className = "toast show";
+toast.innerText = message; toast.className = "toast show";
 document.getElementById('notify-sound').play().catch(e => console.log("Sound blocked"));
 setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 5000);
 }
@@ -911,29 +827,18 @@ if (pass === null) return;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: username, pass: pass}) })
 .then(res => res.json())
 .then(data => {
-if (data.access) {
-sessionStorage.setItem('adminToken', data.token);
-document.getElementById('employee-tab-btn').style.display = 'block';
-switchTab('employee', document.getElementById('employee-tab-btn'));
-} else { alert("نام کاربری یا رمز عبور اشتباه است!"); }
+if (data.access) { sessionStorage.setItem('adminToken', data.token); document.getElementById('employee-tab-btn').style.display = 'block'; switchTab('employee', document.getElementById('employee-tab-btn')); }
+else { alert("نام کاربری یا رمز عبور اشتباه است!"); }
 }).catch(() => alert("خطا در ارتباط با سرور."));
 }
-
 function changeCredentials() {
-let oldUsername = prompt("نام کاربری فعلی خود را وارد کنید:");
-if (!oldUsername) return;
-let oldPass = prompt("رمز عبور فعلی خود را وارد کنید:");
-if (!oldPass) return;
-let newUsername = prompt("نام کاربری جدید خود را وارد کنید:", oldUsername);
-if (!newUsername) return;
-let newPass = prompt("رمز عبور جدید خود را وارد کنید:");
-if (!newPass) return;
+let oldUsername = prompt("نام کاربری فعلی خود را وارد کنید:"); if (!oldUsername) return;
+let oldPass = prompt("رمز عبور فعلی خود را وارد کنید:"); if (!oldPass) return;
+let newUsername = prompt("نام کاربری جدید:", oldUsername); if (!newUsername) return;
+let newPass = prompt("رمز عبور جدید:"); if (!newPass) return;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'changeCredentials', oldUsername, oldPass, newUsername, newPass }) })
-.then(res => res.json())
-.then(data => {
-if (data.success) { alert("✅ مشخصات با موفقیت تغییر کرد."); location.reload(); }
-else { alert("خطا: " + data.error); }
-}).catch(() => alert("خطا در ارتباط با سرور."));
+.then(res => res.json()).then(data => { if (data.success) { alert("✅ مشخصات با موفقیت تغییر کرد."); location.reload(); } else { alert("خطا: " + data.error); } })
+.catch(() => alert("خطا در ارتباط با سرور."));
 }
 
 function getDepartment(problemValue) {
@@ -944,12 +849,7 @@ case "1": return "اعتبارات"; case "2": return "بانکداری دیجی
 
 let photoResult = document.getElementById('c-photoResult');
 let photoBase64 = "";
-
-function handleFileUpload(event) {
-const file = event.target.files[0];
-if (file) { const reader = new FileReader(); reader.onload = function(e) { compressAndSetImage(e.target.result); }; reader.readAsDataURL(file); }
-}
-
+function handleFileUpload(event) { const file = event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = function(e) { compressAndSetImage(e.target.result); }; reader.readAsDataURL(file); } }
 function compressAndSetImage(base64Str) {
 const img = new Image(); img.src = base64Str;
 img.onload = function() {
@@ -957,21 +857,12 @@ const tempCanvas = document.createElement('canvas'); const MAX_WIDTH = 800; cons
 if (img.width > MAX_WIDTH) { tempCanvas.width = MAX_WIDTH; tempCanvas.height = img.height * scaleSize; } else { tempCanvas.width = img.width; tempCanvas.height = img.height; }
 const ctx = tempCanvas.getContext('2d'); ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
 photoBase64 = tempCanvas.toDataURL('image/jpeg', 0.7);
-photoResult.src = photoBase64;
-photoResult.style.display = 'block';
+photoResult.src = photoBase64; photoResult.style.display = 'block';
 document.getElementById('photo-options').style.display = 'none';
 document.getElementById('photo-remove-box').style.display = 'block';
 };
 }
-
-function removePhoto() {
-photoBase64 = "";
-photoResult.style.display = 'none';
-photoResult.src = "";
-document.getElementById('c-fileInput').value = "";
-document.getElementById('photo-options').style.display = 'block';
-document.getElementById('photo-remove-box').style.display = 'none';
-}
+function removePhoto() { photoBase64 = ""; photoResult.style.display = 'none'; photoResult.src = ""; document.getElementById('c-fileInput').value = ""; document.getElementById('photo-options').style.display = 'block'; document.getElementById('photo-remove-box').style.display = 'none'; }
 
 function submitCustomerForm() {
 let mobile = document.getElementById('c-mobile').value;
@@ -982,14 +873,8 @@ let isValid = true;
 if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('c-mobileError').style.display = 'none'; }
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
 if (!isValid) return;
-
-// ✨ افزوده شده: بررسی امضا
-if (!signatures['ticket'] || signatures['ticket'].isEmpty()) {
-alert('لطفاً امضای خود را در کادر مربوطه ثبت کنید.');
-return;
-}
+if (!signatures['ticket'] || signatures['ticket'].isEmpty()) { alert('لطفاً امضای خود را در کادر مربوطه ثبت کنید.'); return; }
 const signatureData = signatures['ticket'].getDataURL();
-
 let trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 let department = getDepartment(problemType);
 document.getElementById('submitCustomerBtn').innerText = "در حال ثبت...";
@@ -997,7 +882,7 @@ let payload = {
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
 imageBase64: photoBase64, department: department, trackingCode: trackingCode, branch: document.getElementById('c-branch').value,
-signature: signatureData // ✨ افزوده شده
+signature: signatureData
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
@@ -1028,10 +913,7 @@ document.getElementById('track-dept-text').innerText = "ارجاع به: " + dat
 if(data.reply && data.reply.trim() !== "") { document.getElementById('track-reply-box').style.display = 'block'; document.getElementById('track-reply-text').innerText = data.reply; } else { document.getElementById('track-reply-box').style.display = 'none'; }
 if(lastTrackStatus !== "" && lastTrackStatus !== data.status) { showToast("وضعیت درخواست شما تغییر کرد!"); }
 lastTrackStatus = data.status;
-} else {
-document.getElementById('track-status-text').innerText = "کد یافت نشد!";
-if(trackInterval) clearInterval(trackInterval);
-}
+} else { document.getElementById('track-status-text').innerText = "کد یافت نشد!"; if(trackInterval) clearInterval(trackInterval); }
 })
 .catch(err => { document.getElementById('track-status-text').innerText = "خطا در ارتباط."; });
 };
@@ -1051,18 +933,11 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSec
 .then(res => res.json())
 .then(tickets => {
 let hasNew = false;
-tickets.forEach(t => {
-if (t.department === dept && t.status !== 'حل شد' && !seenTicketRows.has(t.row)) { hasNew = true; }
-});
-if (hasNew) {
-showToast("تیکت جدیدی برای واحد شما ثبت شد!");
-document.getElementById('tab-badge').style.display = 'inline-block';
-fetchDepartmentTickets(false);
-}
+tickets.forEach(t => { if (t.department === dept && t.status !== 'حل شد' && !seenTicketRows.has(t.row)) { hasNew = true; } });
+if (hasNew) { showToast("تیکت جدیدی برای واحد شما ثبت شد!"); document.getElementById('tab-badge').style.display = 'inline-block'; fetchDepartmentTickets(false); }
 });
 }, 15000);
 }
-
 function fetchDepartmentTickets(isInitial = false) {
 const dept = document.getElementById('e-department').value;
 const listContainer = document.getElementById('employee-ticket-list');
@@ -1074,42 +949,28 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSec
 if(tickets.error) { listContainer.innerHTML = '<p style="text-align:center; color: red;">دسترسی غیرمجاز.</p>'; return; }
 let deptTickets = tickets.filter(t => t.department === dept && t.status !== 'حل شد');
 listContainer.innerHTML = '';
-if (deptTickets.length === 0) {
-listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ تیکت باز و جدیدی برای این واحد وجود ندارد.</p>';
-return;
-}
+if (deptTickets.length === 0) { listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ تیکت باز و جدیدی برای این واحد وجود ندارد.</p>'; return; }
 deptTickets.forEach(ticket => {
 seenTicketRows.add(ticket.row);
 let imageHtml = "";
-if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) {
-imageHtml = `<div style="margin-top:10px; text-align:center;"><p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p><a href="${ticket.imageUrl}" target="_blank"><img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;"></a></div>`;
-}
+if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) { imageHtml = `<div style="margin-top:10px; text-align:center;"><p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p><a href="${ticket.imageUrl}" target="_blank"><img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;"></a></div>`; }
 let html = `<div class="ticket-card"><h4>کد پیگیری: ${ticket.trackingCode} (شعبه: ${ticket.branch})</h4><p><strong>مشخصات مشتری:</strong> ${ticket.name}</p><p><strong>مشکل:</strong> ${ticket.description}</p>${imageHtml}<div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-${ticket.row}" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div><button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button></div>`;
 listContainer.innerHTML += html;
 });
 })
 .catch(err => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا.</p>'; });
 }
-
 function resolveTicket(row, btnElement) {
 btnElement.innerText = "در حال ذخیره...";
 let replyText = document.getElementById('reply-' + row).value;
-let payload = { action: 'updateStatus', row: row, status: 'حل شد', reply: replyText };
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', row: row, status: 'حل شد', reply: replyText }) })
 .then(() => { alert('تیکت حل شد.'); fetchDepartmentTickets(true); })
 .catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; });
 }
-
 function handleEmployeeSectionChange() {
 const section = document.getElementById('e-section').value;
-if (section === 'tickets') {
-document.getElementById('emp-tickets-section').style.display = 'block';
-document.getElementById('emp-pos-section').style.display = 'none';
-} else {
-document.getElementById('emp-tickets-section').style.display = 'none';
-document.getElementById('emp-pos-section').style.display = 'block';
-fetchPOSRequests();
-}
+if (section === 'tickets') { document.getElementById('emp-tickets-section').style.display = 'block'; document.getElementById('emp-pos-section').style.display = 'none'; }
+else { document.getElementById('emp-tickets-section').style.display = 'none'; document.getElementById('emp-pos-section').style.display = 'block'; fetchPOSRequests(); }
 }
 
 function updatePOSFileList() {
@@ -1118,25 +979,51 @@ const listDiv = document.getElementById('pos-file-list');
 listDiv.innerHTML = input.files.length > 0 ? `✅ ${input.files.length} فایل انتخاب شده` : '';
 }
 
+function validateIBAN(iban) {
+if (!/^\d{24}$/.test(iban)) return false;
+const full = "IR" + iban;
+const rearranged = full.substring(4) + full.substring(0, 4);
+let numeric = "";
+for (let i = 0; i < rearranged.length; i++) {
+const c = rearranged[i];
+if (c >= 'A' && c <= 'Z') numeric += (c.charCodeAt(0) - 55).toString();
+else numeric += c;
+}
+let rem = 0;
+for (let i = 0; i < numeric.length; i++) rem = (rem * 10 + parseInt(numeric[i])) % 97;
+return rem === 1;
+}
+
 function submitPOSForm() {
-const name = document.getElementById('pos-name').value;
-const nid = document.getElementById('pos-nid').value;
-const phone = document.getElementById('pos-phone').value;
-const business = document.getElementById('pos-business').value;
+const name = document.getElementById('pos-name').value.trim();
+const nid = document.getElementById('pos-nid').value.trim();
+const phone = document.getElementById('pos-phone').value.trim();
+const landline = document.getElementById('pos-landline').value.trim();
+const email = document.getElementById('pos-email').value.trim();
+const business = document.getElementById('pos-business').value.trim();
 const type = document.getElementById('pos-type').value;
-const deviceType = document.getElementById('pos-deviceType').value; // ✨ افزوده شده
-const address = document.getElementById('pos-address').value;
+const license = document.getElementById('pos-license').value.trim();
+const ecoCode = document.getElementById('pos-eco-code').value.trim();
+const address = document.getElementById('pos-address').value.trim();
+const postal = document.getElementById('pos-postal').value.trim();
+const deviceType = document.getElementById('pos-deviceType').value;
+const bankName = document.getElementById('pos-bank').value;
+const iban = document.getElementById('pos-iban').value.trim();
+const accountNumber = document.getElementById('pos-account').value.trim();
+const accountHolder = document.getElementById('pos-account-holder').value.trim();
 const files = document.getElementById('pos-docs').files;
 const btn = document.getElementById('submitPOSBtn');
 
-// ✨ افزوده شده: بررسی انتخاب نوع دستگاه
-if (!deviceType) { alert('لطفاً نوع دستگاه پوز درخواستی را انتخاب کنید.'); return; }
+if (!/^09\d{9}$/.test(phone)) { document.getElementById('pos-phone-error').style.display = 'block'; alert('شماره همراه نامعتبر است.'); return; }
+else { document.getElementById('pos-phone-error').style.display = 'none'; }
 
-// ✨ افزوده شده: بررسی امضا
-if (!signatures['pos'] || signatures['pos'].isEmpty()) {
-alert('لطفاً امضای خود را در کادر مربوطه ثبت کنید.');
-return;
-}
+if (!/^\d{10}$/.test(postal)) { document.getElementById('pos-postal-error').style.display = 'block'; alert('کد پستی باید ۱۰ رقم باشد.'); return; }
+else { document.getElementById('pos-postal-error').style.display = 'none'; }
+
+if (!validateIBAN(iban)) { document.getElementById('pos-iban-error').style.display = 'block'; alert('شماره شبا نامعتبر است (طول یا رقم کنترل اشتباه).'); return; }
+else { document.getElementById('pos-iban-error').style.display = 'none'; }
+
+if (!signatures['pos'] || signatures['pos'].isEmpty()) { alert('لطفاً امضای خود را در کادر مربوطه ثبت کنید.'); return; }
 const signatureData = signatures['pos'].getDataURL();
 
 btn.innerText = "در حال ارسال..."; btn.disabled = true;
@@ -1148,11 +1035,7 @@ if (files.length === 0) return resolve(fileDataArray);
 let processed = 0;
 for (let i = 0; i < files.length; i++) {
 const reader = new FileReader();
-reader.onload = function(e) {
-fileDataArray.push({ fileName: files[i].name, mimeType: files[i].type, base64: e.target.result.split(',')[1] });
-processed++;
-if (processed === files.length) resolve(fileDataArray);
-};
+reader.onload = function(e) { fileDataArray.push({ fileName: files[i].name, mimeType: files[i].type, base64: e.target.result.split(',')[1] }); processed++; if (processed === files.length) resolve(fileDataArray); };
 reader.readAsDataURL(files[i]);
 }
 });
@@ -1161,9 +1044,9 @@ reader.readAsDataURL(files[i]);
 readFiles().then(filesData => {
 const payload = {
 action: 'submitPOS',
-formData: { name, nid, phone, business, type, deviceType, address }, // ✨ deviceType اضافه شد
+formData: { name, nid, phone, landline, email, business, type, license, ecoCode, address, postal, deviceType, bankName, iban, accountNumber, accountHolder },
 files: filesData,
-signature: signatureData // ✨ افزوده شده
+signature: signatureData
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(() => {
@@ -1184,10 +1067,7 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getPOSReques
 .then(res => res.json())
 .then(posList => {
 listContainer.innerHTML = '';
-if (posList.length === 0) {
-listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ درخواست پوز در انتظاری وجود ندارد.</p>';
-return;
-}
+if (posList.length === 0) { listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ درخواست پوز در انتظاری وجود ندارد.</p>'; return; }
 posList.forEach(pos => {
 let filesHtml = "";
 if(pos.files) {
@@ -1199,10 +1079,15 @@ filesHtml += `</p>`;
 let html = `
 <div class="ticket-card" id="pos-card-${pos.row}">
 <h4>درخواست پوز - ${pos.name}</h4>
-<p><strong>کد ملی:</strong> ${pos.nid} | <strong>تلفن:</strong> ${pos.phone}</p>
+<p><strong>کد ملی / شناسه:</strong> ${pos.nid} | <strong>همراه:</strong> ${pos.phone} | <strong>ثابت:</strong> ${pos.landline || '-'}</p>
 <p><strong>کسب‌وکار:</strong> ${pos.business} (${pos.type})</p>
-<p><strong>نوع دستگاه درخواستی:</strong> ${pos.deviceType || 'ثبت نشده'}</p>
+<p><strong>نوع دستگاه:</strong> ${pos.deviceType || 'ثبت نشده'}</p>
+<p><strong>جواز کسب:</strong> ${pos.license || '-'} | <strong>کد اقتصادی:</strong> ${pos.ecoCode || '-'}</p>
 <p><strong>آدرس:</strong> ${pos.address}</p>
+<p><strong>کد پستی:</strong> ${pos.postal || '-'} | <strong>ایمیل:</strong> ${pos.email || '-'}</p>
+<p><strong>بانک:</strong> ${pos.bankName || '-'}</p>
+<p><strong>شبا:</strong> IR${pos.iban || '-'}</p>
+<p><strong>شماره حساب:</strong> ${pos.accountNumber || '-'} | <strong>صاحب حساب:</strong> ${pos.accountHolder || '-'}</p>
 ${pos.signatureUrl ? `<p style="font-size:12px; margin-top:5px;"><strong>امضا:</strong> <a href="${pos.signatureUrl}" target="_blank" style="color:#2980b9;">مشاهده تصویر امضا</a></p>` : ''}
 ${filesHtml}
 <button class="btn btn-resolve" onclick="resolvePOSRequest(${pos.row}, this)">✅ نصب شد / تایید درخواست</button>
@@ -1219,19 +1104,10 @@ btnElement.innerText = "در حال تایید..."; btnElement.disabled = true;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updatePOSStatus', row: row }) })
 .then(res => res.json())
 .then(data => {
-if(data.success) {
-alert("وضعیت با موفقیت به 'نصبSec شد' تغییر یافت.");
-document.getElementById('pos-card-'ured + row).remove();
-} else {
-alert("خط')ایی رخ داد.");
-btnElement.innerText = "✅ نصب شد / {
-تایید درخواifست"; btnElement.disabled = false;
-}
+if(data.success) { alert("وضعیت با موفقیت به 'نصب شد' تغییر یافت."); document.getElementById('pos-card-' + row).remove(); }
+else { alert("خطایی رخ داد."); btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false; }
 })
-.catch(() => {
-alert("خطا در ارتباط با سرور.");
-btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false;
-});
+.catch(() => { alert("خطا در ارتباط با سرور."); btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false; });
 }
 </script>
 </body>
