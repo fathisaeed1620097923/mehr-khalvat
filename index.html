@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -109,6 +110,32 @@ tr:nth-child(even) { background: #f8fbf9; }
 .toast { visibility: hidden; min-width: 250px; background-color: #c0392b; color: #fff; text-align: center; border-radius: 8px; padding: 15px; position: fixed; z-index: 1000; top: 20px; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.3s, top 0.3s; }
 .toast.show { visibility: visible; opacity: 1; top: 30px; }
 .badge-red { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
+
+/* ---- افزوده شده: کادر امضا ---- */
+.signature-wrap { border: 2px dashed #0a4d2e; border-radius: 12px; background: #fff; padding: 6px; margin-bottom: 8px; }
+.signature-wrap canvas { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; border-radius: 8px; background: #fff; }
+.signature-hint { font-size: 11px; color: #666; margin-bottom: 6px; }
+
+/* ---- افزوده شده: استایل چاپ / دانلود PDF ---- */
+@media print {
+body { background: #fff !important; padding: 0 !important; }
+.tabs, .tab-btn, .header, .admin-login-link, .stepper,
+.btn, .btn-row, .btn-plan, .speak-btn, .camera-box button,
+#photo-options, #photo-remove-box, .badge, #toast-notification,
+.signature-hint, #employee-tab-btn { display: none !important; }
+.container { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+.content { padding: 0 !important; }
+.panel { display: none !important; }
+.panel.active { display: block !important; }
+#panel-customer.active .form-step,
+#panel-pos.active .form-step { display: block !important; }
+.result-box { display: block !important; }
+.form-group input, .form-group select, .form-group textarea { border: 1px solid #333 !important; background: #fff !important; }
+.signature-wrap { border: 1px solid #333 !important; }
+.acc-body { max-height: none !important; }
+.footer-print-note { display: block !important; }
+}
+.footer-print-note { display: none; text-align: center; font-size: 11px; color: #666; margin-top: 15px; }
 </style>
 </head>
 <body>
@@ -191,10 +218,23 @@ tr:nth-child(even) { background: #f8fbf9; }
 </div>
 </div>
 
+<!-- ✨ افزوده شده: کادر امضای مشتری در فرم تیکت -->
+<div class="form-group">
+<label>✍️ امضای مشتری (الزامی):</label>
+<p class="signature-hint">با انگشت (روی موبایل) یا با ماوس در کادر زیر امضا کنید.</p>
+<div class="signature-wrap">
+<canvas id="signature-canvas-ticket" width="600" height="200"></canvas>
+</div>
+<button type="button" class="btn btn-outline" style="margin-top: 8px;" onclick="clearSignature('ticket')">🧹 پاک کردن امضا</button>
+</div>
+
 <div class="btn-row">
 <button type="button" class="btn btn-outline" onclick="prevStep(3)">مرحله قبل</button>
 <button type="submit" class="btn" id="submitCustomerBtn">ثبت نهایی درخواست</button>
 </div>
+<!-- ✨ افزوده شده: دکمه چاپ / دانلود PDF -->
+<button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="window.print()">🖨️ چاپ / دانلود PDF فرم</button>
+<p style="font-size: 11px; color:#888; text-align:center; margin-top: 6px;">در پنجره چاپ، گزینه «Save as PDF» را برای دانلود انتخاب کنید.</p>
 </div>
 </form>
 
@@ -203,7 +243,10 @@ tr:nth-child(even) { background: #f8fbf9; }
 <p>کد پیگیری شما:</p>
 <div class="tracking-code" id="c-trackingCode">-----</div>
 <div class="routing-info" id="c-routingInfo"></div>
+<!-- ✨ افزوده شده: چاپ رسید -->
+<button class="btn btn-secondary" onclick="window.print()" style="margin-top: 15px;">🖨️ چاپ / دانلود رسید</button>
 <button class="btn" onclick="location.reload()" style="margin-top: 15px;">ثبت مشکل جدید</button>
+<div class="footer-print-note">این رسید توسط سامانه جامع مهر صادر شده است.</div>
 </div>
 
 <div class="admin-login-link">
@@ -263,7 +306,7 @@ tr:nth-child(even) { background: #f8fbf9; }
 </div>
 </div>
 
-<!-- ۴. پنل درخواست پوز (جدید) -->
+<!-- ۴. پنل درخواست پوز -->
 <div class="content panel" id="panel-pos">
 <div style="text-align: center; margin-bottom: 20px;">
 <h2 style="color: #0a4d2e; margin-bottom: 10px;">درخواست دستگاه کارتخوان (پوز)</h2>
@@ -282,6 +325,19 @@ tr:nth-child(even) { background: #f8fbf9; }
 <option value="سایر">سایر</option>
 </select>
 </div>
+
+<!-- ✨ افزوده شده: نوع دستگاه پوز درخواستی -->
+<div class="form-group">
+<label>نوع دستگاه پوز درخواستی:</label>
+<select id="pos-deviceType" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="باسیم (ثابت)">باسیم (ثابت)</option>
+<option value="بی‌سیم (سیار / GPRS)">بی‌سیم (سیار / GPRS)</option>
+<option value="Dial-up">Dial-up</option>
+<option value="PC POS">PC POS</option>
+</select>
+</div>
+
 <div class="form-group"><label>آدرس دقیق محل کسب و کار:</label><textarea id="pos-address" rows="3" required></textarea></div>
 
 <div class="camera-box">
@@ -291,14 +347,28 @@ tr:nth-child(even) { background: #f8fbf9; }
 <div id="pos-file-list" style="margin-top: 10px; font-size: 12px; color: #1e7a44; font-weight: bold;"></div>
 </div>
 
+<!-- ✨ افزوده شده: کادر امضای مشتری در فرم پوز -->
+<div class="form-group">
+<label>✍️ امضای مشتری (الزامی):</label>
+<p class="signature-hint">با انگشت (روی موبایل) یا با ماوس در کادر زیر امضا کنید.</p>
+<div class="signature-wrap">
+<canvas id="signature-canvas-pos" width="600" height="200"></canvas>
+</div>
+<button type="button" class="btn btn-outline" style="margin-top: 8px;" onclick="clearSignature('pos')">🧹 پاک کردن امضا</button>
+</div>
+
 <div class="btn-row">
 <button type="submit" class="btn" id="submitPOSBtn">ارسال درخواست پوز</button>
+<button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ چاپ / PDF</button>
 </div>
+<p style="font-size: 11px; color:#888; text-align:center; margin-top: 6px;">در پنجره چاپ، گزینه «Save as PDF» را برای دانلود انتخاب کنید.</p>
 </form>
 <div class="result-box" id="pos-resultSection">
 <h3>✅ درخواست پوز شما ثبت شد</h3>
 <p style="font-size: 14px; margin-top: 10px;">کارشناسان ما پس از بررسی مدارک با شما تماس خواهند گرفت.</p>
+<button class="btn btn-secondary" onclick="window.print()" style="margin-top: 15px;">🖨️ چاپ / دانلود رسید</button>
 <button class="btn" onclick="location.reload()" style="margin-top: 15px;">درخواست جدید</button>
+<div class="footer-print-note">این رسید توسط سامانه جامع مهر صادر شده است.</div>
 </div>
 </div>
 
@@ -340,7 +410,7 @@ tr:nth-child(even) { background: #f8fbf9; }
 </div>
 </div>
 
-<!-- محفظه مخفی طرح‌ها -->
+<!-- محفظه مخفی طرح‌ها (بدون تغییر) -->
 <div id="hidden-plans" style="display:none;">
 <div class="card" id="plan-niloufar" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نیلوفر</div>
@@ -420,12 +490,12 @@ tr:nth-child(even) { background: #f8fbf9; }
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اشخاص حقوقی در حوزه بانکداری اجتماعی جهت پرداخت تسهیلات به مستمری‌بگیران.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💵 مشخصات و سقف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف تسهیلات حقیقی: <b>۵ میلیارد ریال (۵۰۰ میلیون تومان)</b>. نرخ کارمزد: <b>۴٪</b>. سقف مدت بازپرداخت: <b>۳۶ ماه</b>.</div></div>
 <div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۴</span> 💵 کارمزد و ضمانت</span> <span class="acc-arrow">▼</span></div><div class="acc-body">نیازمند انعقاد تفاهم‌نامه با نهاد حمایتی مربوطه است.</div></div>
-<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button></div></div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc class-content-wrapper"></div><div class="dual-action-content qbank-content="-wrapper"><div class="qacc-box c-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button></div></div>
 
 <div class="card" id="plan-radvan" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح رضوان</div>
 <div class="c-body"><span class="badge">حمایتی - کد ۱۸۱</span>
-<div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div></div>
+<div-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">مخصوص افراد معرفی‌شده از سوی این سازمان‌ها. سقف: ۵ میلیارد ریال. کارمزد ۲ تا ۴٪.</div></div>
 <div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('radvan', this)">🔊 شنیدن توضیحات</button></div></div>
 
@@ -468,6 +538,85 @@ tr:nth-child(even) { background: #f8fbf9; }
 <script>
 // 🔴 لینک exec خود را دقیقاً بین این دو دابل کوتیشن بچسبانید
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
+
+/* ============================================================
+✨ افزوده شده: پیاده‌سازی کادر امضا (بدون وابستگی به کتابخانه)
+============================================================ */
+const signatures = {};
+
+function initSignature(canvasId) {
+const canvas = document.getElementById(canvasId);
+if (!canvas) return null;
+const ctx = canvas.getContext('2d');
+ctx.lineWidth = 2.5;
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+ctx.strokeStyle = '#0a4d2e';
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+let isEmpty = true;
+
+function getPos(e) {
+const r = canvas.getBoundingClientRect();
+const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+const scaleX = canvas.width / (r.width || 1);
+const scaleY = canvas.height / (r.height || 1);
+return {
+x: (touch.clientX - r.left) * scaleX,
+y: (touch.clientY - r.top) * scaleY
+};
+}
+
+function start(e) {
+e.preventDefault();
+isDrawing = true;
+const p = getPos(e);
+lastX = p.x; lastY = p.y;
+ctx.beginPath();
+ctx.moveTo(lastX, lastY);
+}
+function move(e) {
+if (!isDrawing) return;
+e.preventDefault();
+const p = getPos(e);
+ctx.lineTo(p.x, p.y);
+ctx.stroke();
+ctx.beginPath();
+ctx.moveTo(p.x, p.y);
+lastX = p.x; lastY = p.y;
+isEmpty = false;
+}
+function end(e) {
+if (e && e.preventDefault) e.preventDefault();
+isDrawing = false;
+ctx.beginPath();
+}
+
+canvas.addEventListener('mousedown', start);
+canvas.addEventListener('mousemove', move);
+canvas.addEventListener('mouseup', end);
+canvas.addEventListener('mouseleave', end);
+canvas.addEventListener('touchstart', start, {passive: false});
+canvas.addEventListener('touchmove', move, {passive: false});
+canvas.addEventListener('touchend', end, {passive: false});
+canvas.addEventListener('touchcancel', end, {passive: false});
+
+return {
+clear: function() { ctx.clearRect(0, 0, canvas.width, canvas.height); isEmpty = true; },
+isEmpty: function() { return isEmpty; },
+getDataURL: function() { return isEmpty ? '' : canvas.toDataURL('image/png'); }
+};
+}
+
+function clearSignature(key) {
+if (signatures[key]) signatures[key].clear();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+signatures['ticket'] = initSignature('signature-canvas-ticket');
+signatures['pos'] = initSignature('signature-canvas-pos');
+});
+/* ============================================================ */
 
 function toggleCardAction(btn, type) {
 const container = btn.closest('.dual-action-container');
@@ -833,13 +982,22 @@ let isValid = true;
 if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('c-mobileError').style.display = 'none'; }
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
 if (!isValid) return;
+
+// ✨ افزوده شده: بررسی امضا
+if (!signatures['ticket'] || signatures['ticket'].isEmpty()) {
+alert('لطفاً امضای خود را در کادر مربوطه ثبت کنید.');
+return;
+}
+const signatureData = signatures['ticket'].getDataURL();
+
 let trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 let department = getDepartment(problemType);
 document.getElementById('submitCustomerBtn').innerText = "در حال ثبت...";
 let payload = {
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
-imageBase64: photoBase64, department: department, trackingCode: trackingCode, branch: document.getElementById('c-branch').value
+imageBase64: photoBase64, department: department, trackingCode: trackingCode, branch: document.getElementById('c-branch').value,
+signature: signatureData // ✨ افزوده شده
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
@@ -966,9 +1124,21 @@ const nid = document.getElementById('pos-nid').value;
 const phone = document.getElementById('pos-phone').value;
 const business = document.getElementById('pos-business').value;
 const type = document.getElementById('pos-type').value;
+const deviceType = document.getElementById('pos-deviceType').value; // ✨ افزوده شده
 const address = document.getElementById('pos-address').value;
 const files = document.getElementById('pos-docs').files;
 const btn = document.getElementById('submitPOSBtn');
+
+// ✨ افزوده شده: بررسی انتخاب نوع دستگاه
+if (!deviceType) { alert('لطفاً نوع دستگاه پوز درخواستی را انتخاب کنید.'); return; }
+
+// ✨ افزوده شده: بررسی امضا
+if (!signatures['pos'] || signatures['pos'].isEmpty()) {
+alert('لطفاً امضای خود را در کادر مربوطه ثبت کنید.');
+return;
+}
+const signatureData = signatures['pos'].getDataURL();
+
 btn.innerText = "در حال ارسال..."; btn.disabled = true;
 
 const readFiles = () => {
@@ -989,7 +1159,12 @@ reader.readAsDataURL(files[i]);
 };
 
 readFiles().then(filesData => {
-const payload = { action: 'submitPOS', formData: { name, nid, phone, business, type, address }, files: filesData };
+const payload = {
+action: 'submitPOS',
+formData: { name, nid, phone, business, type, deviceType, address }, // ✨ deviceType اضافه شد
+files: filesData,
+signature: signatureData // ✨ افزوده شده
+};
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(() => {
 document.getElementById('posForm').style.display = 'none';
@@ -1026,7 +1201,9 @@ let html = `
 <h4>درخواست پوز - ${pos.name}</h4>
 <p><strong>کد ملی:</strong> ${pos.nid} | <strong>تلفن:</strong> ${pos.phone}</p>
 <p><strong>کسب‌وکار:</strong> ${pos.business} (${pos.type})</p>
+<p><strong>نوع دستگاه درخواستی:</strong> ${pos.deviceType || 'ثبت نشده'}</p>
 <p><strong>آدرس:</strong> ${pos.address}</p>
+${pos.signatureUrl ? `<p style="font-size:12px; margin-top:5px;"><strong>امضا:</strong> <a href="${pos.signatureUrl}" target="_blank" style="color:#2980b9;">مشاهده تصویر امضا</a></p>` : ''}
 ${filesHtml}
 <button class="btn btn-resolve" onclick="resolvePOSRequest(${pos.row}, this)">✅ نصب شد / تایید درخواست</button>
 </div>`;
@@ -1043,11 +1220,12 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updatePOSSta
 .then(res => res.json())
 .then(data => {
 if(data.success) {
-alert("وضعیت با موفقیت به 'نصب شد' تغییر یافت.");
-document.getElementById('pos-card-' + row).remove();
+alert("وضعیت با موفقیت به 'نصبSec شد' تغییر یافت.");
+document.getElementById('pos-card-'ured + row).remove();
 } else {
-alert("خطایی رخ داد.");
-btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false;
+alert("خط')ایی رخ داد.");
+btnElement.innerText = "✅ نصب شد / {
+تایید درخواifست"; btnElement.disabled = false;
 }
 })
 .catch(() => {
