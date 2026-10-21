@@ -1060,6 +1060,7 @@ btn.innerText = "ارسال درخواست پوز"; btn.disabled = false;
 });
 }
 
+
 function fetchPOSRequests() {
 const listContainer = document.getElementById('employee-pos-list');
 listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت لیست پوزها...</p>';
@@ -1076,26 +1077,85 @@ filesHtml = `<p style="font-size:12px; margin-top:5px;"><strong>مدارک:</str
 links.forEach((link, idx) => { if(link) filesHtml += `<a href="${link}" target="_blank" style="color:#2980b9;">فایل ${idx+1}</a> | `; });
 filesHtml += `</p>`;
 }
+
 let html = `
 <div class="ticket-card" id="pos-card-${pos.row}">
-<h4>درخواست پوز - ${pos.name}</h4>
-<p><strong>کد ملی / شناسه:</strong> ${pos.nid} | <strong>همراه:</strong> ${pos.phone} | <strong>ثابت:</strong> ${pos.landline || '-'}</p>
-<p><strong>کسب‌وکار:</strong> ${pos.business} (${pos.type})</p>
-<p><strong>نوع دستگاه:</strong> ${pos.deviceType || 'ثبت نشده'}</p>
+<div id="print-area-${pos.row}">
+<h4 style="text-align:center; border-bottom: 2px solid #0a4d2e; padding-bottom:10px;">فرم درخواست دستگاه کارتخوان (پوز)</h4>
+<p><strong>نام پذیرنده:</strong> ${pos.name} | <strong>کد ملی/شناسه:</strong> ${pos.nid}</p>
+<p><strong>همراه:</strong> ${pos.phone} | <strong>ثابت:</strong> ${pos.landline || '-'} | <strong>ایمیل مشتری:</strong> ${pos.email || '-'}</p>
+<p><strong>کسب‌وکار:</strong> ${pos.business} (${pos.type}) | <strong>نوع دستگاه:</strong> ${pos.deviceType || 'ثبت نشده'}</p>
 <p><strong>جواز کسب:</strong> ${pos.license || '-'} | <strong>کد اقتصادی:</strong> ${pos.ecoCode || '-'}</p>
-<p><strong>آدرس:</strong> ${pos.address}</p>
-<p><strong>کد پستی:</strong> ${pos.postal || '-'} | <strong>ایمیل:</strong> ${pos.email || '-'}</p>
-<p><strong>بانک:</strong> ${pos.bankName || '-'}</p>
-<p><strong>شبا:</strong> IR${pos.iban || '-'}</p>
+<p><strong>آدرس:</strong> ${pos.address} - <strong>کد پستی:</strong> ${pos.postal || '-'}</p>
+<p><strong>بانک عامل:</strong> ${pos.bankName || '-'} | <strong>شبا:</strong> IR${pos.iban || '-'}</p>
 <p><strong>شماره حساب:</strong> ${pos.accountNumber || '-'} | <strong>صاحب حساب:</strong> ${pos.accountHolder || '-'}</p>
-${pos.signatureUrl ? `<p style="font-size:12px; margin-top:5px;"><strong>امضا:</strong> <a href="${pos.signatureUrl}" target="_blank" style="color:#2980b9;">مشاهده تصویر امضا</a></p>` : ''}
+
+${pos.signatureUrl ? `<div style="margin-top:10px; text-align:center;"><p style="font-size:12px; font-weight:bold;">✍️ امضای پذیرنده:</p><img src="${pos.signatureUrl}" style="max-height: 100px; border: 1px solid #ccc;"></div>` : ''}
+
+<div style="margin-top:15px; border-top: 1px dashed #ccc; padding-top:10px;">
 ${filesHtml}
-<button class="btn btn-resolve" onclick="resolvePOSRequest(${pos.row}, this)">✅ نصب شد / تایید درخواست</button>
+<p style="font-size:12px; margin-top:5px;"><strong>لینک مستقیم امضا:</strong> <a href="${pos.signatureUrl}" target="_blank">مشاهده در گوگل درایو</a></p>
+</div>
+</div>
+
+<div class="btn-row" style="margin-top:15px;">
+<button class="btn btn-secondary" style="width:50%;" onclick="printPOSForm(${pos.row})">🖨️ چاپ / PDF فرم</button>
+<button class="btn btn-resolve" style="width:50%;" onclick="resolvePOSRequest(${pos.row}, this)">✅ تایید / نصب شد</button>
+</div>
+
+<div style="background:#f0f8ff; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #bce;">
+<label style="font-size:12px; font-weight:bold; color:#2980b9; margin-bottom:5px; display:block;">📧 ارسال به شرکت توزیع‌کننده (PSP):</label>
+<div style="display:flex; gap:5px;">
+<input type="email" id="psp-email-${pos.row}" placeholder="ایمیل شرکت توزیع‌کننده..." style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:12px; direction:ltr;">
+<button type="button" class="btn" style="width:auto; margin:0; padding:8px 15px; font-size:12px; background:#2980b9;" onclick="sendPOSEmail(${pos.row}, this)">ارسال</button>
+</div>
+</div>
 </div>`;
 listContainer.innerHTML += html;
 });
 })
 .catch(err => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در ارتباط با سرور.</p>'; });
+}
+
+function printPOSForm(row) {
+const printContents = document.getElementById('print-area-' + row).innerHTML;
+const printWindow = window.open('', '_blank');
+printWindow.document.write(`
+<html dir="rtl" lang="fa">
+<head>
+<title>چاپ فرم پوز - سامانه مهر</title>
+<style>
+body { font-family: Tahoma, Arial, sans-serif; padding: 20px; line-height: 1.8; }
+h4 { text-align: center; color: #0a4d2e; border-bottom: 2px solid #0a4d2e; padding-bottom: 10px; margin-bottom: 20px; }
+p { font-size: 14px; margin-bottom: 10px; border-bottom: 1px dotted #ccc; padding-bottom: 5px; }
+strong { color: #333; }
+a { color: #2980b9; text-decoration: none; }
+img { max-width: 200px; display: block; margin: 0 auto; }
+</style>
+</head>
+<body>${printContents}</body>
+</html>
+`);
+printWindow.document.close();
+printWindow.focus();
+setTimeout(() => { printWindow.print(); }, 500);
+}
+
+function sendPOSEmail(row, btnElement) {
+const emailInput = document.getElementById('psp-email-' + row).value;
+if(!emailInput || !emailInput.includes('@')) { alert('لطفاً یک ایمیل معتبر وارد کنید.'); return; }
+btnElement.innerText = "در حال ارسال..."; btnElement.disabled = true;
+fetch(SCRIPT_URL, {
+method: 'POST',
+body: JSON.stringify({ action: 'emailPOSRequest', row: row, targetEmail: emailInput })
+})
+.then(res => res.json())
+.then(data => {
+if(data.success) { alert('✅ ایمیل با موفقیت به شرکت توزیع‌کننده ارسال شد.'); document.getElementById('psp-email-' + row).value = ''; }
+else { alert('خطا در ارسال ایمیل: ' + (data.error || 'مشکل ناشناخته')); }
+})
+.catch(() => alert("خطا در ارتباط با سرور."))
+.finally(() => { btnElement.innerText = "ارسال"; btnElement.disabled = false; });
 }
 
 function resolvePOSRequest(row, btnElement) {
