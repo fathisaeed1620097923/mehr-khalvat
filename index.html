@@ -18,8 +18,6 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .panel { display: none; }
 .panel.active { display: block; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-/* استپر */
 .stepper { display: flex; justify-content: space-between; margin-bottom: 25px; position: relative; }
 .stepper::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #e0e0e0; z-index: 1; }
 .step-item { text-align: center; position: relative; z-index: 2; width: 33%; }
@@ -30,8 +28,6 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .step-item.active .step-title { color: #0a4d2e; }
 .form-step { display: none; }
 .form-step.active { display: block; animation: fadeIn 0.3s ease; }
-
-/* فرم‌ها و دکمه‌ها */
 .form-group { margin-bottom: 15px; }
 .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #0a4d2e; }
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; transition: 0.3s; }
@@ -45,18 +41,12 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .btn-row .btn { margin-bottom: 0; }
 .camera-box { background: #faf8f3; border: 2px dashed #d4a017; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
 .camera-box img { width: 100%; max-width: 300px; border-radius: 10px; display: none; margin: 0 auto 10px auto; border: 2px solid #0a4d2e;}
-
-/* دکمه‌های انتخاب طرح و دسته‌بندی */
 .btn-plan { display: block; width: 100%; padding: 14px; background: #fff; border: 2px solid; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center; margin-bottom: 10px; }
 .btn-plan:hover { background: #f8f9fa; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-
-/* کارت طرح */
 .card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
 .c-title { font-size: 15.5px; font-weight: 700; padding: 14px 18px; text-align: center; border-bottom: 2px solid; transition: 0.3s;}
 .c-body { padding: 16px; }
 .badge { display: block; background: #d4a017; color: #fff; padding: 5px 14px; border-radius: 18px; font-size: 11px; font-weight: 700; text-align: center; margin: 0 auto 14px auto; width: fit-content; }
-
-/* آکاردئون‌های توضیحات */
 .acc-box { margin-bottom: 10px; border-radius: 10px; border-left: 5px solid; overflow: hidden; }
 .acc-header { padding: 12px 14px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
 .acc-header:hover { filter: brightness(0.95); }
@@ -65,30 +55,22 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .acc-arrow { transition: transform 0.3s; font-size: 10px; }
 .acc-box.active-acc .acc-arrow { transform: rotate(180deg); }
 .s-num { display: inline-block; color: #fff; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; font-size: 11px; font-weight: 800; margin-left: 8px; }
-
-/* رنگ‌بندی آکاردئون‌ها */
 .c-blue{background:#eaf3fd;color:#1a5490;border-left-color:#4a90d9}.c-blue .acc-header{color:#1a5490}.c-blue .s-num{background:#4a90d9}
 .c-green{background:#e8f5ec;color:#1e7a44;border-left-color:#27ae60}.c-green .acc-header{color:#1e7a44}.c-green .s-num{background:#27ae60}
 .c-yellow{background:#fef9e7;color:#8a6a0f;border-left-color:#d4a017}.c-yellow .acc-header{color:#8a6a0f}.c-yellow .s-num{background:#d4a017}
 .c-red{background:#fdeaea;color:#a0312b;border-left-color:#e74c3c}.c-red .acc-header{color:#a0312b}.c-red .s-num{background:#e74c3c}
 ul.bullet{padding-right:18px;margin-top:4px}
 ul.bullet li{font-size:12.5px;line-height:2;margin-bottom:2px}
-
-/* جداول داخل آکاردئون */
 table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
 th, td { border: 1px solid #c8d6e5; padding: 8px; text-align: center; }
 th { background: #eaf3fd; color: #1a5490; font-weight: bold; }
 tr:nth-child(even) { background: #f8fbf9; }
-
-/* دو مستطیل کنار هم */
 .dual-action-container { margin-top: 15px; }
 .dual-action-btns { display: flex; gap: 10px; }
 .dual-btn { flex: 1; padding: 12px 5px; border: 2px solid var(--theme-color); border-radius: 8px; text-align: center; font-weight: bold; font-size: 13px; color: var(--theme-color); background: var(--theme-light); cursor: pointer; transition: 0.2s; }
 .dual-btn:hover { filter: brightness(0.9); }
 .dual-btn.active { background: var(--theme-color); color: #fff; }
 .dual-action-content { display: none; margin-top: 10px; padding: 15px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; animation: fadeIn 0.3s ease; }
-
-/* مراحل داخل کیوبانک */
 .q-steps{display: flex; flex-direction: column; gap: 6px;}
 .q-step{background:#fff;border-radius:8px;font-size:12px;display:flex; flex-direction: column; border: 1px solid #ddd; cursor: pointer; transition: all 0.2s; margin-bottom: 5px;}
 .q-step-title { font-weight: bold; display: flex; align-items: center; gap: 8px; padding: 10px 12px; color: #333;}
@@ -97,12 +79,9 @@ tr:nth-child(even) { background: #f8fbf9; }
 .q-step-desc { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; font-size: 11.5px; color: #555; line-height: 1.7; padding: 0 12px 0 34px; }
 .q-step.active-q-step .q-step-desc { max-height: 300px; padding-bottom: 12px; }
 .q-num { color:#fff;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px; background: var(--theme-color);}
-
 .action-link { display: inline-block; margin-top: 8px; padding: 6px 12px; background: #eaf3fd; color: #0066cc; border: 1px solid #0066cc; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 11px; transition: 0.2s; }
 .action-link:hover { background: #0066cc; color: #fff; }
 .q-link{display:block;width:100%;padding:12px;color:#fff;border-radius:10px;font-weight:700;text-align:center;text-decoration:none;margin-top:10px; background: var(--theme-color);}
-
-/* ماشین حساب */
 .calc-box { background: transparent; padding: 0; margin: 0;}
 .calc-row { display: flex; gap: 10px; margin-bottom: 10px; }
 .calc-row .form-group { flex: 1; margin-bottom: 0; }
@@ -113,11 +92,8 @@ tr:nth-child(even) { background: #f8fbf9; }
 .res-table th, .res-table td { border: 1px solid #c8d6e5; padding: 8px; text-align: center; }
 .res-table th { background: var(--theme-color); color: #fff; }
 .res-table tr:nth-child(even) { background: #f8fbf9; }
-
 .speak-btn{display:block;width:100%;padding:12px;background:#0a4d2e;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-family:inherit;font-weight:700;cursor:pointer;margin-top:15px}
 .speak-btn.active{background:#d4a017}
-
-/* نتایج و کارمند */
 .result-box { display: none; background: #e8f5ec; border: 2px solid #27ae60; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; }
 .result-box h3 { color: #1e7a44; margin-bottom: 10px; font-size: 18px; }
 .tracking-code { font-size: 26px; font-weight: bold; color: #d4a017; background: #fff; padding: 10px; border-radius: 8px; margin: 10px 0; letter-spacing: 2px; border: 1px dashed #d4a017; }
@@ -150,6 +126,7 @@ tr:nth-child(even) { background: #f8fbf9; }
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
 <button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری</button>
 <button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
+<button class="tab-btn" onclick="switchTab('pos', this)">📱 درخواست پوز</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
 </div>
 
@@ -266,7 +243,6 @@ tr:nth-child(even) { background: #f8fbf9; }
 <div class="step-item" id="g-ind-3"><div class="step-circle">3</div><div class="step-title">جزئیات و محاسبه</div></div>
 </div>
 
-<!-- گام اول: دکمه‌های دسته‌بندی -->
 <div class="form-step active" id="g-step-1">
 <div style="display:flex; flex-direction:column; gap:10px;">
 <button type="button" class="btn-plan" style="color: #3498db; border-color: #3498db;" onclick="selectGuideCategory('general')">🌟 بانکداری خرد و اجتماعی (نیلوفر، نورا، شمس، ارکیده)</button>
@@ -287,11 +263,61 @@ tr:nth-child(even) { background: #f8fbf9; }
 </div>
 </div>
 
-<!-- ۴. پنل کارمند -->
+<!-- ۴. پنل درخواست پوز (جدید) -->
+<div class="content panel" id="panel-pos">
+<div style="text-align: center; margin-bottom: 20px;">
+<h2 style="color: #0a4d2e; margin-bottom: 10px;">درخواست دستگاه کارتخوان (پوز)</h2>
+<p style="font-size: 14px; color: #666;">لطفاً فرم زیر را پر کرده و مدارک خود را بارگذاری کنید.</p>
+</div>
+<form id="posForm" onsubmit="event.preventDefault(); submitPOSForm();">
+<div class="form-group"><label>نام و نام خانوادگی:</label><input type="text" id="pos-name" required></div>
+<div class="form-group"><label>کد ملی:</label><input type="text" id="pos-nid" maxlength="10" required></div>
+<div class="form-group"><label>شماره تماس:</label><input type="tel" id="pos-phone" maxlength="11" required></div>
+<div class="form-group"><label>نام کسب و کار (فروشگاه/شرکت):</label><input type="text" id="pos-business" required></div>
+<div class="form-group">
+<label>نوع کسب و کار:</label>
+<select id="pos-type" required>
+<option value="فروشگاهی">فروشگاهی</option>
+<option value="خدماتی">خدماتی</option>
+<option value="سایر">سایر</option>
+</select>
+</div>
+<div class="form-group"><label>آدرس دقیق محل کسب و کار:</label><textarea id="pos-address" rows="3" required></textarea></div>
+
+<div class="camera-box">
+<p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 آپلود مدارک (کارت ملی، جواز، سند)</p>
+<input type="file" id="pos-docs" multiple accept="image/*,application/pdf" style="display: none;" onchange="updatePOSFileList()">
+<button type="button" class="btn btn-secondary" onclick="document.getElementById('pos-docs').click()">انتخاب فایل‌های مدارک</button>
+<div id="pos-file-list" style="margin-top: 10px; font-size: 12px; color: #1e7a44; font-weight: bold;"></div>
+</div>
+
+<div class="btn-row">
+<button type="submit" class="btn" id="submitPOSBtn">ارسال درخواست پوز</button>
+</div>
+</form>
+<div class="result-box" id="pos-resultSection">
+<h3>✅ درخواست پوز شما ثبت شد</h3>
+<p style="font-size: 14px; margin-top: 10px;">کارشناسان ما پس از بررسی مدارک با شما تماس خواهند گرفت.</p>
+<button class="btn" onclick="location.reload()" style="margin-top: 15px;">درخواست جدید</button>
+</div>
+</div>
+
+<!-- ۵. پنل کارمند -->
 <div class="content panel" id="panel-employee">
 <div style="text-align: left; margin-bottom: 15px;">
 <button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 12px;" onclick="changeCredentials()">🔐 تغییر نام کاربری / رمز</button>
 </div>
+
+<div class="form-group">
+<label>بخش مورد نظر را انتخاب کنید:</label>
+<select id="e-section" onchange="handleEmployeeSectionChange()">
+<option value="tickets">مدیریت تیکت‌های پشتیبانی</option>
+<option value="pos">مدیریت درخواست‌های پوز (کارتخوان)</option>
+</select>
+</div>
+
+<!-- بخش تیکت‌ها -->
+<div id="emp-tickets-section">
 <div class="form-group">
 <label>واحد خود را انتخاب کنید:</label>
 <select id="e-department" onchange="startEmployeePolling()">
@@ -305,492 +331,154 @@ tr:nth-child(even) { background: #f8fbf9; }
 </div>
 <div id="employee-ticket-list" style="margin-top: 20px;"></div>
 </div>
+
+<!-- بخش پوزها -->
+<div id="emp-pos-section" style="display: none;">
+<div id="employee-pos-list" style="margin-top: 20px;"></div>
 </div>
 
-<!-- محفظه مخفی برای نگهداری کارت‌های طرح‌ها -->
-<div id="hidden-plans" style="display:none;">
+</div>
+</div>
 
-<!-- نیلوفر -->
+<!-- محفظه مخفی طرح‌ها -->
+<div id="hidden-plans" style="display:none;">
 <div class="card" id="plan-niloufar" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نیلوفر</div>
-<div class="c-body">
-<span class="badge">امتیازی - کد ۱۰۱</span>
+<div class="c-body"><span class="badge">امتیازی - کد ۱۰۱</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">هر شخص حقیقی بالای ۱۸ سال که حساب قرض‌الحسنه پس‌انداز دارد. بدون نیاز به جواز کسب یا تفاهم‌نامه.</div></div>
 <div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body"><ul class="bullet"><li>حساب پس‌انداز فعال (حداقل ۱ ماه)</li><li>نداشتن چک برگشتی</li><li>رتبه ایرانیان بهتر از Z</li></ul></div></div>
 <div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۴</span> 💵 کارمزد و ضمانت</span> <span class="acc-arrow">▼</span></div><div class="acc-body">کارمزد ۲ تا ۴٪. رتبه A/B + بیمه = بدون ضامن. در غیر این صورت یک ضامن + چک.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نیلوفر را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('niloufar', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نیلوفر را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('niloufar', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- نورا -->
 <div class="card" id="plan-noora" style="--theme-color: #e74c3c; --theme-light: #fdeaea; --theme-text: #a0312b;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نورا</div>
-<div class="c-body">
-<span class="badge">امتیازی - کد ۱۸۲</span>
+<div class="c-body"><span class="badge">امتیازی - کد ۱۸۲</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">هر کسی که وام بدون کارمزد می‌خواهد.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💵 مشخصات و سقف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف: ۵۰۰ میلیون تومان. کارمزد صفر درصد. بازپرداخت تا ۶۰ ماه.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نورا را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('noora', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نورا را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('noora', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- شمس -->
 <div class="card" id="plan-shams" style="--theme-color: #f39c12; --theme-light: #fef9e7; --theme-text: #8a6a0f;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح شمس</div>
-<div class="c-body">
-<span class="badge">پس‌انداز ماهیانه</span>
+<div class="c-body"><span class="badge">پس‌انداز ماهیانه</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">افراد کم‌برخوردار که ماهانه پس‌انداز می‌کنند.</div></div>
 <div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">واریز منظم ماهانه (حداقل ۲ میلیون).</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مبلغ را به صورت ماهانه واریز کنید و سپس طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('shams', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مبلغ را به صورت ماهانه واریز کنید و سپس طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('shams', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- ارکیده (تکمیل شده با جدول و رویش مهر) -->
 <div class="card" id="plan-ardideh" style="--theme-color: #9b59b6; --theme-light: #f0e8f8; --theme-text: #5e2a80;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح ارکیده</div>
-<div class="c-body">
-<span class="badge">حمایتی - بدون تفاهم‌نامه</span>
+<div class="c-body"><span class="badge">حمایتی - بدون تفاهم‌نامه</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اشخاص حقیقی (حمایتی).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💵 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body"><b>مبلغ وام = ۲ برابر</b> سپرده تودیعی مصالح در زمان درخواست. کارمزد: از منابع بانک ۴٪، از بانکداری اجتماعی صفر.</div></div>
 <div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۳</span> 🌱 نکته طرح رویش مهر</span> <span class="acc-arrow">▼</span></div><div class="acc-body">در صورت فعال بودن طرح رویش مهر برای مشتری، <b>مدت زمان انتظار برای دریافت تسهیلات کاهش می‌یابد.</b></div></div>
-<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۴</span> 📊 جدول شرایط و اقساط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">
-<table>
-<tr><th>مدت زمان انتظار (روز)</th><th>مدت بازپرداخت (ماه)</th><th>مبلغ تسهیلات (میلیون تومان)</th><th>مبلغ صلح شده (میلیون تومان)</th></tr>
-<tr><td>۳۰</td><td>۲۰</td><td>۲۰۰</td><td>۱۰۰</td></tr>
-<tr><td>۶۰</td><td>۳۰</td><td>۳۰۰</td><td>۱۵۰</td></tr>
-<tr><td>۹۰</td><td>۴۰</td><td>۴۰۰</td><td>۲۰۰</td></tr>
-<tr><td>۱۲۰</td><td>۵۰</td><td>۵۰۰</td><td>۲۵۰</td></tr>
-</table>
-</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('ardideh', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۴</span> 📊 جدول شرایط و اقساط</span> <span class="acc-arrow">▼</span></div><div class="acc-body"><table><tr><th>مدت زمان انتظار (روز)</th><th>مدت بازپرداخت (ماه)</th><th>مبلغ تسهیلات (میلیون تومان)</th><th>مبلغ صلح شده (میلیون تومان)</th></tr><tr><td>۳۰</td><td>۲۰</td><td>۲۰۰</td><td>۱۰۰</td></tr><tr><td>۶۰</td><td>۳۰</td><td>۳۰۰</td><td>۱۵۰</td></tr><tr><td>۹۰</td><td>۴۰</td><td>۴۰۰</td><td>۲۰۰</td></tr><tr><td>۱۲۰</td><td>۵۰</td><td>۵۰۰</td><td>۲۵۰</td></tr></table></div></div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('ardideh', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- نارون -->
 <div class="card" id="plan-naron" style="--theme-color: #27ae60; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نارون</div>
-<div class="c-body">
-<span class="badge">امتیازی - کد ۱۰۶/۸۰۶</span>
+<div class="c-body"><span class="badge">امتیازی - کد ۱۰۶/۸۰۶</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">صاحبان مغازه، اعضای اتحادیه، دارندگان پروانه کسب.</div></div>
 <div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">جواز کسب معتبر، گردش حساب فعال.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۳</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body"><b>معدل =</b> میانگین گردش حساب. سقف: ۱ میلیارد (حقیقی) و ۱.۵ میلیارد (حقوقی). کارمزد ۲ تا ۴٪.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نارون را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('naron', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> مبلغ را ۱ تا ۱۲ ماه نگه دارید</div><div class="q-step-desc">مبلغی که به حساب واریز می‌کنید باید حداقل ۱ ماه و حداکثر تا ۱۲ ماه در حساب شما باقی بماند.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> در بخش تسهیلات، نارون را انتخاب کنید</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('naron', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- سرو 1 (تکمیل شده با جدول و رویش مهر) -->
 <div class="card" id="plan-sarv1" style="--theme-color: #2ecc71; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح سرو (بدون تفاهم‌نامه)</div>
-<div class="c-body">
-<span class="badge">حمایتی - بدون تفاهم‌نامه</span>
+<div class="c-body"><span class="badge">حمایتی - بدون تفاهم‌نامه</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اتحادیه‌ها، صاحبین کسب و کار و مشاغل و تمامی اصناف واجد شرایط.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💵 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">پرداخت وام با حمایت ۱۰۰ درصدی و کمتر از ۱۰۰ درصد. تودیع مبلغ مشخص در قالب عقد صلح. مدت انتظار ۲۰ تا ۶۰ روز.</div></div>
 <div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۳</span> 🌱 نکته طرح رویش مهر</span> <span class="acc-arrow">▼</span></div><div class="acc-body">در صورت فعال بودن طرح رویش مهر برای مشتری، <b>مدت زمان انتظار برای دریافت تسهیلات کاهش می‌یابد.</b></div></div>
-<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۴</span> 📊 جدول پرداخت وام (حمایت ۱۰۰٪)</span> <span class="acc-arrow">▼</span></div><div class="acc-body">
-<table>
-<tr><th>سقف تسهیلات (میلیون تومان)</th><th>مدت بازپرداخت (ماه)</th><th>مدت زمان انتظار (روز)</th><th>نرخ کارمزد</th></tr>
-<tr><td>۶۰۰</td><td>۷</td><td>۲۰</td><td>۴٪</td></tr>
-<tr><td>۷۰۰</td><td>۸</td><td>۲۵</td><td>۴٪</td></tr>
-<tr><td>۸۰۰</td><td>۹</td><td>۳۰</td><td>۳٪</td></tr>
-<tr><td>۱۰۰۰</td><td>۱۲</td><td>۳۰</td><td>۴٪</td></tr>
-<tr><td>۱۲۰۰</td><td>۱۶</td><td>۵۰</td><td>۴٪</td></tr>
-<tr><td>۱۵۰۰</td><td>۲۴</td><td>۶۰</td><td>۴٪</td></tr>
-</table>
-</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('sarv1', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۴</span> 📊 جدول پرداخت وام (حمایت ۱۰۰٪)</span> <span class="acc-arrow">▼</span></div><div class="acc-body"><table><tr><th>سقف تسهیلات (میلیون تومان)</th><th>مدت بازپرداخت (ماه)</th><th>مدت زمان انتظار (روز)</th><th>نرخ کارمزد</th></tr><tr><td>۶۰۰</td><td>۷</td><td>۲۰</td><td>۴٪</td></tr><tr><td>۷۰۰</td><td>۸</td><td>۲۵</td><td>۴٪</td></tr><tr><td>۸۰۰</td><td>۹</td><td>۳۰</td><td>۳٪</td></tr><tr><td>۱۰۰۰</td><td>۱۲</td><td>۳۰</td><td>۴٪</td></tr><tr><td>۱۲۰۰</td><td>۱۶</td><td>۵۰</td><td>۴٪</td></tr><tr><td>۱۵۰۰</td><td>۲۴</td><td>۶۰</td><td>۴٪</td></tr></table></div></div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('sarv1', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- سرو 2 (تکمیل شده با جدول و رویش مهر) -->
 <div class="card" id="plan-sarv2" style="--theme-color: #2ecc71; --theme-light: #e8f5ec; --theme-text: #1e7a44;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح سرو (تفاهم‌نامه‌ای)</div>
-<div class="c-body">
-<span class="badge">حمایتی - دارای تفاهم‌نامه</span>
+<div class="c-body"><span class="badge">حمایتی - دارای تفاهم‌نامه</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اتحادیه‌ها، صرافی‌ها، صاحبین کسب و کارها و واحدهای تولیدی بزرگ و تمامی اصناف واجد شرایط.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">حمایت بانک معادل <b>۱۰۰٪ آورده تفاهم‌نامه</b> است. مدت بازپرداخت ۱۲ یا ۲۴ ماه. کارمزد ۴٪.</div></div>
 <div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۳</span> 🌱 نکته طرح رویش مهر</span> <span class="acc-arrow">▼</span></div><div class="acc-body">در صورت فعال بودن طرح رویش مهر برای مشتری، <b>مدت زمان انتظار برای دریافت تسهیلات کاهش می‌یابد.</b></div></div>
-<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۴</span> 📊 جدول شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">
-<table>
-<tr><th>مدت بازپرداخت</th><th>مدت زمان انتظار</th><th>نرخ کارمزد</th><th>میزان حمایت بانک</th></tr>
-<tr><td>۱۲ ماه</td><td>۲۰ روز</td><td>۴٪</td><td>۱۰۰٪ آورده تفاهم‌نامه</td></tr>
-<tr><td>۲۴ ماه</td><td>۴۰ روز</td><td>۴٪</td><td>۱۰۰٪ آورده تفاهم‌نامه</td></tr>
-</table>
-</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('sarv2', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۴</span> 📊 جدول شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body"><table><tr><th>مدت بازپرداخت</th><th>مدت زمان انتظار</th><th>نرخ کارمزد</th><th>میزان حمایت بانک</th></tr><tr><td>۱۲ ماه</td><td>۲۰ روز</td><td>۴٪</td><td>۱۰۰٪ آورده تفاهم‌نامه</td></tr><tr><td>۲۴ ماه</td><td>۴۰ روز</td><td>۴٪</td><td>۱۰۰٪ آورده تفاهم‌نامه</td></tr></table></div></div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('sarv2', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- توسکا -->
 <div class="card" id="plan-tooska" style="--theme-color: #16a085; --theme-light: #e0f2f1; --theme-text: #0e6655;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح توسکا</div>
-<div class="c-body">
-<span class="badge">حقوق محور - کد ۲۳۳</span>
+<div class="c-body"><span class="badge">حقوق محور - کد ۲۳۳</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">کارفرمایان با پوز فعال و واریز حقوق.</div></div>
 <div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۲</span> ✅ شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">دستگاه پوز فعال، واریز حقوق کارکنان.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('tooska', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('tooska', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- نجم (تکمیل شده با جدول) -->
 <div class="card" id="plan-najm" style="--theme-color: #f1c40f; --theme-light: #fef9e7; --theme-text: #8a6a0f;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نجم</div>
-<div class="c-body">
-<span class="badge">حمایتی - کد ۱۸۳</span>
+<div class="c-body"><span class="badge">حمایتی - کد ۱۸۳</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">مددجویان، معلولان، بانوان سرپرست، عشایر.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف: ۵۰۰ میلیون تومان. کارمزد ۲ تا ۴٪. <b>ضریب ۱۱۵٪ نسبت به طرح‌های عادی</b> (یعنی با معدل کمتر، وام بیشتری می‌گیرید).</div></div>
-<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۳</span> 📊 جدول شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body">
-<table>
-<tr><th>مدت بازپرداخت</th><th>نرخ کارمزد</th><th>سقف تسهیلات</th></tr>
-<tr><td>تا ۶۰ ماه</td><td>۲ تا ۴ درصد</td><td>۵۰۰ میلیون تومان</td></tr>
-</table>
-</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('najm', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="acc-box c-green"><div class="acc-header"><span><span class="s-num">۳</span> 📊 جدول شرایط</span> <span class="acc-arrow">▼</span></div><div class="acc-body"><table><tr><th>مدت بازپرداخت</th><th>نرخ کارمزد</th><th>سقف تسهیلات</th></tr><tr><td>تا ۶۰ ماه</td><td>۲ تا ۴ درصد</td><td>۵۰۰ میلیون تومان</td></tr></table></div></div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('najm', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- کرامت -->
 <div class="card" id="plan-karamat" style="--theme-color: #34495e; --theme-light: #e4e8eb; --theme-text: #1b2631;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح کرامت</div>
-<div class="c-body">
-<span class="badge">حمایتی - کد ۲۰۹</span>
+<div class="c-body"><span class="badge">حمایتی - کد ۲۰۹</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اشخاص حقوقی در حوزه بانکداری اجتماعی جهت پرداخت تسهیلات به مستمری‌بگیران.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💵 مشخصات و سقف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف تسهیلات حقیقی: <b>۵ میلیارد ریال (۵۰۰ میلیون تومان)</b>. نرخ کارمزد: <b>۴٪</b>. سقف مدت بازپرداخت: <b>۳۶ ماه</b>.</div></div>
 <div class="acc-box c-red"><div class="acc-header"><span><span class="s-num">۴</span> 💵 کارمزد و ضمانت</span> <span class="acc-arrow">▼</span></div><div class="acc-body">نیازمند انعقاد تفاهم‌نامه با نهاد حمایتی مربوطه است.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> واریز مستمری و انتخاب طرح</div><div class="q-step-desc">مستمری شما باید واریز شود تا امتیاز کسب کنید. سپس طرح کرامت را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('karamat', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- رضوان -->
 <div class="card" id="plan-radvan" style="--theme-color: #3498db; --theme-light: #eaf3fd; --theme-text: #1a5490;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح رضوان</div>
-<div class="c-body">
-<span class="badge">حمایتی - کد ۱۸۱</span>
+<div class="c-body"><span class="badge">حمایتی - کد ۱۸۱</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سازمان‌های حمایتی (کمیته امداد، بهزیستی و...).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">مخصوص افراد معرفی‌شده از سوی این سازمان‌ها. سقف: ۵ میلیارد ریال. کارمزد ۲ تا ۴٪.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('radvan', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('radvan', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- نصر -->
 <div class="card" id="plan-nasr" style="--theme-color: #d35400; --theme-light: #fbeee6; --theme-text: #873600;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح نصر (حقیقی)</div>
-<div class="c-body">
-<span class="badge">حمایتی - کد ۲۴۷/۲۵۷</span>
+<div class="c-body"><span class="badge">حمایتی - کد ۲۴۷/۲۵۷</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">افراد معرفی شده از سوی نهادهای حمایتی.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف: ۱۵۰ میلیون تومان. کارمزد ۴٪ (از منابع بانک) یا صفر (از بانکداری اجتماعی).</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('nasr', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('nasr', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- یاقوت -->
 <div class="card" id="plan-yaghot" style="--theme-color: #c0392b; --theme-light: #fdeaea; --theme-text: #7b241c;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح یاقوت</div>
-<div class="c-body">
-<span class="badge">شرکتی - کد ۱۸۰/۸۵۰</span>
+<div class="c-body"><span class="badge">شرکتی - کد ۱۸۰/۸۵۰</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سازمان‌ها و شرکت‌ها (برای معرفی کارکنان).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">بر اساس <b>گردش منابع شرکت</b> نزد بانک و تفاهم‌نامه منعقده. سقف: ۵ میلیارد ریال (حقیقی) و ۱۵ میلیارد ریال (حقوقی). کارمزد ۰ تا ۴٪.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('yaghot', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('yaghot', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- یاقوت با حفظ مبلغ ثابت -->
 <div class="card" id="plan-yaghot_fixed" style="--theme-color: #c0392b; --theme-light: #fdeaea; --theme-text: #7b241c;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح یاقوت (با حفظ مبلغ ثابت)</div>
-<div class="c-body">
-<span class="badge">شرکتی - کد ۱۸۰/۸۵۰</span>
+<div class="c-body"><span class="badge">شرکتی - کد ۱۸۰/۸۵۰</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">اشخاص حقوقی که تمایل دارند با حفظ مبلغ ثابت نزد بانک، برای کارکنان خود تسهیلات بگیرند.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💵 مشخصات و سقف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">سقف: ۵ میلیارد ریال (حقیقی) و ۱۵ میلیارد ریال (حقوقی). نرخ کارمزد: ۴٪. مدت بازپرداخت: ۶۰ ماه.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> حفظ مبلغ ثابت</div><div class="q-step-desc">مبلغ توافقی را به مدت ۱ تا ۱۲ ماه در حساب خود نگه دارید تا میانگین ایجاد شود.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح یاقوت را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('yaghot_fixed', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> حفظ مبلغ ثابت</div><div class="q-step-desc">مبلغ توافقی را به مدت ۱ تا ۱۲ ماه در حساب خود نگه دارید تا میانگین ایجاد شود.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">4</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح یاقوت را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('yaghot_fixed', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- الماس -->
 <div class="card" id="plan-almas" style="--theme-color: #7f8c8d; --theme-light: #f0f3f4; --theme-text: #424949;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح الماس</div>
-<div class="c-body">
-<span class="badge">شرکتی - تفاهم‌نامه</span>
+<div class="c-body"><span class="badge">شرکتی - تفاهم‌نامه</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">شرکت‌های سهامی و مشمول قانون تجارت (برای معرفی کارکنان).</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">حمایت بانک تا سقف ۵ میلیارد ریال. کارمزد ۴٪ (از منابع بانک) و ۲٪ (از منابع مشتری).</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('almas', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('almas', this)">🔊 شنیدن توضیحات</button></div></div>
 
-<!-- فیروزه -->
 <div class="card" id="plan-firoozeh" style="--theme-color: #1abc9c; --theme-light: #e0f2f1; --theme-text: #0e6655;">
 <div class="c-title" style="background-color: var(--theme-color); color: white; border-color: var(--theme-color);">طرح فیروزه</div>
-<div class="c-body">
-<span class="badge">شرکتی - کد ۱۵۱</span>
+<div class="c-body"><span class="badge">شرکتی - کد ۱۵۱</span>
 <div class="acc-box c-blue"><div class="acc-header"><span><span class="s-num">۱</span> 🎯 جامعه هدف</span> <span class="acc-arrow">▼</span></div><div class="acc-body">شرکت‌هایی که حقوق کارکنان را از بانک واریز می‌کنند.</div></div>
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">وام تا <b>حداکثر ۵ درصد مجموع حقوق واریزی ماهیانه</b> محاسبه می‌شود. سقف: ۵ میلیارد ریال. کارمزد ۴٪.</div></div>
-<div class="dual-action-container">
-<div class="dual-action-btns">
-<div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div>
-<div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div>
-</div>
-<div class="dual-action-content calc-content-wrapper"></div>
-<div class="dual-action-content qbank-content-wrapper">
-<div class="q-steps">
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div>
-<div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div>
-</div>
-<a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a>
-</div>
-</div>
-<button class="speak-btn" onclick="readPlan('firoozeh', this)">🔊 شنیدن توضیحات</button>
-</div>
-</div>
-
+<div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('firoozeh', this)">🔊 شنیدن توضیحات</button></div></div>
 </div>
 
 <script>
-// 🔴 لینک exec جدید خود را دقیقاً بین این دو دابل کوتیشن بچسبانید
+// 🔴 لینک exec خود را دقیقاً بین این دو دابل کوتیشن بچسبانید
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
 
-// ==========================================
-// توابع دو مستطیل (ماشین حساب و کیوبانک)
-// ==========================================
 function toggleCardAction(btn, type) {
 const container = btn.closest('.dual-action-container');
 const calcBtn = container.querySelector('.calc-btn-trigger');
 const qbankBtn = container.querySelector('.qbank-btn-trigger');
 const calcContent = container.querySelector('.calc-content-wrapper');
 const qbankContent = container.querySelector('.qbank-content-wrapper');
-
-// ریست کردن همه
 calcBtn.classList.remove('active');
 qbankBtn.classList.remove('active');
 calcContent.style.display = 'none';
 qbankContent.style.display = 'none';
-
 if (type === 'calc') {
 calcBtn.classList.add('active');
 calcContent.style.display = 'block';
@@ -805,14 +493,8 @@ qbankContent.style.display = 'block';
 }
 }
 
-function toggleQbankStep(stepEl) {
-stepEl.classList.toggle('active-q-step');
-}
+function toggleQbankStep(stepEl) { stepEl.classList.toggle('active-q-step'); }
 
-
-// ==========================================
-// سیستم صوتی (TTS) - دقیقا کپی شده از کد سالم قدیمی
-// ==========================================
 var persianVoice = null;
 var isPlaying = false;
 var googleAudio = null;
@@ -831,9 +513,7 @@ loadVoices();
 
 document.addEventListener('touchstart', function() {
 if ('speechSynthesis' in window) {
-var u = new SpeechSynthesisUtterance(' ');
-u.volume = 0;
-window.speechSynthesis.speak(u);
+var u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u);
 }
 }, { once: true });
 
@@ -842,7 +522,6 @@ if (!text) return;
 window.speechSynthesis.cancel();
 if (googleAudio) { googleAudio.pause(); googleAudio = null; }
 isPlaying = true;
-
 if ('speechSynthesis' in window) {
 var u = new SpeechSynthesisUtterance(text);
 if (persianVoice) { u.voice = persianVoice; u.lang = 'fa-IR'; }
@@ -903,9 +582,6 @@ if (btn) btn.classList.add('active');
 readText(pTexts[key]);
 }
 
-// ==========================================
-// دیتابیس ضرایب ماشین‌حساب
-// ==========================================
 const T4 = {6:[.312,.632,.949,1.265,1.581,1.897,2.213,2.529,2.846,3.162,3.478,3.794],12:[.187,.383,.574,.765,.957,1.148,1.340,1.531,1.722,1.914,2.105,2.296],18:[.152,.312,.469,.655,.781,.937,1.093,1.249,1.406,1.562,1.718,1.874],24:[.120,.248,.373,.497,.621,.745,.869,.993,1.118,1.242,1.366,1.490],30:[.096,.200,.300,.400,.500,.600,.701,.801,.901,1.002,1.102,1.202],36:[.080,.168,.253,.337,.421,.505,.589,.673,.758,.842,.926,1.010],42:[.069,.145,.218,.291,.364,.436,.509,.582,.655,.727,.800,.873],48:[.060,.128,.193,.257,.321,.385,.449,.513,.578,.642,.706,.770],54:[.053,.115,.173,.231,.289,.347,.404,.462,.520,.578,.635,.693],60:[.048,.104,.157,.209,.261,.313,.365,.417,.470,.522,.574,.666]};
 const T3 = {6:[.281,.569,.854,1.138,1.423,1.707,1.992,2.276,2.561,2.846,3.130,3.415],12:[.168,.344,.517,.689,.861,1.033,1.206,1.378,1.550,1.722,1.895,2.067],18:[.114,.234,.352,.469,.586,.703,.821,.938,1.055,1.172,1.290,1.407],24:[.108,.224,.335,.447,.559,.671,.782,.894,1.006,1.118,1.229,1.341],30:[.086,.180,.270,.360,.450,.540,.631,.721,.811,.902,.992,1.082],36:[.072,.152,.227,.303,.379,.455,.530,.606,.682,.758,.832,.909],42:[.062,.131,.196,.262,.327,.393,.458,.524,.589,.655,.720,.786],48:[.054,.116,.173,.231,.289,.347,.404,.462,.520,.578,.635,.693],54:[.043,.094,.141,.188,.235,.282,.329,.376,.423,.470,.516,.563],60:[.043,.094,.141,.188,.235,.282,.329,.376,.423,.470,.516,.563]};
 const T2 = {6:[.250,.506,.759,1.012,1.265,1.518,1.771,2.023,2.276,2.529,2.782,3.035],12:[.150,.306,.459,.612,.765,.919,1.072,1.225,1.378,1.531,1.684,1.837],18:[.100,.206,.309,.413,.517,.620,.724,.828,.932,1.035,1.139,1.243],24:[.096,.199,.298,.397,.497,.596,.695,.795,.894,.993,1.093,1.192],30:[.077,.160,.240,.321,.401,.481,.561,.642,.722,.802,.883,.963],36:[.064,.135,.202,.269,.337,.404,.471,.539,.606,.673,.741,.808],42:[.055,.116,.174,.232,.291,.349,.407,.465,.524,.582,.640,.698],48:[.048,.103,.154,.205,.257,.308,.359,.411,.462,.513,.565,.616],54:[.043,.094,.141,.188,.235,.282,.329,.376,.423,.470,.516,.563],60:[.038,.083,.125,.167,.209,.250,.292,.334,.376,.417,.459,.501]};
@@ -918,30 +594,10 @@ let employeeInterval = null;
 let seenTicketRows = new Set();
 
 const plansList = {
-general: [
-{ id: 'niloufar', title: 'طرح نیلوفر' },
-{ id: 'noora', title: 'طرح نورا' },
-{ id: 'shams', title: 'طرح شمس' },
-{ id: 'ardideh', title: 'طرح ارکیده' }
-],
-guilds: [
-{ id: 'naron', title: 'طرح نارون' },
-{ id: 'sarv1', title: 'طرح سرو (بدون تفاهم‌نامه)' },
-{ id: 'sarv2', title: 'طرح سرو (تفاهم‌نامه‌ای)' },
-{ id: 'tooska', title: 'طرح توسکا' }
-],
-support: [
-{ id: 'najm', title: 'طرح نجم' },
-{ id: 'karamat', title: 'طرح کرامت' },
-{ id: 'radvan', title: 'طرح رضوان' },
-{ id: 'nasr', title: 'طرح نصر' }
-],
-corporate: [
-{ id: 'yaghot', title: 'طرح یاقوت' },
-{ id: 'yaghot_fixed', title: 'طرح یاقوت (با حفظ مبلغ ثابت)' },
-{ id: 'almas', title: 'طرح الماس' },
-{ id: 'firoozeh', title: 'طرح فیروزه' }
-]
+general: [ { id: 'niloufar', title: 'طرح نیلوفر' }, { id: 'noora', title: 'طرح نورا' }, { id: 'shams', title: 'طرح شمس' }, { id: 'ardideh', title: 'طرح ارکیده' } ],
+guilds: [ { id: 'naron', title: 'طرح نارون' }, { id: 'sarv1', title: 'طرح سرو (بدون تفاهم‌نامه)' }, { id: 'sarv2', title: 'طرح سرو (تفاهم‌نامه‌ای)' }, { id: 'tooska', title: 'طرح توسکا' } ],
+support: [ { id: 'najm', title: 'طرح نجم' }, { id: 'karamat', title: 'طرح کرامت' }, { id: 'radvan', title: 'طرح رضوان' }, { id: 'nasr', title: 'طرح نصر' } ],
+corporate: [ { id: 'yaghot', title: 'طرح یاقوت' }, { id: 'yaghot_fixed', title: 'طرح یاقوت (با حفظ مبلغ ثابت)' }, { id: 'almas', title: 'طرح الماس' }, { id: 'firoozeh', title: 'طرح فیروزه' } ]
 };
 
 const planColors = {
@@ -996,13 +652,11 @@ showGuideStep(2);
 function selectGuidePlan(planId) {
 const container = document.getElementById('guide-details-container');
 container.innerHTML = '';
-
 const originalCard = document.getElementById('plan-' + planId);
 if(originalCard) {
 const clone = originalCard.cloneNode(true);
 clone.style.display = 'block';
 container.appendChild(clone);
-// فقط پرده‌های توضیحات را مدیریت میکنیم، صدا با onclick داخلی کار میکند
 const accHeaders = clone.querySelectorAll('.acc-header');
 accHeaders.forEach(header => {
 header.addEventListener('click', function() {
@@ -1023,28 +677,15 @@ showGuideStep(3);
 
 function renderCalculator(planId, container) {
 if(!container) return;
-
-let maxLoan = 500000000;
-let defaultFee = 4;
-let showFeeSelector = true;
-let multiplier = 1.0;
-
+let maxLoan = 500000000; let defaultFee = 4; let showFeeSelector = true; let multiplier = 1.0;
 if(planId === 'noora') { showFeeSelector = false; defaultFee = 0; }
 if(planId === 'najm') { multiplier = 1.15; }
 if(planId === 'naron') { maxLoan = 1000000000; }
-
 let html = `
 <div class="calc-box">
-<div class="form-group">
-<label>مبلغ سپرده / معدل (تومان):</label>
-<input type="text" id="dep-${planId}" placeholder="مثلاً 100,000,000">
-</div>
-<div class="form-group">
-<label>دوره معدل‌گیری (ماه):</label>
-<input type="number" id="per-${planId}" placeholder="بین ۱ تا ۱۲" min="1" max="12">
-</div>
+<div class="form-group"><label>مبلغ سپرده / معدل (تومان):</label><input type="text" id="dep-${planId}" placeholder="مثلاً 100,000,000"></div>
+<div class="form-group"><label>دوره معدل‌گیری (ماه):</label><input type="number" id="per-${planId}" placeholder="بین ۱ تا ۱۲" min="1" max="12"></div>
 `;
-
 if(showFeeSelector) {
 html += `
 <label>نرخ کارمزد:</label>
@@ -1055,14 +696,12 @@ html += `
 </div>
 `;
 }
-
 html += `
 <button type="button" class="btn btn-secondary" onclick="calculateLoan('${planId}', ${maxLoan}, ${defaultFee}, ${multiplier})">محاسبه وام</button>
 <div id="res-${planId}"></div>
 </div>
 `;
 container.innerHTML = html;
-
 document.getElementById('dep-' + planId).addEventListener('input', function() {
 let r = this.value.replace(/[^\d]/g, '');
 this.value = r ? parseInt(r).toLocaleString('en-US') : '';
@@ -1083,46 +722,30 @@ function calculateLoan(planId, maxLoan, defaultFee, multiplier) {
 const depEl = document.getElementById('dep-' + planId);
 const perEl = document.getElementById('per-' + planId);
 const resEl = document.getElementById('res-' + planId);
-
 let d = parseFloat(depEl.value.replace(/,/g, '')) || 0;
 let p = parseInt(perEl.value) || 0;
-
 if (d <= 0) { alert('مبلغ سپرده را وارد کنید'); return; }
 if (p < 1 || p > 12) { alert('دوره معدل‌گیری باید بین ۱ تا ۱۲ ماه باشد'); return; }
-
 let feeRate = window['fee_' + planId] || defaultFee;
 let table = T4;
 if(feeRate === 3) table = T3;
 if(feeRate === 2) table = T2;
 if(planId === 'noora') table = TN;
-
 let h = `<table class="res-table"><thead><tr><th>مدت بازپرداخت</th><th>مبلغ وام (تومان)</th><th>قسط ماهانه (تومان)</th></tr></thead><tbody>`;
 let periods = [6, 12, 18, 24, 30, 36, 42, 48, 54, 60];
-
 periods.forEach(rp => {
 let baseCoeff = table[rp][p - 1] || 0;
 let coeff = baseCoeff * multiplier;
-
 let loanAmount = d * coeff;
 if (loanAmount > maxLoan) loanAmount = maxLoan;
-
 let feeAmount = loanAmount * (feeRate / 100) * (rp / 12);
 let installment = (loanAmount + feeAmount) / rp;
-
-h += `<tr>
-<td>${rp} ماه</td>
-<td><b style="color:#0a4d2e;">${Math.round(loanAmount).toLocaleString('fa-IR')}</b></td>
-<td>${Math.round(installment).toLocaleString('fa-IR')}</td>
-</tr>`;
+h += `<tr><td>${rp} ماه</td><td><b style="color:#0a4d2e;">${Math.round(loanAmount).toLocaleString('fa-IR')}</b></td><td>${Math.round(installment).toLocaleString('fa-IR')}</td></tr>`;
 });
-
 h += `</tbody></table>`;
 resEl.innerHTML = h;
 }
 
-// ==========================================
-// توابع مهر خلوت
-// ==========================================
 function showToast(message) {
 const toast = document.getElementById('toast-notification');
 toast.innerText = message;
@@ -1136,7 +759,6 @@ let username = prompt("لطفاً نام کاربری خود را وارد کن�
 if (username === null || username === "") return;
 let pass = prompt("لطفاً رمز عبور خود را وارد کنید:");
 if (pass === null) return;
-
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: username, pass: pass}) })
 .then(res => res.json())
 .then(data => {
@@ -1157,14 +779,10 @@ let newUsername = prompt("نام کاربری جدید خود را وارد کن
 if (!newUsername) return;
 let newPass = prompt("رمز عبور جدید خود را وارد کنید:");
 if (!newPass) return;
-
-fetch(SCRIPT_URL, {
-method: 'POST',
-body: JSON.stringify({ action: 'changeCredentials', oldUsername, oldPass, newUsername, newPass })
-})
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'changeCredentials', oldUsername, oldPass, newUsername, newPass }) })
 .then(res => res.json())
 .then(data => {
-if (data.success) { alert("✅ مشخصات با موفقیت تغییر کرد. از این به بعد با نام کاربری و رمز جدید وارد شوید."); location.reload(); }
+if (data.success) { alert("✅ مشخصات با موفقیت تغییر کرد."); location.reload(); }
 else { alert("خطا: " + data.error); }
 }).catch(() => alert("خطا در ارتباط با سرور."));
 }
@@ -1212,24 +830,17 @@ let nationalId = document.getElementById('c-nationalId').value;
 let problemType = document.getElementById('c-problemType').value;
 let description = document.getElementById('c-description').value;
 let isValid = true;
-
 if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('c-mobileError').style.display = 'none'; }
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
 if (!isValid) return;
-
 let trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 let department = getDepartment(problemType);
 document.getElementById('submitCustomerBtn').innerText = "در حال ثبت...";
-
 let payload = {
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
-imageBase64: photoBase64,
-department: department,
-trackingCode: trackingCode,
-branch: document.getElementById('c-branch').value
+imageBase64: photoBase64, department: department, trackingCode: trackingCode, branch: document.getElementById('c-branch').value
 };
-
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
 .then(data => {
@@ -1298,14 +909,11 @@ function fetchDepartmentTickets(isInitial = false) {
 const dept = document.getElementById('e-department').value;
 const listContainer = document.getElementById('employee-ticket-list');
 const token = sessionStorage.getItem('adminToken');
-
 if(isInitial) { listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت اطلاعات...</p>'; }
-
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
 .then(res => res.json())
 .then(tickets => {
 if(tickets.error) { listContainer.innerHTML = '<p style="text-align:center; color: red;">دسترسی غیرمجاز.</p>'; return; }
-
 let deptTickets = tickets.filter(t => t.department === dept && t.status !== 'حل شد');
 listContainer.innerHTML = '';
 if (deptTickets.length === 0) {
@@ -1316,23 +924,9 @@ deptTickets.forEach(ticket => {
 seenTicketRows.add(ticket.row);
 let imageHtml = "";
 if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) {
-imageHtml = `
-<div style="margin-top:10px; text-align:center;">
-<p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p>
-<a href="${ticket.imageUrl}" target="_blank">
-<img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;">
-</a>
-</div>`;
+imageHtml = `<div style="margin-top:10px; text-align:center;"><p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p><a href="${ticket.imageUrl}" target="_blank"><img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;"></a></div>`;
 }
-let html = `
-<div class="ticket-card">
-<h4>کد پیگیری: ${ticket.trackingCode} (شعبه: ${ticket.branch})</h4>
-<p><strong>مشخصات مشتری:</strong> ${ticket.name}</p>
-<p><strong>مشکل:</strong> ${ticket.description}</p>
-${imageHtml}
-<div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-${ticket.row}" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div>
-<button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button>
-</div>`;
+let html = `<div class="ticket-card"><h4>کد پیگیری: ${ticket.trackingCode} (شعبه: ${ticket.branch})</h4><p><strong>مشخصات مشتری:</strong> ${ticket.name}</p><p><strong>مشکل:</strong> ${ticket.description}</p>${imageHtml}<div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-${ticket.row}" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div><button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button></div>`;
 listContainer.innerHTML += html;
 });
 })
@@ -1346,6 +940,120 @@ let payload = { action: 'updateStatus', row: row, status: 'حل شد', reply: re
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(() => { alert('تیکت حل شد.'); fetchDepartmentTickets(true); })
 .catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; });
+}
+
+function handleEmployeeSectionChange() {
+const section = document.getElementById('e-section').value;
+if (section === 'tickets') {
+document.getElementById('emp-tickets-section').style.display = 'block';
+document.getElementById('emp-pos-section').style.display = 'none';
+} else {
+document.getElementById('emp-tickets-section').style.display = 'none';
+document.getElementById('emp-pos-section').style.display = 'block';
+fetchPOSRequests();
+}
+}
+
+function updatePOSFileList() {
+const input = document.getElementById('pos-docs');
+const listDiv = document.getElementById('pos-file-list');
+listDiv.innerHTML = input.files.length > 0 ? `✅ ${input.files.length} فایل انتخاب شده` : '';
+}
+
+function submitPOSForm() {
+const name = document.getElementById('pos-name').value;
+const nid = document.getElementById('pos-nid').value;
+const phone = document.getElementById('pos-phone').value;
+const business = document.getElementById('pos-business').value;
+const type = document.getElementById('pos-type').value;
+const address = document.getElementById('pos-address').value;
+const files = document.getElementById('pos-docs').files;
+const btn = document.getElementById('submitPOSBtn');
+btn.innerText = "در حال ارسال..."; btn.disabled = true;
+
+const readFiles = () => {
+return new Promise((resolve) => {
+let fileDataArray = [];
+if (files.length === 0) return resolve(fileDataArray);
+let processed = 0;
+for (let i = 0; i < files.length; i++) {
+const reader = new FileReader();
+reader.onload = function(e) {
+fileDataArray.push({ fileName: files[i].name, mimeType: files[i].type, base64: e.target.result.split(',')[1] });
+processed++;
+if (processed === files.length) resolve(fileDataArray);
+};
+reader.readAsDataURL(files[i]);
+}
+});
+};
+
+readFiles().then(filesData => {
+const payload = { action: 'submitPOS', formData: { name, nid, phone, business, type, address }, files: filesData };
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+.then(() => {
+document.getElementById('posForm').style.display = 'none';
+document.getElementById('pos-resultSection').style.display = 'block';
+})
+.catch(error => {
+alert("خطا در ارسال. لطفاً اینترنت خود را بررسی کنید.");
+btn.innerText = "ارسال درخواست پوز"; btn.disabled = false;
+});
+});
+}
+
+function fetchPOSRequests() {
+const listContainer = document.getElementById('employee-pos-list');
+listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت لیست پوزها...</p>';
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getPOSRequests' }) })
+.then(res => res.json())
+.then(posList => {
+listContainer.innerHTML = '';
+if (posList.length === 0) {
+listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ درخواست پوز در انتظاری وجود ندارد.</p>';
+return;
+}
+posList.forEach(pos => {
+let filesHtml = "";
+if(pos.files) {
+let links = pos.files.split("\n");
+filesHtml = `<p style="font-size:12px; margin-top:5px;"><strong>مدارک:</strong> `;
+links.forEach((link, idx) => { if(link) filesHtml += `<a href="${link}" target="_blank" style="color:#2980b9;">فایل ${idx+1}</a> | `; });
+filesHtml += `</p>`;
+}
+let html = `
+<div class="ticket-card" id="pos-card-${pos.row}">
+<h4>درخواست پوز - ${pos.name}</h4>
+<p><strong>کد ملی:</strong> ${pos.nid} | <strong>تلفن:</strong> ${pos.phone}</p>
+<p><strong>کسب‌وکار:</strong> ${pos.business} (${pos.type})</p>
+<p><strong>آدرس:</strong> ${pos.address}</p>
+${filesHtml}
+<button class="btn btn-resolve" onclick="resolvePOSRequest(${pos.row}, this)">✅ نصب شد / تایید درخواست</button>
+</div>`;
+listContainer.innerHTML += html;
+});
+})
+.catch(err => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در ارتباط با سرور.</p>'; });
+}
+
+function resolvePOSRequest(row, btnElement) {
+if(!confirm("آیا از نصب دستگاه پوز برای این مشتری مطمئن هستید؟")) return;
+btnElement.innerText = "در حال تایید..."; btnElement.disabled = true;
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updatePOSStatus', row: row }) })
+.then(res => res.json())
+.then(data => {
+if(data.success) {
+alert("وضعیت با موفقیت به 'نصب شد' تغییر یافت.");
+document.getElementById('pos-card-' + row).remove();
+} else {
+alert("خطایی رخ داد.");
+btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false;
+}
+})
+.catch(() => {
+alert("خطا در ارتباط با سرور.");
+btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false;
+});
 }
 </script>
 </body>
