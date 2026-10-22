@@ -450,13 +450,29 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="دریافت رمز اول کارت (در صورت عدم امکان غیرحضوری)">دریافت رمز اول کارت (در صورت عدم امکان غیرحضوری)</option>
 </select>
 </div>
+<div class="form-group">
+<label>شعبه مورد نظر:</label>
+<select id="app-branch" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="6400">6400 (مدیریت)</option>
+<option value="6401">6401</option><option value="6402">6402</option><option value="6403">6403</option>
+<option value="6404">6404</option><option value="6405">6405</option><option value="6406">6406</option>
+<option value="6407">6407</option><option value="6408">6408</option><option value="6409">6409</option>
+<option value="6410">6410</option><option value="6411">6411</option><option value="6412">6412</option>
+<option value="6413">6413</option><option value="6414">6414</option><option value="6415">6415</option>
+<option value="6416">6416</option><option value="6417">6417</option><option value="6418">6418</option>
+<option value="6419">6419</option>
+</select>
+</div>
 
 <div class="form-group">
 <label>تاریخ مورد نظر را انتخاب کنید:</label>
 <input type="date" id="app-date" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; direction: ltr; text-align: right;">
 </div>
 
+<!-- ⏰ منوی ساعت‌ها (هر ۲۰ دقیقه) - فقط یکبار اینجا قرار دارد -->
 <div class="form-group">
+<label>ساعت مورد نظر (هر ۲۰ دقیقه یک نوبت):</label>
 <select id="app-time" required>
 <option value="">-- انتخاب کنید --</option>
 <option value="09:00">۰۹:۰۰</option>
@@ -471,6 +487,7 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="12:00">۱۲:۰۰</option>
 </select>
 </div>
+
 <div class="form-group">
 <label>نام و نام خانوادگی:</label>
 <input type="text" id="app-name" required>
@@ -1194,7 +1211,7 @@ btnElement.disabled = true;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteAppointment', row: row }) })
 .then(res => res.json())
 .then(data => {
-if(data.success) {
+if(data.success === true) {
 alert('نوبت با موفقیت حذف شد.');
 fetchAppointments();
 } else {
