@@ -12,7 +12,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .header h1 { font-size: 22px; margin-bottom: 5px; }
 .header p { font-size: 13px; opacity: 0.9; }
 .tabs { display: flex; background: #e9ecef; flex-wrap: wrap; }
-.tab-btn { flex: 1; padding: 15px 5px; border: none; background: transparent; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; min-width: 100px; position: relative; text-align: center; }
+.tab-btn { flex: 1; padding: 15px 5px; border: none; background: transparent; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; transition: 0.3s; border-bottom: 3px solid transparent; min-width: 80px; position: relative; text-align: center; }
 .tab-btn.active { background: #fff; color: #0a4d2e; border-bottom-color: #0a4d2e; }
 .content { padding: 20px; }
 .panel { display: none; }
@@ -20,7 +20,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 .stepper { display: flex; justify-content: space-between; margin-bottom: 25px; position: relative; }
 .stepper::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #e0e0e0; z-index: 1; }
-.step-item { text-align: center; position: relative; z-index: 2; width: 33%; }
+.step-item { text-align: center; position: relative; z-index: 2; width: 25%; }
 .step-circle { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 2px solid #ccc; color: #999; line-height: 26px; margin: 0 auto 5px auto; font-weight: bold; transition: 0.3s; }
 .step-item.active .step-circle { border-color: #0a4d2e; background: #0a4d2e; color: #fff; box-shadow: 0 0 10px rgba(10,77,46,0.3); }
 .step-item.completed .step-circle { border-color: #27ae60; background: #27ae60; color: #fff; }
@@ -124,10 +124,8 @@ tr:nth-child(even) { background: #f8fbf9; }
 .field-hint { font-size: 11px; color: #888; margin-top: 4px; }
 .field-error { color: #c0392b; font-size: 12px; margin-top: 5px; display: none; }
 
-/* 🔴 اصلاح مهم: مخفی کردن زورکی بخش طرح‌ها تا ظاهر سایت به هم نریزد */
 #hidden-plans { display: none !important; }
 
-/* چاپ */
 @media print {
 body { background: #fff !important; padding: 0 !important; }
 .tabs, .tab-btn, .header, .admin-login-link, .stepper,
@@ -167,6 +165,7 @@ body { background: #fff !important; padding: 0 !important; }
 <button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری</button>
 <button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
 <button class="tab-btn" onclick="switchTab('pos', this)">📱 درخواست پوز</button>
+<button class="tab-btn" onclick="switchTab('appointment', this)">📅 نوبت‌دهی</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
 </div>
 
@@ -230,7 +229,6 @@ body { background: #fff !important; padding: 0 !important; }
 <button type="button" class="btn btn-outline" style="border-color: #c0392b; color: #c0392b;" onclick="removePhoto()">حذف عکس انتخاب شده</button>
 </div>
 </div>
-
 
 <div class="btn-row">
 <button type="button" class="btn btn-outline" onclick="prevStep(3)">مرحله قبل</button>
@@ -306,22 +304,34 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
-<!-- ۴. پنل درخواست پوز -->
+<!-- ۴. پنل درخواست پوز (۴ مرحله‌ای) -->
 <div class="content panel" id="panel-pos">
 <div style="text-align: center; margin-bottom: 20px;">
 <h2 style="color: #0a4d2e; margin-bottom: 10px;">درخواست دستگاه کارتخوان (پوز)</h2>
 <p style="font-size: 14px; color: #666;">لطفاً فرم زیر را به‌طور کامل پر کرده و مدارک خود را بارگذاری کنید.</p>
 </div>
+
+<div class="stepper" id="pos-stepper">
+<div class="step-item active" id="pos-ind-1"><div class="step-circle">1</div><div class="step-title">اطلاعات شخصی</div></div>
+<div class="step-item" id="pos-ind-2"><div class="step-circle">2</div><div class="step-title">اطلاعات کسب‌وکار</div></div>
+<div class="step-item" id="pos-ind-3"><div class="step-circle">3</div><div class="step-title">حساب بانکی</div></div>
+<div class="step-item" id="pos-ind-4"><div class="step-circle">4</div><div class="step-title">مدارک و امضا</div></div>
+</div>
+
 <form id="posForm" onsubmit="event.preventDefault(); submitPOSForm();">
 
+<div class="form-step active" id="pos-step-1">
 <h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">👤 اطلاعات شخصی / پذیرنده</h3>
 <div class="form-group"><label>نام و نام خانوادگی / نام شرکت:</label><input type="text" id="pos-name" required></div>
 <div class="form-group"><label>کد ملی / شناسه ملی:</label><input type="text" id="pos-nid" maxlength="11" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"><div class="field-hint">برای اشخاص حقیقی ۱۰ رقم و برای اشخاص حقوقی ۱۱ رقم.</div></div>
 <div class="form-group"><label>شماره تماس همراه:</label><input type="tel" id="pos-phone" maxlength="11" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"><div class="field-error" id="pos-phone-error">شماره همراه باید با ۰۹ شروع شود و ۱۱ رقم باشد.</div></div>
 <div class="form-group"><label>شماره تلفن ثابت (با کد شهر):</label><input type="tel" id="pos-landline" placeholder="مثلاً 02112345678" maxlength="11" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"></div>
 <div class="form-group"><label>ایمیل (اختیاری):</label><input type="email" id="pos-email" placeholder="name@example.com"></div>
+<button type="button" class="btn" onclick="nextPOSStep(1)">مرحله بعد <span style="float:left;">&larr;</span></button>
+</div>
 
-<h3 style="color:#0a4d2e; font-size:15px; margin: 20px 0 12px;">🏪 اطلاعات کسب و کار</h3>
+<div class="form-step" id="pos-step-2">
+<h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">🏪 اطلاعات کسب و کار</h3>
 <div class="form-group"><label>نام کسب و کار (فروشگاه/شرکت):</label><input type="text" id="pos-business" required></div>
 <div class="form-group">
 <label>نوع کسب و کار:</label>
@@ -337,23 +347,15 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 <div class="form-group"><label>شماره جواز کسب / پروانه بهره‌برداری (اختیاری):</label><input type="text" id="pos-license"></div>
 <div class="form-group"><label>کد اقتصادی (اختیاری - مخصوص اشخاص حقوقی):</label><input type="text" id="pos-eco-code" maxlength="14" oninput="this.value = this.value.replace(/[^0-9]/g,'');"></div>
+<div class="form-group"><label>کد رهگیری مالیاتی (اختیاری):</label><input type="text" id="pos-tax-code" maxlength="20" placeholder="مثلاً 12345678901234567890"></div>
+<button type="button" class="btn btn-outline" onclick="prevPOSStep(2)">مرحله قبل</button>
+<button type="button" class="btn" onclick="nextPOSStep(2)">مرحله بعد</button>
+</div>
 
+<div class="form-step" id="pos-step-3">
 <h3 style="color:#0a4d2e; font-size:15px; margin: 20px 0 12px;">📍 آدرس محل کسب و کار</h3>
 <div class="form-group"><label>آدرس دقیق:</label><textarea id="pos-address" rows="3" required></textarea></div>
 <div class="form-group"><label>کد پستی (۱۰ رقم):</label><input type="text" id="pos-postal" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"><div class="field-error" id="pos-postal-error">کد پستی باید دقیقاً ۱۰ رقم باشد.</div></div>
-
-<h3 style="color:#0a4d2e; font-size:15px; margin: 20px 0 12px;">📟 نوع دستگاه</h3>
-<div class="form-group">
-<label>نوع دستگاه پوز درخواستی:</label>
-<select id="pos-deviceType" required>
-<option value="">-- انتخاب کنید --</option>
-<option value="باسیم (ثابت)">باسیم (ثابت)</option>
-<option value="بی‌سیم (سیار / GPRS)">بی‌سیم (سیار / GPRS)</option>
-<option value="Dial-up">Dial-up</option>
-<option value="PC POS">PC POS</option>
-<option value="اندرویدی">اندرویدی</option>
-</select>
-</div>
 
 <div class="bank-section">
 <h3>💳 اطلاعات حساب بانکی (جهت تسویه)</h3>
@@ -379,7 +381,11 @@ body { background: #fff !important; padding: 0 !important; }
 <input type="text" id="pos-account-holder" required>
 </div>
 </div>
+<button type="button" class="btn btn-outline" onclick="prevPOSStep(3)">مرحله قبل</button>
+<button type="button" class="btn" onclick="nextPOSStep(3)">مرحله بعد</button>
+</div>
 
+<div class="form-step" id="pos-step-4">
 <div class="camera-box">
 <p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 آپلود مدارک (کارت ملی، جواز کسب، سند محل)</p>
 <input type="file" id="pos-docs" multiple accept="image/*,application/pdf" style="display: none;" onchange="updatePOSFileList()">
@@ -395,10 +401,12 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 <div class="btn-row">
+<button type="button" class="btn btn-outline" onclick="prevPOSStep(4)">مرحله قبل</button>
 <button type="submit" class="btn" id="submitPOSBtn">ارسال درخواست پوز</button>
-<button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ چاپ / PDF</button>
 </div>
+<button type="button" class="btn btn-secondary" style="margin-top: 10px;" onclick="window.print()">🖨️ چاپ / PDF</button>
 <p style="font-size: 11px; color:#888; text-align:center; margin-top: 6px;">در پنجره چاپ، گزینه «Save as PDF» را برای دانلود انتخاب کنید.</p>
+</div>
 </form>
 
 <div class="result-box" id="pos-resultSection">
@@ -410,8 +418,79 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
-<!-- ۵. پنل کارمند -->
+<!-- ۵. پنل نوبت‌دهی آنلاین (فقط خدمات حضوری) -->
+<div class="content panel" id="panel-appointment">
+<div style="text-align: center; margin-bottom: 20px;">
+<h2 style="color: #0a4d2e; margin-bottom: 10px;">📅 نوبت‌دهی آنلاین</h2>
+<p style="font-size: 14px; color: #666;">فقط برای خدماتی که نیاز به مراجعه حضوری دارند.</p>
+</div>
+
+<div class="form-group">
+<label>نوع خدمت حضوری را انتخاب کنید:</label>
+<select id="app-service-type" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="افتتاح حساب جاری">افتتاح حساب جاری</option>
+<option value="دریافت دسته‌چک">دریافت دسته‌چک</option>
+<option value="رفع مسدودی حساب (با مدارک اصل)">رفع مسدودی حساب (با مدارک اصل)</option>
+<option value="خدمات حقوقی و شرکتی">خدمات حقوقی و شرکتی</option>
+<option value="دریافت رمز اول کارت (در صورت عدم امکان غیرحضوری)">دریافت رمز اول کارت (در صورت عدم امکان غیرحضوری)</option>
+</select>
+</div>
+<div class="form-group">
+<label>شعبه مورد نظر:</label>
+<select id="app-branch" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="6400">6400 (مدیریت)</option>
+<option value="6401">6401</option><option value="6402">6402</option><option value="6403">6403</option>
+<option value="6404">6404</option><option value="6405">6405</option><option value="6406">6406</option>
+<option value="6407">6407</option><option value="6408">6408</option><option value="6409">6409</option>
+<option value="6410">6410</option><option value="6411">6411</option><option value="6412">6412</option>
+<option value="6413">6413</option><option value="6414">6414</option><option value="6415">6415</option>
+<option value="6416">6416</option><option value="6417">6417</option><option value="6418">6418</option>
+<option value="6419">6419</option>
+</select>
+</div>
+<div class="form-group">
+<label>تاریخ مورد نظر (مثلاً 1405/03/20):</label>
+<input type="text" id="app-date" placeholder="1405/03/20" required>
+</div>
+<div class="form-group">
+<label>ساعت مورد نظر:</label>
+<select id="app-time" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="09:00">۰۹:۰۰</option>
+<option value="10:00">۱۰:۰۰</option>
+<option value="11:00">۱۱:۰۰</option>
+<option value="12:00">۱۲:۰۰</option>
+<option value="14:00">۱۴:۰۰</option>
+<option value="15:00">۱۵:۰۰</option>
+<option value="16:00">۱۶:۰۰</option>
+</select>
+</div>
+<div class="form-group">
+<label>نام و نام خانوادگی:</label>
+<input type="text" id="app-name" required>
+</div>
+<div class="form-group">
+<label>شماره همراه:</label>
+<input type="tel" id="app-phone" maxlength="11" required oninput="this.value = this.value.replace(/[^0-9]/g,'');">
+</div>
+<button class="btn" onclick="submitAppointment()">ثبت نوبت</button>
+
+<div class="result-box" id="app-resultSection" style="display: none;">
+<h3>✅ نوبت شما ثبت شد</h3>
+<p>کد پیگیری نوبت:</p>
+<div class="tracking-code" id="app-trackingCode">-----</div>
+<p style="font-size: 13px; color: #555;">لطفاً در تاریخ و ساعت مقرر در شعبه انتخابی حاضر شوید.</p>
+<button class="btn" onclick="location.reload()" style="margin-top: 15px;">نوبت جدید</button>
+</div>
+</div>
+
+<!-- ۶. پنل کارمند -->
 <div class="content panel" id="panel-employee">
+<div style="text-align: center; margin-bottom: 10px; font-size: 13px; color: #0a4d2e;">
+کاربر جاری: <strong id="current-user-display"></strong>
+</div>
 <div style="text-align: left; margin-bottom: 15px;">
 <button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 12px;" onclick="changeCredentials()">🔐 تغییر نام کاربری / رمز</button>
 </div>
@@ -421,6 +500,7 @@ body { background: #fff !important; padding: 0 !important; }
 <select id="e-section" onchange="handleEmployeeSectionChange()">
 <option value="tickets">مدیریت تیکت‌های پشتیبانی</option>
 <option value="pos">مدیریت درخواست‌های پوز (کارتخوان)</option>
+<option value="appointments">مدیریت نوبت‌های آنلاین</option>
 </select>
 </div>
 
@@ -441,6 +521,11 @@ body { background: #fff !important; padding: 0 !important; }
 
 <div id="emp-pos-section" style="display: none;">
 <div id="employee-pos-list" style="margin-top: 20px;"></div>
+</div>
+
+<div id="emp-appointments-section" style="display: none;">
+<h3 style="color: #0a4d2e; margin-bottom: 15px;">📅 نوبت‌های ثبت‌شده</h3>
+<div id="employee-appointments-list"></div>
 </div>
 
 </div>
@@ -619,7 +704,7 @@ else if (type === 'qbank') { qbankBtn.classList.add('active'); qbankContent.styl
 }
 function toggleQbankStep(stepEl) { stepEl.classList.toggle('active-q-step'); }
 
-/* 🔴 اصلاح باگ مرورگرها در پشتیبانی از صدای فارسی */
+/* صدا */
 var persianVoice = null, isPlaying = false, googleAudio = null;
 function loadVoices() {
 if (!('speechSynthesis' in window)) return;
@@ -699,7 +784,11 @@ document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('panel-' + panelId).classList.add('active');
 btnElement.classList.add('active');
-if(panelId === 'employee') { document.getElementById('tab-badge').style.display = 'none'; }
+if(panelId === 'employee') {
+document.getElementById('tab-badge').style.display = 'none';
+const user = sessionStorage.getItem('loggedInUser');
+if (user) { document.getElementById('current-user-display').textContent = user; }
+}
 stopAudio();
 }
 function showStep(step) {
@@ -716,6 +805,43 @@ if(current === 2 && !document.getElementById('c-problemType').value) { alert('ل
 showStep(current + 1);
 }
 function prevStep(current) { showStep(current - 1); }
+
+/* ===== مراحل پوز ===== */
+function nextPOSStep(current) {
+if (current === 1) {
+if (!document.getElementById('pos-name').value || !document.getElementById('pos-nid').value || !document.getElementById('pos-phone').value) {
+alert('لطفاً فیلدهای ضروری مرحله ۱ را پر کنید.'); return;
+}
+if (!/^09\d{9}$/.test(document.getElementById('pos-phone').value)) {
+document.getElementById('pos-phone-error').style.display = 'block'; alert('شماره همراه نامعتبر است.'); return;
+} else { document.getElementById('pos-phone-error').style.display = 'none'; }
+}
+if (current === 2) {
+if (!document.getElementById('pos-business').value || !document.getElementById('pos-type').value) {
+alert('لطفاً فیلدهای ضروری مرحله ۲ را پر کنید.'); return;
+}
+}
+if (current === 3) {
+if (!document.getElementById('pos-address').value || !document.getElementById('pos-postal').value || !document.getElementById('pos-iban').value || !document.getElementById('pos-account').value) {
+alert('لطفاً فیلدهای ضروری مرحله ۳ را پر کنید.'); return;
+}
+if (!/^\d{10}$/.test(document.getElementById('pos-postal').value)) {
+document.getElementById('pos-postal-error').style.display = 'block'; alert('کد پستی باید ۱۰ رقم باشد.'); return;
+} else { document.getElementById('pos-postal-error').style.display = 'none'; }
+if (!validateIBAN(document.getElementById('pos-iban').value)) {
+document.getElementById('pos-iban-error').style.display = 'block'; alert('شماره شبا نامعتبر است.'); return;
+} else { document.getElementById('pos-iban-error').style.display = 'none'; }
+}
+showPOSStep(current + 1);
+}
+function prevPOSStep(current) { showPOSStep(current - 1); }
+function showPOSStep(step) {
+document.querySelectorAll('#panel-pos .form-step').forEach(el => el.classList.remove('active'));
+document.querySelectorAll('#pos-stepper .step-item').forEach(el => el.classList.remove('active', 'completed'));
+document.getElementById('pos-step-' + step).classList.add('active');
+for (let i = 1; i < step; i++) { document.getElementById('pos-ind-' + i).classList.add('completed'); }
+document.getElementById('pos-ind-' + step).classList.add('active');
+}
 
 function showGuideStep(step) {
 document.querySelectorAll('#panel-guide .form-step').forEach(el => el.classList.remove('active'));
@@ -802,7 +928,12 @@ if (pass === null) return;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: username, pass: pass}) })
 .then(res => res.json())
 .then(data => {
-if (data.access) { sessionStorage.setItem('adminToken', data.token); document.getElementById('employee-tab-btn').style.display = 'block'; switchTab('employee', document.getElementById('employee-tab-btn')); }
+if (data.access) {
+sessionStorage.setItem('adminToken', data.token);
+sessionStorage.setItem('loggedInUser', username);
+document.getElementById('employee-tab-btn').style.display = 'block';
+switchTab('employee', document.getElementById('employee-tab-btn'));
+}
 else { alert("نام کاربری یا رمز عبور اشتباه است!"); }
 }).catch(() => alert("خطا در ارتباط با سرور."));
 }
@@ -856,7 +987,6 @@ let payload = {
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
 imageBase64: photoBase64, department: department, trackingCode: trackingCode, branch: document.getElementById('c-branch').value
-
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
@@ -943,10 +1073,76 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus
 }
 function handleEmployeeSectionChange() {
 const section = document.getElementById('e-section').value;
-if (section === 'tickets') { document.getElementById('emp-tickets-section').style.display = 'block'; document.getElementById('emp-pos-section').style.display = 'none'; }
-else { document.getElementById('emp-tickets-section').style.display = 'none'; document.getElementById('emp-pos-section').style.display = 'block'; fetchPOSRequests(); }
+if (section === 'tickets') {
+document.getElementById('emp-tickets-section').style.display = 'block';
+document.getElementById('emp-pos-section').style.display = 'none';
+document.getElementById('emp-appointments-section').style.display = 'none';
+} else if (section === 'pos') {
+document.getElementById('emp-tickets-section').style.display = 'none';
+document.getElementById('emp-pos-section').style.display = 'block';
+document.getElementById('emp-appointments-section').style.display = 'none';
+fetchPOSRequests();
+} else if (section === 'appointments') {
+document.getElementById('emp-tickets-section').style.display = 'none';
+document.getElementById('emp-pos-section').style.display = 'none';
+document.getElementById('emp-appointments-section').style.display = 'block';
+fetchAppointments();
+}
 }
 
+/* ===== نوبت‌دهی ===== */
+function submitAppointment() {
+const serviceType = document.getElementById('app-service-type').value;
+const branch = document.getElementById('app-branch').value;
+const date = document.getElementById('app-date').value;
+const time = document.getElementById('app-time').value;
+const name = document.getElementById('app-name').value;
+const phone = document.getElementById('app-phone').value;
+
+if (!serviceType || !branch || !date || !time || !name || !phone) { alert('لطفاً همه فیلدها را پر کنید.'); return; }
+if (!/^09\d{9}$/.test(phone)) { alert('شماره همراه نامعتبر است.'); return; }
+
+const trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
+
+fetch(SCRIPT_URL, {
+method: 'POST',
+body: JSON.stringify({ action: 'submitAppointment', serviceType, branch, date, time, name, phone, trackingCode })
+})
+.then(res => res.json())
+.then(data => {
+if (data.success) {
+document.getElementById('app-resultSection').style.display = 'block';
+document.getElementById('app-trackingCode').textContent = trackingCode;
+} else { alert('خطا در ثبت نوبت.'); }
+})
+.catch(() => alert('خطا در ارتباط با سرور.'));
+}
+
+function fetchAppointments() {
+const listContainer = document.getElementById('employee-appointments-list');
+listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت نوبت‌ها...</p>';
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAppointments' }) })
+.then(res => res.json())
+.then(list => {
+listContainer.innerHTML = '';
+if (list.length === 0) { listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ نوبتی ثبت نشده است.</p>'; return; }
+list.forEach(item => {
+listContainer.innerHTML += `
+<div class="ticket-card">
+<h4>کد پیگیری: ${item.trackingCode}</h4>
+<p><strong>نوع خدمت:</strong> ${item.serviceType}</p>
+<p><strong>شعبه:</strong> ${item.branch}</p>
+<p><strong>تاریخ نوبت:</strong> ${item.date} - <strong>ساعت:</strong> ${item.time}</p>
+<p><strong>نام:</strong> ${item.name}</p>
+<p><strong>شماره همراه:</strong> ${item.phone}</p>
+</div>
+`;
+});
+})
+.catch(() => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در ارتباط با سرور.</p>'; });
+}
+
+/* ===== پوز ===== */
 function updatePOSFileList() {
 const input = document.getElementById('pos-docs');
 const listDiv = document.getElementById('pos-file-list');
@@ -978,6 +1174,7 @@ const business = document.getElementById('pos-business').value.trim();
 const type = document.getElementById('pos-type').value;
 const license = document.getElementById('pos-license').value.trim();
 const ecoCode = document.getElementById('pos-eco-code').value.trim();
+const taxCode = document.getElementById('pos-tax-code').value.trim();
 const address = document.getElementById('pos-address').value.trim();
 const postal = document.getElementById('pos-postal').value.trim();
 const deviceType = document.getElementById('pos-deviceType').value;
@@ -1018,7 +1215,7 @@ reader.readAsDataURL(files[i]);
 readFiles().then(filesData => {
 const payload = {
 action: 'submitPOS',
-formData: { name, nid, phone, landline, email, business, type, license, ecoCode, address, postal, deviceType, bankName, iban, accountNumber, accountHolder },
+formData: { name, nid, phone, landline, email, business, type, license, ecoCode, taxCode, address, postal, deviceType, bankName, iban, accountNumber, accountHolder },
 files: filesData,
 signature: signatureData
 };
@@ -1033,7 +1230,6 @@ btn.innerText = "ارسال درخواست پوز"; btn.disabled = false;
 });
 });
 }
-
 
 function fetchPOSRequests() {
 const listContainer = document.getElementById('employee-pos-list');
@@ -1059,7 +1255,7 @@ let html = `
 <p><strong>نام پذیرنده:</strong> ${pos.name} | <strong>کد ملی/شناسه:</strong> ${pos.nid}</p>
 <p><strong>همراه:</strong> ${pos.phone} | <strong>ثابت:</strong> ${pos.landline || '-'} | <strong>ایمیل مشتری:</strong> ${pos.email || '-'}</p>
 <p><strong>کسب‌وکار:</strong> ${pos.business} (${pos.type}) | <strong>نوع دستگاه:</strong> ${pos.deviceType || 'ثبت نشده'}</p>
-<p><strong>جواز کسب:</strong> ${pos.license || '-'} | <strong>کد اقتصادی:</strong> ${pos.ecoCode || '-'}</p>
+<p><strong>جواز کسب:</strong> ${pos.license || '-'} | <strong>کد اقتصادی:</strong> ${pos.ecoCode || '-'} | <strong>کد رهگیری مالیاتی:</strong> ${pos.taxCode || '-'}</p>
 <p><strong>آدرس:</strong> ${pos.address} - <strong>کد پستی:</strong> ${pos.postal || '-'}</p>
 <p><strong>بانک عامل:</strong> ${pos.bankName || '-'} | <strong>شبا:</strong> IR${pos.iban || '-'}</p>
 <p><strong>شماره حساب:</strong> ${pos.accountNumber || '-'} | <strong>صاحب حساب:</strong> ${pos.accountHolder || '-'}</p>
