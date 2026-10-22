@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -470,7 +471,7 @@ body { background: #fff !important; padding: 0 !important; }
 <input type="date" id="app-date" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; direction: ltr; text-align: right;">
 </div>
 
-<!-- ⏰ منوی ساعت‌ها (هر ۲۰ دقیقه) - فقط یکبار اینجا قرار دارد -->
+<!-- ⏰ منوی ساعت‌ها (هر ۲۰ دقیقه) -->
 <div class="form-group">
 <label>ساعت مورد نظر (هر ۲۰ دقیقه یک نوبت):</label>
 <select id="app-time" required>
@@ -1161,6 +1162,9 @@ if (!serviceType || !branch || !date || !time || !name || !phone) { alert('لط�
 if (!/^09\d{9}$/.test(phone)) { alert('شماره همراه نامعتبر است.'); return; }
 
 const trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
+const btn = event.target;
+btn.disabled = true;
+btn.innerText = "در حال ثبت...";
 
 fetch(SCRIPT_URL, {
 method: 'POST',
@@ -1171,9 +1175,17 @@ body: JSON.stringify({ action: 'submitAppointment', serviceType, branch, date, t
 if (data.success) {
 document.getElementById('app-resultSection').style.display = 'block';
 document.getElementById('app-trackingCode').textContent = trackingCode;
-} else { alert('خطا در ثبت نوبت.'); }
+} else {
+alert(data.error || 'خطا در ثبت نوبت.');
+btn.disabled = false;
+btn.innerText = "ثبت نوبت";
+}
 })
-.catch(() => alert('خطا در ارتباط با سرور.'));
+.catch(() => {
+alert('خطا در ارتباط با سرور.');
+btn.disabled = false;
+btn.innerText = "ثبت نوبت";
+});
 }
 
 function fetchAppointments() {
