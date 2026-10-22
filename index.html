@@ -35,6 +35,7 @@ body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justif
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #148a4f; outline: none; }
 .btn { display: block; width: 100%; padding: 14px; background: #0a4d2e; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; outline: none; text-align: center;}
 .btn:hover { background: #083d24; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-secondary { background: #d4a017; }
 .btn-danger { background: #c0392b; }
 .btn-outline { background: transparent; border: 2px solid #0a4d2e; color: #0a4d2e; }
@@ -217,6 +218,7 @@ body { background: #fff !important; padding: 0 !important; }
 <div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="مثلاً 0012345678" maxlength="10" required><div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div></div>
 <div class="form-group"><label>توضیح مختصر (اختیاری):</label><textarea id="c-description" placeholder="مشکل خود را کمی توضیح دهید..."></textarea></div>
 
+<!-- 📸 بخش عکس بازگردانده شد -->
 <div class="camera-box">
 <p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 پیوست عکس (اختیاری)</p>
 <img id="c-photoResult" alt="عکس گرفته شده">
@@ -319,7 +321,6 @@ body { background: #fff !important; padding: 0 !important; }
 
 <form id="posForm" onsubmit="event.preventDefault(); submitPOSForm();">
 
-<!-- مرحله ۱: اطلاعات شخصی -->
 <div class="form-step active" id="pos-step-1">
 <h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">👤 اطلاعات شخصی / پذیرنده</h3>
 <div class="form-group"><label>نام و نام خانوادگی / نام شرکت:</label><input type="text" id="pos-name" required></div>
@@ -330,7 +331,6 @@ body { background: #fff !important; padding: 0 !important; }
 <button type="button" class="btn" onclick="nextPOSStep(1)">مرحله بعد <span style="float:left;">&larr;</span></button>
 </div>
 
-<!-- مرحله ۲: اطلاعات کسب‌وکار -->
 <div class="form-step" id="pos-step-2">
 <h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">🏪 اطلاعات کسب و کار</h3>
 <div class="form-group"><label>نام کسب و کار (فروشگاه/شرکت):</label><input type="text" id="pos-business" required></div>
@@ -353,7 +353,6 @@ body { background: #fff !important; padding: 0 !important; }
 <button type="button" class="btn" onclick="nextPOSStep(2)">مرحله بعد</button>
 </div>
 
-<!-- مرحله ۳: آدرس و نوع دستگاه -->
 <div class="form-step" id="pos-step-3">
 <h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">📍 آدرس محل کسب و کار</h3>
 <div class="form-group"><label>آدرس دقیق:</label><textarea id="pos-address" rows="3" required></textarea></div>
@@ -376,7 +375,6 @@ body { background: #fff !important; padding: 0 !important; }
 <button type="button" class="btn" onclick="nextPOSStep(3)">مرحله بعد</button>
 </div>
 
-<!-- مرحله ۴: حساب بانکی، مدارک و امضا -->
 <div class="form-step" id="pos-step-4">
 <div class="bank-section">
 <h3>💳 اطلاعات حساب بانکی (جهت تسویه)</h3>
@@ -469,7 +467,6 @@ body { background: #fff !important; padding: 0 !important; }
 </select>
 </div>
 
-<!-- فیلد تاریخ با تقویم استاندارد مرورگر -->
 <div class="form-group">
 <label>تاریخ مورد نظر را انتخاب کنید:</label>
 <input type="date" id="app-date" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; direction: ltr; text-align: right;">
@@ -801,10 +798,43 @@ document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('panel-' + panelId).classList.add('active');
 btnElement.classList.add('active');
+
 if(panelId === 'employee') {
 document.getElementById('tab-badge').style.display = 'none';
 const user = sessionStorage.getItem('loggedInUser');
+const role = sessionStorage.getItem('role');
+const dept = sessionStorage.getItem('department');
+
 if (user) { document.getElementById('current-user-display').textContent = user; }
+
+const sectionSelect = document.getElementById('e-section');
+const deptSelect = document.getElementById('e-department');
+
+if (role === 'branch') {
+// کارمند شعبه: فقط بخش نوبت‌ها را می‌بیند
+sectionSelect.value = 'appointments';
+Array.from(sectionSelect.options).forEach(opt => {
+if (opt.value !== 'appointments') opt.hidden = true;
+});
+handleEmployeeSectionChange();
+} else if (role === 'department') {
+// کارمند بخش: فقط بخش تیکت‌ها را می‌بیند و واحدش قفل است
+sectionSelect.value = 'tickets';
+Array.from(sectionSelect.options).forEach(opt => {
+if (opt.value !== 'tickets') opt.hidden = true;
+});
+deptSelect.value = dept;
+deptSelect.disabled = true;
+deptSelect.style.backgroundColor = '#e9ecef';
+deptSelect.style.cursor = 'not-allowed';
+handleEmployeeSectionChange();
+} else {
+// مدیر: دسترسی کامل
+Array.from(sectionSelect.options).forEach(opt => opt.hidden = false);
+deptSelect.disabled = false;
+deptSelect.style.backgroundColor = '';
+deptSelect.style.cursor = '';
+}
 }
 stopAudio();
 }
@@ -869,7 +899,7 @@ const list = document.getElementById('guide-plans-list');
 list.innerHTML = '';
 plansList[cat].forEach(plan => {
 let color = planColors[plan.id] || '#0a4d2e';
-list.innerHTML += '<button type="button" class="btn-plan" style="color: ' + color + '; border-color: ' + color + ';" onclick="selectGuidePlan(\'' + plan.id + '\')">' + plan.title + '</button>';
+list.innerHTML += `<button type="button" class="btn-plan" style="color: ${color}; border-color: ${color};" onclick="selectGuidePlan('${plan.id}')">${plan.title}</button>`;
 });
 showGuideStep(2);
 }
@@ -899,9 +929,9 @@ let maxLoan = 500000000; let defaultFee = 4; let showFeeSelector = true; let mul
 if(planId === 'noora') { showFeeSelector = false; defaultFee = 0; }
 if(planId === 'najm') { multiplier = 1.15; }
 if(planId === 'naron') { maxLoan = 1000000000; }
-let html = '<div class="calc-box"><div class="form-group"><label>مبلغ سپرده / معدل (تومان):</label><input type="text" id="dep-' + planId + '" placeholder="مثلاً 100,000,000"></div><div class="form-group"><label>دوره معدل‌گیری (ماه):</label><input type="number" id="per-' + planId + '" placeholder="بین ۱ تا ۱۲" min="1" max="12"></div>';
-if(showFeeSelector) { html += '<label>نرخ کارمزد:</label><div class="fee-row" id="fee-row-' + planId + '"><button type="button" class="fee-btn ' + (defaultFee === 4 ? 'active' : '') + '" onclick="setFee(\'' + planId + '\', 4)">۴٪</button><button type="button" class="fee-btn ' + (defaultFee === 3 ? 'active' : '') + '" onclick="setFee(\'' + planId + '\', 3)">۳٪</button><button type="button" class="fee-btn ' + (defaultFee === 2 ? 'active' : '') + '" onclick="setFee(\'' + planId + '\', 2)">۲٪</button></div>'; }
-html += '<button type="button" class="btn btn-secondary" onclick="calculateLoan(\'' + planId + '\', ' + maxLoan + ', ' + defaultFee + ', ' + multiplier + ')">محاسبه وام</button><div id="res-' + planId + '"></div></div>';
+let html = `<div class="calc-box"><div class="form-group"><label>مبلغ سپرده / معدل (تومان):</label><input type="text" id="dep-${planId}" placeholder="مثلاً 100,000,000"></div><div class="form-group"><label>دوره معدل‌گیری (ماه):</label><input type="number" id="per-${planId}" placeholder="بین ۱ تا ۱۲" min="1" max="12"></div>`;
+if(showFeeSelector) { html += `<label>نرخ کارمزد:</label><div class="fee-row" id="fee-row-${planId}"><button type="button" class="fee-btn ${defaultFee === 4 ? 'active' : ''}" onclick="setFee('${planId}', 4)">۴٪</button><button type="button" class="fee-btn ${defaultFee === 3 ? 'active' : ''}" onclick="setFee('${planId}', 3)">۳٪</button><button type="button" class="fee-btn ${defaultFee === 2 ? 'active' : ''}" onclick="setFee('${planId}', 2)">۲٪</button></div>`; }
+html += `<button type="button" class="btn btn-secondary" onclick="calculateLoan('${planId}', ${maxLoan}, ${defaultFee}, ${multiplier})">محاسبه وام</button><div id="res-${planId}"></div></div>`;
 container.innerHTML = html;
 document.getElementById('dep-' + planId).addEventListener('input', function() { let r = this.value.replace(/[^\d]/g, ''); this.value = r ? parseInt(r).toLocaleString('en-US') : ''; });
 }
@@ -917,14 +947,14 @@ if (d <= 0) { alert('مبلغ سپرده را وارد کنید'); return; }
 if (p < 1 || p > 12) { alert('دوره معدل‌گیری باید بین ۱ تا ۱۲ ماه باشد'); return; }
 let feeRate = window['fee_' + planId] || defaultFee;
 let table = T4; if(feeRate === 3) table = T3; if(feeRate === 2) table = T2; if(planId === 'noora') table = TN;
-let h = '<table class="res-table"><thead><tr><th>مدت بازپرداخت</th><th>مبلغ وام (تومان)</th><th>قسط ماهانه (تومان)</th></tr></thead><tbody>';
+let h = `<table class="res-table"><thead><tr><th>مدت بازپرداخت</th><th>مبلغ وام (تومان)</th><th>قسط ماهانه (تومان)</th></tr></thead><tbody>`;
 [6, 12, 18, 24, 30, 36, 42, 48, 54, 60].forEach(rp => {
 let coeff = (table[rp][p - 1] || 0) * multiplier;
 let loanAmount = Math.min(d * coeff, maxLoan);
 let installment = (loanAmount + loanAmount * (feeRate / 100) * (rp / 12)) / rp;
-h += '<tr><td>' + rp + ' ماه</td><td><b style="color:#0a4d2e;">' + Math.round(loanAmount).toLocaleString('fa-IR') + '</b></td><td>' + Math.round(installment).toLocaleString('fa-IR') + '</td></tr>';
+h += `<tr><td>${rp} ماه</td><td><b style="color:#0a4d2e;">${Math.round(loanAmount).toLocaleString('fa-IR')}</b></td><td>${Math.round(installment).toLocaleString('fa-IR')}</td></tr>`;
 });
-resEl.innerHTML = h + '</tbody></table>';
+resEl.innerHTML = h + `</tbody></table>`;
 }
 
 function showToast(message) {
@@ -945,6 +975,10 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', usern
 if (data.access) {
 sessionStorage.setItem('adminToken', data.token);
 sessionStorage.setItem('loggedInUser', username);
+sessionStorage.setItem('role', data.role);
+sessionStorage.setItem('department', data.department);
+sessionStorage.setItem('branch', data.branch);
+
 document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
 }
@@ -985,6 +1019,9 @@ document.getElementById('photo-remove-box').style.display = 'block';
 function removePhoto() { photoBase64 = ""; photoResult.style.display = 'none'; photoResult.src = ""; document.getElementById('c-fileInput').value = ""; document.getElementById('photo-options').style.display = 'block'; document.getElementById('photo-remove-box').style.display = 'none'; }
 
 function submitCustomerForm() {
+const btn = document.getElementById('submitCustomerBtn');
+if (btn.disabled) return; // جلوگیری از ثبت تکراری با کلیک دوباره
+
 let mobile = document.getElementById('c-mobile').value;
 let nationalId = document.getElementById('c-nationalId').value;
 let problemType = document.getElementById('c-problemType').value;
@@ -996,7 +1033,10 @@ if (!isValid) return;
 
 let trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 let department = getDepartment(problemType);
-document.getElementById('submitCustomerBtn').innerText = "در حال ثبت...";
+
+btn.innerText = "در حال ثبت...";
+btn.disabled = true;
+
 let payload = {
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
@@ -1005,14 +1045,14 @@ imageBase64: photoBase64, department: department, trackingCode: trackingCode, br
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
 .then(data => {
-if(data.result === 'error') { alert("خطا در ثبت: " + data.error); document.getElementById('submitCustomerBtn').innerText = "ثبت نهایی درخواست"; return; }
+if(data.result === 'error') { alert("خطا در ثبت: " + data.error); btn.innerText = "ثبت نهایی درخواست"; btn.disabled = false; return; }
 document.getElementById('ticketForm').style.display = 'none';
 document.getElementById('stepper').style.display = 'none';
 document.getElementById('c-resultSection').style.display = 'block';
 document.getElementById('c-trackingCode').textContent = trackingCode;
-document.getElementById('c-routingInfo').innerHTML = '<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>' + department + '</strong> ارسال شد.';
+document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`;
 })
-.catch(err => { alert("خطا در ارتباط با سرور."); document.getElementById('submitCustomerBtn').innerText = "ثبت نهایی درخواست"; });
+.catch(err => { alert("خطا در ارتباط با سرور."); btn.innerText = "ثبت نهایی درخواست"; btn.disabled = false; });
 }
 
 function startTracking() {
@@ -1071,8 +1111,8 @@ if (deptTickets.length === 0) { listContainer.innerHTML = '<p style="text-align:
 deptTickets.forEach(ticket => {
 seenTicketRows.add(ticket.row);
 let imageHtml = "";
-if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) { imageHtml = '<div style="margin-top:10px; text-align:center;"><p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p><a href="' + ticket.imageUrl + '" target="_blank"><img src="' + ticket.imageUrl + '" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;"></a></div>'; }
-let html = '<div class="ticket-card"><h4>کد پیگیری: ' + ticket.trackingCode + ' (شعبه: ' + ticket.branch + ')</h4><p><strong>مشخصات مشتری:</strong> ' + ticket.name + '</p><p><strong>مشکل:</strong> ' + ticket.description + '</p>' + imageHtml + '<div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-' + ticket.row + '" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div><button class="btn btn-resolve" onclick="resolveTicket(' + ticket.row + ', this)">علامت‌گذاری به عنوان حل شد</button></div>';
+if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) { imageHtml = `<div style="margin-top:10px; text-align:center;"><p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p><a href="${ticket.imageUrl}" target="_blank"><img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;"></a></div>`; }
+let html = `<div class="ticket-card"><h4>کد پیگیری: ${ticket.trackingCode} (شعبه: ${ticket.branch})</h4><p><strong>مشخصات مشتری:</strong> ${ticket.name}</p><p><strong>مشکل:</strong> ${ticket.description}</p>${imageHtml}<div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-${ticket.row}" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div><button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button></div>`;
 listContainer.innerHTML += html;
 });
 })
@@ -1080,10 +1120,11 @@ listContainer.innerHTML += html;
 }
 function resolveTicket(row, btnElement) {
 btnElement.innerText = "در حال ذخیره...";
+btnElement.disabled = true;
 let replyText = document.getElementById('reply-' + row).value;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', row: row, status: 'حل شد', reply: replyText }) })
 .then(() => { alert('تیکت حل شد و فایل عکس آن به سطل زباله گوگل درایو منتقل شد.'); fetchDepartmentTickets(true); })
-.catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; });
+.catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; btnElement.disabled = false; });
 }
 function handleEmployeeSectionChange() {
 const section = document.getElementById('e-section').value;
@@ -1135,23 +1176,48 @@ document.getElementById('app-trackingCode').textContent = trackingCode;
 function fetchAppointments() {
 const listContainer = document.getElementById('employee-appointments-list');
 listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت نوبت‌ها...</p>';
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAppointments' }) })
+// اگر کارمند شعبه است، فقط نوبت‌های شعبه خودش را می‌بیند
+const branchFilter = sessionStorage.getItem('branch') || 'all';
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAppointments', branch: branchFilter }) })
 .then(res => res.json())
 .then(list => {
 listContainer.innerHTML = '';
 if (list.length === 0) { listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ نوبتی ثبت نشده است.</p>'; return; }
 list.forEach(item => {
-listContainer.innerHTML += '<div class="ticket-card"><h4>کد پیگیری: ' + item.trackingCode + '</h4><p><strong>نوع خدمت:</strong> ' + item.serviceType + '</p><p><strong>شعبه:</strong> ' + item.branch + '</p><p><strong>تاریخ نوبت:</strong> ' + item.date + ' - <strong>ساعت:</strong> ' + item.time + '</p><p><strong>نام:</strong> ' + item.name + '</p><p><strong>شماره همراه:</strong> ' + item.phone + '</p></div>';
+listContainer.innerHTML += `
+<div class="ticket-card">
+<h4>کد پیگیری: ${item.trackingCode}</h4>
+<p><strong>نوع خدمت:</strong> ${item.serviceType}</p>
+<p><strong>شعبه:</strong> ${item.branch}</p>
+<p><strong>تاریخ نوبت:</strong> ${item.date} - <strong>ساعت:</strong> ${item.time}</p>
+<p><strong>نام:</strong> ${item.name}</p>
+<p><strong>شماره همراه:</strong> ${item.phone}</p>
+<button class="btn btn-danger" style="margin-top:10px; padding: 8px; font-size:12px;" onclick="deleteAppointment(${item.row}, this)">🗑️ حذف نوبت (پایان یافت)</button>
+</div>
+`;
 });
 })
 .catch(() => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در ارتباط با سرور.</p>'; });
+}
+
+function deleteAppointment(row, btnElement) {
+if(!confirm('آیا از حذف این نوبت اطمینان دارید؟ (این عمل قابل بازگشت نیست)')) return;
+btnElement.innerText = 'در حال حذف...';
+btnElement.disabled = true;
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteAppointment', row: row }) })
+.then(res => res.json())
+.then(data => {
+if(data.success) { alert('نوبت با موفقیت حذف شد.'); fetchAppointments(); }
+else { alert('خطا در حذف.'); btnElement.innerText = '🗑️ حذف نوبت'; btnElement.disabled = false; }
+}).catch(() => { alert('خطا در ارتباط.'); btnElement.innerText = '🗑️ حذف نوبت'; btnElement.disabled = false; });
 }
 
 /* ===== پوز ===== */
 function updatePOSFileList() {
 const input = document.getElementById('pos-docs');
 const listDiv = document.getElementById('pos-file-list');
-listDiv.innerHTML = input.files.length > 0 ? '✅ ' + input.files.length + ' فایل انتخاب شده' : '';
+listDiv.innerHTML = input.files.length > 0 ? `✅ ${input.files.length} فایل انتخاب شده` : '';
 }
 
 function validateIBAN(iban) {
@@ -1176,6 +1242,9 @@ return el.value.trim();
 }
 
 function submitPOSForm() {
+const btn = document.getElementById('submitPOSBtn');
+if (btn.disabled) return; // جلوگیری از ثبت تکراری
+
 const name = safeVal('pos-name');
 const nid = safeVal('pos-nid');
 const phone = safeVal('pos-phone');
@@ -1194,7 +1263,6 @@ const iban = safeVal('pos-iban');
 const accountNumber = safeVal('pos-account');
 const accountHolder = safeVal('pos-account-holder');
 const files = document.getElementById('pos-docs').files;
-const btn = document.getElementById('submitPOSBtn');
 
 if (!/^09\d{9}$/.test(phone)) { document.getElementById('pos-phone-error').style.display = 'block'; alert('شماره همراه نامعتبر است.'); return; }
 else { document.getElementById('pos-phone-error').style.display = 'none'; }
@@ -1271,11 +1339,12 @@ posList.forEach(pos => {
 let filesHtml = "";
 if(pos.files) {
 let links = pos.files.split("\n");
-filesHtml = '<p style="font-size:12px; margin-top:5px;"><strong>مدارک:</strong> ';
-links.forEach((link, idx) => { if(link) filesHtml += '<a href="' + link + '" target="_blank" style="color:#2980b9;">فایل ' + (idx+1) + '</a> | '; });
-filesHtml += '</p>';
+filesHtml = `<p style="font-size:12px; margin-top:5px;"><strong>مدارک:</strong> `;
+links.forEach((link, idx) => { if(link) filesHtml += `<a href="${link}" target="_blank" style="color:#2980b9;">فایل ${idx+1}</a> | `; });
+filesHtml += `</p>`;
 }
 
+// تک دکمه برای تایید نصب (تکراری بودن برطرف شد)
 let html = `
 <div class="ticket-card" id="pos-card-${pos.row}">
 <div id="print-area-${pos.row}">
