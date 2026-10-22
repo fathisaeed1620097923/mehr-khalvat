@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سامانه جامع مهر</title>
+
+<!-- 📅 کتابخانه تقویم شمسی (JalaliDatePicker) -->
+<link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
+<script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, Arial, sans-serif; }
 body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; line-height: 1.8; }
@@ -110,12 +115,10 @@ tr:nth-child(even) { background: #f8fbf9; }
 .toast.show { visibility: visible; opacity: 1; top: 30px; }
 .badge-red { position: absolute; top: 5px; right: 5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; display: none; }
 
-/* کادر امضا */
 .signature-wrap { border: 2px dashed #0a4d2e; border-radius: 12px; background: #fff; padding: 6px; margin-bottom: 8px; }
 .signature-wrap canvas { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; border-radius: 8px; background: #fff; }
 .signature-hint { font-size: 11px; color: #666; margin-bottom: 6px; }
 
-/* بخش حساب بانکی */
 .bank-section { background: #faf8f3; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 2px solid #e0e0e0; }
 .bank-section h3 { color: #0a4d2e; font-size: 15px; margin-bottom: 12px; }
 .iban-input-wrap { display: flex; align-items: center; direction: ltr; }
@@ -125,6 +128,12 @@ tr:nth-child(even) { background: #f8fbf9; }
 .field-error { color: #c0392b; font-size: 12px; margin-top: 5px; display: none; }
 
 #hidden-plans { display: none !important; }
+
+/* استایل تقویم شمسی برای هماهنگی با طراحی */
+.jalali-datepicker { font-family: Tahoma, Arial, sans-serif !important; }
+.jalali-datepicker .jdp-day.jdp-selected { background-color: #0a4d2e !important; }
+.jalali-datepicker .jdp-day.jdp-today { border-color: #0a4d2e !important; }
+.jalali-datepicker .jdp-nav-btn:hover { background-color: #e8f5ec !important; }
 
 @media print {
 body { background: #fff !important; padding: 0 !important; }
@@ -314,12 +323,13 @@ body { background: #fff !important; padding: 0 !important; }
 <div class="stepper" id="pos-stepper">
 <div class="step-item active" id="pos-ind-1"><div class="step-circle">1</div><div class="step-title">اطلاعات شخصی</div></div>
 <div class="step-item" id="pos-ind-2"><div class="step-circle">2</div><div class="step-title">اطلاعات کسب‌وکار</div></div>
-<div class="step-item" id="pos-ind-3"><div class="step-circle">3</div><div class="step-title">حساب بانکی</div></div>
-<div class="step-item" id="pos-ind-4"><div class="step-circle">4</div><div class="step-title">مدارک و امضا</div></div>
+<div class="step-item" id="pos-ind-3"><div class="step-circle">3</div><div class="step-title">آدرس و دستگاه</div></div>
+<div class="step-item" id="pos-ind-4"><div class="step-circle">4</div><div class="step-title">حساب و مدارک</div></div>
 </div>
 
 <form id="posForm" onsubmit="event.preventDefault(); submitPOSForm();">
 
+<!-- مرحله ۱: اطلاعات شخصی -->
 <div class="form-step active" id="pos-step-1">
 <h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">👤 اطلاعات شخصی / پذیرنده</h3>
 <div class="form-group"><label>نام و نام خانوادگی / نام شرکت:</label><input type="text" id="pos-name" required></div>
@@ -330,6 +340,7 @@ body { background: #fff !important; padding: 0 !important; }
 <button type="button" class="btn" onclick="nextPOSStep(1)">مرحله بعد <span style="float:left;">&larr;</span></button>
 </div>
 
+<!-- مرحله ۲: اطلاعات کسب‌وکار -->
 <div class="form-step" id="pos-step-2">
 <h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">🏪 اطلاعات کسب و کار</h3>
 <div class="form-group"><label>نام کسب و کار (فروشگاه/شرکت):</label><input type="text" id="pos-business" required></div>
@@ -352,11 +363,31 @@ body { background: #fff !important; padding: 0 !important; }
 <button type="button" class="btn" onclick="nextPOSStep(2)">مرحله بعد</button>
 </div>
 
+<!-- مرحله ۳: آدرس و نوع دستگاه -->
 <div class="form-step" id="pos-step-3">
-<h3 style="color:#0a4d2e; font-size:15px; margin: 20px 0 12px;">📍 آدرس محل کسب و کار</h3>
+<h3 style="color:#0a4d2e; font-size:15px; margin: 5px 0 12px;">📍 آدرس محل کسب و کار</h3>
 <div class="form-group"><label>آدرس دقیق:</label><textarea id="pos-address" rows="3" required></textarea></div>
 <div class="form-group"><label>کد پستی (۱۰ رقم):</label><input type="text" id="pos-postal" maxlength="10" required oninput="this.value = this.value.replace(/[^0-9]/g,'');"><div class="field-error" id="pos-postal-error">کد پستی باید دقیقاً ۱۰ رقم باشد.</div></div>
 
+<h3 style="color:#0a4d2e; font-size:15px; margin: 20px 0 12px;">📟 نوع دستگاه</h3>
+<div class="form-group">
+<label>نوع دستگاه پوز درخواستی:</label>
+<select id="pos-deviceType" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="باسیم (ثابت)">باسیم (ثابت)</option>
+<option value="بی‌سیم (سیار / GPRS)">بی‌سیم (سیار / GPRS)</option>
+<option value="Dial-up">Dial-up</option>
+<option value="PC POS">PC POS</option>
+<option value="اندرویدی">اندرویدی</option>
+</select>
+</div>
+
+<button type="button" class="btn btn-outline" onclick="prevPOSStep(3)">مرحله قبل</button>
+<button type="button" class="btn" onclick="nextPOSStep(3)">مرحله بعد</button>
+</div>
+
+<!-- مرحله ۴: حساب بانکی، مدارک و امضا -->
+<div class="form-step" id="pos-step-4">
 <div class="bank-section">
 <h3>💳 اطلاعات حساب بانکی (جهت تسویه)</h3>
 <div class="form-group">
@@ -381,11 +412,7 @@ body { background: #fff !important; padding: 0 !important; }
 <input type="text" id="pos-account-holder" required>
 </div>
 </div>
-<button type="button" class="btn btn-outline" onclick="prevPOSStep(3)">مرحله قبل</button>
-<button type="button" class="btn" onclick="nextPOSStep(3)">مرحله بعد</button>
-</div>
 
-<div class="form-step" id="pos-step-4">
 <div class="camera-box">
 <p style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #0a4d2e;">📸 آپلود مدارک (کارت ملی، جواز کسب، سند محل)</p>
 <input type="file" id="pos-docs" multiple accept="image/*,application/pdf" style="display: none;" onchange="updatePOSFileList()">
@@ -418,11 +445,11 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
-<!-- ۵. پنل نوبت‌دهی آنلاین (فقط خدمات حضوری) -->
+<!-- ۵. پنل نوبت‌دهی آنلاین (با تقویم شمسی و ساعت کاری تا ۱۲) -->
 <div class="content panel" id="panel-appointment">
 <div style="text-align: center; margin-bottom: 20px;">
 <h2 style="color: #0a4d2e; margin-bottom: 10px;">📅 نوبت‌دهی آنلاین</h2>
-<p style="font-size: 14px; color: #666;">فقط برای خدماتی که نیاز به مراجعه حضوری دارند.</p>
+<p style="font-size: 14px; color: #666;">فقط برای خدماتی که نیاز به مراجعه حضوری دارند. (ساعت کاری: ۹ تا ۱۲)</p>
 </div>
 
 <div class="form-group">
@@ -430,6 +457,8 @@ body { background: #fff !important; padding: 0 !important; }
 <select id="app-service-type" required>
 <option value="">-- انتخاب کنید --</option>
 <option value="افتتاح حساب جاری">افتتاح حساب جاری</option>
+<option value="افتتاح حساب حقوقی">افتتاح حساب حقوقی (شرکتی)</option>
+<option value="افتتاح حساب برای افراد زیر ۱۸ سال">افتتاح حساب برای افراد زیر ۱۸ سال</option>
 <option value="دریافت دسته‌چک">دریافت دسته‌چک</option>
 <option value="رفع مسدودی حساب (با مدارک اصل)">رفع مسدودی حساب (با مدارک اصل)</option>
 <option value="خدمات حقوقی و شرکتی">خدمات حقوقی و شرکتی</option>
@@ -450,21 +479,21 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="6419">6419</option>
 </select>
 </div>
+
+<!-- 📅 فیلد تاریخ با تقویم شمسی -->
 <div class="form-group">
-<label>تاریخ مورد نظر (مثلاً 1405/03/20):</label>
-<input type="text" id="app-date" placeholder="1405/03/20" required>
+<label>تاریخ مورد نظر را انتخاب کنید:</label>
+<input type="text" id="app-date" data-jdp placeholder="روی فیلد کلیک کنید تا تقویم باز شود" readonly required>
 </div>
+
 <div class="form-group">
-<label>ساعت مورد نظر:</label>
+<label>ساعت مورد نظر (ساعت کاری تا ۱۲):</label>
 <select id="app-time" required>
 <option value="">-- انتخاب کنید --</option>
 <option value="09:00">۰۹:۰۰</option>
 <option value="10:00">۱۰:۰۰</option>
 <option value="11:00">۱۱:۰۰</option>
 <option value="12:00">۱۲:۰۰</option>
-<option value="14:00">۱۴:۰۰</option>
-<option value="15:00">۱۵:۰۰</option>
-<option value="16:00">۱۶:۰۰</option>
 </select>
 </div>
 <div class="form-group">
@@ -689,6 +718,19 @@ function clearSignature(key) { if (signatures[key]) signatures[key].clear(); }
 document.addEventListener('DOMContentLoaded', function() {
 signatures['ticket'] = initSignature('signature-canvas-ticket');
 signatures['pos'] = initSignature('signature-canvas-pos');
+
+// فعال‌سازی تقویم شمسی روی فیلد تاریخ نوبت‌دهی
+if (typeof jalaliDatepicker !== 'undefined') {
+jalaliDatepicker.startWatch({
+selector: 'input[data-jdp]',
+date: true,
+time: false,
+format: 'YYYY/MM/DD',
+placeholder: 'انتخاب تاریخ',
+zIndex: 9999,
+theme: 'default'
+});
+}
 });
 
 function toggleCardAction(btn, type) {
@@ -720,7 +762,6 @@ if ('speechSynthesis' in window) {
 window.speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 }
-
 document.addEventListener('touchstart', function() { if ('speechSynthesis' in window) { var u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); } }, { once: true });
 function readText(text) {
 if (!text) return;
@@ -822,15 +863,12 @@ alert('لطفاً فیلدهای ضروری مرحله ۲ را پر کنید.');
 }
 }
 if (current === 3) {
-if (!document.getElementById('pos-address').value || !document.getElementById('pos-postal').value || !document.getElementById('pos-iban').value || !document.getElementById('pos-account').value) {
+if (!document.getElementById('pos-address').value || !document.getElementById('pos-postal').value || !document.getElementById('pos-deviceType').value) {
 alert('لطفاً فیلدهای ضروری مرحله ۳ را پر کنید.'); return;
 }
 if (!/^\d{10}$/.test(document.getElementById('pos-postal').value)) {
 document.getElementById('pos-postal-error').style.display = 'block'; alert('کد پستی باید ۱۰ رقم باشد.'); return;
 } else { document.getElementById('pos-postal-error').style.display = 'none'; }
-if (!validateIBAN(document.getElementById('pos-iban').value)) {
-document.getElementById('pos-iban-error').style.display = 'block'; alert('شماره شبا نامعتبر است.'); return;
-} else { document.getElementById('pos-iban-error').style.display = 'none'; }
 }
 showPOSStep(current + 1);
 }
@@ -1034,7 +1072,7 @@ fetchDepartmentTickets(true);
 employeeInterval = setInterval(() => {
 const token = sessionStorage.getItem('adminToken');
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
-.then(res => res.json())
+.then(res => ' res.json())
 .then(tickets => {
 let hasNew = false;
 tickets.forEach(t => { if (t.department === dept && t.status !== 'حل شد' && !seenTicketRows.has(t.row)) { hasNew = true; } });
@@ -1057,7 +1095,7 @@ if (deptTickets.length === 0) { listContainer.innerHTML = '<p style="text-align:
 deptTickets.forEach(ticket => {
 seenTicketRows.add(ticket.row);
 let imageHtml = "";
-if (ticket.imageUrl && ticket.imageUrl.startsWith('http')) { imageHtml = `<div style="margin-top:10px; text-align:center;"><p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p><a href="${ticket.imageUrl}" target="_blank"><img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;"></a></div>`; }
+if (POSTticket.imageUrl', && ticket.imageUrl.st bodyartsWith('http')): { imageHtml = `<div style="margin-top JSON:10px; text-align:center;"><p style="font-size:12px; font-weight:bold; margin-bottom:5px;">📷 عکس پیوست:</p><a href="${ticket.imageUrl}" target="_blank"><img src="${ticket.imageUrl}" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid #0a4d2e;"></a></div>`; }
 let html = `<div class="ticket-card"><h4>کد پیگیری: ${ticket.trackingCode} (شعبه: ${ticket.branch})</h4><p><strong>مشخصات مشتری:</strong> ${ticket.name}</p><p><strong>مشکل:</strong> ${ticket.description}</p>${imageHtml}<div class="form-group" style="margin-top:15px; margin-bottom:10px;"><label>پاسخ به مشتری:</label><textarea id="reply-${ticket.row}" placeholder="پاسخ را بنویسید..." style="height: 60px; font-size:12px;"></textarea></div><button class="btn btn-resolve" onclick="resolveTicket(${ticket.row}, this)">علامت‌گذاری به عنوان حل شد</button></div>`;
 listContainer.innerHTML += html;
 });
@@ -1068,7 +1106,7 @@ function resolveTicket(row, btnElement) {
 btnElement.innerText = "در حال ذخیره...";
 let replyText = document.getElementById('reply-' + row).value;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', row: row, status: 'حل شد', reply: replyText }) })
-.then(() => { alert('تیکت حل شد.'); fetchDepartmentTickets(true); })
+.then(() => { alert('تیکت حل شد و فایل عکس آن به سطل زباله گوگل درایو منتقل شد.'); fetchDepartmentTickets(true); })
 .catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; });
 }
 function handleEmployeeSectionChange() {
@@ -1121,7 +1159,7 @@ document.getElementById('app-trackingCode').textContent = trackingCode;
 function fetchAppointments() {
 const listContainer = document.getElementById('employee-appointments-list');
 listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت نوبت‌ها...</p>';
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAppointments' }) })
+fetch(SCRIPT_URL, { method:.stringify({ action: 'getAppointments' }) })
 .then(res => res.json())
 .then(list => {
 listContainer.innerHTML = '';
@@ -1164,24 +1202,30 @@ for (let i = 0; i < numeric.length; i++) rem = (rem * 10 + parseInt(numeric[i]))
 return rem === 1;
 }
 
+function safeVal(id) {
+const el = document.getElementById(id);
+if (!el) { console.warn('⚠️ فیلد یافت نشد: ' + id); return ''; }
+return el.value.trim();
+}
+
 function submitPOSForm() {
-const name = document.getElementById('pos-name').value.trim();
-const nid = document.getElementById('pos-nid').value.trim();
-const phone = document.getElementById('pos-phone').value.trim();
-const landline = document.getElementById('pos-landline').value.trim();
-const email = document.getElementById('pos-email').value.trim();
-const business = document.getElementById('pos-business').value.trim();
-const type = document.getElementById('pos-type').value;
-const license = document.getElementById('pos-license').value.trim();
-const ecoCode = document.getElementById('pos-eco-code').value.trim();
-const taxCode = document.getElementById('pos-tax-code').value.trim();
-const address = document.getElementById('pos-address').value.trim();
-const postal = document.getElementById('pos-postal').value.trim();
-const deviceType = document.getElementById('pos-deviceType').value;
-const bankName = document.getElementById('pos-bank').value;
-const iban = document.getElementById('pos-iban').value.trim();
-const accountNumber = document.getElementById('pos-account').value.trim();
-const accountHolder = document.getElementById('pos-account-holder').value.trim();
+const name = safeVal('pos-name');
+const nid = safeVal('pos-nid');
+const phone = safeVal('pos-phone');
+const landline = safeVal('pos-landline');
+const email = safeVal('pos-email');
+const business = safeVal('pos-business');
+const type = safeVal('pos-type');
+const license = safeVal('pos-license');
+const ecoCode = safeVal('pos-eco-code');
+const taxCode = safeVal('pos-tax-code');
+const address = safeVal('pos-address');
+const postal = safeVal('pos-postal');
+const deviceType = safeVal('pos-deviceType');
+const bankName = safeVal('pos-bank');
+const iban = safeVal('pos-iban');
+const accountNumber = safeVal('pos-account');
+const accountHolder = safeVal('pos-account-holder');
 const files = document.getElementById('pos-docs').files;
 const btn = document.getElementById('submitPOSBtn');
 
@@ -1194,6 +1238,10 @@ else { document.getElementById('pos-postal-error').style.display = 'none'; }
 if (!validateIBAN(iban)) { document.getElementById('pos-iban-error').style.display = 'block'; alert('شماره شبا نامعتبر است (طول یا رقم کنترل اشتباه).'); return; }
 else { document.getElementById('pos-iban-error').style.display = 'none'; }
 
+if (!deviceType) { alert('لطفاً نوع دستگاه پوز را انتخاب کنید.'); return; }
+if (!accountHolder) { alert('لطفاً نام صاحب حساب را وارد کنید.'); return; }
+if (!accountNumber) { alert('لطفاً شماره حساب را وارد کنید.'); return; }
+
 if (!signatures['pos'] || signatures['pos'].isEmpty()) { alert('لطفاً امضای خود را در کادر مربوطه ثبت کنید.'); return; }
 const signatureData = signatures['pos'].getDataURL();
 
@@ -1202,11 +1250,17 @@ btn.innerText = "در حال ارسال..."; btn.disabled = true;
 const readFiles = () => {
 return new Promise((resolve) => {
 let fileDataArray = [];
-if (files.length === 0) return resolve(fileDataArray);
+if (!files || files.length === 0) return resolve(fileDataArray);
 let processed = 0;
 for (let i = 0; i < files.length; i++) {
 const reader = new FileReader();
-reader.onload = function(e) { fileDataArray.push({ fileName: files[i].name, mimeType: files[i].type, base64: e.target.result.split(',')[1] }); processed++; if (processed === files.length) resolve(fileDataArray); };
+reader.onload = (function(idx) {
+return function(e) {
+fileDataArray.push({ fileName: files[idx].name, mimeType: files[idx].type, base64: e.target.result.split(',')[1] });
+processed++;
+if (processed === files.length) resolve(fileDataArray);
+};
+})(i);
 reader.readAsDataURL(files[i]);
 }
 });
@@ -1220,12 +1274,19 @@ files: filesData,
 signature: signatureData
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-.then(() => {
+.then(res => res.json())
+.then(data => {
+if (data.status === 'success') {
 document.getElementById('posForm').style.display = 'none';
 document.getElementById('pos-resultSection').style.display = 'block';
+} else {
+alert('خطا در ثبت: ' + (data.error || 'مشکل ناشناخته'));
+btn.innerText = "ارسال درخواست پوز"; btn.disabled = false;
+}
 })
 .catch(error => {
 alert("خطا در ارسال. لطفاً اینترنت خود را بررسی کنید.");
+console.error(error);
 btn.innerText = "ارسال درخواست پوز"; btn.disabled = false;
 });
 });
@@ -1329,12 +1390,12 @@ else { alert('خطا در ارسال ایمیل: ' + (data.error || 'مشکل ن
 }
 
 function resolvePOSRequest(row, btnElement) {
-if(!confirm("آیا از نصب دستگاه پوز برای این مشتری مطمئن هستید؟")) return;
+if(!confirm("آیا از نصب دستگاه پوز برای این مشتری مطمئن هستید؟\n(با تایید، تمام فایل‌های مدارک و امضا از گوگل درایو به سطل زباله منتقل می‌شوند.)")) return;
 btnElement.innerText = "در حال تایید..."; btnElement.disabled = true;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updatePOSStatus', row: row }) })
 .then(res => res.json())
 .then(data => {
-if(data.success) { alert("وضعیت با موفقیت به 'نصب شد' تغییر یافت."); document.getElementById('pos-card-' + row).remove(); }
+if(data.success) { alert("وضعیت با موفقیت به 'نصب شد' تغییر یافت.\nفایل‌های مدارک و امضا به سطل زباله منتقل شدند."); document.getElementById('pos-card-' + row).remove(); }
 else { alert("خطایی رخ داد."); btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false; }
 })
 .catch(() => { alert("خطا در ارتباط با سرور."); btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false; });
