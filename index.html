@@ -1692,10 +1692,10 @@ if (deptChartInstance) deptChartInstance.destroy();
 deptChartInstance = new Chart(ctxDept, {
 type: 'bar',
 data: {
-labels: data.deptLabels,
+labels: data.branchStats ? data.branchStats.map(item => item.branch) : [],
 datasets: [{
 label: 'تعداد تیکت',
-data: data.deptCounts,
+data: data.branchStats ? data.branchStats.map(item => item.tickets) : [],
 backgroundColor: '#4a90d9',
 borderRadius: 6
 }]
