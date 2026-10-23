@@ -1056,9 +1056,18 @@ h += `<tr><td>${rp} ماه</td><td><b style="color:#0a4d2e;">${Math.round(loanAm
 resEl.innerHTML = h + `</tbody></table>`;
 }
 
-function showToast(message) {
+function showToast(message, type = 'error') {
 const toast = document.getElementById('toast-notification');
-toast.innerText = message; toast.className = "toast show";
+toast.innerText = message;
+
+// تعیین رنگ بر اساس نوع پیام
+if (type === 'success') {
+toast.style.backgroundColor = '#27ae60'; // سبز
+} else {
+toast.style.backgroundColor = '#c0392b'; // قرمز
+}
+
+toast.className = "toast show";
 document.getElementById('notify-sound').play().catch(e => console.log("Sound blocked"));
 setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 5000);
 }
@@ -1081,7 +1090,8 @@ sessionStorage.setItem('branch', data.branch);
 document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
 }
-else { alert("نام کاربری یا رمز عبور اشتباه است!"); }
+else { showToast("نام کاربری یا رمز عبور اشتباه است.", "error"); }
+
 }).catch(() => alert("خطا در ارتباط با سرور."));
 }
 function changeCredentials() {
