@@ -1,9 +1,20 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سامانه جامع مهر</title>
+
+<!-- 🌟 تنظیمات PWA برای نصب روی گوشی -->
+<meta name="theme-color" content="#0a4d2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="سامانه مهر">
+
+<!-- 📊 کتابخانه نمودار Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, Arial, sans-serif; }
 body { background: #f0f5f1; color: #1a2e2a; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; line-height: 1.8; }
@@ -551,6 +562,7 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="tickets">مدیریت تیکت‌های پشتیبانی</option>
 <option value="pos">مدیریت درخواست‌های پوز (کارتخوان)</option>
 <option value="appointments">مدیریت نوبت‌های آنلاین</option>
+<option value="dashboard">📊 داشبورد مدیریت</option>
 </select>
 </div>
 
@@ -576,6 +588,39 @@ body { background: #fff !important; padding: 0 !important; }
 <div id="emp-appointments-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px;">📅 نوبت‌های ثبت‌شده</h3>
 <div id="employee-appointments-list"></div>
+</div>
+
+<!-- 🌟 بخش داشبورد مدیریت (نمودارها) -->
+<div id="emp-dashboard-section" style="display: none;">
+<h3 style="color: #0a4d2e; margin-bottom: 15px; text-align: center;">📊 داشبورد آماری سامانه</h3>
+
+<!-- آمار کلی -->
+<div style="display: flex; gap: 10px; margin-bottom: 20px; text-align: center;">
+<div style="flex: 1; background: #eaf3fd; padding: 15px; border-radius: 10px; border: 1px solid #4a90d9;">
+<h4 style="color: #1a5490; font-size: 13px;">کل تیکت‌ها</h4>
+<span id="stat-total-tickets" style="font-size: 22px; font-weight: bold; color: #1a5490;">0</span>
+</div>
+<div style="flex: 1; background: #fef9e7; padding: 15px; border-radius: 10px; border: 1px solid #d4a017;">
+<h4 style="color: #8a6a0f; font-size: 13px;">کل نوبت‌ها</h4>
+<span id="stat-total-apps" style="font-size: 22px; font-weight: bold; color: #8a6a0f;">0</span>
+</div>
+<div style="flex: 1; background: #e8f5ec; padding: 15px; border-radius: 10px; border: 1px solid #27ae60;">
+<h4 style="color: #1e7a44; font-size: 13px;">کل پوزها</h4>
+<span id="stat-total-pos" style="font-size: 22px; font-weight: bold; color: #1e7a44;">0</span>
+</div>
+</div>
+
+<!-- نمودار وضعیت تیکت‌ها -->
+<div style="background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+<h4 style="text-align: center; margin-bottom: 10px; font-size: 14px; color: #333;">وضعیت تیکت‌های پشتیبانی</h4>
+<canvas id="chart-tickets" height="200"></canvas>
+</div>
+
+<!-- نمودار درخواست‌های هر واحد -->
+<div style="background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+<h4 style="text-align: center; margin-bottom: 10px; font-size: 14px; color: #333;">تیکت‌های هر واحد</h4>
+<canvas id="chart-departments" height="200"></canvas>
+</div>
 </div>
 
 </div>
@@ -740,6 +785,19 @@ function clearSignature(key) { if (signatures[key]) signatures[key].clear(); }
 document.addEventListener('DOMContentLoaded', function() {
 signatures['ticket'] = initSignature('signature-canvas-ticket');
 signatures['pos'] = initSignature('signature-canvas-pos');
+
+// 📅 فعال‌سازی تقویم شمسی
+if (typeof jalaliDatepicker !== 'undefined') {
+jalaliDatepicker.startWatch({
+selector: 'input[data-jdp]',
+date: true,
+time: false,
+format: 'YYYY/MM/DD',
+placeholder: 'انتخاب تاریخ',
+zIndex: 9999,
+theme: 'default'
+});
+}
 });
 
 function toggleCardAction(btn, type) {
@@ -822,6 +880,10 @@ let employeeInterval = null;
 let seenTicketRows = new Set();
 let currentTrackingType = "";
 let currentAppointmentRow = 0;
+
+/* متغیرهای نمودار */
+let ticketsChartInstance = null;
+let deptChartInstance = null;
 
 const plansList = {
 general: [ { id: 'niloufar', title: 'طرح نیلوفر' }, { id: 'noora', title: 'طرح نورا' }, { id: 'shams', title: 'طرح شمس' }, { id: 'ardideh', title: 'طرح ارکیده' } ],
@@ -1214,23 +1276,27 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus
 }
 function handleEmployeeSectionChange() {
 const section = document.getElementById('e-section').value;
+// مخفی کردن همه بخش‌ها
+document.getElementById('emp-tickets-section').style.display = 'none';
+document.getElementById('emp-pos-section').style.display = 'none';
+document.getElementById('emp-appointments-section').style.display = 'none';
+document.getElementById('emp-dashboard-section').style.display = 'none';
+
 if (section === 'tickets') {
 document.getElementById('emp-tickets-section').style.display = 'block';
-document.getElementById('emp-pos-section').style.display = 'none';
-document.getElementById('emp-appointments-section').style.display = 'none';
 } else if (section === 'pos') {
-document.getElementById('emp-tickets-section').style.display = 'none';
 document.getElementById('emp-pos-section').style.display = 'block';
-document.getElementById('emp-appointments-section').style.display = 'none';
 fetchPOSRequests();
 } else if (section === 'appointments') {
-document.getElementById('emp-tickets-section').style.display = 'none';
-document.getElementById('emp-pos-section').style.display = 'none';
 document.getElementById('emp-appointments-section').style.display = 'block';
 fetchAppointments();
+} else if (section === 'dashboard') {
+document.getElementById('emp-dashboard-section').style.display = 'block';
+loadDashboardStats();
 }
 }
 
+/* ===== نوبت‌دهی ===== */
 function checkAvailability() {
 const branch = document.getElementById('app-branch').value;
 const date = document.getElementById('app-date').value;
@@ -1582,6 +1648,72 @@ if(data.success) { alert("وضعیت با موفقیت به 'نصب شد' تغی
 else { alert("خطایی رخ داد."); btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false; }
 })
 .catch(() => { alert("خطا در ارتباط با سرور."); btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false; });
+}
+
+/* ===== توابع داشبورد (نمودار) ===== */
+function loadDashboardStats() {
+const token = sessionStorage.getItem('adminToken');
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getDashboardStats', token: token }) })
+.then(res => res.json())
+.then(data => {
+if(data.error) { alert(data.error); return; }
+
+// آمار کلی
+document.getElementById('stat-total-tickets').innerText = data.totalTickets;
+document.getElementById('stat-total-apps').innerText = data.totalApps;
+document.getElementById('stat-total-pos').innerText = data.totalPOS;
+
+// ۱. نمودار وضعیت تیکت‌ها (دایره‌ای)
+const ctxTickets = document.getElementById('chart-tickets').getContext('2d');
+if (ticketsChartInstance) ticketsChartInstance.destroy(); // پاک کردن نمودار قبلی
+ticketsChartInstance = new Chart(ctxTickets, {
+type: 'doughnut',
+data: {
+labels: ['حل شده', 'در حال بررسی'],
+datasets: [{
+data: [data.resolvedTickets, data.pendingTickets],
+backgroundColor: ['#27ae60', '#d4a017'],
+borderWidth: 1
+}]
+},
+options: {
+responsive: true,
+plugins: {
+legend: { position: 'bottom', labels: { font: { family: 'Tahoma' } } }
+}
+}
+});
+
+// ۲. نمودار تیکت‌های هر واحد (میله‌ای)
+const ctxDept = document.getElementById('chart-departments').getContext('2d');
+if (deptChartInstance) deptChartInstance.destroy();
+deptChartInstance = new Chart(ctxDept, {
+type: 'bar',
+data: {
+labels: data.deptLabels,
+datasets: [{
+label: 'تعداد تیکت',
+data: data.deptCounts,
+backgroundColor: '#4a90d9',
+borderRadius: 6
+}]
+},
+options: {
+responsive: true,
+plugins: {
+legend: { display: false }
+},
+scales: {
+y: { beginAtZero: true, ticks: { stepSize: 1 } }
+}
+}
+});
+})
+.catch(err => {
+console.error("خطا در دریافت آمار:", err);
+alert("خطا در دریافت اطلاعات آماری.");
+});
 }
 </script>
 </body>
