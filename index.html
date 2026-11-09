@@ -5,13 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سامانه جامع مهر</title>
 
-<!-- 🌟 تنظیمات PWA برای نصب روی گوشی -->
 <meta name="theme-color" content="#0a4d2e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="سامانه مهر">
 
-<!-- 📊 کتابخانه نمودار Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -134,7 +132,6 @@ tr:nth-child(even) { background: #f8fbf9; }
 .field-hint { font-size: 11px; color: #888; margin-top: 4px; }
 .field-error { color: #c0392b; font-size: 12px; margin-top: 5px; display: none; }
 
-/* 🌟 استایل نوار پیشرفت (Progress Bar) */
 .progress-container { display: flex; justify-content: space-between; margin: 20px 0; position: relative; }
 .progress-container::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 4px; background: #e0e0e0; z-index: 1; border-radius: 2px; }
 .progress-step { text-align: center; position: relative; z-index: 2; flex: 1; }
@@ -168,6 +165,33 @@ body { background: #fff !important; padding: 0 !important; }
 .footer-print-note { display: block !important; }
 }
 .footer-print-note { display: none; text-align: center; font-size: 11px; color: #666; margin-top: 15px; }
+
+/* ===== 📅 تقویم شمسی جلالی ===== */
+.jalali-calendar { background: #fff; border: 2px solid #0a4d2e; border-radius: 12px; padding: 10px; margin-top: 8px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.jalali-calendar.show { display: block; }
+.jc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 5px; }
+.jc-header button { background: #0a4d2e; color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: bold; }
+.jc-header span { font-weight: bold; color: #0a4d2e; font-size: 14px; }
+.jc-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.jc-grid .jc-day-name { text-align: center; font-size: 11px; font-weight: bold; color: #0a4d2e; padding: 5px 0; background: #eaf3fd; border-radius: 5px; }
+.jc-grid .jc-day { text-align: center; font-size: 12px; padding: 7px 0; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px solid #eee; }
+.jc-grid .jc-day:hover { background: #e8f5ec; border-color: #27ae60; }
+.jc-grid .jc-day.today { background: #d4a017; color: #fff; font-weight: bold; }
+.jc-grid .jc-day.selected { background: #0a4d2e; color: #fff; font-weight: bold; }
+.jc-grid .jc-day.disabled { color: #ccc; background: #f5f5f5; cursor: not-allowed; }
+.jc-grid .jc-day.empty { border: none; background: transparent; cursor: default; }
+
+/* ===== 🪞 آینه احساسات ===== */
+.emotion-counter-box { margin-top: 25px; background: #fff; border-radius: 12px; padding: 15px; border: 2px solid #0a4d2e; }
+.emotion-counter-box h3 { color: #0a4d2e; margin-bottom: 10px; font-size: 15px; }
+.emotion-counter-box .hint { font-size: 12px; color: #666; margin-bottom: 10px; }
+.mirror-qr-result { text-align: center; margin-top: 15px; }
+.emotion-stats-bar { background: #e0e0e0; border-radius: 5px; height: 18px; overflow: hidden; margin-bottom: 8px; }
+.emotion-stats-bar > div { height: 100%; transition: 0.3s; }
+
+/* ===== 💸 ساتنا ===== */
+.satna-result-box { display: none; background: #e8f5ec; border: 2px solid #27ae60; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; }
+.satna-result-box h3 { color: #1e7a44; margin-bottom: 10px; font-size: 18px; }
 </style>
 </head>
 <body>
@@ -187,6 +211,7 @@ body { background: #fff !important; padding: 0 !important; }
 <button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
 <button class="tab-btn" onclick="switchTab('pos', this)">📱 درخواست پوز</button>
 <button class="tab-btn" onclick="switchTab('appointment', this)">📅 نوبت‌دهی</button>
+<button class="tab-btn" onclick="switchTab('satna', this)">💸 درخواست ساتنا</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
 </div>
 
@@ -506,7 +531,8 @@ body { background: #fff !important; padding: 0 !important; }
 
 <div class="form-group">
 <label>تاریخ مورد نظر را انتخاب کنید:</label>
-<input type="date" id="app-date" onchange="checkAvailability()" required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; direction: ltr; text-align: right;">
+<input type="text" id="app-date" placeholder="انتخاب تاریخ (مثلاً 1404/01/15)" onchange="checkAvailability()" onclick="toggleJalaliCalendar('app-date')" readonly required style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; font-size: 14px; cursor: pointer; background: #fff;">
+<div id="jalali-calendar-app-date" class="jalali-calendar"></div>
 </div>
 
 <div class="form-group">
@@ -546,24 +572,84 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
-<!-- ۶. پنل کارمند -->
+<!-- ۶. پنل ساتنا -->
+<div class="content panel" id="panel-satna">
+<div style="text-align:center;margin-bottom:20px;">
+<h2 style="color:#0a4d2e;margin-bottom:10px;">💸 درخواست حواله ساتنا</h2>
+<p style="font-size:14px;color:#666;">عکس برگه ساتنا را آپلود کنید یا اطلاعات را دستی وارد کنید.</p>
+</div>
+
+<div class="form-group">
+<label>شعبه:</label>
+<select id="satna-branch" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="6400">6400</option>
+<option value="6401">6401</option><option value="6402">6402</option><option value="6403">6403</option>
+<option value="6404">6404</option><option value="6405">6405</option><option value="6406">6406</option>
+<option value="6407">6407</option><option value="6408">6408</option><option value="6409">6409</option>
+<option value="6410">6410</option><option value="6411">6411</option><option value="6412">6412</option>
+<option value="6413">6413</option><option value="6414">6414</option><option value="6415">6415</option>
+<option value="6416">6416</option><option value="6417">6417</option><option value="6418">6418</option>
+<option value="6419">6419</option>
+</select>
+</div>
+
+<div class="camera-box">
+<p style="font-size:13px;font-weight:bold;margin-bottom:10px;color:#0a4d2e;">📸 آپلود عکس برگه ساتنا (اختیاری)</p>
+<img id="satna-photoResult" alt="عکس برگه" style="display:none;max-width:100%;border-radius:10px;border:2px solid #0a4d2e;margin-bottom:10px;">
+<input type="file" id="satna-fileInput" accept="image/*" capture="environment" style="display:none;" onchange="handleSatnaFile(event)">
+<button type="button" class="btn btn-secondary" onclick="document.getElementById('satna-fileInput').click()">انتخاب یا گرفتن عکس</button>
+<button type="button" id="satna-removeBtn" class="btn btn-outline" style="display:none;border-color:#c0392b;color:#c0392b;margin-top:8px;" onclick="removeSatnaPhoto()">حذف عکس</button>
+</div>
+
+<div class="form-group">
+<label>شماره برگه سلامت (اگر روی برگه هست):</label>
+<input type="text" id="satna-healthSheet" placeholder="مثلاً ۱۲۳۴۵۶">
+</div>
+<div class="form-group">
+<label>مبلغ (تومان):</label>
+<input type="text" id="satna-amount" placeholder="مثلاً 50,000,000" oninput="this.value=this.value.replace(/[^\d,]/g,'')">
+</div>
+<div class="form-group">
+<label>شماره شبا مقصد (۲۴ رقم بدون IR):</label>
+<div class="iban-input-wrap">
+<span class="iban-prefix">IR</span>
+<input type="text" id="satna-iban" maxlength="24" placeholder="24 رقم" oninput="this.value=this.value.replace(/\D/g,'')">
+</div>
+</div>
+<div class="form-group"><label>نام گیرنده:</label><input type="text" id="satna-receiver"></div>
+<div class="form-group"><label>نام فرستنده:</label><input type="text" id="satna-sender"></div>
+<div class="form-group"><label>کد ملی فرستنده:</label><input type="text" id="satna-nid" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+<div class="form-group"><label>توضیحات:</label><textarea id="satna-note" placeholder="توضیح اختیاری..."></textarea></div>
+
+<button class="btn" id="submitSatnaBtn" onclick="submitSatnaForm()">ارسال درخواست ساتنا</button>
+
+<div class="satna-result-box" id="satna-resultBox">
+<h3>✅ درخواست ساتنا ثبت شد</h3>
+<p>کد تأیید شما:</p>
+<div class="tracking-code" id="satna-code">-----</div>
+<p style="font-size:13px;color:#555;margin-top:10px;">این کد را نزد خود نگه دارید.</p>
+<button class="btn" onclick="location.reload()" style="margin-top:15px;">درخواست جدید</button>
+</div>
+</div>
+<!-- ۷. پنل کارمند -->
 <div class="content panel" id="panel-employee">
 <div style="text-align: center; margin-bottom: 10px; font-size: 13px; color: #0a4d2e;">
 کاربر جاری: <strong id="current-user-display"></strong>
 </div>
 <div style="text-align: left; margin-bottom: 15px;">
-<button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 12px;" onclick="changeCredentials()">🔐 تغییر نام کاربری / رمز</button> 
+<button class="btn btn-outline" style="width: auto; padding: 8px 15px; font-size: 12px;" onclick="changeCredentials()">🔐 تغییر نام کاربری / رمز</button>
 <button onclick="logoutUser()" style="background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-family: Tahoma; font-size: 12px;">🚪 خروج</button>
 </div>
-   
 
-  
 <div class="form-group">
 <label>بخش مورد نظر را انتخاب کنید:</label>
 <select id="e-section" onchange="handleEmployeeSectionChange()">
 <option value="tickets">مدیریت تیکت‌های پشتیبانی</option>
 <option value="pos">مدیریت درخواست‌های پوز (کارتخوان)</option>
 <option value="appointments">مدیریت نوبت‌های آنلاین</option>
+<option value="emotions">🪞 آینه احساسات</option>
+<option value="satna">💸 درخواست‌های ساتنا</option>
 <option value="dashboard">📊 داشبورد مدیریت</option>
 </select>
 </div>
@@ -590,13 +676,50 @@ body { background: #fff !important; padding: 0 !important; }
 <div id="emp-appointments-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px;">📅 نوبت‌های ثبت‌شده</h3>
 <div id="employee-appointments-list"></div>
+
+<!-- 🪞 آینه احساسات - رئیس شعبه -->
+<div class="emotion-counter-box">
+<h3>🪞 آینه احساسات</h3>
+<p class="hint">لینک QR مخصوص هر باجه را چاپ و جلوی آن باجه نصب کنید:</p>
+<div class="form-group">
+<label>شماره باجه:</label>
+<input type="number" id="mirror-counter" min="1" max="20" placeholder="مثلاً 1">
+</div>
+<button class="btn" onclick="generateMirrorQR()" style="background:#d4a017;">📱 تولید QR باجه</button>
+<button class="btn" style="background:#c0392b;" onclick="openManagerEmotionForm()">✍️ ثبت احساس مدیر (رمزدار)</button>
+<div id="mirror-qr-result" class="mirror-qr-result"></div>
+<hr style="margin: 15px 0;">
+<button class="btn" onclick="loadMyEmotionStats()" style="background:#2980b9;">📊 مشاهده آمار احساسات شعبه من</button>
+<div id="emotion-stats-branch" style="margin-top:15px;"></div>
+</div>
 </div>
 
-<!-- 🌟 بخش داشبورد مدیریت (نمودارها) -->
+<div id="emp-emotions-section" style="display: none;">
+<div class="emotion-counter-box">
+<h3>🪞 آینه احساسات - مدیریت</h3>
+<p class="hint">تولید QR برای هر باجه و مشاهده آمار:</p>
+<div class="form-group">
+<label>شماره باجه:</label>
+<input type="number" id="mirror-counter-2" min="1" max="20" placeholder="مثلاً 1">
+</div>
+<button class="btn" onclick="generateMirrorQR2()" style="background:#d4a017;">📱 تولید QR باجه</button>
+<button class="btn" style="background:#c0392b;" onclick="openManagerEmotionForm()">✍️ ثبت احساس مدیر (رمزدار)</button>
+<div id="mirror-qr-result-2" class="mirror-qr-result"></div>
+<hr style="margin: 15px 0;">
+<button class="btn" onclick="loadMyEmotionStats2()" style="background:#2980b9;">📊 مشاهده آمار احساسات</button>
+<div id="emotion-stats-branch-2" style="margin-top:15px;"></div>
+</div>
+</div>
+
+<div id="emp-satna-section" style="display: none;">
+<h3 style="color: #0a4d2e; margin-bottom: 15px;">💸 درخواست‌های ساتنا</h3>
+<div id="employee-satna-list"></div>
+</div>
+
+<!-- 🌟 بخش داشبورد مدیریت -->
 <div id="emp-dashboard-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px; text-align: center;">📊 داشبورد آماری سامانه</h3>
 
-<!-- آمار کلی -->
 <div style="display: flex; gap: 10px; margin-bottom: 20px; text-align: center;">
 <div style="flex: 1; background: #eaf3fd; padding: 15px; border-radius: 10px; border: 1px solid #4a90d9;">
 <h4 style="color: #1a5490; font-size: 13px;">کل تیکت‌ها</h4>
@@ -612,16 +735,21 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
-<!-- نمودار وضعیت تیکت‌ها -->
 <div style="background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
 <h4 style="text-align: center; margin-bottom: 10px; font-size: 14px; color: #333;">وضعیت تیکت‌های پشتیبانی</h4>
 <canvas id="chart-tickets" height="200"></canvas>
 </div>
 
-<!-- نمودار درخواست‌های هر واحد -->
 <div style="background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-<h4 style="text-align: center; margin-bottom: 10px; font-size: 14px; color: #333;">تیکت‌های هر واحد</h4>
+<h4 style="text-align: center; margin-bottom: 10px; font-size: 14px; color: #333;">تیکت‌های هر شعبه</h4>
 <canvas id="chart-departments" height="200"></canvas>
+</div>
+
+<!-- 🪞 آمار احساسات همه شعب (ادمین) -->
+<div style="background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-top: 20px;">
+<h4 style="text-align: center; margin-bottom: 10px; font-size: 14px; color: #333;">🪞 آمار احساسات (همه شعب)</h4>
+<button class="btn" onclick="loadAdminEmotionStats()" style="background:#0a4d2e;">دریافت آمار</button>
+<div id="admin-emotion-stats" style="margin-top: 15px;"></div>
 </div>
 </div>
 
@@ -752,7 +880,6 @@ body { background: #fff !important; padding: 0 !important; }
 <div class="acc-box c-yellow"><div class="acc-header"><span><span class="s-num">۲</span> 💰 نحوه محاسبه</span> <span class="acc-arrow">▼</span></div><div class="acc-body">وام تا <b>حداکثر ۵ درصد مجموع حقوق واریزی ماهیانه</b> محاسبه می‌شود. سقف: ۵ میلیارد ریال. کارمزد ۴٪.</div></div>
 <div class="dual-action-container"><div class="dual-action-btns"><div class="dual-btn calc-btn-trigger" onclick="toggleCardAction(this, 'calc')">🧮 محاسبه معدل فرضی</div><div class="dual-btn qbank-btn-trigger" onclick="toggleCardAction(this, 'qbank')">📲 درخواست از کیوبانک</div></div><div class="dual-action-content calc-content-wrapper"></div><div class="dual-action-content qbank-content-wrapper"><div class="q-steps"><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">1</span> اپلیکیشن کیوبانک را نصب کنید</div><div class="q-step-desc">برای شروع فرآیند دریافت تسهیلات، ابتدا باید اپلیکیشن کیوبانک را نصب نمایید.</div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">2</span> حساب قرض‌الحسنه باز کنید (اگر ندارید)</div><div class="q-step-desc">اگر حساب قرض‌الحسنه ندارید، از طریق لینک زیر اقدام کنید:<br><a href="https://q24.qmehr724.com/qpishkhan/#/" target="_blank" class="action-link">افتتاح حساب قرض‌الحسنه</a></div></div><div class="q-step" onclick="toggleQbankStep(this)"><div class="q-step-title"><span class="q-num">3</span> انتخاب طرح در بخش تسهیلات</div><div class="q-step-desc">در منوی اپلیکیشن به بخش تسهیلات بروید و طرح را انتخاب کنید.</div></div></div><a href="https://qbank24.ir/downloads" target="_blank" class="q-link">📲 دانلود کیوبانک</a></div></div><button class="speak-btn" onclick="readPlan('firoozeh', this)">🔊 شنیدن توضیحات</button></div></div>
 </div>
-
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
 
@@ -787,19 +914,6 @@ function clearSignature(key) { if (signatures[key]) signatures[key].clear(); }
 document.addEventListener('DOMContentLoaded', function() {
 signatures['ticket'] = initSignature('signature-canvas-ticket');
 signatures['pos'] = initSignature('signature-canvas-pos');
-
-// 📅 فعال‌سازی تقویم شمسی
-if (typeof jalaliDatepicker !== 'undefined') {
-jalaliDatepicker.startWatch({
-selector: 'input[data-jdp]',
-date: true,
-time: false,
-format: 'YYYY/MM/DD',
-placeholder: 'انتخاب تاریخ',
-zIndex: 9999,
-theme: 'default'
-});
-}
 });
 
 function toggleCardAction(btn, type) {
@@ -822,8 +936,7 @@ if (!('speechSynthesis' in window)) return;
 var voices = window.speechSynthesis.getVoices();
 for (var i = 0; i < voices.length; i++) {
 if (voices[i].lang === 'fa-IR' || voices[i].name.indexOf('Dariush') !== -1 || voices[i].name.indexOf('Laila') !== -1) {
-persianVoice = voices[i];
-break;
+persianVoice = voices[i]; break;
 }
 }
 }
@@ -843,9 +956,7 @@ u.rate = 0.9;
 u.onend = function(){ isPlaying = false; };
 u.onerror = function(){ playGoogle(text); };
 window.speechSynthesis.speak(u);
-} else {
-playGoogle(text);
-}
+} else { playGoogle(text); }
 }
 function playGoogle(text) { var chunks = text.match(/.{1,150}([.!?]|$)/g) || [text]; var i = 0; function next() { if (i >= chunks.length || !isPlaying) return; var chunk = chunks[i].trim(); if (!chunk) { i++; next(); return; } var url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fa&q=' + encodeURIComponent(chunk); googleAudio = new Audio(url); googleAudio.onended = function(){ i++; next(); }; googleAudio.onerror = function(){ isPlaying = false; }; googleAudio.play().catch(function(){ isPlaying = false; }); } next(); }
 function stopAudio() { isPlaying = false; if ('speechSynthesis' in window) window.speechSynthesis.cancel(); if (googleAudio) { googleAudio.pause(); googleAudio = null; } }
@@ -883,7 +994,6 @@ let seenTicketRows = new Set();
 let currentTrackingType = "";
 let currentAppointmentRow = 0;
 
-/* متغیرهای نمودار */
 let ticketsChartInstance = null;
 let deptChartInstance = null;
 
@@ -898,8 +1008,9 @@ const planColors = { niloufar: '#3498db', noora: '#e74c3c', shams: '#f39c12', ar
 function switchTab(panelId, btnElement) {
 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-document.getElementById('panel-' + panelId).classList.add('active');
-btnElement.classList.add('active');
+const targetPanel = document.getElementById('panel-' + panelId);
+if (targetPanel) targetPanel.classList.add('active');
+if (btnElement) btnElement.classList.add('active');
 
 if(panelId === 'employee') {
 document.getElementById('tab-badge').style.display = 'none';
@@ -915,13 +1026,13 @@ const deptSelect = document.getElementById('e-department');
 if (role === 'branch') {
 sectionSelect.value = 'appointments';
 Array.from(sectionSelect.options).forEach(opt => {
-if (opt.value !== 'appointments') opt.hidden = true;
+if (opt.value !== 'appointments' && opt.value !== 'emotions' && opt.value !== 'satna') opt.hidden = true;
 });
 handleEmployeeSectionChange();
 } else if (role === 'department') {
 sectionSelect.value = 'tickets';
 Array.from(sectionSelect.options).forEach(opt => {
-if (opt.value !== 'tickets') opt.hidden = true;
+if (opt.value !== 'tickets' && opt.value !== 'satna') opt.hidden = true;
 });
 deptSelect.value = dept;
 deptSelect.disabled = true;
@@ -952,28 +1063,17 @@ showStep(current + 1);
 }
 function prevStep(current) { showStep(current - 1); }
 
-/* ===== مراحل پوز ===== */
 function nextPOSStep(current) {
 if (current === 1) {
-if (!document.getElementById('pos-name').value || !document.getElementById('pos-nid').value || !document.getElementById('pos-phone').value) {
-alert('لطفاً فیلدهای ضروری مرحله ۱ را پر کنید.'); return;
-}
-if (!/^09\d{9}$/.test(document.getElementById('pos-phone').value)) {
-document.getElementById('pos-phone-error').style.display = 'block'; alert('شماره همراه نامعتبر است.'); return;
-} else { document.getElementById('pos-phone-error').style.display = 'none'; }
+if (!document.getElementById('pos-name').value || !document.getElementById('pos-nid').value || !document.getElementById('pos-phone').value) { alert('لطفاً فیلدهای ضروری مرحله ۱ را پر کنید.'); return; }
+if (!/^09\d{9}$/.test(document.getElementById('pos-phone').value)) { document.getElementById('pos-phone-error').style.display = 'block'; alert('شماره همراه نامعتبر است.'); return; } else { document.getElementById('pos-phone-error').style.display = 'none'; }
 }
 if (current === 2) {
-if (!document.getElementById('pos-business').value || !document.getElementById('pos-type').value) {
-alert('لطفاً فیلدهای ضروری مرحله ۲ را پر کنید.'); return;
-}
+if (!document.getElementById('pos-business').value || !document.getElementById('pos-type').value) { alert('لطفاً فیلدهای ضروری مرحله ۲ را پر کنید.'); return; }
 }
 if (current === 3) {
-if (!document.getElementById('pos-address').value || !document.getElementById('pos-postal').value || !document.getElementById('pos-deviceType').value) {
-alert('لطفاً فیلدهای ضروری مرحله ۳ را پر کنید.'); return;
-}
-if (!/^\d{10}$/.test(document.getElementById('pos-postal').value)) {
-document.getElementById('pos-postal-error').style.display = 'block'; alert('کد پستی باید ۱۰ رقم باشد.'); return;
-} else { document.getElementById('pos-postal-error').style.display = 'none'; }
+if (!document.getElementById('pos-address').value || !document.getElementById('pos-postal').value || !document.getElementById('pos-deviceType').value) { alert('لطفاً فیلدهای ضروری مرحله ۳ را پر کنید.'); return; }
+if (!/^\d{10}$/.test(document.getElementById('pos-postal').value)) { document.getElementById('pos-postal-error').style.display = 'block'; alert('کد پستی باید ۱۰ رقم باشد.'); return; } else { document.getElementById('pos-postal-error').style.display = 'none'; }
 }
 showPOSStep(current + 1);
 }
@@ -1009,6 +1109,7 @@ const originalCard = document.getElementById('plan-' + planId);
 if(originalCard) {
 const clone = originalCard.cloneNode(true);
 clone.style.display = 'block';
+clone.id = 'clone-' + planId;
 container.appendChild(clone);
 const accHeaders = clone.querySelectorAll('.acc-header');
 accHeaders.forEach(header => {
@@ -1059,14 +1160,7 @@ resEl.innerHTML = h + `</tbody></table>`;
 function showToast(message, type = 'error') {
 const toast = document.getElementById('toast-notification');
 toast.innerText = message;
-
-// تعیین رنگ بر اساس نوع پیام
-if (type === 'success') {
-toast.style.backgroundColor = '#27ae60'; // سبز
-} else {
-toast.style.backgroundColor = '#c0392b'; // قرمز
-}
-
+toast.style.backgroundColor = (type === 'success') ? '#27ae60' : '#c0392b';
 toast.className = "toast show";
 document.getElementById('notify-sound').play().catch(e => console.log("Sound blocked"));
 setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 5000);
@@ -1086,13 +1180,15 @@ sessionStorage.setItem('loggedInUser', username);
 sessionStorage.setItem('role', data.role);
 sessionStorage.setItem('department', data.department);
 sessionStorage.setItem('branch', data.branch);
-
 document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
-}
-else { showToast("نام کاربری یا رمز عبور اشتباه است.", "error"); }
-
+} else { showToast("نام کاربری یا رمز عبور اشتباه است.", "error"); }
 }).catch(() => alert("خطا در ارتباط با سرور."));
+}
+function logoutUser() {
+if (!confirm('از حساب خارج می‌شوید؟')) return;
+sessionStorage.clear();
+location.reload();
 }
 function changeCredentials() {
 let oldUsername = prompt("نام کاربری فعلی خود را وارد کنید:"); if (!oldUsername) return;
@@ -1130,7 +1226,6 @@ function removePhoto() { photoBase64 = ""; photoResult.style.display = 'none'; p
 function submitCustomerForm() {
 const btn = document.getElementById('submitCustomerBtn');
 if (btn.disabled) return;
-
 let mobile = document.getElementById('c-mobile').value;
 let nationalId = document.getElementById('c-nationalId').value;
 let problemType = document.getElementById('c-problemType').value;
@@ -1139,13 +1234,9 @@ let isValid = true;
 if (!/^09\d{9}$/.test(mobile)) { document.getElementById('c-mobileError').style.display = 'block'; isValid = false; } else { document.getElementById('c-mobileError').style.display = 'none'; }
 if (!/^\d{10}$/.test(nationalId)) { document.getElementById('c-nationalIdError').style.display = 'block'; isValid = false; } else { document.getElementById('c-nationalIdError').style.display = 'none'; }
 if (!isValid) return;
-
 let trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 let department = getDepartment(problemType);
-
-btn.innerText = "در حال ثبت...";
-btn.disabled = true;
-
+btn.innerText = "در حال ثبت..."; btn.disabled = true;
 let payload = {
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
@@ -1167,12 +1258,10 @@ document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسید�
 function startTracking() {
 let code = document.getElementById('track-code-input').value;
 if(!code) { alert('لطفاً کد پیگیری را وارد کنید.'); return; }
-
 document.getElementById('track-result-box').style.display = 'block';
 document.getElementById('track-ticket-section').style.display = 'none';
 document.getElementById('track-appointment-section').style.display = 'none';
 document.getElementById('track-status-text').innerText = "در حال دریافت...";
-
 if(trackInterval) clearInterval(trackInterval);
 
 const fetchStatus = () => {
@@ -1183,10 +1272,8 @@ if(data.found) {
 if (data.type === 'ticket') {
 currentTrackingType = 'ticket';
 document.getElementById('track-ticket-section').style.display = 'block';
-
 document.getElementById('track-status-text').innerText = data.status;
 document.getElementById('track-dept-text').innerText = "ارجاع به: " + data.department;
-
 document.querySelectorAll('#track-progress-bar .progress-step').forEach(el => el.classList.remove('active', 'completed'));
 if (data.status === 'در حال بررسی') {
 document.getElementById('prog-1').classList.add('completed');
@@ -1196,11 +1283,9 @@ document.getElementById('prog-1').classList.add('completed');
 document.getElementById('prog-2').classList.add('completed');
 document.getElementById('prog-3').classList.add('completed');
 }
-
 if(data.reply && data.reply.trim() !== "") { document.getElementById('track-reply-box').style.display = 'block'; document.getElementById('track-reply-text').innerText = data.reply; } else { document.getElementById('track-reply-box').style.display = 'none'; }
 if(lastTrackStatus !== "" && lastTrackStatus !== data.status) { showToast("وضعیت درخواست شما تغییر کرد!"); }
 lastTrackStatus = data.status;
-
 } else if (data.type === 'appointment') {
 currentTrackingType = 'appointment';
 currentAppointmentRow = data.row;
@@ -1230,12 +1315,10 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'cancelAppoin
 .then(res => res.json())
 .then(data => {
 if(data.success) {
-alert('نوبت شما با موفقیت لغو شد و این ساعت برای سایرین آزاد گردید.');
+alert('نوبت شما با موفقیت لغو شد.');
 document.getElementById('track-result-box').style.display = 'none';
 if(trackInterval) clearInterval(trackInterval);
-} else {
-alert('خطا در لغو نوبت: ' + (data.error || 'مشکل ناشناخته'));
-}
+} else { alert('خطا در لغو نوبت: ' + (data.error || 'مشکل ناشناخته')); }
 }).catch(() => alert('خطا در ارتباط با سرور.'));
 }
 
@@ -1279,76 +1362,52 @@ listContainer.innerHTML += html;
 .catch(err => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا.</p>'; });
 }
 function resolveTicket(row, btnElement) {
-btnElement.innerText = "در حال ذخیره...";
-btnElement.disabled = true;
+btnElement.innerText = "در حال ذخیره..."; btnElement.disabled = true;
 let replyText = document.getElementById('reply-' + row).value;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', row: row, status: 'حل شد', reply: replyText }) })
-.then(() => { alert('تیکت حل شد و فایل عکس آن به سطل زباله گوگل درایو منتقل شد.'); fetchDepartmentTickets(true); })
+.then(() => { alert('تیکت حل شد.'); fetchDepartmentTickets(true); })
 .catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; btnElement.disabled = false; });
 }
+
 function handleEmployeeSectionChange() {
 const section = document.getElementById('e-section').value;
-// مخفی کردن همه بخش‌ها
 document.getElementById('emp-tickets-section').style.display = 'none';
 document.getElementById('emp-pos-section').style.display = 'none';
 document.getElementById('emp-appointments-section').style.display = 'none';
+document.getElementById('emp-emotions-section').style.display = 'none';
+document.getElementById('emp-satna-section').style.display = 'none';
 document.getElementById('emp-dashboard-section').style.display = 'none';
 
-if (section === 'tickets') {
-document.getElementById('emp-tickets-section').style.display = 'block';
-} else if (section === 'pos') {
-document.getElementById('emp-pos-section').style.display = 'block';
-fetchPOSRequests();
-} else if (section === 'appointments') {
-document.getElementById('emp-appointments-section').style.display = 'block';
-fetchAppointments();
-} else if (section === 'dashboard') {
-document.getElementById('emp-dashboard-section').style.display = 'block';
-loadDashboardStats();
-}
+if (section === 'tickets') { document.getElementById('emp-tickets-section').style.display = 'block'; }
+else if (section === 'pos') { document.getElementById('emp-pos-section').style.display = 'block'; fetchPOSRequests(); }
+else if (section === 'appointments') { document.getElementById('emp-appointments-section').style.display = 'block'; fetchAppointments(); }
+else if (section === 'emotions') { document.getElementById('emp-emotions-section').style.display = 'block'; }
+else if (section === 'satna') { document.getElementById('emp-satna-section').style.display = 'block'; fetchSatnaRequests(); }
+else if (section === 'dashboard') { document.getElementById('emp-dashboard-section').style.display = 'block'; loadDashboardStats(); }
 }
 
-/* ===== نوبت‌دهی ===== */
 function checkAvailability() {
 const branch = document.getElementById('app-branch').value;
 const date = document.getElementById('app-date').value;
 const timeSelect = document.getElementById('app-time');
-
-Array.from(timeSelect.options).forEach(opt => {
-if (opt.value !== "") {
-opt.disabled = false;
-opt.text = opt.value;
-}
-});
-
+Array.from(timeSelect.options).forEach(opt => { if (opt.value !== "") { opt.disabled = false; opt.text = opt.value; } });
 if (!branch || !date) return;
-
 timeSelect.disabled = true;
-
-fetch(SCRIPT_URL, {
-method: 'POST',
-body: JSON.stringify({ action: 'getBookedTimes', branch: branch, date: date })
-})
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBookedTimes', branch: branch, date: date }) })
 .then(res => res.json())
 .then(bookedTimes => {
 timeSelect.disabled = false;
-
 if (Array.isArray(bookedTimes) && bookedTimes.length > 0) {
 Array.from(timeSelect.options).forEach(opt => {
 if (bookedTimes.includes(opt.value)) {
 opt.disabled = true;
 opt.text = opt.value + ' (تکمیل)';
-if (timeSelect.value === opt.value) {
-timeSelect.value = "";
-}
+if (timeSelect.value === opt.value) timeSelect.value = "";
 }
 });
 }
 })
-.catch(err => {
-console.error("خطا در دریافت ساعت‌های رزرو شده:", err);
-timeSelect.disabled = false;
-});
+.catch(err => { console.error("خطا:", err); timeSelect.disabled = false; });
 }
 
 function submitAppointment() {
@@ -1358,43 +1417,26 @@ const date = document.getElementById('app-date').value;
 const time = document.getElementById('app-time').value;
 const name = document.getElementById('app-name').value;
 const phone = document.getElementById('app-phone').value;
-
 if (!serviceType || !branch || !date || !time || !name || !phone) { alert('لطفاً همه فیلدها را پر کنید.'); return; }
 if (!/^09\d{9}$/.test(phone)) { alert('شماره همراه نامعتبر است.'); return; }
-
 const trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 const btn = event.target;
-btn.disabled = true;
-btn.innerText = "در حال ثبت...";
-
-fetch(SCRIPT_URL, {
-method: 'POST',
-body: JSON.stringify({ action: 'submitAppointment', serviceType, branch, date, time, name, phone, trackingCode })
-})
+btn.disabled = true; btn.innerText = "در حال ثبت...";
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'submitAppointment', serviceType, branch, date, time, name, phone, trackingCode }) })
 .then(res => res.json())
 .then(data => {
 if (data.success) {
 document.getElementById('app-resultSection').style.display = 'block';
 document.getElementById('app-trackingCode').textContent = trackingCode;
-} else {
-alert(data.error || 'خطا در ثبت نوبت.');
-btn.disabled = false;
-btn.innerText = "ثبت نوبت";
-}
+} else { alert(data.error || 'خطا در ثبت نوبت.'); btn.disabled = false; btn.innerText = "ثبت نوبت"; }
 })
-.catch(() => {
-alert('خطا در ارتباط با سرور.');
-btn.disabled = false;
-btn.innerText = "ثبت نوبت";
-});
+.catch(() => { alert('خطا در ارتباط با سرور.'); btn.disabled = false; btn.innerText = "ثبت نوبت"; });
 }
 
 function fetchAppointments() {
 const listContainer = document.getElementById('employee-appointments-list');
 listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت نوبت‌ها...</p>';
-
 const branchFilter = sessionStorage.getItem('branch') || 'all';
-
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAppointments', branch: branchFilter }) })
 .then(res => res.json())
 .then(list => {
@@ -1409,37 +1451,24 @@ listContainer.innerHTML += `
 <p><strong>تاریخ نوبت:</strong> ${item.date} - <strong>ساعت:</strong> ${item.time}</p>
 <p><strong>نام:</strong> ${item.name}</p>
 <p><strong>شماره همراه:</strong> ${item.phone}</p>
-<button class="btn btn-danger" style="margin-top:10px; padding: 8px; font-size:12px;" onclick="deleteAppointment(${item.row}, this)">🗑️ حذف نوبت (پایان یافت)</button>
-</div>
-`;
+<button class="btn btn-danger" style="margin-top:10px; padding: 8px; font-size:12px;" onclick="deleteAppointment(${item.row}, this)">🗑️ حذف نوبت</button>
+</div>`;
 });
 })
 .catch(() => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در ارتباط با سرور.</p>'; });
 }
 
 function deleteAppointment(row, btnElement) {
-if(!confirm('آیا از حذف این نوبت اطمینان دارید؟ (این عمل قابل بازگشت نیست)')) return;
-btnElement.innerText = 'در حال حذف...';
-btnElement.disabled = true;
+if(!confirm('آیا از حذف این نوبت اطمینان دارید؟')) return;
+btnElement.innerText = 'در حال حذف...'; btnElement.disabled = true;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteAppointment', row: row }) })
 .then(res => res.json())
 .then(data => {
-if(data.success === true) {
-alert('نوبت با موفقیت حذف شد.');
-fetchAppointments();
-} else {
-alert('خطا در حذف: ' + (data.error || 'مشکل ناشناخته'));
-btnElement.innerText = '🗑️ حذف نوبت';
-btnElement.disabled = false;
-}
-}).catch((err) => {
-alert('خطا در ارتباط با سرور.');
-btnElement.innerText = '🗑️ حذف نوبت';
-btnElement.disabled = false;
-});
+if(data.success === true) { alert('نوبت با موفقیت حذف شد.'); fetchAppointments(); }
+else { alert('خطا در حذف: ' + (data.error || 'مشکل ناشناخته')); btnElement.innerText = '🗑️ حذف نوبت'; btnElement.disabled = false; }
+}).catch((err) => { alert('خطا در ارتباط با سرور.'); btnElement.innerText = '🗑️ حذف نوبت'; btnElement.disabled = false; });
 }
 
-/* ===== پوز ===== */
 function updatePOSFileList() {
 const input = document.getElementById('pos-docs');
 const listDiv = document.getElementById('pos-file-list');
@@ -1470,7 +1499,6 @@ return el.value.trim();
 function submitPOSForm() {
 const btn = document.getElementById('submitPOSBtn');
 if (btn.disabled) return;
-
 const name = safeVal('pos-name');
 const nid = safeVal('pos-nid');
 const phone = safeVal('pos-phone');
@@ -1490,22 +1518,14 @@ const accountNumber = safeVal('pos-account');
 const accountHolder = safeVal('pos-account-holder');
 const files = document.getElementById('pos-docs').files;
 
-if (!/^09\d{9}$/.test(phone)) { document.getElementById('pos-phone-error').style.display = 'block'; alert('شماره همراه نامعتبر است.'); return; }
-else { document.getElementById('pos-phone-error').style.display = 'none'; }
-
-if (!/^\d{10}$/.test(postal)) { document.getElementById('pos-postal-error').style.display = 'block'; alert('کد پستی باید ۱۰ رقم باشد.'); return; }
-else { document.getElementById('pos-postal-error').style.display = 'none'; }
-
-if (!validateIBAN(iban)) { document.getElementById('pos-iban-error').style.display = 'block'; alert('شماره شبا نامعتبر است (طول یا رقم کنترل اشتباه).'); return; }
-else { document.getElementById('pos-iban-error').style.display = 'none'; }
-
+if (!/^09\d{9}$/.test(phone)) { document.getElementById('pos-phone-error').style.display = 'block'; alert('شماره همراه نامعتبر است.'); return; } else { document.getElementById('pos-phone-error').style.display = 'none'; }
+if (!/^\d{10}$/.test(postal)) { document.getElementById('pos-postal-error').style.display = 'block'; alert('کد پستی باید ۱۰ رقم باشد.'); return; } else { document.getElementById('pos-postal-error').style.display = 'none'; }
+if (!validateIBAN(iban)) { document.getElementById('pos-iban-error').style.display = 'block'; alert('شماره شبا نامعتبر است.'); return; } else { document.getElementById('pos-iban-error').style.display = 'none'; }
 if (!deviceType) { alert('لطفاً نوع دستگاه پوز را انتخاب کنید.'); return; }
 if (!accountHolder) { alert('لطفاً نام صاحب حساب را وارد کنید.'); return; }
 if (!accountNumber) { alert('لطفاً شماره حساب را وارد کنید.'); return; }
-
-if (!signatures['pos'] || signatures['pos'].isEmpty()) { alert('لطفاً امضای خود را در کادر مربوطه ثبت کنید.'); return; }
+if (!signatures['pos'] || signatures['pos'].isEmpty()) { alert('لطفاً امضای خود را ثبت کنید.'); return; }
 const signatureData = signatures['pos'].getDataURL();
-
 btn.innerText = "در حال ارسال..."; btn.disabled = true;
 
 const readFiles = () => {
@@ -1526,13 +1546,11 @@ reader.readAsDataURL(files[i]);
 }
 });
 };
-
 readFiles().then(filesData => {
 const payload = {
 action: 'submitPOS',
 formData: { name, nid, phone, landline, email, business, type, license, ecoCode, taxCode, address, postal, deviceType, bankName, iban, accountNumber, accountHolder },
-files: filesData,
-signature: signatureData
+files: filesData, signature: signatureData
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
@@ -1540,16 +1558,9 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 if (data.status === 'success') {
 document.getElementById('posForm').style.display = 'none';
 document.getElementById('pos-resultSection').style.display = 'block';
-} else {
-alert('خطا در ثبت: ' + (data.error || 'مشکل ناشناخته'));
-btn.innerText = "ارسال درخواست پوز"; btn.disabled = false;
-}
+} else { alert('خطا در ثبت: ' + (data.error || 'مشکل ناشناخته')); btn.innerText = "ارسال درخواست پوز"; btn.disabled = false; }
 })
-.catch(error => {
-alert("خطا در ارسال. لطفاً اینترنت خود را بررسی کنید.");
-console.error(error);
-btn.innerText = "ارسال درخواست پوز"; btn.disabled = false;
-});
+.catch(error => { alert("خطا در ارسال."); console.error(error); btn.innerText = "ارسال درخواست پوز"; btn.disabled = false; });
 });
 }
 
@@ -1569,32 +1580,27 @@ filesHtml = `<p style="font-size:12px; margin-top:5px;"><strong>مدارک:</str
 links.forEach((link, idx) => { if(link) filesHtml += `<a href="${link}" target="_blank" style="color:#2980b9;">فایل ${idx+1}</a> | `; });
 filesHtml += `</p>`;
 }
-
 let html = `
 <div class="ticket-card" id="pos-card-${pos.row}">
 <div id="print-area-${pos.row}">
 <h4 style="text-align:center; border-bottom: 2px solid #0a4d2e; padding-bottom:10px;">فرم درخواست دستگاه کارتخوان (پوز)</h4>
 <p><strong>نام پذیرنده:</strong> ${pos.name} | <strong>کد ملی/شناسه:</strong> ${pos.nid}</p>
-<p><strong>همراه:</strong> ${pos.phone} | <strong>ثابت:</strong> ${pos.landline || '-'} | <strong>ایمیل مشتری:</strong> ${pos.email || '-'}</p>
+<p><strong>همراه:</strong> ${pos.phone} | <strong>ثابت:</strong> ${pos.landline || '-'} | <strong>ایمیل:</strong> ${pos.email || '-'}</p>
 <p><strong>کسب‌وکار:</strong> ${pos.business} (${pos.type}) | <strong>نوع دستگاه:</strong> ${pos.deviceType || 'ثبت نشده'}</p>
 <p><strong>جواز کسب:</strong> ${pos.license || '-'} | <strong>کد اقتصادی:</strong> ${pos.ecoCode || '-'} | <strong>کد رهگیری مالیاتی:</strong> ${pos.taxCode || '-'}</p>
 <p><strong>آدرس:</strong> ${pos.address} - <strong>کد پستی:</strong> ${pos.postal || '-'}</p>
 <p><strong>بانک عامل:</strong> ${pos.bankName || '-'} | <strong>شبا:</strong> IR${pos.iban || '-'}</p>
 <p><strong>شماره حساب:</strong> ${pos.accountNumber || '-'} | <strong>صاحب حساب:</strong> ${pos.accountHolder || '-'}</p>
-
 ${pos.signatureUrl ? `<div style="margin-top:10px; text-align:center;"><p style="font-size:12px; font-weight:bold;">✍️ امضای پذیرنده:</p><img src="${pos.signatureUrl}" style="max-height: 100px; border: 1px solid #ccc;"></div>` : ''}
-
 <div style="margin-top:15px; border-top: 1px dashed #ccc; padding-top:10px;">
 ${filesHtml}
-<p style="font-size:12px; margin-top:5px;"><strong>لینک مستقیم امضا:</strong> <a href="${pos.signatureUrl}" target="_blank">مشاهده در گوگل درایو</a></p>
+<p style="font-size:12px; margin-top:5px;"><strong>لینک مستقیم امضا:</strong> <a href="${pos.signatureUrl}" target="_blank">مشاهده</a></p>
 </div>
 </div>
-
 <div class="btn-row" style="margin-top:15px;">
 <button class="btn btn-secondary" style="width:50%;" onclick="printPOSForm(${pos.row})">🖨️ چاپ / PDF فرم</button>
 <button class="btn btn-resolve" style="width:50%;" onclick="resolvePOSRequest(${pos.row}, this)">✅ تایید / نصب شد</button>
 </div>
-
 <div style="background:#f0f8ff; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #bce;">
 <label style="font-size:12px; font-weight:bold; color:#2980b9; margin-bottom:5px; display:block;">📧 ارسال به شرکت توزیع‌کننده (PSP):</label>
 <div style="display:flex; gap:5px;">
@@ -1612,22 +1618,9 @@ listContainer.innerHTML += html;
 function printPOSForm(row) {
 const printContents = document.getElementById('print-area-' + row).innerHTML;
 const printWindow = window.open('', '_blank');
-printWindow.document.write(`
-<html dir="rtl" lang="fa">
-<head>
-<title>چاپ فرم پوز - سامانه مهر</title>
-<style>
-body { font-family: Tahoma, Arial, sans-serif; padding: 20px; line-height: 1.8; }
-h4 { text-align: center; color: #0a4d2e; border-bottom: 2px solid #0a4d2e; padding-bottom: 10px; margin-bottom: 20px; }
-p { font-size: 14px; margin-bottom: 10px; border-bottom: 1px dotted #ccc; padding-bottom: 5px; }
-strong { color: #333; }
-a { color: #2980b9; text-decoration: none; }
-img { max-width: 200px; display: block; margin: 0 auto; }
-</style>
-</head>
-<body>${printContents}</body>
-</html>
-`);
+printWindow.document.write(`<html dir="rtl" lang="fa"><head><title>چاپ فرم پوز - سامانه مهر</title>
+<style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8;}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px;}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px;}strong{color:#333;}a{color:#2980b9;text-decoration:none;}img{max-width:200px;display:block;margin:0 auto;}</style>
+</head><body>${printContents}</body></html>`);
 printWindow.document.close();
 printWindow.focus();
 setTimeout(() => { printWindow.print(); }, 500);
@@ -1637,100 +1630,433 @@ function sendPOSEmail(row, btnElement) {
 const emailInput = document.getElementById('psp-email-' + row).value;
 if(!emailInput || !emailInput.includes('@')) { alert('لطفاً یک ایمیل معتبر وارد کنید.'); return; }
 btnElement.innerText = "در حال ارسال..."; btnElement.disabled = true;
-fetch(SCRIPT_URL, {
-method: 'POST',
-body: JSON.stringify({ action: 'emailPOSRequest', row: row, targetEmail: emailInput })
-})
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'emailPOSRequest', row: row, targetEmail: emailInput }) })
 .then(res => res.json())
-.then(data => {
-if(data.success) { alert('✅ ایمیل با موفقیت به شرکت توزیع‌کننده ارسال شد.'); document.getElementById('psp-email-' + row).value = ''; }
-else { alert('خطا در ارسال ایمیل: ' + (data.error || 'مشکل ناشناخته')); }
-})
+.then(data => { if(data.success) { alert('✅ ایمیل با موفقیت ارسال شد.'); document.getElementById('psp-email-' + row).value = ''; } else { alert('خطا در ارسال: ' + (data.error || '')); } })
 .catch(() => alert("خطا در ارتباط با سرور."))
 .finally(() => { btnElement.innerText = "ارسال"; btnElement.disabled = false; });
 }
 
 function resolvePOSRequest(row, btnElement) {
-if(!confirm("آیا از نصب دستگاه پوز برای این مشتری مطمئن هستید؟\n(با تایید، تمام فایل‌های مدارک و امضا از گوگل درایو به سطل زباله منتقل می‌شوند.)")) return;
+if(!confirm("آیا از نصب دستگاه پوز برای این مشتری مطمئن هستید؟")) return;
 btnElement.innerText = "در حال تایید..."; btnElement.disabled = true;
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updatePOSStatus', row: row }) })
 .then(res => res.json())
 .then(data => {
-if(data.success) { alert("وضعیت با موفقیت به 'نصب شد' تغییر یافت.\nفایل‌های مدارک و امضا به سطل زباله منتقل شدند."); document.getElementById('pos-card-' + row).remove(); }
+if(data.success) { alert("وضعیت با موفقیت به 'نصب شد' تغییر یافت."); document.getElementById('pos-card-' + row).remove(); }
 else { alert("خطایی رخ داد."); btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false; }
 })
 .catch(() => { alert("خطا در ارتباط با سرور."); btnElement.innerText = "✅ نصب شد / تایید درخواست"; btnElement.disabled = false; });
 }
 
-/* ===== توابع داشبورد (نمودار) ===== */
 function loadDashboardStats() {
 const token = sessionStorage.getItem('adminToken');
-
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getDashboardStats', token: token }) })
 .then(res => res.json())
 .then(data => {
 if(data.error) { alert(data.error); return; }
-
-  
-// آمار کلی
 document.getElementById('stat-total-tickets').innerText = data.totalTickets;
 document.getElementById('stat-total-apps').innerText = data.totalApps;
 document.getElementById('stat-total-pos').innerText = data.totalPOS;
-
-// ۱. نمودار وضعیت تیکت‌ها (دایره‌ای)
 const ctxTickets = document.getElementById('chart-tickets').getContext('2d');
-if (ticketsChartInstance) ticketsChartInstance.destroy(); // پاک کردن نمودار قبلی
+if (ticketsChartInstance) ticketsChartInstance.destroy();
 ticketsChartInstance = new Chart(ctxTickets, {
 type: 'doughnut',
 data: {
 labels: ['حل شده', 'در حال بررسی'],
-datasets: [{
-data: [data.resolvedTickets, data.pendingTickets],
-backgroundColor: ['#27ae60', '#d4a017'],
-borderWidth: 1
-}]
+datasets: [{ data: [data.resolvedTickets, data.pendingTickets], backgroundColor: ['#27ae60', '#d4a017'], borderWidth: 1 }]
 },
-options: {
-responsive: true,
-plugins: {
-legend: { position: 'bottom', labels: { font: { family: 'Tahoma' } } }
-}
-}
+options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Tahoma' } } } } }
 });
-
-// ۲. نمودار تیکت‌های هر واحد (میله‌ای)
 const ctxDept = document.getElementById('chart-departments').getContext('2d');
 if (deptChartInstance) deptChartInstance.destroy();
 deptChartInstance = new Chart(ctxDept, {
 type: 'bar',
 data: {
 labels: data.branchStats ? data.branchStats.map(item => item.branch) : [],
-datasets: [{
-label: 'تعداد تیکت',
-data: data.branchStats ? data.branchStats.map(item => item.tickets) : [],
-backgroundColor: '#4a90d9',
-borderRadius: 6
-}]
+datasets: [{ label: 'تعداد تیکت', data: data.branchStats ? data.branchStats.map(item => item.tickets) : [], backgroundColor: '#4a90d9', borderRadius: 6 }]
 },
-options: {
-responsive: true,
-plugins: {
-legend: { display: false }
-},
-scales: {
-y: { beginAtZero: true, ticks: { stepSize: 1 } }
-}
-}
+options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
 });
 })
-.catch(err => {
-console.error("خطا در دریافت آمار:", err);
-alert("خطا در دریافت اطلاعات آماری.");
+.catch(err => { console.error("خطا:", err); alert("خطا در دریافت اطلاعات آماری."); });
+}
+
+/* ============================================
+📅 تقویم شمسی جلالی
+============================================ */
+const JalaliCalendar = {
+monthNames: ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'],
+dayNames: ['ش','ی','د','س','چ','پ','ج'],
+currentYear: 0, currentMonth: 0, selectedDate: null, targetInputId: null,
+
+g2j: function(gy, gm, gd) {
+const g_dm = [0,31,59,90,120,151,181,212,243,273,304,334];
+let gy2 = (gm > 2) ? (gy + 1) : gy;
+let days = 355666 + (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g_dm[gm - 1];
+let jy = -1595 + (33 * Math.floor(days / 12053));
+days %= 12053;
+jy += 4 * Math.floor(days / 1461);
+days %= 1461;
+if (days > 365) { jy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+let jm, jd;
+if (days < 186) { jm = 1 + Math.floor(days / 31); jd = 1 + (days % 31); }
+else { jm = 7 + Math.floor((days - 186) / 30); jd = 1 + ((days - 186) % 30); }
+return [jy, jm, jd];
+},
+
+j2g: function(jy, jm, jd) {
+let gy = 621 + jy, days = -355668 + (365 * gy) + Math.floor((gy + 3) / 4) - Math.floor((gy + 99) / 100) + Math.floor((gy + 399) / 400) + jd;
+if (jm < 7) days += ((jm - 1) * 31);
+else days += (jm - 7) * 30 + 186;
+gy = 400 * Math.floor(days / 146097);
+days %= 146097;
+if (days > 36524) { gy += 100 * Math.floor(--days / 36524); days %= 36524; if (days >= 365) days++; }
+gy += 4 * Math.floor(days / 1461); days %= 1461;
+if (days > 365) { gy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+let gd = days + 1;
+const sal_a = [0,31,(gy%4===0&&gy%100!==0)||(gy%400===0)?29:28,31,30,31,30,31,31,30,31,30,31];
+let gm = 0;
+for (gm = 0; gm < 13 && gd > sal_a[gm]; gm++) gd -= sal_a[gm];
+return [gy, gm, gd];
+},
+
+jDaysInMonth: function(jy, jm) {
+if (jm <= 6) return 31;
+if (jm <= 11) return 30;
+const isLeap = ((jy + 12) % 33) % 4 === 1;
+return isLeap ? 30 : 29;
+},
+
+jDayOfWeek: function(jy, jm, jd) {
+const g = this.j2g(jy, jm, jd);
+return new Date(g[0], g[1] - 1, g[2]).getDay();
+},
+
+today: function() {
+const now = new Date();
+return this.g2j(now.getFullYear(), now.getMonth() + 1, now.getDate());
+},
+
+open: function(inputId) {
+this.targetInputId = inputId;
+const t = this.today();
+this.currentYear = t[0];
+this.currentMonth = t[1];
+this.selectedDate = null;
+this.render(inputId);
+},
+
+render: function(inputId) {
+const cal = document.getElementById('jalali-calendar-' + inputId);
+if (!cal) return;
+const jy = this.currentYear, jm = this.currentMonth;
+const daysInMonth = this.jDaysInMonth(jy, jm);
+const firstDay = (this.jDayOfWeek(jy, jm, 1) + 1) % 7;
+const todayArr = this.today();
+const todayStr = todayArr[0] + '/' + String(todayArr[1]).padStart(2,'0') + '/' + String(todayArr[2]).padStart(2,'0');
+
+let html = '<div class="jc-header">';
+html += '<button type="button" onclick="JalaliCalendar.prevMonth(\'' + inputId + '\')">‹</button>';
+html += '<span>' + this.monthNames[jm-1] + ' ' + jy + '</span>';
+html += '<button type="button" onclick="JalaliCalendar.nextMonth(\'' + inputId + '\')">›</button>';
+html += '</div><div class="jc-grid">';
+this.dayNames.forEach(d => { html += '<div class="jc-day-name">' + d + '</div>'; });
+for (let i = 0; i < firstDay; i++) html += '<div class="jc-day empty"></div>';
+for (let d = 1; d <= daysInMonth; d++) {
+const dateStr = jy + '/' + String(jm).padStart(2,'0') + '/' + String(d).padStart(2,'0');
+let cls = 'jc-day';
+if (dateStr === todayStr) cls += ' today';
+if (this.selectedDate === dateStr) cls += ' selected';
+if (this.compareDate(dateStr, todayStr) < 0) cls += ' disabled';
+html += '<div class="' + cls + '" onclick="JalaliCalendar.selectDate(\'' + inputId + '\', \'' + dateStr + '\')">' + d + '</div>';
+}
+html += '</div>';
+cal.innerHTML = html;
+cal.classList.add('show');
+},
+
+compareDate: function(a, b) {
+const pa = a.split('/').map(Number), pb = b.split('/').map(Number);
+if (pa[0] !== pb[0]) return pa[0] - pb[0];
+if (pa[1] !== pb[1]) return pa[1] - pb[1];
+return pa[2] - pb[2];
+},
+
+prevMonth: function(inputId) {
+this.currentMonth--;
+if (this.currentMonth < 1) { this.currentMonth = 12; this.currentYear--; }
+this.render(inputId);
+},
+
+nextMonth: function(inputId) {
+this.currentMonth++;
+if (this.currentMonth > 12) { this.currentMonth = 1; this.currentYear++; }
+this.render(inputId);
+},
+
+selectDate: function(inputId, dateStr) {
+const today = this.today();
+const todayStr = today[0] + '/' + String(today[1]).padStart(2,'0') + '/' + String(today[2]).padStart(2,'0');
+if (this.compareDate(dateStr, todayStr) < 0) return;
+this.selectedDate = dateStr;
+const input = document.getElementById(inputId);
+if (input) {
+const p = dateStr.split('/').map(Number);
+const g = this.j2g(p[0], p[1], p[2]);
+input.value = g[0] + '-' + String(g[1]).padStart(2,'0') + '-' + String(g[2]).padStart(2,'0');
+input.setAttribute('data-jalali', dateStr);
+}
+let displaySpan = document.getElementById(inputId + '-display');
+if (!displaySpan) {
+displaySpan = document.createElement('div');
+displaySpan.id = inputId + '-display';
+displaySpan.style.cssText = 'font-size:13px;color:#0a4d2e;font-weight:bold;margin-top:5px;';
+document.getElementById(inputId).parentNode.appendChild(displaySpan);
+}
+displaySpan.textContent = '📅 ' + dateStr + ' (شمسی)';
+document.getElementById('jalali-calendar-' + inputId).classList.remove('show');
+if (typeof checkAvailability === 'function') checkAvailability();
+}
+};
+
+function toggleJalaliCalendar(inputId) {
+const cal = document.getElementById('jalali-calendar-' + inputId);
+if (!cal) return;
+if (cal.classList.contains('show')) { cal.classList.remove('show'); return; }
+JalaliCalendar.open(inputId);
+}
+
+/* ============================================
+🪞 آینه احساسات
+============================================ */
+function generateMirrorQR() {
+const counter = document.getElementById('mirror-counter').value;
+if (!counter) { alert('لطفاً شماره باجه را وارد کنید'); return; }
+const branch = sessionStorage.getItem('branch') || '0000';
+const url = SCRIPT_URL + '?action=emotionForm&branch=' + encodeURIComponent(branch) + '&counter=' + encodeURIComponent(counter);
+const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
+document.getElementById('mirror-qr-result').innerHTML = `
+<p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR باجه ${counter} - شعبه ${branch}</p>
+<img src="${qr}" style="border:2px solid #0a4d2e;border-radius:10px;">
+<p style="font-size:11px;color:#666;margin-top:10px;word-break:break-all;">${url}</p>
+<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>
+`;
+}
+
+function generateMirrorQR2() {
+const counter = document.getElementById('mirror-counter-2').value;
+if (!counter) { alert('لطفاً شماره باجه را وارد کنید'); return; }
+const branch = sessionStorage.getItem('branch') || '0000';
+const url = SCRIPT_URL + '?action=emotionForm&branch=' + encodeURIComponent(branch) + '&counter=' + encodeURIComponent(counter);
+const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
+document.getElementById('mirror-qr-result-2').innerHTML = `
+<p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR باجه ${counter} - شعبه ${branch}</p>
+<img src="${qr}" style="border:2px solid #0a4d2e;border-radius:10px;">
+<p style="font-size:11px;color:#666;margin-top:10px;word-break:break-all;">${url}</p>
+<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>
+`;
+}
+
+function openManagerEmotionForm() {
+const pass = prompt('رمز مدیر شعبه را وارد کنید:');
+if (pass === null) return;
+if (pass !== '1234') { alert('⛔ رمز اشتباه است.'); return; }
+const branch = sessionStorage.getItem('branch') || '0000';
+const token = sessionStorage.getItem('adminToken') || '';
+window.open(SCRIPT_URL + '?action=managerEmotionForm&branch=' + encodeURIComponent(branch) + '&token=' + encodeURIComponent(token), '_blank');
+}
+
+function loadMyEmotionStats() {
+const branch = sessionStorage.getItem('branch') || '0000';
+const token = sessionStorage.getItem('adminToken');
+const box = document.getElementById('emotion-stats-branch');
+box.innerHTML = '<p style="text-align:center;">در حال دریافت...</p>';
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getEmotionStatsBranch', branch: branch, token: token }) })
+.then(r => r.json())
+.then(d => { renderEmotionStats(d, box); })
+.catch(() => { box.innerHTML = '<p style="color:red;">خطا در ارتباط.</p>'; });
+}
+
+function loadMyEmotionStats2() {
+const branch = sessionStorage.getItem('branch') || '0000';
+const token = sessionStorage.getItem('adminToken');
+const box = document.getElementById('emotion-stats-branch-2');
+box.innerHTML = '<p style="text-align:center;">در حال دریافت...</p>';
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getEmotionStatsBranch', branch: branch, token: token }) })
+.then(r => r.json())
+.then(d => { renderEmotionStats(d, box); })
+.catch(() => { box.innerHTML = '<p style="color:red;">خطا در ارتباط.</p>'; });
+}
+
+function renderEmotionStats(d, box) {
+if (!d.success) { box.innerHTML = '<p style="color:red;">خطا: ' + (d.error || '') + '</p>'; return; }
+const s = d.stats;
+let html = `<div style="background:#f8f9fa;padding:12px;border-radius:10px;margin-bottom:10px;">
+<p style="font-size:13px;"><strong>کل بازخوردها:</strong> ${s.total}</p>
+</div>`;
+const counters = Object.keys(s.byCounter || {});
+if (counters.length > 0) {
+html += '<p style="font-size:13px;font-weight:bold;margin:10px 0;">میانگین امتیاز هر باجه:</p>';
+counters.forEach(c => {
+const arr = s.byCounter[c].scores;
+const avg = (arr.reduce((a,b)=>a+b,0) / arr.length).toFixed(2);
+const pct = (avg / 5 * 100).toFixed(0);
+const color = avg >= 4 ? '#27ae60' : avg >= 3 ? '#d4a017' : '#c0392b';
+html += `<div style="margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+<span>باجه ${c}</span><span style="font-weight:bold;color:${color}">${avg} / 5 (${s.byCounter[c].total} رأی)</span>
+</div>
+<div class="emotion-stats-bar"><div style="width:${pct}%;background:${color};"></div></div>
+</div>`;
 });
-  document.addEventListener('DOMContentLoaded', function() {
-loadDashboardStats();
+}
+html += '<p style="font-size:13px;font-weight:bold;margin:15px 0 5px;">توزیع احساسات:</p>';
+const emoji = {'1':'😠','2':'😞','3':'😐','4':'🙂','5':'😍'};
+[5,4,3,2,1].forEach(k => {
+html += `<div style="font-size:12px;margin-bottom:3px;">${emoji[k]} (${k} ستاره): ${s.byScore[k] || 0} نفر</div>`;
 });
+if (s.recent && s.recent.length > 0) {
+html += '<p style="font-size:13px;font-weight:bold;margin:15px 0 5px;">آخرین بازخوردها:</p>';
+s.recent.forEach(r => {
+html += `<div style="background:#f0f8ff;padding:8px;border-radius:8px;margin-bottom:5px;font-size:11px;border-right:3px solid #2980b9;">
+<strong>${r.date}</strong> - باجه ${r.counter} - ${emoji[r.score]||''} ${r.label}
+${r.comment ? '<br><em>' + r.comment + '</em>' : ''}
+</div>`;
+});
+}
+box.innerHTML = html;
+}
+
+function loadAdminEmotionStats() {
+const token = sessionStorage.getItem('adminToken');
+const box = document.getElementById('admin-emotion-stats');
+box.innerHTML = '<p style="text-align:center;">در حال دریافت...</p>';
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getEmotionStatsAdmin', token: token }) })
+.then(r => r.json())
+.then(d => {
+if (!d.success) { box.innerHTML = '<p style="color:red;">خطا: ' + (d.error || '') + '</p>'; return; }
+const s = d.stats;
+let html = `<div style="background:#f8f9fa;padding:10px;border-radius:8px;margin-bottom:10px;">
+<p style="font-size:14px;font-weight:bold;color:#0a4d2e;">کل بازخوردها: ${s.total}</p>
+</div>`;
+html += '<p style="font-weight:bold;margin:10px 0;">میانگین امتیاز هر شعبه:</p>';
+Object.keys(s.byBranch || {}).sort().forEach(b => {
+const avg = (s.byBranch[b].sum / s.byBranch[b].total).toFixed(2);
+const pct = (avg/5*100).toFixed(0);
+const color = avg >= 4 ? '#27ae60' : avg >= 3 ? '#d4a017' : '#c0392b';
+html += `<div style="margin-bottom:10px;">
+<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+<strong>شعبه ${b}</strong>
+<span style="color:${color};font-weight:bold;">${avg} / 5 (${s.byBranch[b].total} رأی)</span>
+</div>
+<div class="emotion-stats-bar"><div style="width:${pct}%;background:${color};"></div></div>
+</div>`;
+});
+html += '<p style="font-weight:bold;margin:15px 0 5px;">توزیع کلی احساسات:</p>';
+const emoji = {'1':'😠','2':'😞','3':'😐','4':'🙂','5':'😍'};
+[5,4,3,2,1].forEach(k => {
+html += `<div style="font-size:12px;">${emoji[k]} ${k} ستاره: ${s.byScore[k] || 0}</div>`;
+});
+box.innerHTML = html;
+})
+.catch(() => { box.innerHTML = '<p style="color:red;">خطا.</p>'; });
+}
+
+/* ============================================
+💸 ساتنا
+============================================ */
+let satnaPhotoBase64 = '';
+
+function handleSatnaFile(event) {
+const file = event.target.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = function(e) {
+const img = new Image();
+img.onload = function() {
+const canvas = document.createElement('canvas');
+const MAX = 1200;
+let w = img.width, h = img.height;
+if (w > MAX) { h = h * MAX / w; w = MAX; }
+canvas.width = w; canvas.height = h;
+canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+satnaPhotoBase64 = canvas.toDataURL('image/jpeg', 0.75);
+const res = document.getElementById('satna-photoResult');
+res.src = satnaPhotoBase64; res.style.display = 'block';
+document.getElementById('satna-removeBtn').style.display = 'block';
+};
+img.src = e.target.result;
+};
+reader.readAsDataURL(file);
+}
+
+function removeSatnaPhoto() {
+satnaPhotoBase64 = '';
+document.getElementById('satna-photoResult').style.display = 'none';
+document.getElementById('satna-fileInput').value = '';
+document.getElementById('satna-removeBtn').style.display = 'none';
+}
+
+function submitSatnaForm() {
+const branch = document.getElementById('satna-branch').value;
+if (!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
+const iban = document.getElementById('satna-iban').value;
+if (iban && iban.length !== 24) { alert('شبا باید ۲۴ رقم باشد.'); return; }
+const btn = document.getElementById('submitSatnaBtn');
+btn.disabled = true; btn.innerText = 'در حال ارسال...';
+const payload = {
+action: 'submitSatna', branch: branch,
+healthSheetNumber: document.getElementById('satna-healthSheet').value,
+amount: document.getElementById('satna-amount').value,
+iban: iban,
+receiverName: document.getElementById('satna-receiver').value,
+senderName: document.getElementById('satna-sender').value,
+nationalId: document.getElementById('satna-nid').value,
+note: document.getElementById('satna-note').value,
+imageBase64: satnaPhotoBase64
+};
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+.then(r => r.json())
+.then(d => {
+if (d.success) {
+document.getElementById('satna-resultBox').style.display = 'block';
+document.getElementById('satna-code').textContent = d.code;
+} else {
+alert('خطا: ' + (d.error || 'ناشناخته'));
+btn.disabled = false; btn.innerText = 'ارسال درخواست ساتنا';
+}
+})
+.catch(() => { alert('خطا در ارتباط با سرور.'); btn.disabled = false; btn.innerText = 'ارسال درخواست ساتنا'; });
+}
+
+function fetchSatnaRequests() {
+const listContainer = document.getElementById('employee-satna-list');
+listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت لیست ساتنا...</p>';
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getSatnaRequests' }) })
+.then(res => res.json())
+.then(list => {
+listContainer.innerHTML = '';
+if (!list || list.length === 0) { listContainer.innerHTML = '<p style="text-align:center; color: green;">هیچ درخواست ساتنایی وجود ندارد.</p>'; return; }
+list.forEach(item => {
+listContainer.innerHTML += `
+<div class="ticket-card">
+<h4>کد تأیید: ${item.code} (شعبه: ${item.branch})</h4>
+<p><strong>تاریخ:</strong> ${item.date}</p>
+<p><strong>شماره برگه سلامت:</strong> ${item.healthSheetNumber || '-'}</p>
+<p><strong>مبلغ:</strong> ${item.amount || '-'}</p>
+<p><strong>شبا مقصد:</strong> IR${item.iban || '-'}</p>
+<p><strong>گیرنده:</strong> ${item.receiverName || '-'}</p>
+<p><strong>فرستنده:</strong> ${item.senderName || '-'}</p>
+<p><strong>کد ملی:</strong> ${item.nationalId || '-'}</p>
+<p><strong>توضیحات:</strong> ${item.note || '-'}</p>
+${item.imageUrl ? `<p><a href="${item.imageUrl}" target="_blank">📷 مشاهده تصویر برگه</a></p>` : ''}
+</div>`;
+});
+})
+.catch(() => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در ارتباط.</p>'; });
 }
 </script>
 </body>
 </html>
+
