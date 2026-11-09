@@ -213,6 +213,7 @@ body { background: #fff !important; padding: 0 !important; }
 <button class="tab-btn" onclick="switchTab('appointment', this)">📅 نوبت‌دهی</button>
 <button class="tab-btn" onclick="switchTab('satna', this)">💸 درخواست ساتنا</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
+<button class="tab-btn" onclick="switchTab('satna', this)">💸 درخواست ساتنا</button> <!-- ⬇️ این خط رو اضافه کن -->
 </div>
 
 <!-- ۱. پنل مشتری -->
@@ -328,6 +329,12 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
+  <!-- بخش پیگیری ساتنا -->
+<div id="track-satna-section" style="display: none;">
+<h3 style="color: #0a4d2e;">وضعیت ساتنای شما:</h3>
+<div class="routing-info" id="track-satna-details" style="margin-top: 15px; line-height: 2;"></div>
+<button class="btn btn-resolve" id="final-approve-btn" style="display:none; margin-top: 15px;" onclick="customerFinalApprove()">✅ تأیید نهایی و ارسال به شعبه</button>
+</div>
 <div id="track-appointment-section" style="display: none;">
 <h3 style="color: #0a4d2e;">اطلاعات نوبت شما:</h3>
 <div class="routing-info" id="track-app-details" style="margin-top: 15px; line-height: 2;"></div>
@@ -572,13 +579,31 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
+
 <!-- ۶. پنل ساتنا -->
 <div class="content panel" id="panel-satna">
 <div style="text-align:center;margin-bottom:20px;">
-<h2 style="color:#0a4d2e;margin-bottom:10px;">💸 درخواست حواله ساتنا</h2>
-<p style="font-size:14px;color:#666;">عکس برگه ساتنا را آپلود کنید یا اطلاعات را دستی وارد کنید.</p>
+<h2 style="color:#0a4d2e;margin-bottom:10px;">💸 درخواست حواله ساتنا (ویژه VIP)</h2>
+<p style="font-size:14px;color:#666;">این سرویس مخصوص مشتریان ویژه است. لطفاً کد ملی و شماره همراه خود را وارد کنید.</p>
 </div>
 
+<div id="satna-auth-section">
+<div class="form-group">
+<label>کد ملی:</label>
+<input type="text" id="satna-auth-nid" maxlength="10" placeholder="مثلاً 0012345678">
+</div>
+<div class="form-group">
+<label>شماره همراه:</label>
+<input type="tel" id="satna-auth-phone" maxlength="11" placeholder="مثلاً 09123456789">
+</div>
+<button class="btn" onclick="checkVipAccess()" id="satna-auth-btn">بررسی هویت و ورود</button>
+<div class="error" id="satna-auth-error"></div>
+</div>
+
+<div id="satna-form-section" style="display: none;">
+<div style="background:#e8f5ec;padding:10px;border-radius:8px;margin-bottom:15px;text-align:center;color:#1e7a44;font-weight:bold;">
+✅ هویت شما تأیید شد. لطفاً اطلاعات ساتنا را وارد کنید.
+</div>
 <div class="form-group">
 <label>شعبه:</label>
 <select id="satna-branch" required>
@@ -593,42 +618,26 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="6419">6419</option>
 </select>
 </div>
-
-<div class="camera-box">
-<p style="font-size:13px;font-weight:bold;margin-bottom:10px;color:#0a4d2e;">📸 آپلود عکس برگه ساتنا (اختیاری)</p>
-<img id="satna-photoResult" alt="عکس برگه" style="display:none;max-width:100%;border-radius:10px;border:2px solid #0a4d2e;margin-bottom:10px;">
-<input type="file" id="satna-fileInput" accept="image/*" capture="environment" style="display:none;" onchange="handleSatnaFile(event)">
-<button type="button" class="btn btn-secondary" onclick="document.getElementById('satna-fileInput').click()">انتخاب یا گرفتن عکس</button>
-<button type="button" id="satna-removeBtn" class="btn btn-outline" style="display:none;border-color:#c0392b;color:#c0392b;margin-top:8px;" onclick="removeSatnaPhoto()">حذف عکس</button>
-</div>
-
-<div class="form-group">
-<label>شماره برگه سلامت (اگر روی برگه هست):</label>
-<input type="text" id="satna-healthSheet" placeholder="مثلاً ۱۲۳۴۵۶">
-</div>
-<div class="form-group">
-<label>مبلغ (تومان):</label>
-<input type="text" id="satna-amount" placeholder="مثلاً 50,000,000" oninput="this.value=this.value.replace(/[^\d,]/g,'')">
-</div>
+<div class="form-group"><label>نام و نام خانوادگی شما:</label><input type="text" id="satna-name"></div>
+<div class="form-group"><label>شماره شبای مبدأ (اختیاری):</label><input type="text" id="satna-ibanSource" maxlength="24"></div>
 <div class="form-group">
 <label>شماره شبا مقصد (۲۴ رقم بدون IR):</label>
 <div class="iban-input-wrap">
 <span class="iban-prefix">IR</span>
-<input type="text" id="satna-iban" maxlength="24" placeholder="24 رقم" oninput="this.value=this.value.replace(/\D/g,'')">
+<input type="text" id="satna-ibanDest" maxlength="24" placeholder="24 رقم" oninput="this.value=this.value.replace(/\D/g,'')">
 </div>
 </div>
-<div class="form-group"><label>نام گیرنده:</label><input type="text" id="satna-receiver"></div>
-<div class="form-group"><label>نام فرستنده:</label><input type="text" id="satna-sender"></div>
-<div class="form-group"><label>کد ملی فرستنده:</label><input type="text" id="satna-nid" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
-<div class="form-group"><label>توضیحات:</label><textarea id="satna-note" placeholder="توضیح اختیاری..."></textarea></div>
+<div class="form-group"><label>مبلغ (تومان):</label><input type="text" id="satna-amount" placeholder="مثلاً 50,000,000" oninput="this.value=this.value.replace(/[^\d,]/g,'')"></div>
+<div class="form-group"><label>نام گیرنده:</label><input type="text" id="satna-receiverName"></div>
 
-<button class="btn" id="submitSatnaBtn" onclick="submitSatnaForm()">ارسال درخواست ساتنا</button>
+<button class="btn" id="submitSatnaBtn" onclick="submitSatnaForm()">ثبت درخواست ساتنا</button>
+</div>
 
 <div class="satna-result-box" id="satna-resultBox">
 <h3>✅ درخواست ساتنا ثبت شد</h3>
-<p>کد تأیید شما:</p>
+<p>کد رهگیری شما:</p>
 <div class="tracking-code" id="satna-code">-----</div>
-<p style="font-size:13px;color:#555;margin-top:10px;">این کد را نزد خود نگه دارید.</p>
+<p style="font-size:13px;color:#555;margin-top:10px;">کارشناسان شعبه پس از بررسی با شما تماس خواهند گرفت.</p>
 <button class="btn" onclick="location.reload()" style="margin-top:15px;">درخواست جدید</button>
 </div>
 </div>
@@ -650,6 +659,8 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="appointments">مدیریت نوبت‌های آنلاین</option>
 <option value="emotions">🪞 آینه احساسات</option>
 <option value="satna">💸 درخواست‌های ساتنا</option>
+<option value="vip">👑 مدیریت مشتریان VIP</option>
+  
 <option value="dashboard">📊 داشبورد مدیریت</option>
 </select>
 </div>
@@ -716,6 +727,27 @@ body { background: #fff !important; padding: 0 !important; }
 <div id="employee-satna-list"></div>
 </div>
 
+<!-- بخش مدیریت VIP -->
+<div id="emp-vip-section" style="display: none;">
+<h3 style="color: #0a4d2e; margin-bottom: 15px;">👑 مدیریت مشتریان VIP</h3>
+<div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+<div class="form-group">
+<label>کد ملی مشتری:</label>
+<input type="text" id="vip-nid" maxlength="10" placeholder="مثلاً 0012345678">
+</div>
+<div class="form-group">
+<label>شماره همراه مشتری:</label>
+<input type="tel" id="vip-phone" maxlength="11" placeholder="مثلاً 09123456789">
+</div>
+<div class="form-group">
+<label>نام و نام خانوادگی (اختیاری):</label>
+<input type="text" id="vip-name" placeholder="نام مشتری">
+</div>
+<button class="btn" onclick="addNewVip()" style="background: #27ae60;">✅ افزودن مشتری به لیست VIP</button>
+</div>
+<div id="vip-list-container"></div>
+</div>
+  
 <!-- 🌟 بخش داشبورد مدیریت -->
 <div id="emp-dashboard-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px; text-align: center;">📊 داشبورد آماری سامانه</h3>
@@ -2056,6 +2088,138 @@ ${item.imageUrl ? `<p><a href="${item.imageUrl}" target="_blank">📷 مشاهد
 })
 .catch(() => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در ارتباط.</p>'; });
 }
+  // ============================================
+// 💸 توابع ساتنا و VIP (کلاینت)
+// ============================================
+let verifiedSatnaNid = "";
+let verifiedSatnaPhone = "";
+let currentSatnaRow = 0;
+
+function checkVipAccess() {
+const nid = document.getElementById('satna-auth-nid').value;
+const phone = document.getElementById('satna-auth-phone').value;
+const err = document.getElementById('satna-auth-error');
+const btn = document.getElementById('satna-auth-btn');
+
+if(!nid || !phone) { err.innerText = 'لطفاً کد ملی و شماره همراه را وارد کنید.'; err.style.display='block'; return; }
+
+btn.innerText = 'در حال بررسی...';
+btn.disabled = true;
+err.style.display = 'none';
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
+.then(r => r.json())
+.then(vips => {
+const isVip = vips.find(v => v.nationalId === nid && v.phone === phone);
+if(isVip) {
+verifiedSatnaNid = nid;
+verifiedSatnaPhone = phone;
+document.getElementById('satna-name').value = isVip.name || '';
+document.getElementById('satna-auth-section').style.display = 'none';
+document.getElementById('satna-form-section').style.display = 'block';
+} else {
+err.innerText = 'شما در لیست مشتریان ویژه نیستید. لطفاً به شعبه مراجعه کنید.';
+err.style.display = 'block';
+}
+btn.innerText = 'بررسی هویت و ورود';
+btn.disabled = false;
+}).catch(() => {
+err.innerText = 'خطا در ارتباط با سرور.';
+err.style.display = 'block';
+btn.innerText = 'بررسی هویت و ورود';
+btn.disabled = false;
+});
+}
+
+function submitSatnaForm() {
+const branch = document.getElementById('satna-branch').value;
+if(!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
+
+const ibanDest = document.getElementById('satna-ibanDest').value;
+if(ibanDest.length !== 24) { alert('شبا مقصد باید ۲۴ رقم باشد.'); return; }
+
+const btn = document.getElementById('submitSatnaBtn');
+btn.disabled = true;
+btn.innerText = 'در حال ثبت...';
+
+const payload = {
+action: 'submitSatna',
+nationalId: verifiedSatnaNid,
+phone: verifiedSatnaPhone,
+name: document.getElementById('satna-name').value,
+branch: branch,
+ibanSource: document.getElementById('satna-ibanSource').value,
+ibanDest: ibanDest,
+amount: document.getElementById('satna-amount').value,
+receiverName: document.getElementById('satna-receiverName').value
+};
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+.then(r => r.json())
+.then(d => {
+if(d.success) {
+document.getElementById('satna-form-section').style.display = 'none';
+document.getElementById('satna-resultBox').style.display = 'block';
+document.getElementById('satna-code').textContent = d.code;
+} else {
+alert(d.error || 'خطا در ثبت.');
+btn.disabled = false;
+btn.innerText = 'ثبت درخواست ساتنا';
+}
+}).catch(() => {
+alert('خطا در ارتباط با سرور.');
+btn.disabled = false;
+btn.innerText = 'ثبت درخواست ساتنا';
+});
+}
+
+// پیگیری ساتنا (در صفحه پیگیری)
+function trackSatnaCode(code) {
+fetch(SCRIPT_URL + "?action=trackSatna&code=" + code)
+.then(r => r.json())
+.then(data => {
+if(data.found) {
+document.getElementById('track-ticket-section').style.display = 'none';
+document.getElementById('track-appointment-section').style.display = 'none';
+document.getElementById('track-satna-section').style.display = 'block';
+currentSatnaRow = data.row;
+
+let html = `
+<p><strong>کد رهگیری:</strong> ${data.code}</p>
+<p><strong>مبلغ:</strong> ${data.amount} تومان</p>
+<p><strong>شبا مقصد:</strong> IR${data.ibanDest}</p>
+<p><strong>نام گیرنده:</strong> ${data.receiverName}</p>
+<p><strong>وضعیت فعلی:</strong> <span style="color:#d4a017;font-weight:bold;">${data.status}</span></p>
+`;
+
+if(data.status === 'در انتظار تأیید نهایی مشتری') {
+html += `<p><strong>شماره برگه فیزیکی ثبت شده توسط شعبه:</strong> <span style="font-size:18px; color:green; font-weight:bold;">${data.healthSheetNumber}</span></p>`;
+document.getElementById('final-approve-btn').style.display = 'block';
+} else if(data.status === 'تأیید نهایی شد - آماده عملیات') {
+document.getElementById('final-approve-btn').style.display = 'none';
+html += `<p style="color:green; font-weight:bold;">✅ شما این تراکنش را تأیید کردید.</p>`;
+}
+
+document.getElementById('track-satna-details').innerHTML = html;
+} else {
+document.getElementById('track-status-text').innerText = "کد یافت نشد!";
+}
+});
+}
+
+function customerFinalApprove() {
+if(!confirm('آیا از تأیید نهایی این تراکنش اطمینان دارید؟')) return;
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'customerFinalApproveSatna', row: currentSatnaRow }) })
+.then(r => r.json())
+.then(d => {
+if(d.success) {
+alert('✅ تأیید نهایی انجام شد. شعبه عملیات را انجام خواهد داد.');
+document.getElementById('final-approve-btn').style.display = 'none';
+document.getElementById('track-satna-details').innerHTML += `<p style="color:green; font-weight:bold;">✅ شما این تراکنش را تأیید کردید.</p>`;
+}
+});
+}
+
 </script>
 </body>
 </html>
