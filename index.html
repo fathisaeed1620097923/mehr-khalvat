@@ -212,8 +212,8 @@ body { background: #fff !important; padding: 0 !important; }
 <button class="tab-btn" onclick="switchTab('pos', this)">📱 درخواست پوز</button>
 <button class="tab-btn" onclick="switchTab('appointment', this)">📅 نوبت‌دهی</button>
 <button class="tab-btn" onclick="switchTab('satna', this)">💸 درخواست ساتنا</button>
+<button class="tab-btn" onclick="switchTab('emotion-tab', this)">🪞 آینه احساسات</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
-<button class="tab-btn" onclick="switchTab('satna', this)">💸 درخواست ساتنا</button> <!-- ⬇️ این خط رو اضافه کن -->
 </div>
 
 <!-- ۱. پنل مشتری -->
@@ -579,6 +579,46 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
+<div class="content panel" id="panel-emotion-tab">
+<div style="text-align:center;margin-bottom:20px;">
+<h2 style="color:#0a4d2e;margin-bottom:10px;">🪞 آینه احساسات</h2>
+<p style="font-size:14px;color:#666;">لطفاً شعبه و باجه‌ای که در آن هستید را انتخاب کنید و احساس خود را ثبت کنید.</p>
+</div>
+
+<div class="form-group">
+<label>شعبه:</label>
+<select id="main-emotion-branch" required>
+<option value="">-- انتخاب کنید --</option>
+<option value="6400">6400</option>
+<option value="6401">6401</option><option value="6402">6402</option><option value="6403">6403</option>
+<option value="6404">6404</option><option value="6405">6405</option><option value="6406">6406</option>
+<option value="6407">6407</option><option value="6408">6408</option><option value="6409">6409</option>
+<option value="6410">6410</option><option value="6411">6411</option><option value="6412">6412</option>
+<option value="6413">6413</option><option value="6414">6414</option><option value="6415">6415</option>
+<option value="6416">6416</option><option value="6417">6417</option><option value="6418">6418</option>
+<option value="6419">6419</option>
+</select>
+</div>
+<div class="form-group">
+<label>شماره باجه:</label>
+<input type="number" id="main-emotion-counter" min="1" max="20" placeholder="مثلاً 1">
+</div>
+
+<div style="display:flex; justify-content:space-between; gap:5px; margin:20px 0;">
+<div class="emotion-btn-main" data-score="1" data-label="خیلی ناراضی" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">😠</div>
+<div class="emotion-btn-main" data-score="2" data-label="ناراضی" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">😞</div>
+<div class="emotion-btn-main" data-score="3" data-label="متوسط" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">😐</div>
+<div class="emotion-btn-main" data-score="4" data-label="راضی" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">🙂</div>
+<div class="emotion-btn-main" data-score="5" data-label="خیلی راضی" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">😍</div>
+</div>
+
+<button class="btn" onclick="submitMainEmotion()" id="main-emotion-submit-btn" disabled>ثبت احساس</button>
+
+<div class="result-box" id="main-emotion-result" style="display:none; background:#e8f5ec; border:2px solid #27ae60; border-radius:12px; padding:20px; text-align:center; margin-top:20px;">
+<h3 style="color:#1e7a44; margin-bottom:10px;">✅ احساس شما ثبت شد</h3>
+<p style="font-size:14px;">از اینکه نظر خود را با ما در میان گذاشتید سپاسگزاریم.</p>
+</div>
+</div>
 
 <!-- ۶. پنل ساتنا -->
 <div class="content panel" id="panel-satna">
@@ -1044,6 +1084,13 @@ const targetPanel = document.getElementById('panel-' + panelId);
 if (targetPanel) targetPanel.classList.add('active');
 if (btnElement) btnElement.classList.add('active');
 
+if(panelId === 'emotion-tab') {
+document.getElementById('main-emotion-result').style.display = 'none';
+document.getElementById('main-emotion-submit-btn').style.display = 'block';
+document.getElementById('main-emotion-submit-btn').disabled = true;
+document.getElementById('main-emotion-submit-btn').innerText = 'ثبت احساس';
+}
+  
 if(panelId === 'employee') {
 document.getElementById('tab-badge').style.display = 'none';
 const user = sessionStorage.getItem('loggedInUser');
@@ -2219,7 +2266,53 @@ document.getElementById('track-satna-details').innerHTML += `<p style="color:gre
 }
 });
 }
+// ============================================
+// 🪞 توابع آینه احساسات (منوی اصلی مشتری)
+// ============================================
+let selectedMainEmotion = 0;
+let selectedMainLabel = "";
 
+function pickMainEmotion(el) {
+document.querySelectorAll('.emotion-btn-main').forEach(e => e.style.borderColor = '#ddd');
+el.style.borderColor = '#27ae60';
+selectedMainEmotion = Number(el.dataset.score);
+selectedMainLabel = el.dataset.label;
+document.getElementById('main-emotion-submit-btn').disabled = false;
+}
+
+function submitMainEmotion() {
+const branch = document.getElementById('main-emotion-branch').value;
+const counter = document.getElementById('main-emotion-counter').value;
+
+if(!branch || !counter) { alert('لطفاً شعبه و شماره باجه را وارد کنید.'); return; }
+if(selectedMainEmotion === 0) { alert('لطفاً احساس خود را انتخاب کنید.'); return; }
+
+const btn = document.getElementById('main-emotion-submit-btn');
+btn.disabled = true; btn.innerText = 'در حال ارسال...';
+
+const payload = {
+action: 'submitEmotion', type: 'customer',
+branch: branch, counter: counter,
+score: selectedMainEmotion, label: selectedMainLabel,
+comment: '', userAgent: navigator.userAgent, ip: 'auto'
+};
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+.then(r => r.json())
+.then(data => {
+if(data.success) {
+document.getElementById('main-emotion-result').style.display = 'block';
+btn.style.display = 'none';
+} else {
+alert(data.error || 'خطا در ثبت');
+btn.disabled = false; btn.innerText = 'ثبت احساس';
+}
+})
+.catch(() => {
+alert('خطا در ارتباط با سرور.');
+btn.disabled = false; btn.innerText = 'ثبت احساس';
+});
+}
 </script>
 </body>
 </html>
