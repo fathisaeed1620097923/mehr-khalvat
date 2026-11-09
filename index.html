@@ -1456,13 +1456,15 @@ document.getElementById('emp-appointments-section').style.display = 'none';
 document.getElementById('emp-emotions-section').style.display = 'none';
 document.getElementById('emp-satna-section').style.display = 'none';
 document.getElementById('emp-dashboard-section').style.display = 'none';
-
+document.getElementById('emp-vip-section').style.display = 'none';
+  
 if (section === 'tickets') { document.getElementById('emp-tickets-section').style.display = 'block'; }
 else if (section === 'pos') { document.getElementById('emp-pos-section').style.display = 'block'; fetchPOSRequests(); }
 else if (section === 'appointments') { document.getElementById('emp-appointments-section').style.display = 'block'; fetchAppointments(); }
 else if (section === 'emotions') { document.getElementById('emp-emotions-section').style.display = 'block'; }
 else if (section === 'satna') { document.getElementById('emp-satna-section').style.display = 'block'; fetchSatnaRequests(); }
 else if (section === 'dashboard') { document.getElementById('emp-dashboard-section').style.display = 'block'; loadDashboardStats(); }
+else if (section === 'vip') { document.getElementById('emp-vip-section').style.display = 'block'; loadVipList(); }
 }
 
 function checkAvailability() {
