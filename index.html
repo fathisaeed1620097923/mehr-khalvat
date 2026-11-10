@@ -605,12 +605,27 @@ body { background: #fff !important; padding: 0 !important; }
 <input type="number" id="main-emotion-counter" min="0" max="20" placeholder="مثلاً 1">
 </div>
 
-<div style="display:flex; justify-content:center; gap:10px; margin:20px 0; direction:ltr;">
-<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="1" onclick="pickMainEmotion(this)">★</span>
-<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="2" onclick="pickMainEmotion(this)">★</span>
-<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="3" onclick="pickMainEmotion(this)">★</span>
-<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="4" onclick="pickMainEmotion(this)">★</span>
-<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="5" onclick="pickMainEmotion(this)">★</span>
+<div style="display:flex; justify-content:center; gap:20px; margin:20px 0; direction:rtl;">
+<div class="rating-item" style="text-align:center; cursor:pointer;" onclick="pickMainEmotion(this)">
+<div style="font-size:36px; margin-bottom:5px;">😠</div>
+<span class="star-rating" data-score="1" style="font-size:30px; color:#ddd; transition:0.2s;">★</span>
+</div>
+<div class="rating-item" style="text-align:center; cursor:pointer;" onclick="pickMainEmotion(this)">
+<div style="font-size:36px; margin-bottom:5px;">😞</div>
+<span class="star-rating" data-score="2" style="font-size:30px; color:#ddd; transition:0.2s;">★</span>
+</div>
+<div class="rating-item" style="text-align:center; cursor:pointer;" onclick="pickMainEmotion(this)">
+<div style="font-size:36px; margin-bottom:5px;">😐</div>
+<span class="star-rating" data-score="3" style="font-size:30px; color:#ddd; transition:0.2s;">★</span>
+</div>
+<div class="rating-item" style="text-align:center; cursor:pointer;" onclick="pickMainEmotion(this)">
+<div style="font-size:36px; margin-bottom:5px;">🙂</div>
+<span class="star-rating" data-score="4" style="font-size:30px; color:#ddd; transition:0.2s;">★</span>
+</div>
+<div class="rating-item" style="text-align:center; cursor:pointer;" onclick="pickMainEmotion(this)">
+<div style="font-size:36px; margin-bottom:5px;">😍</div>
+<span class="star-rating" data-score="5" style="font-size:30px; color:#ddd; transition:0.2s;">★</span>
+</div>
 </div>
 
 <button class="btn" onclick="submitMainEmotion()" id="main-emotion-submit-btn" disabled>ثبت امتیاز</button>
@@ -2159,7 +2174,7 @@ let selectedMainEmotion = 0;
 
 function pickMainEmotion(el) {
 const stars = document.querySelectorAll('.star-rating');
-const score = Number(el.dataset.score);
+const score = Number(el.querySelector('.star-rating').dataset.score);
 selectedMainEmotion = score;
 
 stars.forEach((star, index) => {
