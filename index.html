@@ -1938,26 +1938,6 @@ JalaliCalendar.open(inputId);
 /* ============================================
 🪞 آینه احساسات
 ============================================ */
-function generateMirrorQR() {
-const counter = document.getElementById('mirror-counter').value;
-const branch = document.getElementById('mirror-branch').value;
-
-if (!counter && counter !== '0') { alert('لطفاً شماره باجه را وارد کنید (برای رئیس ۰ بزنید)'); return; }
-if (!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
-
-const url = SCRIPT_URL + '?action=emotionForm&branch=' + encodeURIComponent(branch) + '&counter=' + encodeURIComponent(counter);
-const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
-
-let title = counter === '0' ? 'ریاست' : 'باجه ' + counter;
-
-document.getElementById('mirror-qr-result').innerHTML = `
-<p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR ${title} - شعبه ${branch}</p>
-<img src="${qr}" style="border:2px solid #0a4d2e;border-radius:10px;">
-<p style="font-size:11px;color:#666;margin-top:10px;word-break:break-all;">${url}</p>
-<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>
-`;
-}
-
 
 function generateMirrorQR2() {
 const counter = document.getElementById('mirror-counter-2').value;
@@ -2366,29 +2346,6 @@ btn.disabled = false; btn.innerText = 'ثبت امتیاز';
 // 👑 توابع پنل کارمندان (VIP)
 // ============================================
 
-function addNewVip() {
-const nid = document.getElementById('vip-nid').value;
-const phone = document.getElementById('vip-phone').value;
-const name = document.getElementById('vip-name').value;
-
-if(!nid || !phone) { alert('کد ملی و شماره همراه الزامی است.'); return; }
-
-const btn = event.target; // گرفتن دکمه‌ای که کلیک شده
-btn.disabled = true;
-btn.innerText = 'در حال ثبت...';
-
-fetch(SCRIPT_URL, {
-method: 'POST',
-body: JSON.stringify({ action: 'addVipCustomer', nationalId: nid, phone: phone, name: name })
-})
-.then(r => r.json())
-.then(d => {
-if(d.success) {
-alert('✅ مشتری با موفقیت به لیست VIP اضافه شد.');
-document.getElementById('vip-nid').value = '';
-document.getElementById('vip-phone').value = '';
-document.getElementById('vip-name').value = '';
-loadVipList(); // آپدیت کردن لیست
 } else {
 alert(d.error || 'خطا در ثبت.');
 }
@@ -2423,7 +2380,115 @@ container.innerHTML = html;
 .catch(() => {
 container.innerHTML = '<p style="text-align:center; color:red;">خطا در دریافت لیست.</p>';
 });
-}  
+} 
+  
+// ============================================
+// 👑 توابع پنل کارمندان (VIP)
+// ============================================
+
+function addNewVip() {
+const nid = document.getElementById('vip-nid').value;
+const phone = document.getElementById('vip-phone').value;
+const name = document.getElementById('vip-name').value;
+
+if(!nid || !phone) { alert('کد ملی و شماره همراه الزامی است.'); return; }
+
+const btn = event.target;
+btn.disabled = true;
+btn.innerText = 'در حال ثبت...';
+
+fetch(SCRIPT_URL, {
+method: 'POST',
+body: JSON.stringify({ action: 'addVipCustomer', nationalId: nid, phone: phone, name: name })
+})
+.then(r => r.json())
+.then(d => {
+if(d.success) {
+alert('✅ مشتری با موفقیت به لیست VIP اضافه شد.');
+document.getElementById('vip-nid').value = '';
+document.getElementById('vip-phone').value = '';
+document.getElementById('vip-name').value = '';
+loadVipList();
+} else {
+alert(d.error || 'خطا در ثبت.');
+}
+})
+.catch(err => {
+alert('خطا در ارتباط با سرور.');
+console.error(err);
+})
+.finally(() => {
+btn.disabled = false;
+btn.innerText = '✅ افزودن مشتری به لیست VIP';
+});
+}
+
+function loadVipList() {
+const container = document.getElementById('vip-list-container');
+if(!container) return;
+container.innerHTML = '<p style="text-align:center;">در حال دریافت لیست...</p>';
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
+.then(r => r.json())
+.then(vips => {
+if(vips.length === 0) { container.innerHTML = '<p style="text-align:center; color:gray;">لیست VIP خالی است.</p>'; return; }
+let html = '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-top:10px;">';
+html += '<tr style="background:#0a4d2e; color:white;"><th style="padding:8px;">کد ملی</th><th>شماره همراه</th><th>نام</th></tr>';
+vips.forEach(v => {
+html += `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px; text-align:center;">${v.nationalId}</td><td style="text-align:center;">${v.phone}</td><td style="text-align:center;">${v.name || '-'}</td></tr>`;
+});
+html += '</table>';
+container.innerHTML = html;
+})
+.catch(() => {
+container.innerHTML = '<p style="text-align:center; color:red;">خطا در دریافت لیست.</p>';
+});
+}
+
+// ============================================
+// 🪞 تولید QR (با انتخاب شعبه)
+// ============================================
+
+function generateMirrorQR() {
+const counter = document.getElementById('mirror-counter').value;
+const branch = document.getElementById('mirror-branch').value;
+
+if (!counter && counter !== '0') { alert('لطفاً شماره باجه را وارد کنید (برای رئیس ۰ بزنید)'); return; }
+if (!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
+
+const url = SCRIPT_URL + '?action=emotionForm&branch=' + encodeURIComponent(branch) + '&counter=' + encodeURIComponent(counter);
+const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
+
+let title = counter === '0' ? 'ریاست' : 'باجه ' + counter;
+
+document.getElementById('mirror-qr-result').innerHTML = `
+<p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR ${title} - شعبه ${branch}</p>
+<img src="${qr}" style="border:2px solid #0a4d2e;border-radius:10px;">
+<p style="font-size:11px;color:#666;margin-top:10px;word-break:break-all;">${url}</p>
+<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>
+`;
+}
+
+function generateMirrorQR2() {
+const counter = document.getElementById('mirror-counter-2').value;
+const branch = document.getElementById('mirror-branch-2').value;
+
+if (!counter && counter !== '0') { alert('لطفاً شماره باجه را وارد کنید'); return; }
+if (!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
+
+const url = SCRIPT_URL + '?action=emotionForm&branch=' + encodeURIComponent(branch) + '&counter=' + encodeURIComponent(counter);
+const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
+
+let title = counter === '0' ? 'ریاست' : 'باجه ' + counter;
+
+document.getElementById('mirror-qr-result-2').innerHTML = `
+<p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR ${title} - شعبه ${branch}</p>
+<img src="${qr}" style="border:2px solid #0a4d2e;border-radius:10px;">
+<p style="font-size:11px;color:#666;margin-top:10px;word-break:break-all;">${url}</p>
+<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>
+`;
+}
+
 </script>
 </body>
 </html>
