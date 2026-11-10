@@ -329,7 +329,7 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
-  <!-- بخش پیگیری ساتنا -->
+<!-- بخش پیگیری ساتنا -->
 <div id="track-satna-section" style="display: none;">
 <h3 style="color: #0a4d2e;">وضعیت ساتنای شما:</h3>
 <div class="routing-info" id="track-satna-details" style="margin-top: 15px; line-height: 2;"></div>
@@ -701,7 +701,7 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="emotions">🪞 آینه احساسات</option>
 <option value="satna">💸 درخواست‌های ساتنا</option>
 <option value="vip">👑 مدیریت مشتریان VIP</option>
-  
+
 <option value="dashboard">📊 داشبورد مدیریت</option>
 </select>
 </div>
@@ -814,7 +814,7 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 <div id="vip-list-container"></div>
 </div>
-  
+
 <!-- 🌟 بخش داشبورد مدیریت -->
 <div id="emp-dashboard-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px; text-align: center;">📊 داشبورد آماری سامانه</h3>
@@ -1117,7 +1117,7 @@ document.getElementById('main-emotion-submit-btn').style.display = 'block';
 document.getElementById('main-emotion-submit-btn').disabled = true;
 document.getElementById('main-emotion-submit-btn').innerText = 'ثبت احساس';
 }
-  
+
 if(panelId === 'employee') {
 document.getElementById('tab-badge').style.display = 'none';
 const user = sessionStorage.getItem('loggedInUser');
@@ -1484,7 +1484,7 @@ document.getElementById('emp-emotions-section').style.display = 'none';
 document.getElementById('emp-satna-section').style.display = 'none';
 document.getElementById('emp-dashboard-section').style.display = 'none';
 document.getElementById('emp-vip-section').style.display = 'none';
-  
+
 if (section === 'tickets') { document.getElementById('emp-tickets-section').style.display = 'block'; }
 else if (section === 'pos') { document.getElementById('emp-pos-section').style.display = 'block'; fetchPOSRequests(); }
 else if (section === 'appointments') { document.getElementById('emp-appointments-section').style.display = 'block'; fetchAppointments(); }
@@ -2374,4 +2374,3 @@ document.getElementById('mirror-qr-result-2').innerHTML = `
 </script>
 </body>
 </html>
-
