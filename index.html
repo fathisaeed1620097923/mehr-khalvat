@@ -579,10 +579,11 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
+<!-- ۵.۵ پنل آینه احساسات (منوی اصلی) -->
 <div class="content panel" id="panel-emotion-tab">
 <div style="text-align:center;margin-bottom:20px;">
 <h2 style="color:#0a4d2e;margin-bottom:10px;">🪞 آینه احساسات</h2>
-<p style="font-size:14px;color:#666;">لطفاً شعبه و باجه‌ای که در آن هستید را انتخاب کنید و احساس خود را ثبت کنید.</p>
+<p style="font-size:14px;color:#666;">لطفاً شعبه و باجه‌ای که در آن هستید را انتخاب کنید و امتیاز خود را ثبت کنید.</p>
 </div>
 
 <div class="form-group">
@@ -600,22 +601,22 @@ body { background: #fff !important; padding: 0 !important; }
 </select>
 </div>
 <div class="form-group">
-<label>شماره باجه:</label>
-<input type="number" id="main-emotion-counter" min="1" max="20" placeholder="مثلاً 1">
+<label>شماره باجه (برای رئیس شعبه عدد ۰ را وارد کنید):</label>
+<input type="number" id="main-emotion-counter" min="0" max="20" placeholder="مثلاً 1">
 </div>
 
-<div style="display:flex; justify-content:space-between; gap:5px; margin:20px 0;">
-<div class="emotion-btn-main" data-score="1" data-label="خیلی ناراضی" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">😠</div>
-<div class="emotion-btn-main" data-score="2" data-label="ناراضی" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">😞</div>
-<div class="emotion-btn-main" data-score="3" data-label="متوسط" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">😐</div>
-<div class="emotion-btn-main" data-score="4" data-label="راضی" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">🙂</div>
-<div class="emotion-btn-main" data-score="5" data-label="خیلی راضی" onclick="pickMainEmotion(this)" style="flex:1; text-align:center; padding:10px; border:2px solid #ddd; border-radius:10px; cursor:pointer; font-size:24px;">😍</div>
+<div style="display:flex; justify-content:center; gap:10px; margin:20px 0; direction:ltr;">
+<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="1" onclick="pickMainEmotion(this)">★</span>
+<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="2" onclick="pickMainEmotion(this)">★</span>
+<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="3" onclick="pickMainEmotion(this)">★</span>
+<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="4" onclick="pickMainEmotion(this)">★</span>
+<span class="star-rating" style="font-size:40px; cursor:pointer; color:#ddd; transition:0.2s;" data-score="5" onclick="pickMainEmotion(this)">★</span>
 </div>
 
-<button class="btn" onclick="submitMainEmotion()" id="main-emotion-submit-btn" disabled>ثبت احساس</button>
+<button class="btn" onclick="submitMainEmotion()" id="main-emotion-submit-btn" disabled>ثبت امتیاز</button>
 
 <div class="result-box" id="main-emotion-result" style="display:none; background:#e8f5ec; border:2px solid #27ae60; border-radius:12px; padding:20px; text-align:center; margin-top:20px;">
-<h3 style="color:#1e7a44; margin-bottom:10px;">✅ احساس شما ثبت شد</h3>
+<h3 style="color:#1e7a44; margin-bottom:10px;">✅ امتیاز شما ثبت شد</h3>
 <p style="font-size:14px;">از اینکه نظر خود را با ما در میان گذاشتید سپاسگزاریم.</p>
 </div>
 </div>
@@ -727,37 +728,63 @@ body { background: #fff !important; padding: 0 !important; }
 <div id="emp-appointments-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px;">📅 نوبت‌های ثبت‌شده</h3>
 <div id="employee-appointments-list"></div>
-
-<!-- 🪞 آینه احساسات - رئیس شعبه -->
 <div class="emotion-counter-box">
 <h3>🪞 آینه احساسات</h3>
 <p class="hint">لینک QR مخصوص هر باجه را چاپ و جلوی آن باجه نصب کنید:</p>
+
 <div class="form-group">
-<label>شماره باجه:</label>
-<input type="number" id="mirror-counter" min="1" max="20" placeholder="مثلاً 1">
+<label>انتخاب شعبه:</label>
+<select id="mirror-branch" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;margin-bottom:10px;">
+<option value="6400">6400</option>
+<option value="6401">6401</option><option value="6402">6402</option><option value="6403">6403</option>
+<option value="6404">6404</option><option value="6405">6405</option><option value="6406">6406</option>
+<option value="6407">6407</option><option value="6408">6408</option><option value="6409">6409</option>
+<option value="6410">6410</option><option value="6411">6411</option><option value="6412">6412</option>
+<option value="6413">6413</option><option value="6414">6414</option><option value="6415">6415</option>
+<option value="6416">6416</option><option value="6417">6417</option><option value="6418">6418</option>
+<option value="6419">6419</option>
+</select>
 </div>
-<button class="btn" onclick="generateMirrorQR()" style="background:#d4a017;">📱 تولید QR باجه</button>
+
+<div class="form-group">
+<label>شماره باجه (برای رئیس شعبه ۰ وارد کنید):</label>
+<input type="number" id="mirror-counter" min="0" max="20" placeholder="مثلاً 1">
+</div>
+<button class="btn" onclick="generateMirrorQR()" style="background:#d4a017;">📱 تولید QR باجه / رئیس</button>
 <button class="btn" style="background:#c0392b;" onclick="openManagerEmotionForm()">✍️ ثبت احساس مدیر (رمزدار)</button>
 <div id="mirror-qr-result" class="mirror-qr-result"></div>
 <hr style="margin: 15px 0;">
-<button class="btn" onclick="loadMyEmotionStats()" style="background:#2980b9;">📊 مشاهده آمار احساسات شعبه من</button>
+<button class="btn" onclick="loadMyEmotionStats()" style="background:#2980b9;">📊 مشاهده آمار امتیازات شعبه من</button>
 <div id="emotion-stats-branch" style="margin-top:15px;"></div>
-</div>
 </div>
 
 <div id="emp-emotions-section" style="display: none;">
 <div class="emotion-counter-box">
 <h3>🪞 آینه احساسات - مدیریت</h3>
 <p class="hint">تولید QR برای هر باجه و مشاهده آمار:</p>
+
 <div class="form-group">
-<label>شماره باجه:</label>
-<input type="number" id="mirror-counter-2" min="1" max="20" placeholder="مثلاً 1">
+<label>انتخاب شعبه:</label>
+<select id="mirror-branch-2" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;margin-bottom:10px;">
+<option value="6400">6400</option>
+<option value="6401">6401</option><option value="6402">6402</option><option value="6403">6403</option>
+<option value="6404">6404</option><option value="6405">6405</option><option value="6406">6406</option>
+<option value="6407">6407</option><option value="6408">6408</option><option value="6409">6409</option>
+<option value="6410">6410</option><option value="6411">6411</option><option value="6412">6412</option>
+<option value="6413">6413</option><option value="6414">6414</option><option value="6415">6415</option>
+<option value="6416">6416</option><option value="6417">6417</option><option value="6418">6418</option>
+<option value="6419">6419</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>شماره باجه (برای رئیس شعبه ۰ وارد کنید):</label>
+<input type="number" id="mirror-counter-2" min="0" max="20" placeholder="مثلاً 1">
 </div>
 <button class="btn" onclick="generateMirrorQR2()" style="background:#d4a017;">📱 تولید QR باجه</button>
-<button class="btn" style="background:#c0392b;" onclick="openManagerEmotionForm()">✍️ ثبت احساس مدیر (رمزدار)</button>
 <div id="mirror-qr-result-2" class="mirror-qr-result"></div>
 <hr style="margin: 15px 0;">
-<button class="btn" onclick="loadMyEmotionStats2()" style="background:#2980b9;">📊 مشاهده آمار احساسات</button>
+<button class="btn" onclick="loadMyEmotionStats2()" style="background:#2980b9;">📊 مشاهده آمار امتیازات</button>
 <div id="emotion-stats-branch-2" style="margin-top:15px;"></div>
 </div>
 </div>
@@ -1913,17 +1940,24 @@ JalaliCalendar.open(inputId);
 ============================================ */
 function generateMirrorQR() {
 const counter = document.getElementById('mirror-counter').value;
-if (!counter) { alert('لطفاً شماره باجه را وارد کنید'); return; }
-const branch = sessionStorage.getItem('branch') || '0000';
+const branch = document.getElementById('mirror-branch').value;
+
+if (!counter && counter !== '0') { alert('لطفاً شماره باجه را وارد کنید (برای رئیس ۰ بزنید)'); return; }
+if (!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
+
 const url = SCRIPT_URL + '?action=emotionForm&branch=' + encodeURIComponent(branch) + '&counter=' + encodeURIComponent(counter);
 const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
+
+let title = counter === '0' ? 'ریاست' : 'باجه ' + counter;
+
 document.getElementById('mirror-qr-result').innerHTML = `
-<p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR باجه ${counter} - شعبه ${branch}</p>
+<p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR ${title} - شعبه ${branch}</p>
 <img src="${qr}" style="border:2px solid #0a4d2e;border-radius:10px;">
 <p style="font-size:11px;color:#666;margin-top:10px;word-break:break-all;">${url}</p>
 <button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>
 `;
 }
+
 
 function generateMirrorQR2() {
 const counter = document.getElementById('mirror-counter-2').value;
@@ -2271,14 +2305,26 @@ document.getElementById('track-satna-details').innerHTML += `<p style="color:gre
 // ============================================
 // 🪞 توابع آینه احساسات (منوی اصلی مشتری)
 // ============================================
+// ============================================
+// 🪞 توابع آینه احساسات (منوی اصلی - ستاره‌ها)
+// ============================================
 let selectedMainEmotion = 0;
-let selectedMainLabel = "";
 
 function pickMainEmotion(el) {
-document.querySelectorAll('.emotion-btn-main').forEach(e => e.style.borderColor = '#ddd');
-el.style.borderColor = '#27ae60';
-selectedMainEmotion = Number(el.dataset.score);
-selectedMainLabel = el.dataset.label;
+const stars = document.querySelectorAll('.star-rating');
+const score = Number(el.dataset.score);
+selectedMainEmotion = score;
+
+stars.forEach((star, index) => {
+if (index < score) {
+star.style.color = '#f1c40f'; // زرد
+star.style.transform = 'scale(1.1)';
+} else {
+star.style.color = '#ddd'; // خاکستری
+star.style.transform = 'scale(1)';
+}
+});
+
 document.getElementById('main-emotion-submit-btn').disabled = false;
 }
 
@@ -2287,7 +2333,7 @@ const branch = document.getElementById('main-emotion-branch').value;
 const counter = document.getElementById('main-emotion-counter').value;
 
 if(!branch || !counter) { alert('لطفاً شعبه و شماره باجه را وارد کنید.'); return; }
-if(selectedMainEmotion === 0) { alert('لطفاً احساس خود را انتخاب کنید.'); return; }
+if(selectedMainEmotion === 0) { alert('لطفاً امتیاز خود را انتخاب کنید.'); return; }
 
 const btn = document.getElementById('main-emotion-submit-btn');
 btn.disabled = true; btn.innerText = 'در حال ارسال...';
@@ -2295,7 +2341,7 @@ btn.disabled = true; btn.innerText = 'در حال ارسال...';
 const payload = {
 action: 'submitEmotion', type: 'customer',
 branch: branch, counter: counter,
-score: selectedMainEmotion, label: selectedMainLabel,
+score: selectedMainEmotion, label: 'امتیاز ' + selectedMainEmotion,
 comment: '', userAgent: navigator.userAgent, ip: 'auto'
 };
 
@@ -2307,14 +2353,15 @@ document.getElementById('main-emotion-result').style.display = 'block';
 btn.style.display = 'none';
 } else {
 alert(data.error || 'خطا در ثبت');
-btn.disabled = false; btn.innerText = 'ثبت احساس';
+btn.disabled = false; btn.innerText = 'ثبت امتیاز';
 }
 })
 .catch(() => {
 alert('خطا در ارتباط با سرور.');
-btn.disabled = false; btn.innerText = 'ثبت احساس';
+btn.disabled = false; btn.innerText = 'ثبت امتیاز';
 });
 }
+
 // ============================================
 // 👑 توابع پنل کارمندان (VIP)
 // ============================================
