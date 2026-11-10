@@ -2151,140 +2151,7 @@ ${item.imageUrl ? `<p><a href="${item.imageUrl}" target="_blank">📷 مشاهد
 })
 .catch(() => { listContainer.innerHTML = '<p style="text-align:center; color: red;">خطا در ارتباط.</p>'; });
 }
-  // ============================================
-// 💸 توابع ساتنا و VIP (کلاینت)
-// ============================================
-let verifiedSatnaNid = "";
-let verifiedSatnaPhone = "";
-let currentSatnaRow = 0;
 
-function checkVipAccess() {
-const nid = document.getElementById('satna-auth-nid').value;
-const phone = document.getElementById('satna-auth-phone').value;
-const err = document.getElementById('satna-auth-error');
-const btn = document.getElementById('satna-auth-btn');
-
-if(!nid || !phone) { err.innerText = 'لطفاً کد ملی و شماره همراه را وارد کنید.'; err.style.display='block'; return; }
-
-btn.innerText = 'در حال بررسی...';
-btn.disabled = true;
-err.style.display = 'none';
-
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
-.then(r => r.json())
-.then(vips => {
-const isVip = vips.find(v => v.nationalId === nid && v.phone === phone);
-if(isVip) {
-verifiedSatnaNid = nid;
-verifiedSatnaPhone = phone;
-document.getElementById('satna-name').value = isVip.name || '';
-document.getElementById('satna-auth-section').style.display = 'none';
-document.getElementById('satna-form-section').style.display = 'block';
-} else {
-err.innerText = 'شما در لیست مشتریان ویژه نیستید. لطفاً به شعبه مراجعه کنید.';
-err.style.display = 'block';
-}
-btn.innerText = 'بررسی هویت و ورود';
-btn.disabled = false;
-}).catch(() => {
-err.innerText = 'خطا در ارتباط با سرور.';
-err.style.display = 'block';
-btn.innerText = 'بررسی هویت و ورود';
-btn.disabled = false;
-});
-}
-
-function submitSatnaForm() {
-const branch = document.getElementById('satna-branch').value;
-if(!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
-
-const ibanDest = document.getElementById('satna-ibanDest').value;
-if(ibanDest.length !== 24) { alert('شبا مقصد باید ۲۴ رقم باشد.'); return; }
-
-const btn = document.getElementById('submitSatnaBtn');
-btn.disabled = true;
-btn.innerText = 'در حال ثبت...';
-
-const payload = {
-action: 'submitSatna',
-nationalId: verifiedSatnaNid,
-phone: verifiedSatnaPhone,
-name: document.getElementById('satna-name').value,
-branch: branch,
-ibanSource: document.getElementById('satna-ibanSource').value,
-ibanDest: ibanDest,
-amount: document.getElementById('satna-amount').value,
-receiverName: document.getElementById('satna-receiverName').value
-};
-
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-.then(r => r.json())
-.then(d => {
-if(d.success) {
-document.getElementById('satna-form-section').style.display = 'none';
-document.getElementById('satna-resultBox').style.display = 'block';
-document.getElementById('satna-code').textContent = d.code;
-} else {
-alert(d.error || 'خطا در ثبت.');
-btn.disabled = false;
-btn.innerText = 'ثبت درخواست ساتنا';
-}
-}).catch(() => {
-alert('خطا در ارتباط با سرور.');
-btn.disabled = false;
-btn.innerText = 'ثبت درخواست ساتنا';
-});
-}
-
-// پیگیری ساتنا (در صفحه پیگیری)
-function trackSatnaCode(code) {
-fetch(SCRIPT_URL + "?action=trackSatna&code=" + code)
-.then(r => r.json())
-.then(data => {
-if(data.found) {
-document.getElementById('track-ticket-section').style.display = 'none';
-document.getElementById('track-appointment-section').style.display = 'none';
-document.getElementById('track-satna-section').style.display = 'block';
-currentSatnaRow = data.row;
-
-let html = `
-<p><strong>کد رهگیری:</strong> ${data.code}</p>
-<p><strong>مبلغ:</strong> ${data.amount} تومان</p>
-<p><strong>شبا مقصد:</strong> IR${data.ibanDest}</p>
-<p><strong>نام گیرنده:</strong> ${data.receiverName}</p>
-<p><strong>وضعیت فعلی:</strong> <span style="color:#d4a017;font-weight:bold;">${data.status}</span></p>
-`;
-
-if(data.status === 'در انتظار تأیید نهایی مشتری') {
-html += `<p><strong>شماره برگه فیزیکی ثبت شده توسط شعبه:</strong> <span style="font-size:18px; color:green; font-weight:bold;">${data.healthSheetNumber}</span></p>`;
-document.getElementById('final-approve-btn').style.display = 'block';
-} else if(data.status === 'تأیید نهایی شد - آماده عملیات') {
-document.getElementById('final-approve-btn').style.display = 'none';
-html += `<p style="color:green; font-weight:bold;">✅ شما این تراکنش را تأیید کردید.</p>`;
-}
-
-document.getElementById('track-satna-details').innerHTML = html;
-} else {
-document.getElementById('track-status-text').innerText = "کد یافت نشد!";
-}
-});
-}
-
-function customerFinalApprove() {
-if(!confirm('آیا از تأیید نهایی این تراکنش اطمینان دارید؟')) return;
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'customerFinalApproveSatna', row: currentSatnaRow }) })
-.then(r => r.json())
-.then(d => {
-if(d.success) {
-alert('✅ تأیید نهایی انجام شد. شعبه عملیات را انجام خواهد داد.');
-document.getElementById('final-approve-btn').style.display = 'none';
-document.getElementById('track-satna-details').innerHTML += `<p style="color:green; font-weight:bold;">✅ شما این تراکنش را تأیید کردید.</p>`;
-}
-});
-}
-// ============================================
-// 🪞 توابع آینه احساسات (منوی اصلی مشتری)
-// ============================================
 // ============================================
 // 🪞 توابع آینه احساسات (منوی اصلی - ستاره‌ها)
 // ============================================
@@ -2297,37 +2164,31 @@ selectedMainEmotion = score;
 
 stars.forEach((star, index) => {
 if (index < score) {
-star.style.color = '#f1c40f'; // زرد
+star.style.color = '#f1c40f';
 star.style.transform = 'scale(1.1)';
 } else {
-star.style.color = '#ddd'; // خاکستری
+star.style.color = '#ddd';
 star.style.transform = 'scale(1)';
 }
 });
-
 document.getElementById('main-emotion-submit-btn').disabled = false;
 }
 
 function submitMainEmotion() {
 const branch = document.getElementById('main-emotion-branch').value;
 const counter = document.getElementById('main-emotion-counter').value;
-
 if(!branch || !counter) { alert('لطفاً شعبه و شماره باجه را وارد کنید.'); return; }
 if(selectedMainEmotion === 0) { alert('لطفاً امتیاز خود را انتخاب کنید.'); return; }
-
 const btn = document.getElementById('main-emotion-submit-btn');
 btn.disabled = true; btn.innerText = 'در حال ارسال...';
-
 const payload = {
 action: 'submitEmotion', type: 'customer',
 branch: branch, counter: counter,
 score: selectedMainEmotion, label: 'امتیاز ' + selectedMainEmotion,
 comment: '', userAgent: navigator.userAgent, ip: 'auto'
 };
-
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-.then(r => r.json())
-.then(data => {
+.then(r => r.json()).then(data => {
 if(data.success) {
 document.getElementById('main-emotion-result').style.display = 'block';
 btn.style.display = 'none';
@@ -2335,102 +2196,137 @@ btn.style.display = 'none';
 alert(data.error || 'خطا در ثبت');
 btn.disabled = false; btn.innerText = 'ثبت امتیاز';
 }
-})
-.catch(() => {
+}).catch(() => {
 alert('خطا در ارتباط با سرور.');
 btn.disabled = false; btn.innerText = 'ثبت امتیاز';
 });
 }
 
 // ============================================
-// 👑 توابع پنل کارمندان (VIP)
+// 💸 توابع ساتنا و VIP (کلاینت)
 // ============================================
+let verifiedSatnaNid = "";
+let verifiedSatnaPhone = "";
+let currentSatnaRow = 0;
 
-} else {
-alert(d.error || 'خطا در ثبت.');
-}
-})
-.catch(err => {
-alert('خطا در ارتباط با سرور.');
-console.error(err);
-})
-.finally(() => {
-btn.disabled = false;
-btn.innerText = '✅ افزودن مشتری به لیست VIP';
-});
-}
-
-function loadVipList() {
-const container = document.getElementById('vip-list-container');
-if(!container) return;
-container.innerHTML = '<p style="text-align:center;">در حال دریافت لیست...</p>';
-
+function checkVipAccess() {
+const nid = document.getElementById('satna-auth-nid').value;
+const phone = document.getElementById('satna-auth-phone').value;
+const err = document.getElementById('satna-auth-error');
+const btn = document.getElementById('satna-auth-btn');
+if(!nid || !phone) { err.innerText = 'لطفاً کد ملی و شماره همراه را وارد کنید.'; err.style.display='block'; return; }
+btn.innerText = 'در حال بررسی...';
+btn.disabled = true;
+err.style.display = 'none';
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
-.then(r => r.json())
-.then(vips => {
-if(vips.length === 0) { container.innerHTML = '<p style="text-align:center; color:gray;">لیست VIP خالی است.</p>'; return; }
-let html = '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-top:10px;">';
-html += '<tr style="background:#0a4d2e; color:white;"><th style="padding:8px;">کد ملی</th><th>شماره همراه</th><th>نام</th></tr>';
-vips.forEach(v => {
-html += `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px; text-align:center;">${v.nationalId}</td><td style="text-align:center;">${v.phone}</td><td style="text-align:center;">${v.name || '-'}</td></tr>`;
+.then(r => r.json()).then(vips => {
+const isVip = vips.find(v => v.nationalId === nid && v.phone === phone);
+if(isVip) {
+verifiedSatnaNid = nid; verifiedSatnaPhone = phone;
+document.getElementById('satna-name').value = isVip.name || '';
+document.getElementById('satna-auth-section').style.display = 'none';
+document.getElementById('satna-form-section').style.display = 'block';
+} else {
+err.innerText = 'شما در لیست مشتریان ویژه نیستید. لطفاً به شعبه مراجعه کنید.';
+err.style.display = 'block';
+}
+btn.innerText = 'بررسی هویت و ورود'; btn.disabled = false;
+}).catch(() => {
+err.innerText = 'خطا در ارتباط با سرور.'; err.style.display = 'block';
+btn.innerText = 'بررسی هویت و ورود'; btn.disabled = false;
 });
-html += '</table>';
-container.innerHTML = html;
-})
-.catch(() => {
-container.innerHTML = '<p style="text-align:center; color:red;">خطا در دریافت لیست.</p>';
+}
+
+function submitSatnaForm() {
+const branch = document.getElementById('satna-branch').value;
+if(!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
+const ibanDest = document.getElementById('satna-ibanDest').value;
+if(ibanDest.length !== 24) { alert('شبا مقصد باید ۲۴ رقم باشد.'); return; }
+const btn = document.getElementById('submitSatnaBtn');
+btn.disabled = true; btn.innerText = 'در حال ثبت...';
+const payload = {
+action: 'submitSatna', nationalId: verifiedSatnaNid, phone: verifiedSatnaPhone,
+name: document.getElementById('satna-name').value, branch: branch,
+ibanSource: document.getElementById('satna-ibanSource').value,
+ibanDest: ibanDest, amount: document.getElementById('satna-amount').value,
+receiverName: document.getElementById('satna-receiverName').value
+};
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+.then(r => r.json()).then(d => {
+if(d.success) {
+document.getElementById('satna-form-section').style.display = 'none';
+document.getElementById('satna-resultBox').style.display = 'block';
+document.getElementById('satna-code').textContent = d.code;
+} else { alert(d.error || 'خطا در ثبت.'); btn.disabled = false; btn.innerText = 'ثبت درخواست ساتنا'; }
+}).catch(() => { alert('خطا در ارتباط با سرور.'); btn.disabled = false; btn.innerText = 'ثبت درخواست ساتنا'; });
+}
+
+function trackSatnaCode(code) {
+fetch(SCRIPT_URL + "?action=trackSatna&code=" + code)
+.then(r => r.json()).then(data => {
+if(data.found) {
+document.getElementById('track-ticket-section').style.display = 'none';
+document.getElementById('track-appointment-section').style.display = 'none';
+document.getElementById('track-satna-section').style.display = 'block';
+currentSatnaRow = data.row;
+let html = `<p><strong>کد رهگیری:</strong> ${data.code}</p>
+<p><strong>مبلغ:</strong> ${data.amount} تومان</p>
+<p><strong>شبا مقصد:</strong> IR${data.ibanDest}</p>
+<p><strong>نام گیرنده:</strong> ${data.receiverName}</p>
+<p><strong>وضعیت فعلی:</strong> <span style="color:#d4a017;font-weight:bold;">${data.status}</span></p>`;
+if(data.status === 'در انتظار تأیید نهایی مشتری') {
+html += `<p><strong>شماره برگه فیزیکی ثبت شده توسط شعبه:</strong> <span style="font-size:18px; color:green; font-weight:bold;">${data.healthSheetNumber}</span></p>`;
+document.getElementById('final-approve-btn').style.display = 'block';
+} else if(data.status === 'تأیید نهایی شد - آماده عملیات') {
+document.getElementById('final-approve-btn').style.display = 'none';
+html += `<p style="color:green; font-weight:bold;">✅ شما این تراکنش را تأیید کردید.</p>`;
+}
+document.getElementById('track-satna-details').innerHTML = html;
+} else { document.getElementById('track-status-text').innerText = "کد یافت نشد!"; }
 });
-} 
-  
+}
+
+function customerFinalApprove() {
+if(!confirm('آیا از تأیید نهایی این تراکنش اطمینان دارید؟')) return;
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'customerFinalApproveSatna', row: currentSatnaRow }) })
+.then(r => r.json()).then(d => {
+if(d.success) {
+alert('✅ تأیید نهایی انجام شد. شعبه عملیات را انجام خواهد داد.');
+document.getElementById('final-approve-btn').style.display = 'none';
+document.getElementById('track-satna-details').innerHTML += `<p style="color:green; font-weight:bold;">✅ شما این تراکنش را تأیید کردید.</p>`;
+}
+});
+}
+
 // ============================================
 // 👑 توابع پنل کارمندان (VIP)
 // ============================================
-
 function addNewVip() {
 const nid = document.getElementById('vip-nid').value;
 const phone = document.getElementById('vip-phone').value;
 const name = document.getElementById('vip-name').value;
-
 if(!nid || !phone) { alert('کد ملی و شماره همراه الزامی است.'); return; }
-
 const btn = event.target;
-btn.disabled = true;
-btn.innerText = 'در حال ثبت...';
-
+btn.disabled = true; btn.innerText = 'در حال ثبت...';
 fetch(SCRIPT_URL, {
 method: 'POST',
 body: JSON.stringify({ action: 'addVipCustomer', nationalId: nid, phone: phone, name: name })
-})
-.then(r => r.json())
-.then(d => {
+}).then(r => r.json()).then(d => {
 if(d.success) {
 alert('✅ مشتری با موفقیت به لیست VIP اضافه شد.');
-document.getElementById('vip-nid').value = '';
-document.getElementById('vip-phone').value = '';
-document.getElementById('vip-name').value = '';
+document.getElementById('vip-nid').value = ''; document.getElementById('vip-phone').value = ''; document.getElementById('vip-name').value = '';
 loadVipList();
-} else {
-alert(d.error || 'خطا در ثبت.');
-}
-})
-.catch(err => {
-alert('خطا در ارتباط با سرور.');
-console.error(err);
-})
-.finally(() => {
-btn.disabled = false;
-btn.innerText = '✅ افزودن مشتری به لیست VIP';
-});
+} else { alert(d.error || 'خطا در ثبت.'); }
+}).catch(err => { alert('خطا در ارتباط با سرور.'); console.error(err); })
+.finally(() => { btn.disabled = false; btn.innerText = '✅ افزودن مشتری به لیست VIP'; });
 }
 
 function loadVipList() {
 const container = document.getElementById('vip-list-container');
 if(!container) return;
 container.innerHTML = '<p style="text-align:center;">در حال دریافت لیست...</p>';
-
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
-.then(r => r.json())
-.then(vips => {
+.then(r => r.json()).then(vips => {
 if(vips.length === 0) { container.innerHTML = '<p style="text-align:center; color:gray;">لیست VIP خالی است.</p>'; return; }
 let html = '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-top:10px;">';
 html += '<tr style="background:#0a4d2e; color:white;"><th style="padding:8px;">کد ملی</th><th>شماره همراه</th><th>نام</th></tr>';
@@ -2439,56 +2335,40 @@ html += `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px; text-
 });
 html += '</table>';
 container.innerHTML = html;
-})
-.catch(() => {
-container.innerHTML = '<p style="text-align:center; color:red;">خطا در دریافت لیست.</p>';
-});
+}).catch(() => { container.innerHTML = '<p style="text-align:center; color:red;">خطا در دریافت لیست.</p>'; });
 }
 
 // ============================================
 // 🪞 تولید QR (با انتخاب شعبه)
 // ============================================
-
-
-
 function generateMirrorQR() {
 const counter = document.getElementById('mirror-counter').value;
 const branch = document.getElementById('mirror-branch').value;
-
 if (!counter && counter !== '0') { alert('لطفاً شماره باجه را وارد کنید (برای رئیس ۰ بزنید)'); return; }
 if (!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
-
 const url = SCRIPT_URL + '?action=emotionForm&branch=' + encodeURIComponent(branch) + '&counter=' + encodeURIComponent(counter);
 const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
-
 let title = counter === '0' ? 'ریاست' : 'باجه ' + counter;
-
 document.getElementById('mirror-qr-result').innerHTML = `
 <p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR ${title} - شعبه ${branch}</p>
 <img src="${qr}" style="border:2px solid #0a4d2e;border-radius:10px;">
 <p style="font-size:11px;color:#666;margin-top:10px;word-break:break-all;">${url}</p>
-<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>
-`;
+<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>`;
 }
 
 function generateMirrorQR2() {
 const counter = document.getElementById('mirror-counter-2').value;
 const branch = document.getElementById('mirror-branch-2').value;
-
 if (!counter && counter !== '0') { alert('لطفاً شماره باجه را وارد کنید'); return; }
 if (!branch) { alert('لطفاً شعبه را انتخاب کنید.'); return; }
-
 const url = SCRIPT_URL + '?action=emotionForm&branch=' + encodeURIComponent(branch) + '&counter=' + encodeURIComponent(counter);
 const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + encodeURIComponent(url);
-
 let title = counter === '0' ? 'ریاست' : 'باجه ' + counter;
-
 document.getElementById('mirror-qr-result-2').innerHTML = `
 <p style="font-weight:bold;color:#0a4d2e;margin-bottom:10px;">QR ${title} - شعبه ${branch}</p>
 <img src="${qr}" style="border:2px solid #0a4d2e;border-radius:10px;">
 <p style="font-size:11px;color:#666;margin-top:10px;word-break:break-all;">${url}</p>
-<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>
-`;
+<button class="btn btn-outline" onclick="window.open('${url}','_blank')" style="margin-top:10px;">پیش‌نمایش فرم</button>`;
 }
 
 </script>
