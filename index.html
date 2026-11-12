@@ -2372,77 +2372,7 @@ alert('خطا در ارتباط با سرور.');
 btn.disabled = false; btn.innerText = 'ثبت امتیاز';
 });
 }
-  // --- کدهای جدید افزودنی ---
-document.getElementById('c-problemType').addEventListener('change', function() {
-const val = this.value;
-const box = document.getElementById('quick-answer-box');
-const text = document.getElementById('quick-answer-text');
-let msg = "";
-if (val === "1") msg = "ابتدا از کیوبانک بخش «وضعیت تسهیلات» را بررسی کنید. اگر «آماده پرداخت» بود، شبای شما باید ثبت شده باشد.";
-else if (val === "19" || val === "20") msg = "۱۵ دقیقه صبر کنید یا گوشی را خاموش/روشن کنید. اگر سیم‌کارت تعویض شده، باید احراز هویت کنید.";
-else if (val === "13") msg = "⚠️ فوراً از طریق کیوبانک کارت را «مسدود» کنید و سپس درخواست کارت جدید دهید.";
-if (msg) { text.innerText = msg; box.style.display = 'block'; } else { box.style.display = 'none'; }
-});
-
-let mediaRecorder, audioChunks = [], isRecording = false, audioBase64 = "";
-async function toggleRecording() {
-const btn = document.getElementById('recordBtn');
-const playback = document.getElementById('audioPlayback');
-if (!isRecording) {
-try {
-const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-mediaRecorder = new MediaRecorder(stream);
-audioChunks = [];
-mediaRecorder.ondataavailable = e => { audioChunks.push(e.data); };
-mediaRecorder.onstop = () => {
-const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-const reader = new FileReader();
-reader.readAsDataURL(audioBlob);
-reader.onloadend = () => {
-audioBase64 = reader.result;
-playback.src = audioBase64; playback.style.display = 'block';
-btn.innerText = '🎤 ضبط مجدد'; btn.style.background = '#d4a017';
-};
-};
-mediaRecorder.start(); isRecording = true;
-btn.innerText = '🛑 توقف ضبط'; btn.style.background = '#c0392b';
-} catch (err) { alert('دسترسی به میکروفون داده نشد.'); }
-} else {
-mediaRecorder.stop(); isRecording = false;
-}
-}
-
-// ==========================================
-// کدهای هوشمند (ضبط صدا و پاسخ فوری)
-// ==========================================
-let mediaRecorder, audioChunks = [], isRecording = false, audioBase64 = "";
-async function toggleRecording() {
-const btn = document.getElementById('recordBtn');
-const playback = document.getElementById('audioPlayback');
-if (!isRecording) {
-try {
-const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-mediaRecorder = new MediaRecorder(stream);
-audioChunks = [];
-mediaRecorder.ondataavailable = e => { audioChunks.push(e.data); };
-mediaRecorder.onstop = () => {
-const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-const reader = new FileReader();
-reader.readAsDataURL(audioBlob);
-reader.onloadend = () => {
-audioBase64 = reader.result;
-playback.src = audioBase64; playback.style.display = 'block';
-btn.innerText = '🎤 ضبط مجدد'; btn.style.background = '#d4a017';
-};
-};
-mediaRecorder.start(); isRecording = true;
-btn.innerText = '🛑 توقف ضبط'; btn.style.background = '#c0392b';
-} catch (err) { alert('دسترسی به میکروفون داده نشد.'); }
-} else {
-mediaRecorder.stop(); isRecording = false;
-}
-}
-
+// --- کدهای جدید (نسخه اصلاح شده) ---
 document.getElementById('c-problemType').addEventListener('change', function() {
 const val = this.value;
 const box = document.getElementById('quick-answer-box');
@@ -2481,7 +2411,36 @@ box.style.display = 'block';
 } else {
 box.style.display = 'none';
 }
-  
+});
+
+let mediaRecorder, audioChunks = [], isRecording = false, audioBase64 = "";
+async function toggleRecording() {
+const btn = document.getElementById('recordBtn');
+const playback = document.getElementById('audioPlayback');
+if (!isRecording) {
+try {
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+mediaRecorder = new MediaRecorder(stream);
+audioChunks = [];
+mediaRecorder.ondataavailable = e => { audioChunks.push(e.data); };
+mediaRecorder.onstop = () => {
+const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+const reader = new FileReader();
+reader.readAsDataURL(audioBlob);
+reader.onloadend = () => {
+audioBase64 = reader.result;
+playback.src = audioBase64; playback.style.display = 'block';
+btn.innerText = '🎤 ضبط مجدد'; btn.style.background = '#d4a017';
+};
+};
+mediaRecorder.start(); isRecording = true;
+btn.innerText = '🛑 توقف ضبط'; btn.style.background = '#c0392b';
+} catch (err) { alert('دسترسی به میکروفون داده نشد.'); }
+} else {
+mediaRecorder.stop(); isRecording = false;
+}
+}
+// --- پایان کدهای جدید ---  
 </script>
 </body>
 </html>
