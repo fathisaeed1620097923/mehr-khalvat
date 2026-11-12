@@ -691,6 +691,7 @@ body { background: #fff !important; padding: 0 !important; }
 <button class="btn" onclick="location.reload()" style="margin-top:15px;">درخواست جدید</button>
 </div>
 </div>
+
 <!-- ۷. پنل کارمند -->
 <div class="content panel" id="panel-employee">
 <div style="text-align: center; margin-bottom: 10px; font-size: 13px; color: #0a4d2e;">
@@ -710,11 +711,11 @@ body { background: #fff !important; padding: 0 !important; }
 <option value="emotions">🪞 آینه احساسات</option>
 <option value="satna">💸 درخواست‌های ساتنا</option>
 <option value="vip">👑 مدیریت مشتریان VIP</option>
-
 <option value="dashboard">📊 داشبورد مدیریت</option>
 </select>
 </div>
 
+<!-- ۱. تیکت‌ها -->
 <div id="emp-tickets-section">
 <div class="form-group">
 <label>واحد خود را انتخاب کنید:</label>
@@ -730,43 +731,18 @@ body { background: #fff !important; padding: 0 !important; }
 <div id="employee-ticket-list" style="margin-top: 20px;"></div>
 </div>
 
+<!-- ۲. پوز -->
 <div id="emp-pos-section" style="display: none;">
 <div id="employee-pos-list" style="margin-top: 20px;"></div>
 </div>
 
+<!-- ۳. نوبت‌ها (بدون QR) -->
 <div id="emp-appointments-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px;">📅 نوبت‌های ثبت‌شده</h3>
 <div id="employee-appointments-list"></div>
-<div class="emotion-counter-box">
-<h3>🪞 آینه احساسات</h3>
-<p class="hint">لینک QR مخصوص هر باجه را چاپ و جلوی آن باجه نصب کنید:</p>
-
-<div class="form-group">
-<label>انتخاب شعبه:</label>
-<select id="mirror-branch" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;margin-bottom:10px;">
-<option value="6400">6400</option>
-<option value="6401">6401</option><option value="6402">6402</option><option value="6403">6403</option>
-<option value="6404">6404</option><option value="6405">6405</option><option value="6406">6406</option>
-<option value="6407">6407</option><option value="6408">6408</option><option value="6409">6409</option>
-<option value="6410">6410</option><option value="6411">6411</option><option value="6412">6412</option>
-<option value="6413">6413</option><option value="6414">6414</option><option value="6415">6415</option>
-<option value="6416">6416</option><option value="6417">6417</option><option value="6418">6418</option>
-<option value="6419">6419</option>
-</select>
 </div>
 
-<div class="form-group">
-<label>شماره باجه (برای رئیس شعبه ۰ وارد کنید):</label>
-<input type="number" id="mirror-counter" min="0" max="20" placeholder="مثلاً 1">
-</div>
-<button class="btn" onclick="generateMirrorQR()" style="background:#d4a017;">📱 تولید QR باجه / رئیس</button>
-<button class="btn" style="background:#c0392b;" onclick="openManagerEmotionForm()">✍️ ثبت احساس مدیر (رمزدار)</button>
-<div id="mirror-qr-result" class="mirror-qr-result"></div>
-<hr style="margin: 15px 0;">
-<button class="btn" onclick="loadMyEmotionStats()" style="background:#2980b9;">📊 مشاهده آمار امتیازات شعبه من</button>
-<div id="emotion-stats-branch" style="margin-top:15px;"></div>
-</div>
-
+<!-- ۴. آینه احساسات (با QR) -->
 <div id="emp-emotions-section" style="display: none;">
 <div class="emotion-counter-box">
 <h3>🪞 آینه احساسات - مدیریت</h3>
@@ -798,12 +774,13 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 </div>
 
+<!-- ۵. ساتنا -->
 <div id="emp-satna-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px;">💸 درخواست‌های ساتنا</h3>
 <div id="employee-satna-list"></div>
 </div>
 
-<!-- بخش مدیریت VIP -->
+<!-- ۶. مدیریت VIP (فرم اضافه شد) -->
 <div id="emp-vip-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px;">👑 مدیریت مشتریان VIP</h3>
 <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
@@ -824,7 +801,7 @@ body { background: #fff !important; padding: 0 !important; }
 <div id="vip-list-container"></div>
 </div>
 
-<!-- 🌟 بخش داشبورد مدیریت -->
+<!-- ۷. داشبورد (نمودارها برگشتند) -->
 <div id="emp-dashboard-section" style="display: none;">
 <h3 style="color: #0a4d2e; margin-bottom: 15px; text-align: center;">📊 داشبورد آماری سامانه</h3>
 
@@ -853,7 +830,6 @@ body { background: #fff !important; padding: 0 !important; }
 <canvas id="chart-departments" height="200"></canvas>
 </div>
 
-<!-- 🪞 آمار احساسات همه شعب (ادمین) -->
 <div style="background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-top: 20px;">
 <h4 style="text-align: center; margin-bottom: 10px; font-size: 14px; color: #333;">🪞 آمار احساسات (همه شعب)</h4>
 <button class="btn" onclick="loadAdminEmotionStats()" style="background:#0a4d2e;">دریافت آمار</button>
@@ -862,7 +838,7 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 </div>
-</div>
+
 
 <!-- محفظه مخفی طرح‌ها -->
 <div id="hidden-plans" style="display:none;">
