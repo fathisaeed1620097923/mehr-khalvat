@@ -1435,15 +1435,30 @@ let msg = "";
 switch(val) {
 case "1": msg = "🔹 <b>دلایل عدم واریز وام:</b> ۱. شماره شبای شما در کیوبانک ثبت نشده است. ۲. حساب شما مسدود است. ۳. ضامن شما هنوز سفته را امضا نکرده است."; break;
 case "2": msg = "🔹 <b>خطای اعتبارسنجی:</b> این خطا معمولاً به دلیل چک برگشتی رفع نشده، بدهی معوق به سایر بانک‌ها یا عدم تطابق کد پستی با کد ملی است."; break;
+case "3": msg = "🔹 <b>انتقال امتیاز:</b> انتقال امتیاز فقط بین اعضای درجه یک خانواده و با ارائه مدارک اثبات نسبت امکان‌پذیر است."; break;
+case "4": msg = "🔹 <b>سفته اعمال نمی‌شود:</b> ثبت سفته‌های فیزیکی ممکن است تا ۲۴ ساعت کاری زمان ببرد."; break;
+case "5": msg = "🔹 <b>چک دیجیتال:</b> برای مشاهده چک‌های دیجیتال، باید از اپلیکیشن کیوبانک و بخش «چک‌های من» اقدام کنید."; break;
+case "6": msg = "🔹 <b>خطای احراز هویت:</b> نور محیط باید کافی باشد و از کارت ملی هوشمند استفاده کنید."; break;
+case "7": msg = "🔹 <b>مسدودی حساب:</b> جهت رفع مسدودی، مدارک هویتی خود را در کیوبانک بارگذاری کنید."; break;
+case "8": msg = "🔹 <b>کسر دوباره قسط:</b> مبلغ مازاد به صورت خودکار طی ۷۲ ساعت آینده عودت داده می‌شود."; break;
+case "9": msg = "🔹 <b>درخواست وام جدید:</b> ابتدا از تسویه کامل وام قبلی و نداشتن چک برگشتی اطمینان حاصل فرمایید."; break;
+case "10": msg = "🔹 <b>وضعیت وام:</b> وضعیت دقیق وام خود را در بخش «تسهیلات» در کیوبانک مشاهده نمایید."; break;
+case "11": msg = "🔹 <b>کاهش امتیاز:</b> عدم گردش حساب، تاخیر در پرداخت اقساط یا چک برگشتی باعث کاهش امتیاز می‌شود."; break;
+case "12": msg = "🔹 <b>تسویه زودتر:</b> برای تسویه زودتر، از طریق کیوبانک درخواست دهید."; break;
 case "13": msg = "⚠️ <b>کارت گم شده:</b> فوراً از طریق اپلیکیشن کیوبانک کارت خود را «مسدود» کنید. سپس درخواست کارت جدید ثبت نمایید."; break;
+case "14": msg = "🔹 <b>فراموشی رمز:</b> در صفحه ورود کیوبانک، گزینه «فراموشی رمز» را بزنید."; break;
+case "15": msg = "🔹 <b>طرح نیلوفر:</b> این طرح نیازمند حساب قرض‌الحسنه فعال و رتبه اعتباری مناسب است."; break;
+case "16": msg = "🔹 <b>مشاهده معدل:</b> معدل حساب شما در بخش «معدل‌گیری» کیوبانک قابل مشاهده است."; break;
+case "17": msg = "🔹 <b>رد شدن وام:</b> دلیل رد شدن وام از طریق پیامک اعلام شده است. جهت اعتراض، تیکت ثبت کنید."; break;
+case "18": msg = "🔹 <b>درخواست فعال:</b> شما یک درخواست در حال بررسی دارید. از ثبت درخواست تکراری خودداری کنید."; break;
 case "19": msg = "🔹 <b>رمز پیامکی نیامدن:</b> ۱۵ دقیقه صبر کنید یا گوشی را خاموش/روشن کنید."; break;
 case "20": msg = "🔹 <b>رمز پیامکی قبول نشدن:</b> رمزهای پیامکی ۲ دقیقه اعتبار دارند. دوباره درخواست رمز دهید."; break;
+case "21": msg = "🔹 <b>احراز هویت ناقص:</b> برخی اطلاعات شما ثبت نشده است. به بخش «تکمیل اطلاعات» در کیوبانک مراجعه کنید."; break;
 case "22": msg = "🔹 <b>چک ناقص:</b> طبق قانون، بانک نمی‌تواند چک ناقص را پرداخت کند. باید چک جدید صادر کنید."; break;
 default: msg = "";
 }
 if (msg) { text.innerHTML = msg; box.style.display = 'block'; } else { box.style.display = 'none'; }
 });
-
 var ai_MediaRecorder, ai_AudioChunks = [], ai_IsRecording = false, ai_AudioBase64 = "";
 function toggleRecording() {
 var btn = document.getElementById('recordBtn');
@@ -1500,50 +1515,70 @@ document.getElementById('ai-voice-btn').disabled = false;
 document.getElementById('ai-status-text').style.display = 'none';
 }
 
+function voiceErrorFallback(msg) {
+document.getElementById('ai-voice-btn').disabled = false;
+document.getElementById('ai-status-text').style.display = 'none';
+document.getElementById('voice-toggle').checked = false;
+document.getElementById('ai-voice-container').style.display = 'none';
+document.querySelector('.switch span').style.backgroundColor = '#ccc';
+if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+alert(msg + '\nسیستم صوتی غیرفعال شد. لطفاً فرم را دستی پر کنید.');
+}
+
+function extractBranchNumber(text) {
+var digits = convertToEnglishDigits(text);
+for (var i = 6400; i <= 6419; i++) {
+if (digits.includes(i.toString())) return i.toString();
+}
+var wordToDigit = { "صفر": "0", "یک": "1", "یه": "1", "دو": "2", "سه": "3", "چهار": "4", "چار": "4", "پنج": "5", "شش": "6", "شیش": "6", "هفت": "7", "هشت": "8", "نه": "9", "ده": "10", "یازده": "11", "دوازده": "12", "سیزده": "13", "چهارده": "14", "پانزده": "15", "پونزده": "15", "شانزده": "16", "شونزده": "16", "هفده": "17", "هیفده": "17", "هجده": "18", "هیجده": "18", "نوزده": "19" };
+var textForNum = text.replace(/شصت\s*و?\s*چهار/g, "64").replace(/شصت\s*و?\s*چار/g, "64").replace(/۶۴/g, "64");
+var sortedWords = Object.keys(wordToDigit).sort(function(a, b) { return b.length - a.length; });
+for (var i = 0; i < sortedWords.length; i++) {
+var word = sortedWords[i];
+textForNum = textForNum.replace(new RegExp(word, 'g'), wordToDigit[word] + " ");
+}
+var digitsOnly = textForNum.replace(/\D/g, '');
+if (digitsOnly.startsWith("64") && digitsOnly.length >= 3) {
+var suffix = parseInt(digitsOnly.substring(2));
+if (suffix >= 0 && suffix <= 19) return "64" + suffix.toString().padStart(2, '0');
+} else if (digitsOnly.length === 1 || digitsOnly.length === 2) {
+var suffix = parseInt(digitsOnly);
+if (suffix >= 0 && suffix <= 19) return "64" + suffix.toString().padStart(2, '0');
+}
+var branchNames = { "سرپرستی": "6400", "مدیریت": "6400", "ستاد": "6400", "رودسر": "6401", "طالقانی": "6402", "استانه": "6403", "آستانه": "6403", "گلسار": "6405", "لنگرود": "6406", "لاهیجان": "6408", "شریعتی": "6409", "انزلی": "6410", "استازا": "6411", "استارا": "6411", "آستارا": "6411", "انصاری": "6412", "فومن": "6413", "تالش": "6414", "رودبار": "6415", "پره سر": "6416", "پره‌سر": "6416", "صومعه سرا": "6417", "صومعه‌سرا": "6417", "رازی": "6418", "شهدا": "6419" };
+for (var name in branchNames) {
+if (text.includes(name)) return branchNames[name];
+}
+return null;
+}
+
 function startAIAssistant() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SpeechRecognition) { alert('مرورگر شما از دستیار صوتی پشتیبانی نمی‌کند. لطفاً از Google Chrome استفاده کنید.'); return; }
-
+if (!SpeechRecognition) { alert('مرورگر شما پشتیبانی نمی‌کند. لطفاً از Google Chrome استفاده کنید.'); return; }
 document.getElementById('ai-voice-btn').disabled = true;
 document.getElementById('ai-status-text').style.display = 'block';
-document.getElementById('ai-status-text').innerText = "سلام. لطفاً شماره شعبه خود را بگویید.";
-aiSpeak("سلام. لطفاً شماره شعبه خود را بگویید. مثلاً بگویید: شعبه ۶۴۰۱", function() {
-listenForBranch();
-});
+document.getElementById('ai-status-text').innerText = "سلام. لطفاً شماره یا نام شعبه خود را بگویید.";
+aiSpeak("سلام. لطفاً نام یا شماره شعبه خود را بگویید. مثلاً بگویید: شصت و چهار، صفر یک. یا بگویید: شعبه رودسر", function() { listenForBranch(); });
 }
 
 function listenForBranch() {
 var recognition = new webkitSpeechRecognition();
 recognition.lang = 'fa-IR'; recognition.continuous = false; recognition.interimResults = false;
-document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (شماره شعبه را بگویید)";
-
+document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (شعبه را بگویید)";
 recognition.onresult = function(event) {
 var spokenText = event.results[0][0].transcript;
-var digits = convertToEnglishDigits(spokenText);
 var branchSelect = document.getElementById('c-branch');
-var validBranch = false;
-
-for (var i = 6400; i <= 6419; i++) {
-if (digits.includes(i.toString())) {
-branchSelect.value = i.toString(); validBranch = true; break;
-}
-}
-
-if (validBranch) {
+var branchNum = extractBranchNumber(spokenText);
+if (branchNum) {
+branchSelect.value = branchNum;
 showStep(2);
-document.getElementById('ai-status-text').innerText = "✅ شعبه ثبت شد.";
-aiSpeak("شعبه ثبت شد. حالا لطفاً مشکل خود را بگویید. مثلاً: کارت گم شده.", function() {
-listenForProblem();
-});
+document.getElementById('ai-status-text').innerText = "✅ شعبه " + branchNum + " ثبت شد.";
+aiSpeak("شعبه ثبت شد. حالا لطفاً مشکل خود را بگویید. مثلاً: کارت گم شده.", function() { listenForProblem(); });
 } else {
-resetVoiceBtn();
-alert('شماره شعبه را متوجه نشدم. لطفاً دستی انتخاب کنید.');
+voiceErrorFallback('شعبه را متوجه نشدم (شنیده شد: ' + spokenText + ').');
 }
 };
-recognition.onerror = function(event) {
-resetVoiceBtn();
-alert('صدایی شنیده نشد یا دسترسی به میکروفون داده نشد. لطفاً دستی فرم را پر کنید.');
-};
+recognition.onerror = function(event) { voiceErrorFallback('صدایی شنیده نشد یا دسترسی به میکروفون داده نشد.'); };
 recognition.start();
 }
 
@@ -1551,12 +1586,10 @@ function listenForProblem() {
 var recognition = new webkitSpeechRecognition();
 recognition.lang = 'fa-IR'; recognition.continuous = false; recognition.interimResults = false;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (مشکل خود را بگویید)";
-
 recognition.onresult = function(event) {
 var spokenText = event.results[0][0].transcript;
 var problemSelect = document.getElementById('c-problemType');
 var matchedValue = "22";
-
 if (spokenText.includes('وام') && !spokenText.includes('جدید')) matchedValue = "1";
 else if (spokenText.includes('اعتبار')) matchedValue = "2";
 else if (spokenText.includes('امتیاز')) matchedValue = "3";
@@ -1579,20 +1612,13 @@ else if (spokenText.includes('پیامک')) matchedValue = "19";
 else if (spokenText.includes('قبول')) matchedValue = "20";
 else if (spokenText.includes('ناقص') && !spokenText.includes('چک')) matchedValue = "21";
 else if (spokenText.includes('چک ناقص') || spokenText.includes('چک')) matchedValue = "22";
-
 problemSelect.value = matchedValue;
 problemSelect.dispatchEvent(new Event('change'));
 showStep(3);
 document.getElementById('ai-status-text').innerText = "✅ مشکل ثبت شد.";
-
-aiSpeak("مشکل ثبت شد. حالا لطفاً شماره موبایل خود را بگویید.", function() {
-listenForPhone();
-});
+aiSpeak("مشکل ثبت شد. حالا لطفاً شماره موبایل خود را بگویید.", function() { listenForPhone(); });
 };
-recognition.onerror = function(event) {
-resetVoiceBtn();
-alert('مشکل را متوجه نشدم. لطفاً دستی انتخاب کنید.');
-};
+recognition.onerror = function(event) { voiceErrorFallback('مشکل را متوجه نشدم.'); };
 recognition.start();
 }
 
@@ -1600,26 +1626,16 @@ function listenForPhone() {
 var recognition = new webkitSpeechRecognition();
 recognition.lang = 'fa-IR'; recognition.continuous = false; recognition.interimResults = false;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (موبایل خود را بگویید)";
-
 recognition.onresult = function(event) {
 var digits = convertToEnglishDigits(event.results[0][0].transcript);
 if (digits.length === 10) digits = '0' + digits;
-
 if (digits.length === 11 && digits.startsWith('09')) {
 document.getElementById('c-mobile').value = digits;
 document.getElementById('ai-status-text').innerText = "✅ موبایل ثبت شد.";
-aiSpeak("شماره ثبت شد. حالا لطفاً کد ملی خود را بگویید.", function() {
-listenForNationalId();
-});
-} else {
-resetVoiceBtn();
-alert('شماره موبایل نامعتبر بود. لطفاً دستی وارد کنید.');
-}
+aiSpeak("شماره ثبت شد. حالا لطفاً کد ملی خود را بگویید.", function() { listenForNationalId(); });
+} else { voiceErrorFallback('شماره موبایل نامعتبر بود.'); }
 };
-recognition.onerror = function(event) {
-resetVoiceBtn();
-alert('شماره موبایل شنیده نشد. لطفاً دستی وارد کنید.');
-};
+recognition.onerror = function(event) { voiceErrorFallback('شماره موبایل شنیده نشد.'); };
 recognition.start();
 }
 
@@ -1627,24 +1643,15 @@ function listenForNationalId() {
 var recognition = new webkitSpeechRecognition();
 recognition.lang = 'fa-IR'; recognition.continuous = false; recognition.interimResults = false;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (کد ملی خود را بگویید)";
-
 recognition.onresult = function(event) {
 var digits = convertToEnglishDigits(event.results[0][0].transcript);
 if (digits.length === 10) {
 document.getElementById('c-nationalId').value = digits;
 document.getElementById('ai-status-text').innerText = "✅ کد ملی ثبت شد.";
-aiSpeak("کد ملی ثبت شد. حالا لطفاً مشکل خود را کامل توضیح دهید.", function() {
-listenForDescription();
-});
-} else {
-resetVoiceBtn();
-alert('کد ملی نامعتبر بود. لطفاً دستی وارد کنید.');
-}
+aiSpeak("کد ملی ثبت شد. حالا لطفاً مشکل خود را کامل توضیح دهید.", function() { listenForDescription(); });
+} else { voiceErrorFallback('کد ملی نامعتبر بود.'); }
 };
-recognition.onerror = function(event) {
-resetVoiceBtn();
-alert('کد ملی شنیده نشد. لطفاً دستی وارد کنید.');
-};
+recognition.onerror = function(event) { voiceErrorFallback('کد ملی شنیده نشد.'); };
 recognition.start();
 }
 
@@ -1652,6 +1659,15 @@ function listenForDescription() {
 var recognition = new webkitSpeechRecognition();
 recognition.lang = 'fa-IR'; recognition.continuous = false; recognition.interimResults = false;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (توضیحات خود را بگویید)";
+recognition.onresult = function(event) {
+document.getElementById('c-description').value = event.results[0][0].transcript;
+document.getElementById('ai-status-text').innerText = "✅ فرم با موفقیت پر شد!";
+aiSpeak("عالی! تمام اطلاعات ثبت شد. حالا می‌توانید دکمه ثبت نهایی را بزنید.", function() { document.getElementById('ai-voice-btn').disabled = false; document.getElementById('ai-status-text').style.display = 'none'; });
+};
+recognition.onerror = function(event) { voiceErrorFallback('توضیحات شنیده نشد.'); };
+recognition.start();
+}
+
 
 recognition.onresult = function(event) {
 document.getElementById('c-description').value = event.results[0][0].transcript;
