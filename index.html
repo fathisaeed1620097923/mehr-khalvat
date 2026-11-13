@@ -20,10 +20,9 @@ body { background: linear-gradient(135deg, #e0f2f1 0%, #f4f7f6 100%) !important;
 .header { background: linear-gradient(135deg, #0a4d2e 0%, #148a4f 100%) !important; color: #fff; padding: 25px 20px; text-align: center; border-bottom-left-radius: 24px !important; border-bottom-right-radius: 24px !important; box-shadow: 0 8px 20px rgba(10,77,46,0.2) !important; position: relative; }
 .header h1 { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
 .header p { font-size: 13px; opacity: 0.9; }
-.tabs { display: flex; background: #fff; overflow-x: auto; white-space: nowrap; padding: 12px 15px; gap: 8px; scrollbar-width: none; border-bottom: 1px solid #eee; }
-.tabs::-webkit-scrollbar { display: none; }
-.tab-btn { flex: 1; padding: 12px 15px; border: none; background: #f0f4f2; border-radius: 20px !important; font-size: 13px; font-weight: 700; color: #555; cursor: pointer; transition: 0.3s; border-bottom: none; min-width: 80px; text-align: center; }
-.tab-btn.active { background: #0a4d2e !important; color: #fff !important; box-shadow: 0 4px 15px rgba(10, 77, 46, 0.3); }
+
+.tabs { display: flex; background: #fff; flex-wrap: wrap; justify-content: center; padding: 10px 15px; gap: 8px; border-bottom: 1px solid #eee; overflow-x: hidden; }.tab-btn { flex: 1; padding: 12px 15px; border: none; background: #f0f4f2; border-radius: 20px !important; font-size: 13px; font-weight: 700; color: #555; cursor: pointer; transition: 0.3s; border-bottom: none; min-width: 80px; text-align: center; }
+.tab-btn { flex: 1 1 30%; padding: 10px 5px; border: none; background: #f0f4f2; border-radius: 20px !important; font-size: 12px; font-weight: 700; color: #555; cursor: pointer; transition: 0.3s; text-align: center; min-width: 95px; max-width: 150px; }
 .content { padding: 20px; }
 .panel { display: none; }
 .panel.active { display: block; animation: fadeIn 0.4s ease; }
