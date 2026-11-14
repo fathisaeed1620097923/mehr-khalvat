@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -2079,9 +2078,7 @@ s.style.opacity = '0.45';
 function pickMainEmotion(el) {
 const score = Number(el.dataset.score);
 selectedMainEmotion = score;
-const emojiRow = el.parentElement.parentElement.querySelectorAll('.star-rating');
 let allStars = document.querySelectorAll('.star-rating');
-let scoreGroup = el.dataset.score;
 allStars.forEach((star) => {
 let s = Number(star.dataset.score);
 if (s <= score) {
@@ -2223,7 +2220,7 @@ ai_IsRecording = false;
 }
 }
 
-/* ============ دستیار صوتی ============ */
+/* ============ دستیار صوتی (اصلاح‌شده برای آیفون) ============ */
 function toggleVoiceAssistant(checkbox) {
 var container = document.getElementById('ai-voice-container');
 var span = checkbox.nextElementSibling;
@@ -2235,6 +2232,7 @@ requestNotificationPermission();
 container.style.display = 'none';
 span.style.backgroundColor = '#ccc';
 if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+if (voiceRecognition) { try { voiceRecognition.abort(); } catch(e) {} voiceRecognition = null; }
 }
 }
 
@@ -2251,10 +2249,10 @@ var u = new SpeechSynthesisUtterance(text);
 u.lang = 'fa-IR';
 u.rate = 1;
 if (persianVoice) u.voice = persianVoice;
-u.onend = function() { setTimeout(callback, 1500); };
-u.onerror = function() { setTimeout(callback, 1500); };
+u.onend = function() { setTimeout(callback, 1000); };
+u.onerror = function() { setTimeout(callback, 1000); };
 window.speechSynthesis.speak(u);
-} else { setTimeout(callback, 1500); }
+} else { setTimeout(callback, 1000); }
 }
 
 function showLiveTranscript(heard, detected, isGood) {
@@ -2278,16 +2276,16 @@ btn.innerText = '';
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>صحبت کنید تا فرم پر شود</span>';
 btn.classList.remove('retry');
 document.getElementById('ai-status-text').style.display = 'none';
+btn.onclick = startAIAssistant;
 }
 
 function voiceErrorFallback(msg, step) {
-// هیچ‌وقت غیرفعال نمی‌کنیم — فقط پیام می‌دهیم و اجازه تلاش مجدد می‌دهیم
 document.getElementById('ai-status-text').innerText = msg;
 var btn = document.getElementById('ai-voice-btn');
 btn.disabled = false;
 btn.classList.add('retry');
 btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>دوباره بگو</span>';
-// به جای غیرفعال کردن، همان مرحله را دوباره اجرا می‌کنیم
+
 btn.onclick = function() {
 btn.classList.remove('retry');
 btn.onclick = startAIAssistant;
@@ -2302,12 +2300,11 @@ else { startAIAssistant(); }
 
 function extractBranchNumber(text) {
 var lower = String(text).toLowerCase().replace(/\s+/g, ' ').trim();
-// ۱) اعداد مستقیم (فارسی/انگلیسی)
 var digitsDirect = convertToEnglishDigits(lower);
 for (var i = 6400; i <= 6419; i++) {
 if (digitsDirect.includes(i.toString())) return i.toString();
 }
-// ۲) اسم شعبه
+
 var branchNames = {
 "سرپرستی":"6400","مدیریت":"6400","ستاد":"6400",
 "رودسر":"6401","رود سر":"6401",
@@ -2331,7 +2328,7 @@ var branchNames = {
 for (var name in branchNames) {
 if (lower.indexOf(name) !== -1) return branchNames[name];
 }
-// ۳) ترکیبی: "شصت و چهار صفر یک" → 64 + 01
+
 var wordToDigit = {
 "صفر":"0","یک":"1","یه":"1","دو":"2","سه":"3","چهار":"4","چار":"4",
 "پنج":"5","شش":"6","شیش":"6","هفت":"7","هشت":"8","نه":"9",
@@ -2351,7 +2348,6 @@ var w = sortedWords[k];
 textForNum = textForNum.replace(new RegExp(w, 'g'), ' ' + wordToDigit[w] + ' ');
 }
 var digitsOnly = textForNum.replace(/[^\d]/g, '');
-// "64" + 0..19
 if (digitsOnly.indexOf('64') !== -1) {
 var idx = digitsOnly.indexOf('64');
 var after = digitsOnly.substring(idx + 2);
@@ -2362,7 +2358,6 @@ return '64' + suffix.toString().padStart(2, '0');
 }
 }
 }
-// فقط یک یا دو رقم
 if (digitsOnly.length === 1 || digitsOnly.length === 2) {
 var sfx = parseInt(digitsOnly);
 if (!isNaN(sfx) && sfx >= 0 && sfx <= 19) {
@@ -2388,7 +2383,8 @@ btn.classList.remove('retry');
 btn.onclick = startAIAssistant;
 document.getElementById('ai-status-text').style.display = 'block';
 document.getElementById('ai-status-text').innerText = "سلام. لطفاً شماره یا نام شعبه خود را بگویید.";
-aiSpeak("سلام. لطفاً نام یا شماره شعبه خود را بگویید. مثلاً بگویید: شصت و چهار، صفر یک. یا بگویید: شعبه رودسر", function() { listenForBranch(); });
+// برای جلوگیری از قفل شدن میکروفون در آیفون، اول گوش می‌دهیم و بعد صحبت می‌کنیم
+listenForBranch();
 }
 
 function listenForBranch() {
@@ -2397,49 +2393,45 @@ if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نم
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
-voiceRecognition.continuous = true;
+voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
-voiceRecognition.maxAlternatives = 3;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (شعبه را بگویید)";
+
 var finalHeard = '';
+var matched = false;
 voiceRecognition.onresult = function(event) {
+if (matched) return;
 var interim = '';
 for (var i = event.resultIndex; i < event.results.length; i++) {
-if (event.results[i].isFinal) {
-finalHeard += event.results[i][0].transcript + ' ';
-} else {
-interim += event.results[i][0].transcript;
-}
+if (event.results[i].isFinal) finalHeard += event.results[i][0].transcript + ' ';
+else interim += event.results[i][0].transcript;
 }
 var display = (finalHeard + ' ' + interim).trim();
 showLiveTranscript(display, '', true);
 var branchNum = extractBranchNumber(display);
+
 if (branchNum) {
+matched = true;
 try { voiceRecognition.stop(); } catch(e) {}
-var branchSelect = document.getElementById('c-branch');
-branchSelect.value = branchNum;
+document.getElementById('c-branch').value = branchNum;
 showLiveTranscript(display, '✅ کد شعبه: ' + branchNum + ' ثبت شد', true);
 showStep(2);
 voiceRetryCount = 0;
 document.getElementById('ai-status-text').innerText = "✅ شعبه " + branchNum + " ثبت شد.";
-aiSpeak("شعبه ثبت شد. حالا لطفاً مشکل خود را بگویید. مثلاً: کارت گم شده.", function() { listenForProblem(); });
+
+aiSpeak("شعبه ثبت شد. حالا دکمه را بزنید و مشکل خود را بگویید. مثلاً: کارت گم شده.", function() {
+var btn = document.getElementById('ai-voice-btn');
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن مشکل</span>';
+btn.onclick = listenForProblem;
+});
 }
 };
 voiceRecognition.onerror = function(event) {
-if (event.error === 'no-speech') {
-// سکوت — دوباره امتحان کن
-voiceRetryCount++;
-if (voiceRetryCount < 3) { try { voiceRecognition.stop(); } catch(e) {} setTimeout(listenForBranch, 500); return; }
-}
-voiceErrorFallback('صدایی شنیده نشد یا میکروفون دسترسی ندارد.', 'branch');
+if (event.error === 'no-speech') { voiceErrorFallback('صدایی شنیده نشد.', 'branch'); }
+else { voiceErrorFallback('میکروفون در دسترس نیست.', 'branch'); }
 };
-voiceRecognition.onend = function() {
-if (voiceRetryCount === 0 && document.getElementById('step-1').classList.contains('active')) {
-// auto restart اگه هنوز مرحله ۱ هستیم
-try { voiceRecognition.start(); } catch(e) {}
-}
-};
-try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط صدا ممکن نشد.', 'branch'); }
+try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'branch'); }
 }
 
 function listenForProblem() {
@@ -2448,9 +2440,10 @@ if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نم
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
-voiceRecognition.continuous = true;
+voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (مشکل خود را بگویید)";
+
 var finalHeard = '';
 var matched = false;
 voiceRecognition.onresult = function(event) {
@@ -2464,6 +2457,7 @@ var t = (finalHeard + ' ' + interim).trim();
 showLiveTranscript(t, '', true);
 var problemSelect = document.getElementById('c-problemType');
 var matchedValue = "";
+
 if (t.indexOf('وام') !== -1 && t.indexOf('جدید') === -1) matchedValue = "1";
 else if (t.indexOf('اعتبار') !== -1) matchedValue = "2";
 else if (t.indexOf('امتیاز') !== -1 && t.indexOf('کاهش') === -1) matchedValue = "3";
@@ -2486,6 +2480,7 @@ else if (t.indexOf('پیامک') !== -1 && t.indexOf('قبول') === -1) matched
 else if (t.indexOf('قبول') !== -1) matchedValue = "20";
 else if (t.indexOf('ناقص') !== -1 && t.indexOf('چک') === -1) matchedValue = "21";
 else if (t.indexOf('چک ناقص') !== -1) matchedValue = "22";
+
 if (matchedValue) {
 matched = true;
 try { voiceRecognition.stop(); } catch(e) {}
@@ -2495,19 +2490,16 @@ showLiveTranscript(t, '✅ مشکل ثبت شد (کد ' + matchedValue + ')', tr
 showStep(3);
 voiceRetryCount = 0;
 document.getElementById('ai-status-text').innerText = "✅ مشکل ثبت شد.";
-aiSpeak("مشکل ثبت شد. حالا لطفاً شماره موبایل خود را بگویید.", function() { listenForPhone(); });
+
+aiSpeak("مشکل ثبت شد. حالا دکمه را بزنید و شماره موبایل خود را بگویید.", function() {
+var btn = document.getElementById('ai-voice-btn');
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن موبایل</span>';
+btn.onclick = listenForPhone;
+});
 }
 };
-voiceRecognition.onerror = function(event) {
-if (event.error === 'no-speech') {
-voiceRetryCount++;
-if (voiceRetryCount < 3) { try { voiceRecognition.stop(); } catch(e) {} setTimeout(listenForProblem, 500); return; }
-}
-voiceErrorFallback('مشکل را متوجه نشدم.', 'problem');
-};
-voiceRecognition.onend = function() {
-if (!matched && voiceRetryCount < 2) { try { voiceRecognition.start(); } catch(e) {} }
-};
+voiceRecognition.onerror = function(event) { voiceErrorFallback('مشکل را متوجه نشدم.', 'problem'); };
 try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'problem'); }
 }
 
@@ -2517,9 +2509,10 @@ if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نم
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
-voiceRecognition.continuous = true;
+voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (موبایل خود را بگویید)";
+
 var finalHeard = '';
 var matched = false;
 voiceRecognition.onresult = function(event) {
@@ -2531,8 +2524,9 @@ else interim += event.results[i][0].transcript;
 }
 var t = finalHeard + ' ' + interim;
 var digits = convertToEnglishDigits(t);
-showLiveTranscript((finalHeard + ' ' + interim).trim(), '', true);
+showLiveTranscript(t.trim(), '', true);
 if (digits.length === 10) digits = '0' + digits;
+
 if (digits.length === 11 && digits.indexOf('09') === 0) {
 matched = true;
 try { voiceRecognition.stop(); } catch(e) {}
@@ -2540,17 +2534,16 @@ document.getElementById('c-mobile').value = digits;
 showLiveTranscript(t.trim(), '✅ موبایل: ' + digits, true);
 voiceRetryCount = 0;
 document.getElementById('ai-status-text').innerText = "✅ موبایل ثبت شد.";
-aiSpeak("شماره ثبت شد. حالا لطفاً کد ملی خود را بگویید.", function() { listenForNationalId(); });
+
+aiSpeak("شماره ثبت شد. حالا دکمه را بزنید و کد ملی خود را بگویید.", function() {
+var btn = document.getElementById('ai-voice-btn');
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن کد ملی</span>';
+btn.onclick = listenForNationalId;
+});
 }
 };
-voiceRecognition.onerror = function(event) {
-if (event.error === 'no-speech') {
-voiceRetryCount++;
-if (voiceRetryCount < 3) { try { voiceRecognition.stop(); } catch(e) {} setTimeout(listenForPhone, 500); return; }
-}
-voiceErrorFallback('شماره موبایل شنیده نشد.', 'phone');
-};
-voiceRecognition.onend = function() { if (!matched && voiceRetryCount < 2) { try { voiceRecognition.start(); } catch(e) {} } };
+voiceRecognition.onerror = function(event) { voiceErrorFallback('شماره موبایل شنیده نشد.', 'phone'); };
 try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'phone'); }
 }
 
@@ -2560,9 +2553,10 @@ if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نم
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
-voiceRecognition.continuous = true;
+voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (کد ملی خود را بگویید)";
+
 var finalHeard = '';
 var matched = false;
 voiceRecognition.onresult = function(event) {
@@ -2574,7 +2568,8 @@ else interim += event.results[i][0].transcript;
 }
 var t = finalHeard + ' ' + interim;
 var digits = convertToEnglishDigits(t);
-showLiveTranscript((finalHeard + ' ' + interim).trim(), '', true);
+showLiveTranscript(t.trim(), '', true);
+
 if (digits.length === 10) {
 matched = true;
 try { voiceRecognition.stop(); } catch(e) {}
@@ -2582,17 +2577,16 @@ document.getElementById('c-nationalId').value = digits;
 showLiveTranscript(t.trim(), '✅ کد ملی: ' + digits, true);
 voiceRetryCount = 0;
 document.getElementById('ai-status-text').innerText = "✅ کد ملی ثبت شد.";
-aiSpeak("کد ملی ثبت شد. حالا لطفاً مشکل خود را کامل توضیح دهید.", function() { listenForDescription(); });
+
+aiSpeak("کد ملی ثبت شد. حالا دکمه را بزنید و مشکل خود را کامل توضیح دهید.", function() {
+var btn = document.getElementById('ai-voice-btn');
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن توضیحات</span>';
+btn.onclick = listenForDescription;
+});
 }
 };
-voiceRecognition.onerror = function(event) {
-if (event.error === 'no-speech') {
-voiceRetryCount++;
-if (voiceRetryCount < 3) { try { voiceRecognition.stop(); } catch(e) {} setTimeout(listenForNationalId, 500); return; }
-}
-voiceErrorFallback('کد ملی شنیده نشد.', 'nid');
-};
-voiceRecognition.onend = function() { if (!matched && voiceRetryCount < 2) { try { voiceRecognition.start(); } catch(e) {} } };
+voiceRecognition.onerror = function(event) { voiceErrorFallback('کد ملی شنیده نشد.', 'nid'); };
 try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'nid'); }
 }
 
@@ -2602,11 +2596,11 @@ if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نم
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
-voiceRecognition.continuous = true;
+voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (توضیحات خود را بگویید)";
+
 var finalHeard = '';
-var done = false;
 voiceRecognition.onresult = function(event) {
 var interim = '';
 for (var i = event.resultIndex; i < event.results.length; i++) {
@@ -2616,23 +2610,6 @@ else interim += event.results[i][0].transcript;
 showLiveTranscript((finalHeard + ' ' + interim).trim(), '', true);
 document.getElementById('c-description').value = finalHeard.trim() || interim;
 };
-// ذخیره متن حتی اگه کاربر دستی دکمه رو بزنه
-voiceRecognition.onerror = function(event) {
-if (event.error === 'no-speech' && voiceRetryCount < 3) {
-voiceRetryCount++;
-try { voiceRecognition.stop(); } catch(e) {}
-setTimeout(listenForDescription, 500);
-return;
-}
-if (finalHeard.trim()) {
-document.getElementById('c-description').value = finalHeard.trim();
-showLiveTranscript(finalHeard.trim(), '✅ توضیحات ثبت شد', true);
-done = true;
-resetVoiceBtn();
-return;
-}
-voiceErrorFallback('توضیحات شنیده نشد.', 'desc');
-};
 voiceRecognition.onend = function() {
 if (finalHeard.trim()) {
 document.getElementById('c-description').value = finalHeard.trim();
@@ -2641,8 +2618,8 @@ document.getElementById('ai-status-text').innerText = "✅ فرم با موفق�
 aiSpeak("عالی! تمام اطلاعات ثبت شد. حالا می‌توانید دکمه ثبت نهایی را بزنید.", function() {
 resetVoiceBtn();
 });
-} else if (!done && voiceRetryCount < 2) {
-try { voiceRecognition.start(); } catch(e) {}
+} else {
+voiceErrorFallback('توضیحات شنیده نشد.', 'desc');
 }
 };
 try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'desc'); }
