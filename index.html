@@ -2383,37 +2383,19 @@ return null;
 var voiceRecognition = null;
 var voiceRetryCount = 0;
 
-var voiceRecognition = null;
-
 function startAIAssistant() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) {
-alert('مرورگر شما از دستیار صوتی پشتیبانی نمی‌کند.');
+alert('مرورگر شما از دستیار صوتی پشتیبانی نمی‌کند. لطفاً از Google Chrome استفاده کنید.');
 return;
 }
 
 var btn = document.getElementById('ai-voice-btn');
 btn.disabled = true;
 btn.classList.remove('retry');
-btn.innerHTML = '<span style="font-size:22px;">⏳</span><span>در حال دریافت دسترسی...</span>';
-// این بخش میکروفون را تست می‌کند که آیا به گوشی دسترسی داریم یا نه
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-navigator.mediaDevices.getUserMedia({ audio: true })
-.then(function(stream) {
-// میکروفون را آزاد می‌کنیم تا مرورگر قفل نماند
-stream.getTracks().forEach(function(track) { track.stop(); });
-// حالا که مطمئن شدیم میکروفون کار می‌کند، می‌رویم سراغ شنیدن
+btn.onclick = startAIAssistant;
+// مستقیم می‌رویم سراغ شنیدن، بدون هیچ مرحله اضافی
 listenForBranch();
-})
-.catch(function(err) {
-// اگر اینجا ارور داد، یعنی اجازه دسترسی به میکروفون را ندادید
-alert('خطای دسترسی: ' + err.name + '\nلطفاً در تنظیمات مرورگر به سایت اجازه میکروفون بدهید.');
-btn.disabled = false;
-btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
-});
-} else {
-listenForBranch();
-}
 }
 
 function listenForBranch() {
@@ -2457,15 +2439,16 @@ btn.onclick = listenForProblem;
 };
 
 voiceRecognition.onerror = function(event) {
-// اینجا دقیقاً به ما می‌گوید مشکل چیست!
-if (event.error === 'not-allowed') {
-alert('خطای مرورگر: شما اجازه دسترسی به میکروفون را نداده‌اید (Not Allowed).');
+if (event.error === 'service-not-allowed') {
+alert('⚠️ محدودیت آیفون:\nمرورگرهای آیفون اجازه استفاده از میکروفون سایت را نمی‌دهند.\n\nلطفاً روی کادر متنی (مثلاً کادر توضیحات) ضربه بزنید و از میکروفون کیبورد گوشی خود (🎤) استفاده کنید.');
+} else if (event.error === 'not-allowed') {
+alert('⚠️ لطفاً در تنظیمات مرورگر به سایت اجازه دسترسی به میکروفون را بدهید.');
 } else if (event.error === 'network') {
-alert('خطای شبکه: مرورگر نمی‌تواند به سرورهای گوگل وصل شود. لطفاً VPN (فیلترشکن) خود را روشن کنید.');
+alert('⚠️ خطای شبکه: لطفاً فیلترشکن خود را روشن کنید.');
 } else if (event.error === 'no-speech') {
-alert('خطای میکروفون: هیچ صدایی شنیده نشد. آیا میکروفون گوشی سالم است؟');
+alert('⚠️ صدایی شنیده نشد. لطفاً دوباره تلاش کنید.');
 } else {
-alert('خطای ناشناخته میکروفون: ' + event.error);
+alert('⚠️ خطای میکروفون: ' + event.error);
 }
 
 btn.disabled = false;
@@ -2476,7 +2459,7 @@ btn.onclick = startAIAssistant;
 try {
 voiceRecognition.start();
 } catch(e) {
-alert('خطا در شروع میکروفون: ' + e.message);
+alert('خطا در شروع میکروفون.');
 btn.disabled = false;
 }
 }
