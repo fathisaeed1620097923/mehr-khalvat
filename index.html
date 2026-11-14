@@ -2389,35 +2389,10 @@ if (!SpeechRecognition) {
 alert('مرورگر شما از دستیار صوتی پشتیبانی نمی‌کند.');
 return;
 }
-
 var btn = document.getElementById('ai-voice-btn');
-var status = document.getElementById('ai-status-text');
-
 btn.disabled = true;
-btn.classList.remove('retry');
-btn.innerHTML = '<span style="font-size:22px;">⏳</span><span>در حال اتصال به میکروفون...</span>';
-status.style.display = 'block';
-status.innerText = "لطفاً در صورت مشاهده پیام، اجازه دسترسی به میکروفون را بدهید.";
-
-// این کد میکروفون را در آیفون باز می‌کند تا سرویس گفتار قفل نشود
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-navigator.mediaDevices.getUserMedia({ audio: true })
-.then(function(stream) {
-// بعد از گرفتن مجوز، میکروفون را موقتاً خاموش می‌کنیم تا با ضبط صدا تداخل نکند
-stream.getTracks().forEach(function(track) { track.stop(); });
-// حالا که چراغ سبز گرفتیم، می‌رویم سراغ شنیدن
+btn.innerHTML = '<span style="font-size:22px;">⏳</span><span>در حال اتصال...</span>';
 listenForBranch();
-})
-.catch(function(err) {
-alert('شما اجازه دسترسی به میکروفون را ندادید. لطفاً در تنظیمات مرورگر (کنار آدرس سایت) به سایت اجازه دهید.');
-btn.disabled = false;
-btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
-btn.onclick = startAIAssistant;
-});
-} else {
-// اگر مرورگر قدیمی بود
-listenForBranch();
-}
 }
 
 function listenForBranch() {
@@ -2432,6 +2407,7 @@ voiceRecognition.interimResults = true;
 
 var btn = document.getElementById('ai-voice-btn');
 var status = document.getElementById('ai-status-text');
+var matched = false;
 
 voiceRecognition.onstart = function() {
 status.style.display = 'block';
@@ -2440,18 +2416,18 @@ btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گو
 };
 
 voiceRecognition.onresult = function(event) {
-var finalTranscript = '';
+if (matched) return;
+var t = '';
 for (var i = event.resultIndex; i < event.results.length; ++i) {
-finalTranscript += event.results[i][0].transcript;
+t += event.results[i][0].transcript;
 }
-
-showLiveTranscript(finalTranscript, '', true);
-var branchNum = extractBranchNumber(finalTranscript);
+showLiveTranscript(t, '', true);
+var branchNum = extractBranchNumber(t);
 
 if (branchNum) {
+matched = true;
 try { voiceRecognition.stop(); } catch(e) {}
 document.getElementById('c-branch').value = branchNum;
-showLiveTranscript(finalTranscript, '✅ کد شعبه: ' + branchNum + ' ثبت شد', true);
 showStep(2);
 status.innerText = "✅ شعبه ثبت شد.";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن مشکل</span>';
@@ -2461,50 +2437,50 @@ btn.onclick = listenForProblem;
 };
 
 voiceRecognition.onerror = function(event) {
-if (event.error === 'service-not-allowed') {
-alert('⚠️ محدودیت آیفون:\nمرورگرهای آیفون اجازه استفاده از میکروفون سایت را نمی‌دهند.\n\nلطفاً روی کادر متنی (مثلاً کادر توضیحات) ضربه بزنید و از میکروفون کیبورد گوشی خود (🎤) استفاده کنید.');
-} else if (event.error === 'not-allowed') {
-alert('⚠️ لطفاً در تنظیمات مرورگر به سایت اجازه دسترسی به میکروفون را بدهید.');
-} else if (event.error === 'network') {
-alert('⚠️ خطای شبکه: لطفاً فیلترشکن خود را روشن کنید.');
-} else if (event.error === 'no-speech') {
-alert('⚠️ صدایی شنیده نشد. لطفاً دوباره تلاش کنید.');
+var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+if (event.error === 'network' || event.error === 'service-not-allowed') {
+if (isIOS) {
+alert('⚠️ کاربر آیفون: برای استفاده از میکروفون سایت، لطفاً فیلترشکن (VPN) خود را روشن کنید.');
+} else {
+alert('⚠️ اتصال به میکروفون برقرار نشد. لطفاً اینترنت خود را بررسی کنید.');
 }
-
+} else if (event.error === 'no-speech') {
+alert('⚠️ صدایی شنیده نشد. دوباره تلاش کنید.');
+}
 btn.disabled = false;
 btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
-btn.onclick = startAIAssistant;
+btn.onclick = listenForBranch;
 };
-
-try {
-voiceRecognition.start();
-} catch(e) {
-alert('خطا در شروع میکروفون.');
-btn.disabled = false;
-}
+try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
 }
 
 function listenForProblem() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نمی‌کند.', 'problem'); return; }
+if (!SpeechRecognition) { return; }
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
+
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
-document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (مشکل خود را بگویید)";
 
-var finalHeard = '';
+var btn = document.getElementById('ai-voice-btn');
+var status = document.getElementById('ai-status-text');
 var matched = false;
+
+voiceRecognition.onstart = function() {
+status.innerText = "🎤 در حال شنیدن... (مشکل خود را بگویید)";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گوش دادن...</span>';
+};
+
 voiceRecognition.onresult = function(event) {
 if (matched) return;
-var interim = '';
-for (var i = event.resultIndex; i < event.results.length; i++) {
-if (event.results[i].isFinal) finalHeard += event.results[i][0].transcript + ' ';
-else interim += event.results[i][0].transcript;
+var t = '';
+for (var i = event.resultIndex; i < event.results.length; ++i) {
+t += event.results[i][0].transcript;
 }
-var t = (finalHeard + ' ' + interim).trim();
 showLiveTranscript(t, '', true);
+
 var problemSelect = document.getElementById('c-problemType');
 var matchedValue = "";
 
@@ -2512,167 +2488,183 @@ if (t.indexOf('وام') !== -1 && t.indexOf('جدید') === -1) matchedValue = "
 else if (t.indexOf('اعتبار') !== -1) matchedValue = "2";
 else if (t.indexOf('امتیاز') !== -1 && t.indexOf('کاهش') === -1) matchedValue = "3";
 else if (t.indexOf('سفته') !== -1) matchedValue = "4";
-else if (t.indexOf('چک دیجیتال') !== -1 || (t.indexOf('چک') !== -1 && t.indexOf('ناقص') === -1)) matchedValue = "5";
+else if (t.indexOf('چک') !== -1 && t.indexOf('ناقص') === -1) matchedValue = "5";
 else if (t.indexOf('احراز') !== -1 && t.indexOf('ناقص') === -1) matchedValue = "6";
 else if (t.indexOf('مسدود') !== -1) matchedValue = "7";
 else if (t.indexOf('قسط') !== -1) matchedValue = "8";
-else if (t.indexOf('وام جدید') !== -1) matchedValue = "9";
 else if (t.indexOf('وضعیت') !== -1) matchedValue = "10";
 else if (t.indexOf('کاهش') !== -1) matchedValue = "11";
 else if (t.indexOf('تسویه') !== -1) matchedValue = "12";
 else if (t.indexOf('کارت') !== -1 || t.indexOf('گم') !== -1) matchedValue = "13";
-else if (t.indexOf('رمز') !== -1 && t.indexOf('پیامک') === -1) matchedValue = "14";
+else if (t.indexOf('رمز') !== -1) matchedValue = "14";
 else if (t.indexOf('نیلوفر') !== -1) matchedValue = "15";
 else if (t.indexOf('معدل') !== -1) matchedValue = "16";
 else if (t.indexOf('رد') !== -1) matchedValue = "17";
 else if (t.indexOf('فعال') !== -1) matchedValue = "18";
-else if (t.indexOf('پیامک') !== -1 && t.indexOf('قبول') === -1) matchedValue = "19";
-else if (t.indexOf('قبول') !== -1) matchedValue = "20";
+else if (t.indexOf('پیامک') !== -1) matchedValue = "19";
 else if (t.indexOf('ناقص') !== -1 && t.indexOf('چک') === -1) matchedValue = "21";
 else if (t.indexOf('چک ناقص') !== -1) matchedValue = "22";
 
 if (matchedValue) {
 matched = true;
 try { voiceRecognition.stop(); } catch(e) {}
-problemSelect.value = matchedValue;
-problemSelect.dispatchEvent(new Event('change'));
-showLiveTranscript(t, '✅ مشکل ثبت شد (کد ' + matchedValue + ')', true);
-showStep(3);
-voiceRetryCount = 0;
-document.getElementById('ai-status-text').innerText = "✅ مشکل ثبت شد.";
 
-aiSpeak("مشکل ثبت شد. حالا دکمه را بزنید و شماره موبایل خود را بگویید.", function() {
-var btn = document.getElementById('ai-voice-btn');
-btn.disabled = false;
+if (problemSelect) {
+problemSelect.value = matchedValue;
+try { problemSelect.dispatchEvent(new Event('change')); } catch(e) {}
+}
+
+showStep(3);
+status.innerText = "✅ مشکل ثبت شد.";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن موبایل</span>';
+btn.disabled = false;
 btn.onclick = listenForPhone;
-});
 }
 };
-voiceRecognition.onerror = function(event) { voiceErrorFallback('مشکل را متوجه نشدم.', 'problem'); };
-try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'problem'); }
+
+voiceRecognition.onerror = function(event) {
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
+btn.onclick = listenForProblem;
+};
+try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
 }
 
 function listenForPhone() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نمی‌کند.', 'phone'); return; }
+if (!SpeechRecognition) { return; }
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
+
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
-document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (موبایل خود را بگویید)";
 
-var finalHeard = '';
+var btn = document.getElementById('ai-voice-btn');
+var status = document.getElementById('ai-status-text');
 var matched = false;
+
+voiceRecognition.onstart = function() {
+status.innerText = "🎤 در حال شنیدن... (شماره موبایل خود را بگویید)";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گوش دادن...</span>';
+};
+
 voiceRecognition.onresult = function(event) {
 if (matched) return;
-var interim = '';
-for (var i = event.resultIndex; i < event.results.length; i++) {
-if (event.results[i].isFinal) finalHeard += event.results[i][0].transcript + ' ';
-else interim += event.results[i][0].transcript;
+var t = '';
+for (var i = event.resultIndex; i < event.results.length; ++i) {
+t += event.results[i][0].transcript;
 }
-var t = finalHeard + ' ' + interim;
 var digits = convertToEnglishDigits(t);
-showLiveTranscript(t.trim(), '', true);
+showLiveTranscript(t, '', true);
+
 if (digits.length === 10) digits = '0' + digits;
 
 if (digits.length === 11 && digits.indexOf('09') === 0) {
 matched = true;
 try { voiceRecognition.stop(); } catch(e) {}
 document.getElementById('c-mobile').value = digits;
-showLiveTranscript(t.trim(), '✅ موبایل: ' + digits, true);
-voiceRetryCount = 0;
-document.getElementById('ai-status-text').innerText = "✅ موبایل ثبت شد.";
-
-aiSpeak("شماره ثبت شد. حالا دکمه را بزنید و کد ملی خود را بگویید.", function() {
-var btn = document.getElementById('ai-voice-btn');
-btn.disabled = false;
+status.innerText = "✅ موبایل ثبت شد.";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن کد ملی</span>';
+btn.disabled = false;
 btn.onclick = listenForNationalId;
-});
 }
 };
-voiceRecognition.onerror = function(event) { voiceErrorFallback('شماره موبایل شنیده نشد.', 'phone'); };
-try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'phone'); }
+
+voiceRecognition.onerror = function(event) {
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
+btn.onclick = listenForPhone;
+};
+try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
 }
 
 function listenForNationalId() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نمی‌کند.', 'nid'); return; }
+if (!SpeechRecognition) { return; }
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
+
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
-document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (کد ملی خود را بگویید)";
 
-var finalHeard = '';
+var btn = document.getElementById('ai-voice-btn');
+var status = document.getElementById('ai-status-text');
 var matched = false;
+
+voiceRecognition.onstart = function() {
+status.innerText = "🎤 در حال شنیدن... (کد ملی خود را بگویید)";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گوش دادن...</span>';
+};
+
 voiceRecognition.onresult = function(event) {
 if (matched) return;
-var interim = '';
-for (var i = event.resultIndex; i < event.results.length; i++) {
-if (event.results[i].isFinal) finalHeard += event.results[i][0].transcript + ' ';
-else interim += event.results[i][0].transcript;
+var t = '';
+for (var i = event.resultIndex; i < event.results.length; ++i) {
+t += event.results[i][0].transcript;
 }
-var t = finalHeard + ' ' + interim;
 var digits = convertToEnglishDigits(t);
-showLiveTranscript(t.trim(), '', true);
+showLiveTranscript(t, '', true);
 
 if (digits.length === 10) {
 matched = true;
 try { voiceRecognition.stop(); } catch(e) {}
 document.getElementById('c-nationalId').value = digits;
-showLiveTranscript(t.trim(), '✅ کد ملی: ' + digits, true);
-voiceRetryCount = 0;
-document.getElementById('ai-status-text').innerText = "✅ کد ملی ثبت شد.";
-
-aiSpeak("کد ملی ثبت شد. حالا دکمه را بزنید و مشکل خود را کامل توضیح دهید.", function() {
-var btn = document.getElementById('ai-voice-btn');
-btn.disabled = false;
+status.innerText = "✅ کد ملی ثبت شد.";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن توضیحات</span>';
+btn.disabled = false;
 btn.onclick = listenForDescription;
-});
 }
 };
-voiceRecognition.onerror = function(event) { voiceErrorFallback('کد ملی شنیده نشد.', 'nid'); };
-try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'nid'); }
+
+voiceRecognition.onerror = function(event) {
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
+btn.onclick = listenForNationalId;
+};
+try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
 }
 
 function listenForDescription() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نمی‌کند.', 'desc'); return; }
+if (!SpeechRecognition) { return; }
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
+
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
-document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (توضیحات خود را بگویید)";
 
-var finalHeard = '';
+var btn = document.getElementById('ai-voice-btn');
+var status = document.getElementById('ai-status-text');
+
+voiceRecognition.onstart = function() {
+status.innerText = "🎤 در حال شنیدن... (توضیحات خود را بگویید)";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گوش دادن...</span>';
+};
+
 voiceRecognition.onresult = function(event) {
-var interim = '';
-for (var i = event.resultIndex; i < event.results.length; i++) {
-if (event.results[i].isFinal) finalHeard += event.results[i][0].transcript + ' ';
-else interim += event.results[i][0].transcript;
+var t = '';
+for (var i = event.resultIndex; i < event.results.length; ++i) {
+t += event.results[i][0].transcript;
 }
-showLiveTranscript((finalHeard + ' ' + interim).trim(), '', true);
-document.getElementById('c-description').value = finalHeard.trim() || interim;
-};
-voiceRecognition.onend = function() {
-if (finalHeard.trim()) {
-document.getElementById('c-description').value = finalHeard.trim();
-showLiveTranscript(finalHeard.trim(), '✅ فرم کامل شد. دکمه ثبت نهایی را بزنید.', true);
-document.getElementById('ai-status-text').innerText = "✅ فرم با موفقیت پر شد!";
-aiSpeak("عالی! تمام اطلاعات ثبت شد. حالا می‌توانید دکمه ثبت نهایی را بزنید.", function() {
-resetVoiceBtn();
-});
-} else {
-voiceErrorFallback('توضیحات شنیده نشد.', 'desc');
+if (t.trim() !== "") {
+document.getElementById('c-description').value = t;
+showLiveTranscript(t, '✅ فرم کامل شد. دکمه ثبت نهایی را بزنید.', true);
+status.innerText = "✅ فرم با موفقیت پر شد!";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>پایان</span>';
+btn.disabled = true;
 }
 };
-try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'desc'); }
+
+voiceRecognition.onerror = function(event) {
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
+btn.onclick = listenForDescription;
+};
+try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
+}
 }
 </script>
 </body>
