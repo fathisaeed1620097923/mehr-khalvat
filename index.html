@@ -2386,16 +2386,38 @@ var voiceRetryCount = 0;
 function startAIAssistant() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) {
-alert('مرورگر شما از دستیار صوتی پشتیبانی نمی‌کند. لطفاً از Google Chrome استفاده کنید.');
+alert('مرورگر شما از دستیار صوتی پشتیبانی نمی‌کند.');
 return;
 }
 
 var btn = document.getElementById('ai-voice-btn');
+var status = document.getElementById('ai-status-text');
+
 btn.disabled = true;
 btn.classList.remove('retry');
-btn.onclick = startAIAssistant;
-// مستقیم می‌رویم سراغ شنیدن، بدون هیچ مرحله اضافی
+btn.innerHTML = '<span style="font-size:22px;">⏳</span><span>در حال اتصال به میکروفون...</span>';
+status.style.display = 'block';
+status.innerText = "لطفاً در صورت مشاهده پیام، اجازه دسترسی به میکروفون را بدهید.";
+
+// این کد میکروفون را در آیفون باز می‌کند تا سرویس گفتار قفل نشود
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+navigator.mediaDevices.getUserMedia({ audio: true })
+.then(function(stream) {
+// بعد از گرفتن مجوز، میکروفون را موقتاً خاموش می‌کنیم تا با ضبط صدا تداخل نکند
+stream.getTracks().forEach(function(track) { track.stop(); });
+// حالا که چراغ سبز گرفتیم، می‌رویم سراغ شنیدن
 listenForBranch();
+})
+.catch(function(err) {
+alert('شما اجازه دسترسی به میکروفون را ندادید. لطفاً در تنظیمات مرورگر (کنار آدرس سایت) به سایت اجازه دهید.');
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
+btn.onclick = startAIAssistant;
+});
+} else {
+// اگر مرورگر قدیمی بود
+listenForBranch();
+}
 }
 
 function listenForBranch() {
@@ -2440,17 +2462,16 @@ btn.onclick = listenForProblem;
 
 voiceRecognition.onerror = function(event) {
 if (event.error === 'service-not-allowed') {
-alert('⚠️ محدودیت آیفون:\nمرورگرهای آیفون اجازه استفاده از میکروفون سایت را نمی‌دهند.\n\nلطفاً روی کادر متنی (مثلاً کادر توضیحات) ضربه بزنید و از میکروفون کیبورد گوشی خود (🎤) استفاده کنید.');
+alert('خطای سرویس آیفون:\nبرای رفع این مشکل، به تنظیمات گوشی بروید:\nSettings > General > Keyboard > Enable Dictation (روشن باشد).');
 } else if (event.error === 'not-allowed') {
-alert('⚠️ لطفاً در تنظیمات مرورگر به سایت اجازه دسترسی به میکروفون را بدهید.');
+alert('لطفاً در تنظیمات مرورگر به سایت اجازه میکروفون بدهید.');
 } else if (event.error === 'network') {
-alert('⚠️ خطای شبکه: لطفاً فیلترشکن خود را روشن کنید.');
+alert('خطای شبکه: لطفاً فیلترشکن (VPN) خود را روشن کنید.');
 } else if (event.error === 'no-speech') {
-alert('⚠️ صدایی شنیده نشد. لطفاً دوباره تلاش کنید.');
+alert('صدایی شنیده نشد. لطفاً بلندتر و واضح‌تر صحبت کنید.');
 } else {
-alert('⚠️ خطای میکروفون: ' + event.error);
+alert('خطای میکروفون: ' + event.error);
 }
-
 btn.disabled = false;
 btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
 btn.onclick = startAIAssistant;
@@ -2463,8 +2484,6 @@ alert('خطا در شروع میکروفون.');
 btn.disabled = false;
 }
 }
-
-
 
 function listenForProblem() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
