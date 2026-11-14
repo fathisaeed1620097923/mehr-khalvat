@@ -2462,16 +2462,15 @@ btn.onclick = listenForProblem;
 
 voiceRecognition.onerror = function(event) {
 if (event.error === 'service-not-allowed') {
-alert('خطای سرویس آیفون:\nبرای رفع این مشکل، به تنظیمات گوشی بروید:\nSettings > General > Keyboard > Enable Dictation (روشن باشد).');
+alert('⚠️ محدودیت آیفون:\nمرورگرهای آیفون اجازه استفاده از میکروفون سایت را نمی‌دهند.\n\nلطفاً روی کادر متنی (مثلاً کادر توضیحات) ضربه بزنید و از میکروفون کیبورد گوشی خود (🎤) استفاده کنید.');
 } else if (event.error === 'not-allowed') {
-alert('لطفاً در تنظیمات مرورگر به سایت اجازه میکروفون بدهید.');
+alert('⚠️ لطفاً در تنظیمات مرورگر به سایت اجازه دسترسی به میکروفون را بدهید.');
 } else if (event.error === 'network') {
-alert('خطای شبکه: لطفاً فیلترشکن (VPN) خود را روشن کنید.');
+alert('⚠️ خطای شبکه: لطفاً فیلترشکن خود را روشن کنید.');
 } else if (event.error === 'no-speech') {
-alert('صدایی شنیده نشد. لطفاً بلندتر و واضح‌تر صحبت کنید.');
-} else {
-alert('خطای میکروفون: ' + event.error);
+alert('⚠️ صدایی شنیده نشد. لطفاً دوباره تلاش کنید.');
 }
+
 btn.disabled = false;
 btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
 btn.onclick = startAIAssistant;
