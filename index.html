@@ -2245,7 +2245,7 @@ requestNotificationPermission();
 container.style.display = 'none';
 span.style.backgroundColor = '#ccc';
 if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-if (voiceRecognition) { try { voiceRecognition.abort(); } catch(e) {} voiceRecognition = null; }
+voiceRecognition = null; 
 }
 }
 
@@ -2398,8 +2398,6 @@ listenForBranch();
 function listenForBranch() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) { return; }
-try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
-
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
@@ -2457,8 +2455,6 @@ try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
 function listenForProblem() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) { return; }
-try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
-
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
@@ -2533,8 +2529,6 @@ try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
 function listenForPhone() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) { return; }
-try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
-
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
@@ -2582,8 +2576,6 @@ try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
 function listenForNationalId() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) { return; }
-try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
-
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
@@ -2629,7 +2621,6 @@ try { voiceRecognition.start(); } catch(e) { btn.disabled = false; }
 function listenForDescription() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) { return; }
-try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
 
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
