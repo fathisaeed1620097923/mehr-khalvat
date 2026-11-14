@@ -2389,29 +2389,56 @@ if (!SpeechRecognition) {
 alert('مرورگر شما از دستیار صوتی پشتیبانی نمی‌کند. لطفاً از Google Chrome استفاده کنید.');
 return;
 }
+
 voiceRetryCount = 0;
 var btn = document.getElementById('ai-voice-btn');
 btn.disabled = true;
 btn.classList.remove('retry');
-btn.onclick = startAIAssistant;
+btn.innerHTML = '<span style="font-size:22px;">⏳</span><span>در حال آماده‌سازی...</span>';
 document.getElementById('ai-status-text').style.display = 'block';
-document.getElementById('ai-status-text').innerText = "سلام. لطفاً شماره یا نام شعبه خود را بگویید.";
-// برای جلوگیری از قفل شدن میکروفون در آیفون، اول گوش می‌دهیم و بعد صحبت می‌کنیم
+document.getElementById('ai-status-text').innerText = "در حال دریافت دسترسی به میکروفون...";
+
+// این بخش جدید، میکروفون را در آیفون بیدار می‌کند تا ارور ندهد
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+navigator.mediaDevices.getUserMedia({ audio: true })
+.then(function(stream) {
+// میکروفون روشن شد، حالا خاموشش می‌کنیم تا رکورد نکنه
+stream.getTracks().forEach(function(track) { track.stop(); });
+
+// حالا که دسترسی گرفتیم، صدای راهنما پخش می‌شود
+document.getElementById('ai-status-text').innerText = "سلام. لطفاً شعبه را بگویید.";
+aiSpeak("سلام. لطفاً نام یا شماره شعبه خود را بگویید. مثلاً بگویید: شعبه رودسر یا شصت و چهار صفر یک.", function() {
 listenForBranch();
+});
+})
+.catch(function(err) {
+// اگر کاربر اجازه نداد
+alert('دسترسی به میکروفون رد شد. لطفاً در تنظیمات مرورگر به سایت اجازه دهید.');
+resetVoiceBtn();
+});
+} else {
+// برای مرورگرهای قدیمی
+listenForBranch();
+}
 }
 
 function listenForBranch() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) { voiceErrorFallback('مرورگر پشتیبانی نمی‌کند.', 'branch'); return; }
 try { if (voiceRecognition) voiceRecognition.abort(); } catch(e) {}
+
 voiceRecognition = new SpeechRecognition();
 voiceRecognition.lang = 'fa-IR';
 voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
+
+var btn = document.getElementById('ai-voice-btn');
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال شنیدن...</span>';
 document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (شعبه را بگویید)";
 
 var finalHeard = '';
 var matched = false;
+
 voiceRecognition.onresult = function(event) {
 if (matched) return;
 var interim = '';
@@ -2433,17 +2460,24 @@ voiceRetryCount = 0;
 document.getElementById('ai-status-text').innerText = "✅ شعبه " + branchNum + " ثبت شد.";
 
 aiSpeak("شعبه ثبت شد. حالا دکمه را بزنید و مشکل خود را بگویید. مثلاً: کارت گم شده.", function() {
-var btn = document.getElementById('ai-voice-btn');
 btn.disabled = false;
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن مشکل</span>';
 btn.onclick = listenForProblem;
 });
 }
 };
+
 voiceRecognition.onerror = function(event) {
-if (event.error === 'no-speech') { voiceErrorFallback('صدایی شنیده نشد.', 'branch'); }
-else { voiceErrorFallback('میکروفون در دسترس نیست.', 'branch'); }
+console.log("Speech error:", event.error);
+if (event.error === 'not-allowed') {
+voiceErrorFallback('دسترسی میکروفون رد شد.', 'branch');
+} else if (event.error === 'no-speech') {
+voiceErrorFallback('صدایی شنیده نشد.', 'branch');
+} else {
+voiceErrorFallback('خطا در میکروفون.', 'branch');
+}
 };
+
 try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'branch'); }
 }
 
