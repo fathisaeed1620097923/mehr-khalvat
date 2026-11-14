@@ -2394,32 +2394,12 @@ voiceRetryCount = 0;
 var btn = document.getElementById('ai-voice-btn');
 btn.disabled = true;
 btn.classList.remove('retry');
-btn.innerHTML = '<span style="font-size:22px;">⏳</span><span>در حال آماده‌سازی...</span>';
+btn.onclick = startAIAssistant;
 document.getElementById('ai-status-text').style.display = 'block';
-document.getElementById('ai-status-text').innerText = "در حال دریافت دسترسی به میکروفون...";
+document.getElementById('ai-status-text').innerText = "🎤 لطفاً نام یا شماره شعبه را بگویید...";
 
-// این بخش جدید، میکروفون را در آیفون بیدار می‌کند تا ارور ندهد
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-navigator.mediaDevices.getUserMedia({ audio: true })
-.then(function(stream) {
-// میکروفون روشن شد، حالا خاموشش می‌کنیم تا رکورد نکنه
-stream.getTracks().forEach(function(track) { track.stop(); });
-
-// حالا که دسترسی گرفتیم، صدای راهنما پخش می‌شود
-document.getElementById('ai-status-text').innerText = "سلام. لطفاً شعبه را بگویید.";
-aiSpeak("سلام. لطفاً نام یا شماره شعبه خود را بگویید. مثلاً بگویید: شعبه رودسر یا شصت و چهار صفر یک.", function() {
+// بدون هیچ مرحله اضافی، مستقیم می‌رود برای شنیدن
 listenForBranch();
-});
-})
-.catch(function(err) {
-// اگر کاربر اجازه نداد
-alert('دسترسی به میکروفون رد شد. لطفاً در تنظیمات مرورگر به سایت اجازه دهید.');
-resetVoiceBtn();
-});
-} else {
-// برای مرورگرهای قدیمی
-listenForBranch();
-}
 }
 
 function listenForBranch() {
@@ -2433,8 +2413,7 @@ voiceRecognition.continuous = false;
 voiceRecognition.interimResults = true;
 
 var btn = document.getElementById('ai-voice-btn');
-btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال شنیدن...</span>';
-document.getElementById('ai-status-text').innerText = "🎤 در حال شنیدن... (شعبه را بگویید)";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال شنیدن... (شعبه را بگویید)</span>';
 
 var finalHeard = '';
 var matched = false;
@@ -2459,7 +2438,8 @@ showStep(2);
 voiceRetryCount = 0;
 document.getElementById('ai-status-text').innerText = "✅ شعبه " + branchNum + " ثبت شد.";
 
-aiSpeak("شعبه ثبت شد. حالا دکمه را بزنید و مشکل خود را بگویید. مثلاً: کارت گم شده.", function() {
+// بعد از اینکه گوش دادن تمام شد، سیستم راهنمایی صوتی می‌کند
+aiSpeak("شعبه ثبت شد. حالا دکمه را بزنید و مشکل خود را بگویید.", function() {
 btn.disabled = false;
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن مشکل</span>';
 btn.onclick = listenForProblem;
@@ -2468,18 +2448,13 @@ btn.onclick = listenForProblem;
 };
 
 voiceRecognition.onerror = function(event) {
-console.log("Speech error:", event.error);
-if (event.error === 'not-allowed') {
-voiceErrorFallback('دسترسی میکروفون رد شد.', 'branch');
-} else if (event.error === 'no-speech') {
-voiceErrorFallback('صدایی شنیده نشد.', 'branch');
-} else {
-voiceErrorFallback('خطا در میکروفون.', 'branch');
-}
+if (event.error === 'no-speech') { voiceErrorFallback('صدایی شنیده نشد.', 'branch'); }
+else { voiceErrorFallback('میکروفون در دسترس نیست.', 'branch'); }
 };
 
 try { voiceRecognition.start(); } catch(e) { voiceErrorFallback('شروع ضبط ممکن نشد.', 'branch'); }
 }
+
 
 function listenForProblem() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
