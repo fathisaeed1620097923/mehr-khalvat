@@ -880,6 +880,8 @@ body { background: #fff !important; padding: 0 !important; }
 <h4 style="text-align: center; margin-bottom: 10px; font-size: 14px; color: #333;">🪞 آمار احساسات (همه شعب)</h4>
 <button class="btn" onclick="loadAdminEmotionStats()" style="background:#0a4d2e;">دریافت آمار</button>
 <div id="admin-emotion-stats" style="margin-top: 15px;"></div>
+<button class="btn" onclick="loadBestCounter()" style="background:#8e44ad; margin-top:10px;">🏆 محاسبه بهترین باجه ماه</button>
+<div id="best-counter-result" style="margin-top:15px;"></div>  
 </div>
 </div>
 </div>
@@ -1930,6 +1932,29 @@ html += `<div style="font-size:12px;">${emoji[k]} ${k} ستاره: ${s.byScore[k
 box.innerHTML = html;
 })
 .catch(() => { box.innerHTML = '<p style="color:red;">خطا.</p>'; });
+}
+function loadBestCounter() {
+const box = document.getElementById('best-counter-result');
+box.innerHTML = '<p style="text-align:center;">در حال محاسبه...</p>';
+
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBestCounterOfMonth' }) })
+.then(r => r.json())
+.then(d => {
+if (d.success) {
+box.innerHTML = `
+<div style="background: linear-gradient(135deg, #f1c40f, #d4a017); color: #fff; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(241,196,15,0.4);">
+<h3 style="margin-bottom: 10px; font-size: 18px;">🏆 باجه برتر ماه</h3>
+<p style="font-size: 16px; margin-bottom: 5px;">شعبه <b>${d.branch}</b> - باجه <b>${d.counter}</b></p>
+<p style="font-size: 14px;">میانگین امتیاز: <b>${d.avg} از ۵</b></p>
+<p style="font-size: 12px; opacity: 0.9;">(بر اساس ${d.totalVotes} رأی ثبت شده در این ماه)</p>
+</div>`;
+} else {
+box.innerHTML = `<p style="color:#c0392b; text-align:center; background:#fadbd8; padding:10px; border-radius:8px;">${d.error}</p>`;
+}
+})
+.catch(() => {
+box.innerHTML = '<p style="color:red; text-align:center;">خطا در ارتباط با سرور.</p>';
+});
 }
 
 /* ============ ساتنا ============ */
