@@ -2550,13 +2550,12 @@ if (!SpeechRecognition) { return; }
 
 var voice = new SpeechRecognition();
 voice.lang = 'fa-IR';
-voice.continuous = false; // برای جلوگیری از باگ اندروید
-voice.interimResults = true;
+voice.continuous = false;
+voice.interimResults = false;
 
 var btn = document.getElementById('ai-voice-btn');
 var status = document.getElementById('ai-status-text');
 var mobileInput = document.getElementById('c-mobile');
-var accumulatedDigits = mobileInput.value.replace(/\D/g, '');
 var isFinished = false;
 
 voice.onstart = function() {
@@ -2567,32 +2566,25 @@ btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گو
 
 voice.onresult = function(event) {
 if (isFinished) return;
-var t = '';
-for (var i = event.resultIndex; i < event.results.length; ++i) {
-t += event.results[i][0].transcript;
-}
+var t = event.results[0][0].transcript;
 showLiveTranscript(t, '', true);
 
-// تشخیص کلمه پاک کردن
+// اگر کاربر گفت پاک کن
 if (t.indexOf('پاک') !== -1 || t.indexOf('از اول') !== -1 || t.indexOf('تکرار') !== -1) {
-accumulatedDigits = "";
 mobileInput.value = "";
-showLiveTranscript(t, '🧹 پاک شد. دوباره بگویید.', false);
 status.innerText = "🧹 پاک شد. لطفاً شماره را از اول بگویید.";
-isFinished = true;
-voice.stop();
-setTimeout(listenForPhone, 1000);
 return;
 }
 
-var newDigits = convertToEnglishDigits(t);
-if (newDigits.length > 0) {
-accumulatedDigits += newDigits;
-if (accumulatedDigits.length > 11) accumulatedDigits = accumulatedDigits.substring(0, 11);
-mobileInput.value = accumulatedDigits;
-}
+// تبدیل کلمات فارسی و انگلیسی به عدد
+var converted = t.replace(/صفر/g, "0").replace(/یک/g, "1").replace(/دو/g, "2").replace(/سه/g, "3").replace(/چهار/g, "4").replace(/پنج/g, "5").replace(/شش/g, "6").replace(/هفت/g, "7").replace(/هشت/g, "8").replace(/نه/g, "9");
+converted = converted.replace(/zero/g, "0").replace(/one/g, "1").replace(/two/g, "2").replace(/three/g, "3").replace(/four/g, "4").replace(/five/g, "5").replace(/six/g, "6").replace(/seven/g, "7").replace(/eight/g, "8").replace(/nine/g, "9");
+var digits = convertToEnglishDigits(converted);
 
-if (accumulatedDigits.length === 11) {
+if (digits.length > 0) {
+mobileInput.value = digits;
+
+if (digits.length === 11) {
 isFinished = true;
 voice.stop();
 status.innerText = "✅ موبایل ثبت شد. لطفاً صبر کنید...";
@@ -2600,6 +2592,12 @@ btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن کد م
 btn.disabled = false;
 btn.onclick = listenForNationalId;
 setTimeout(function() { listenForNationalId(); }, 1000);
+} else {
+status.innerText = "⚠️ شماره ناقص است (" + digits.length + " رقم). لطفاً کامل بگویید یا دکمه پاک را بزنید.";
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
+btn.onclick = listenForPhone;
+}
 }
 };
 
@@ -2609,14 +2607,6 @@ status.innerText = "⚠️ خطا در شنیدن. دوباره تلاش کنی�
 btn.disabled = false;
 btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
 btn.onclick = listenForPhone;
-}
-};
-
-voice.onend = function() {
-// اگر مکث کرد و ۱۱ رقم نشد، خودش دوباره گوش میدهد
-if (!isFinished && accumulatedDigits.length < 11) {
-status.innerText = "🎤 ادامه شماره را بگویید...";
-try { voice.start(); } catch(e) {}
 }
 };
 try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
@@ -2629,12 +2619,11 @@ if (!SpeechRecognition) { return; }
 var voice = new SpeechRecognition();
 voice.lang = 'fa-IR';
 voice.continuous = false;
-voice.interimResults = true;
+voice.interimResults = false;
 
 var btn = document.getElementById('ai-voice-btn');
 var status = document.getElementById('ai-status-text');
 var nidInput = document.getElementById('c-nationalId');
-var accumulatedDigits = nidInput.value.replace(/\D/g, '');
 var isFinished = false;
 
 voice.onstart = function() {
@@ -2645,32 +2634,25 @@ btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گو
 
 voice.onresult = function(event) {
 if (isFinished) return;
-var t = '';
-for (var i = event.resultIndex; i < event.results.length; ++i) {
-t += event.results[i][0].transcript;
-}
+var t = event.results[0][0].transcript;
 showLiveTranscript(t, '', true);
 
-// تشخیص کلمه پاک کردن
+// اگر کاربر گفت پاک کن
 if (t.indexOf('پاک') !== -1 || t.indexOf('از اول') !== -1 || t.indexOf('تکرار') !== -1) {
-accumulatedDigits = "";
 nidInput.value = "";
-showLiveTranscript(t, '🧹 پاک شد. دوباره بگویید.', false);
 status.innerText = "🧹 پاک شد. لطفاً کد ملی را از اول بگویید.";
-isFinished = true;
-voice.stop();
-setTimeout(listenForNationalId, 1000);
 return;
 }
 
-var newDigits = convertToEnglishDigits(t);
-if (newDigits.length > 0) {
-accumulatedDigits += newDigits;
-if (accumulatedDigits.length > 10) accumulatedDigits = accumulatedDigits.substring(0, 10);
-nidInput.value = accumulatedDigits;
-}
+// تبدیل کلمات فارسی و انگلیسی به عدد
+var converted = t.replace(/صفر/g, "0").replace(/یک/g, "1").replace(/دو/g, "2").replace(/سه/g, "3").replace(/چهار/g, "4").replace(/پنج/g, "5").replace(/شش/g, "6").replace(/هفت/g, "7").replace(/هشت/g, "8").replace(/نه/g, "9");
+converted = converted.replace(/zero/g, "0").replace(/one/g, "1").replace(/two/g, "2").replace(/three/g, "3").replace(/four/g, "4").replace(/five/g, "5").replace(/six/g, "6").replace(/seven/g, "7").replace(/eight/g, "8").replace(/nine/g, "9");
+var digits = convertToEnglishDigits(converted);
 
-if (accumulatedDigits.length === 10) {
+if (digits.length > 0) {
+nidInput.value = digits;
+
+if (digits.length === 10) {
 isFinished = true;
 voice.stop();
 status.innerText = "✅ کد ملی ثبت شد. لطفاً صبر کنید...";
@@ -2678,6 +2660,12 @@ btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن توض�
 btn.disabled = false;
 btn.onclick = listenForDescription;
 setTimeout(function() { listenForDescription(); }, 1000);
+} else {
+status.innerText = "⚠️ کد ملی ناقص است (" + digits.length + " رقم). لطفاً کامل بگویید یا دکمه پاک را بزنید.";
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
+btn.onclick = listenForNationalId;
+}
 }
 };
 
@@ -2689,15 +2677,9 @@ btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجد�
 btn.onclick = listenForNationalId;
 }
 };
-
-voice.onend = function() {
-if (!isFinished && accumulatedDigits.length < 10) {
-status.innerText = "🎤 ادامه کد ملی را بگویید...";
-try { voice.start(); } catch(e) {}
-}
-};
 try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
 }
+
 /* ====== بخش مخصوص آیفون (تبدیل منو به تایپ) ====== */
 function handleIOSVoice() {
 // تبدیل منوی شعبه
