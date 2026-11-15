@@ -329,7 +329,7 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 <div class="form-step" id="step-3">
-<div class="form-group"><label>شماره همراه:</label><input type="text" inputmode="numeric" id="c-mobile" placeholder="09123456789" maxlength="11" required><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
+<div class="form-group"><label>شماره همراه:</label><input type="text" id="c-mobile" placeholder="09123456789" maxlength="11" required><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
 <div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="0012345678" maxlength="10" required><div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div></div>
 <div class="form-group"><label>توضیح مختصر (اختیاری):</label><textarea id="c-description" placeholder="مشکل خود را کمی توضیح دهید..."></textarea></div>
 
@@ -2734,7 +2734,65 @@ let cleaned = convertWordsToNumbers(this.value);
 if (this.value !== cleaned) { this.value = cleaned; }
 });
 }
-});  
+}); 
+
+/* ================== مترجم هوشمند اعداد و فینگلیس ================== */
+document.addEventListener('DOMContentLoaded', function() {
+// ۱. تبدیل کلمات انگلیسی و فارسی به عدد
+function convertWordsToNumbers(val) {
+let str = String(val).toLowerCase().trim();
+
+// دیکشنری اعداد انگلیسی و فینگلیس
+const numberWords = {
+'zero': '0', 'oh': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9',
+'sefr': '0', 'yek': '1', 'ye': '1', 'do': '2', 'se': '3', 'chahar': '4', 'panj': '5', 'shesh': '6', 'haft': '7', 'hasht': '8', 'noh': '9',
+'صفر': '0', 'یک': '1', 'یه': '1', 'دو': '2', 'سه': '3', 'چهار': '4', 'پنج': '5', 'شش': '6', 'هفت': '7', 'هشت': '8', 'نه': '9'
+};
+for (let key in numberWords) { str = str.replace(new RegExp(key, 'g'), numberWords[key]); }
+
+// تبدیل اعداد فارسی به انگلیسی
+str = str.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+
+return str.replace(/\D/g, ''); // فقط اعداد باقی بمانند
+}
+
+// اعمال روی موبایل و کد ملی
+const mobileInput = document.getElementById('c-mobile');
+if (mobileInput) {
+mobileInput.addEventListener('input', function() {
+let cleaned = convertWordsToNumbers(this.value);
+if (this.value !== cleaned) { this.value = cleaned; }
+});
+}
+
+const nidInput = document.getElementById('c-nationalId');
+if (nidInput) {
+nidInput.addEventListener('input', function() {
+let cleaned = convertWordsToNumbers(this.value);
+if (this.value !== cleaned) { this.value = cleaned; }
+});
+}
+
+// ۲. تبدیل کلمات فینگلیس به شعبه و مشکل (توسط کدهایی که قبلا در branchInput گذاشتی انجام می‌شود)
+// اگر نیاز بود دیکشنری فینگلیس برای شعبه اضافه شود:
+var branchInput = document.getElementById('c-branch');
+if (branchInput) {
+branchInput.addEventListener('blur', function() {
+var val = this.value.toLowerCase();
+if (val.indexOf('shariati') !== -1 || val.indexOf('shariat') !== -1) this.value = "6409 - شریعتی";
+else if (val.indexOf('rudsar') !== -1 || val.indexOf('rud sar') !== -1) this.value = "6401 - رودسر";
+else if (val.indexOf('taleghani') !== -1 || val.indexOf('taleghan') !== -1) this.value = "6402 - طالقانی";
+else if (val.indexOf('golsar') !== -1) this.value = "6405 - گلسار";
+else if (val.indexOf('lahijan') !== -1) this.value = "6408 - لاهیجان";
+else if (val.indexOf('anzali') !== -1) this.value = "6410 - بندر انزلی";
+else if (val.indexOf('astara') !== -1) this.value = "6411 - آستارا";
+else if (val.indexOf('fouman') !== -1) this.value = "6413 - فومن";
+else if (val.indexOf('talesh') !== -1) this.value = "6414 - تالش";
+else if (val.indexOf('rast') !== -1) this.value = "6418 - رازی";
+});
+}
+});
+  
 </script>
 </body>
 </html>
