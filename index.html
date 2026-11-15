@@ -2620,44 +2620,7 @@ btn.onclick = listenForNationalId;
 try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
 }
 
-function listenForDescription() {
-var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SpeechRecognition) { return; }
-
-var voice = new SpeechRecognition();
-voice.lang = 'fa-IR';
-voice.continuous = false;
-voice.interimResults = true;
-
-var btn = document.getElementById('ai-voice-btn');
-var status = document.getElementById('ai-status-text');
-
-voice.onstart = function() {
-status.innerText = "🎤 در حال شنیدن... (توضیحات خود را بگویید)";
-btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گوش دادن...</span>';
-};
-
-voice.onresult = function(event) {
-var t = '';
-for (var i = event.resultIndex; i < event.results.length; ++i) {
-t += event.results[i][0].transcript;
-}
-if (t.trim() !== "") {
-document.getElementById('c-description').value = t;
-status.innerText = "✅ فرم با موفقیت پر شد! می‌توانید دکمه ثبت نهایی را بزنید.";
-btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>پایان</span>';
-btn.disabled = true;
-}
-};
-
-voice.onerror = function(event) {
-status.innerText = "⚠️ خطا در شنیدن توضیحات.";
-btn.disabled = false;
-btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
-btn.onclick = listenForDescription;
-};
-try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
-}
+function listenForDescription
 
 /* ====== بخش مخصوص آیفون (تبدیل منو به تایپ) ====== */
 function handleIOSVoice() {
