@@ -329,8 +329,8 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 <div class="form-step" id="step-3">
-<div class="form-group"><label>شماره همراه:</label><input type="tel" id="c-mobile" placeholder="مثلاً 09123456789" maxlength="11" required><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
-<div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="مثلاً 0012345678" maxlength="10" required><div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div></div>
+<div class="form-group"><label>شماره همراه:</label><input type="text" inputmode="numeric" id="c-mobile" placeholder="09123456789" maxlength="11" required><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
+<div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="0012345678" maxlength="10" required><div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div></div>
 <div class="form-group"><label>توضیح مختصر (اختیاری):</label><textarea id="c-description" placeholder="مشکل خود را کمی توضیح دهید..."></textarea></div>
 
 <div class="camera-box">
@@ -2409,10 +2409,15 @@ var voiceRecognition = null;
 var voiceRetryCount = 0;
 
 function startAIAssistant() {
+var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+if (isIOS) {
+handleIOSVoice();
+} else {
 var btn = document.getElementById('ai-voice-btn');
 btn.disabled = true;
 btn.innerHTML = '<span style="font-size:22px;">⏳</span><span>در حال اتصال...</span>';
 listenForBranch();
+}
 }
 
 function listenForBranch() {
@@ -2444,22 +2449,16 @@ var branchNum = extractBranchNumber(t);
 if (branchNum) {
 document.getElementById('c-branch').value = branchNum;
 showStep(2);
-status.innerText = "✅ شعبه ثبت شد.";
+status.innerText = "✅ شعبه ثبت شد. لطفاً صبر کنید...";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن مشکل</span>';
 btn.disabled = false;
 btn.onclick = listenForProblem;
+setTimeout(function() { listenForProblem(); }, 1000); // زنجیره خودکار
 }
 };
 
 voice.onerror = function(event) {
-var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-if (event.error === 'network' || event.error === 'service-not-allowed') {
-status.innerText = isIOS ? "⚠️ خطای آیفون: لطفاً فیلترشکن (VPN) را روی حالت Global روشن کنید." : "⚠️ خطای شبکه: اینترنت را بررسی کنید.";
-} else if (event.error === 'no-speech') {
-status.innerText = "⚠️ صدایی شنیده نشد. دوباره تلاش کنید.";
-} else {
-status.innerText = "⚠️ خطای میکروفون: " + event.error;
-}
+status.innerText = "⚠️ خطا در شنیدن. لطفاً دوباره تلاش کنید.";
 btn.disabled = false;
 btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
 btn.onclick = listenForBranch;
@@ -2507,13 +2506,6 @@ else if (t.indexOf('کاهش') !== -1) matchedValue = "11";
 else if (t.indexOf('تسویه') !== -1) matchedValue = "12";
 else if (t.indexOf('کارت') !== -1 || t.indexOf('گم') !== -1) matchedValue = "13";
 else if (t.indexOf('رمز') !== -1) matchedValue = "14";
-else if (t.indexOf('نیلوفر') !== -1) matchedValue = "15";
-else if (t.indexOf('معدل') !== -1) matchedValue = "16";
-else if (t.indexOf('رد') !== -1) matchedValue = "17";
-else if (t.indexOf('فعال') !== -1) matchedValue = "18";
-else if (t.indexOf('پیامک') !== -1) matchedValue = "19";
-else if (t.indexOf('ناقص') !== -1 && t.indexOf('چک') === -1) matchedValue = "21";
-else if (t.indexOf('چک ناقص') !== -1) matchedValue = "22";
 
 if (matchedValue) {
 if (problemSelect) {
@@ -2521,10 +2513,11 @@ problemSelect.value = matchedValue;
 try { problemSelect.dispatchEvent(new Event('change')); } catch(e) {}
 }
 showStep(3);
-status.innerText = "✅ مشکل ثبت شد.";
+status.innerText = "✅ مشکل ثبت شد. لطفاً صبر کنید...";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن موبایل</span>';
 btn.disabled = false;
 btn.onclick = listenForPhone;
+setTimeout(function() { listenForPhone(); }, 1000); // زنجیره خودکار
 }
 };
 
@@ -2566,10 +2559,11 @@ if (digits.length === 10) digits = '0' + digits;
 
 if (digits.length === 11 && digits.indexOf('09') === 0) {
 document.getElementById('c-mobile').value = digits;
-status.innerText = "✅ موبایل ثبت شد.";
+status.innerText = "✅ موبایل ثبت شد. لطفاً صبر کنید...";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن کد ملی</span>';
 btn.disabled = false;
 btn.onclick = listenForNationalId;
+setTimeout(function() { listenForNationalId(); }, 1000); // زنجیره خودکار
 }
 };
 
@@ -2609,10 +2603,11 @@ showLiveTranscript(t, '', true);
 
 if (digits.length === 10) {
 document.getElementById('c-nationalId').value = digits;
-status.innerText = "✅ کد ملی ثبت شد.";
+status.innerText = "✅ کد ملی ثبت شد. لطفاً صبر کنید...";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن توضیحات</span>';
 btn.disabled = false;
 btn.onclick = listenForDescription;
+setTimeout(function() { listenForDescription(); }, 1000); // زنجیره خودکار
 }
 };
 
@@ -2649,7 +2644,7 @@ t += event.results[i][0].transcript;
 }
 if (t.trim() !== "") {
 document.getElementById('c-description').value = t;
-status.innerText = "✅ فرم با موفقیت پر شد!";
+status.innerText = "✅ فرم با موفقیت پر شد! می‌توانید دکمه ثبت نهایی را بزنید.";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>پایان</span>';
 btn.disabled = true;
 }
@@ -2663,6 +2658,83 @@ btn.onclick = listenForDescription;
 };
 try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
 }
+
+/* ====== بخش مخصوص آیفون (تبدیل منو به تایپ) ====== */
+function handleIOSVoice() {
+// تبدیل منوی شعبه
+var branchSelect = document.getElementById('c-branch');
+if (branchSelect && branchSelect.tagName === 'SELECT') {
+var newBranchInput = document.createElement('input');
+newBranchInput.type = 'text';
+newBranchInput.id = 'c-branch';
+newBranchInput.required = true;
+newBranchInput.placeholder = "نام شعبه را بگویید...";
+newBranchInput.style.cssText = "width: 100%; padding: 12px; border: 2px solid #e1e8ed; border-radius: 12px; font-family: inherit; font-size: 14px; background: #fff;";
+
+var dl = document.createElement('datalist');
+dl.id = 'branch-list';
+for (var i = 1; i < branchSelect.options.length; i++) {
+var opt = document.createElement('option');
+opt.value = branchSelect.options[i].value + " - " + branchSelect.options[i].text;
+dl.appendChild(opt);
+}
+newBranchInput.setAttribute('list', 'branch-list');
+branchSelect.parentNode.replaceChild(newBranchInput, branchSelect);
+newBranchInput.parentNode.appendChild(dl);
+}
+
+// تبدیل منوی مشکل
+var problemSelect = document.getElementById('c-problemType');
+if (problemSelect && problemSelect.tagName === 'SELECT') {
+var newProblemInput = document.createElement('input');
+newProblemInput.type = 'text';
+newProblemInput.id = 'c-problemType';
+newProblemInput.required = true;
+newProblemInput.placeholder = "مشکل خود را بگویید...";
+newProblemInput.style.cssText = "width: 100%; padding: 12px; border: 2px solid #e1e8ed; border-radius: 12px; font-family: inherit; font-size: 14px; background: #fff;";
+
+var dl2 = document.createElement('datalist');
+dl2.id = 'problem-list';
+for (var j = 1; j < problemSelect.options.length; j++) {
+var opt2 = document.createElement('option');
+opt2.value = problemSelect.options[j].value + " - " + problemSelect.options[j].text;
+dl2.appendChild(opt2);
+}
+newProblemInput.setAttribute('list', 'problem-list');
+problemSelect.parentNode.replaceChild(newProblemInput, problemSelect);
+newProblemInput.parentNode.appendChild(dl2);
+}
+
+// پیام راهنما
+var status = document.getElementById('ai-status-text');
+status.style.display = 'block';
+status.innerText = "⚠️ لطفاً روی کادرهای سفید کلیک کنید و از میکروفون کیبورد (🎤) استفاده کنید.";
+}
+document.addEventListener('DOMContentLoaded', function() {
+function convertWordsToNumbers(val) {
+let str = String(val).toLowerCase().trim();
+const englishWords = { 'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9' };
+for (let key in englishWords) { str = str.replace(new RegExp(key, 'g'), englishWords[key]); }
+const persianWords = { 'صفر': '0', 'یک': '1', 'دو': '2', 'سه': '3', 'چهار': '4', 'پنج': '5', 'شش': '6', 'هفت': '7', 'هشت': '8', 'نه': '9' };
+for (let key in persianWords) { str = str.replace(new RegExp(key, 'g'), persianWords[key]); }
+str = str.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+return str.replace(/\D/g, '');
+}
+const mobileInput = document.getElementById('c-mobile');
+if (mobileInput) {
+mobileInput.addEventListener('input', function() {
+let cleaned = convertWordsToNumbers(this.value);
+if (this.value !== cleaned) { this.value = cleaned; }
+});
+}
+const nidInput = document.getElementById('c-nationalId');
+if (nidInput) {
+nidInput.addEventListener('input', function() {
+let cleaned = convertWordsToNumbers(this.value);
+if (this.value !== cleaned) { this.value = cleaned; }
+});
+}
+});  
 </script>
 </body>
 </html>
