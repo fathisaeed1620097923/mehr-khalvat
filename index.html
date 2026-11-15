@@ -2699,50 +2699,6 @@ try { voice.start(); } catch(e) {}
 try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
 }
 این کد چطور کار می‌کند؟
-function listenForNationalId() {
-var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-if (!SpeechRecognition) { return; }
-
-var voice = new SpeechRecognition();
-voice.lang = 'fa-IR';
-voice.continuous = false;
-voice.interimResults = true;
-
-var btn = document.getElementById('ai-voice-btn');
-var status = document.getElementById('ai-status-text');
-
-voice.onstart = function() {
-status.innerText = "🎤 در حال شنیدن... (کد ملی خود را بگویید)";
-btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گوش دادن...</span>';
-};
-
-voice.onresult = function(event) {
-var t = '';
-for (var i = event.resultIndex; i < event.results.length; ++i) {
-t += event.results[i][0].transcript;
-}
-var digits = convertToEnglishDigits(t);
-showLiveTranscript(t, '', true);
-
-if (digits.length === 10) {
-document.getElementById('c-nationalId').value = digits;
-status.innerText = "✅ کد ملی ثبت شد. لطفاً صبر کنید...";
-btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن توضیحات</span>';
-btn.disabled = false;
-btn.onclick = listenForDescription;
-setTimeout(function() { listenForDescription(); }, 1000); // زنجیره خودکار
-}
-};
-
-voice.onerror = function(event) {
-status.innerText = "⚠️ خطا در شنیدن کد ملی. دوباره بگویید.";
-btn.disabled = false;
-btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
-btn.onclick = listenForNationalId;
-};
-try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
-}
-
 /* ====== بخش مخصوص آیفون (تبدیل منو به تایپ) ====== */
 function handleIOSVoice() {
 // تبدیل منوی شعبه
