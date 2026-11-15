@@ -329,8 +329,22 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 <div class="form-step" id="step-3">
-<div class="form-group"><label>شماره همراه:</label><input type="text" id="c-mobile" placeholder="09123456789" maxlength="11" required><div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div></div>
-<div class="form-group"><label>کد ملی:</label><input type="text" id="c-nationalId" placeholder="0012345678" maxlength="10" required><div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div></div>
+<div class="form-group">
+<label>شماره همراه:</label>
+<div style="display: flex; gap: 10px;">
+<input type="text" id="c-mobile" placeholder="09123456789" maxlength="11" required style="flex: 1;">
+<button type="button" onclick="document.getElementById('c-mobile').value=''" style="background:#e74c3c; color:white; border:none; border-radius:12px; padding:0 15px; font-weight:bold; cursor:pointer;">🧹 پاک</button>
+</div>
+<div class="error" id="c-mobileError">شماره همراه نامعتبر است.</div>
+</div>
+<div class="form-group">
+<label>کد ملی:</label>
+<div style="display: flex; gap: 10px;">
+<input type="text" id="c-nationalId" placeholder="0012345678" maxlength="10" required style="flex: 1;">
+<button type="button" onclick="document.getElementById('c-nationalId').value=''" style="background:#e74c3c; color:white; border:none; border-radius:12px; padding:0 15px; font-weight:bold; cursor:pointer;">🧹 پاک</button>
+</div>
+<div class="error" id="c-nationalIdError">کد ملی باید ۱۰ رقم باشد.</div>
+</div>
 <div class="form-group"><label>توضیح مختصر (اختیاری):</label><textarea id="c-description" placeholder="مشکل خود را کمی توضیح دهید..."></textarea></div>
 
 <div class="camera-box">
@@ -2536,46 +2550,155 @@ if (!SpeechRecognition) { return; }
 
 var voice = new SpeechRecognition();
 voice.lang = 'fa-IR';
+voice.continuous = false; // برای جلوگیری از باگ اندروید
+voice.interimResults = true;
+
+var btn = document.getElementById('ai-voice-btn');
+var status = document.getElementById('ai-status-text');
+var mobileInput = document.getElementById('c-mobile');
+var accumulatedDigits = mobileInput.value.replace(/\D/g, '');
+var isFinished = false;
+
+voice.onstart = function() {
+showLiveTranscript('', '', true);
+status.innerText = "🎤 شماره موبایل را بگویید. (برای پاک کردن بگویید: پاک کن)";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گوش دادن...</span>';
+};
+
+voice.onresult = function(event) {
+if (isFinished) return;
+var t = '';
+for (var i = event.resultIndex; i < event.results.length; ++i) {
+t += event.results[i][0].transcript;
+}
+showLiveTranscript(t, '', true);
+
+// تشخیص کلمه پاک کردن
+if (t.indexOf('پاک') !== -1 || t.indexOf('از اول') !== -1 || t.indexOf('تکرار') !== -1) {
+accumulatedDigits = "";
+mobileInput.value = "";
+showLiveTranscript(t, '🧹 پاک شد. دوباره بگویید.', false);
+status.innerText = "🧹 پاک شد. لطفاً شماره را از اول بگویید.";
+isFinished = true;
+voice.stop();
+setTimeout(listenForPhone, 1000);
+return;
+}
+
+var newDigits = convertToEnglishDigits(t);
+if (newDigits.length > 0) {
+accumulatedDigits += newDigits;
+if (accumulatedDigits.length > 11) accumulatedDigits = accumulatedDigits.substring(0, 11);
+mobileInput.value = accumulatedDigits;
+}
+
+if (accumulatedDigits.length === 11) {
+isFinished = true;
+voice.stop();
+status.innerText = "✅ موبایل ثبت شد. لطفاً صبر کنید...";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن کد ملی</span>';
+btn.disabled = false;
+btn.onclick = listenForNationalId;
+setTimeout(function() { listenForNationalId(); }, 1000);
+}
+};
+
+voice.onerror = function(event) {
+if (!isFinished) {
+status.innerText = "⚠️ خطا در شنیدن. دوباره تلاش کنید.";
+btn.disabled = false;
+btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
+btn.onclick = listenForPhone;
+}
+};
+
+voice.onend = function() {
+// اگر مکث کرد و ۱۱ رقم نشد، خودش دوباره گوش میدهد
+if (!isFinished && accumulatedDigits.length < 11) {
+status.innerText = "🎤 ادامه شماره را بگویید...";
+try { voice.start(); } catch(e) {}
+}
+};
+try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
+}
+
+function listenForNationalId() {
+var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (!SpeechRecognition) { return; }
+
+var voice = new SpeechRecognition();
+voice.lang = 'fa-IR';
 voice.continuous = false;
 voice.interimResults = true;
 
 var btn = document.getElementById('ai-voice-btn');
 var status = document.getElementById('ai-status-text');
+var nidInput = document.getElementById('c-nationalId');
+var accumulatedDigits = nidInput.value.replace(/\D/g, '');
+var isFinished = false;
 
 voice.onstart = function() {
-status.innerText = "🎤 در حال شنیدن... (شماره موبایل خود را بگویید)";
+showLiveTranscript('', '', true);
+status.innerText = "🎤 کد ملی را بگویید. (برای پاک کردن بگویید: پاک کن)";
 btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>در حال گوش دادن...</span>';
 };
 
 voice.onresult = function(event) {
+if (isFinished) return;
 var t = '';
 for (var i = event.resultIndex; i < event.results.length; ++i) {
 t += event.results[i][0].transcript;
 }
-var digits = convertToEnglishDigits(t);
 showLiveTranscript(t, '', true);
 
-if (digits.length === 10) digits = '0' + digits;
+// تشخیص کلمه پاک کردن
+if (t.indexOf('پاک') !== -1 || t.indexOf('از اول') !== -1 || t.indexOf('تکرار') !== -1) {
+accumulatedDigits = "";
+nidInput.value = "";
+showLiveTranscript(t, '🧹 پاک شد. دوباره بگویید.', false);
+status.innerText = "🧹 پاک شد. لطفاً کد ملی را از اول بگویید.";
+isFinished = true;
+voice.stop();
+setTimeout(listenForNationalId, 1000);
+return;
+}
 
-if (digits.length === 11 && digits.indexOf('09') === 0) {
-document.getElementById('c-mobile').value = digits;
-status.innerText = "✅ موبایل ثبت شد. لطفاً صبر کنید...";
-btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن کد ملی</span>';
+var newDigits = convertToEnglishDigits(t);
+if (newDigits.length > 0) {
+accumulatedDigits += newDigits;
+if (accumulatedDigits.length > 10) accumulatedDigits = accumulatedDigits.substring(0, 10);
+nidInput.value = accumulatedDigits;
+}
+
+if (accumulatedDigits.length === 10) {
+isFinished = true;
+voice.stop();
+status.innerText = "✅ کد ملی ثبت شد. لطفاً صبر کنید...";
+btn.innerHTML = '<span style="font-size:22px;">🎤</span><span>گفتن توضیحات</span>';
 btn.disabled = false;
-btn.onclick = listenForNationalId;
-setTimeout(function() { listenForNationalId(); }, 1000); // زنجیره خودکار
+btn.onclick = listenForDescription;
+setTimeout(function() { listenForDescription(); }, 1000);
 }
 };
 
 voice.onerror = function(event) {
-status.innerText = "⚠️ خطا در شنیدن شماره. دوباره بگویید.";
+if (!isFinished) {
+status.innerText = "⚠️ خطا در شنیدن. دوباره تلاش کنید.";
 btn.disabled = false;
 btn.innerHTML = '<span style="font-size:22px;">🔁</span><span>تلاش مجدد</span>';
-btn.onclick = listenForPhone;
+btn.onclick = listenForNationalId;
+}
+};
+
+voice.onend = function() {
+if (!isFinished && accumulatedDigits.length < 10) {
+status.innerText = "🎤 ادامه کد ملی را بگویید...";
+try { voice.start(); } catch(e) {}
+}
 };
 try { voice.start(); } catch(e) { status.innerText = "خطا در شروع میکروفون."; }
 }
-
+این کد چطور کار می‌کند؟
 function listenForNationalId() {
 var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SpeechRecognition) { return; }
