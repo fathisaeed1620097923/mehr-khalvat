@@ -1820,6 +1820,21 @@ function printPOSForm(row) {
 const printContents = document.getElementById('print-area-' + row).innerHTML;
 const printWindow = window.open('', '_blank');
 printWindow.document.write(`<html dir="rtl" lang="fa"><head><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8;}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px;}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px;}strong{color:#333;}a{color:#2980b9;text-decoration:none;}img{max-width:200px;display:block;margin:0 auto;}</style></head><body>${printContents}
+
+<style>
+.gw-progress{height:7px;background:#e8edf2;border-radius:20px;overflow:hidden;margin:16px 0 8px}.gw-progress #gw-progress-fill{height:100%;width:20%;background:#168653;transition:width .25s}.gw-step-label{font-size:12px;color:#168653;font-weight:bold;margin-bottom:14px}.gw-step{display:none;grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.gw-step.active{display:grid}.gw-step h4{grid-column:1/-1;margin:0 0 4px;color:#174d35}.gw-nav{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:12px}.gw-review{background:#f5f8f6;border:1px solid #dce9e0;border-radius:12px;padding:14px;line-height:2;font-size:13px}.gw-track,.gw-employee-requests{margin-top:22px;padding:15px;border:1px solid #e0e7e3;border-radius:14px}.gw-track-row{display:flex;gap:8px}.gw-track-row input{flex:1;min-width:0}.gw-status{padding:10px;border-radius:9px;background:#f4f7f5;margin-top:10px;font-size:13px}.gw-request-card{border:1px solid #e1e8e3;padding:12px;border-radius:12px;margin:10px 0;font-size:13px}.gw-request-card select,.gw-request-card textarea{margin:6px 0}.gw-request-files a{display:inline-block;margin:4px}.gw-muted{color:#69766f;font-size:12px}@media(max-width:600px){.gw-step{grid-template-columns:1fr}.gw-nav{flex-wrap:wrap}.gw-track-row{flex-direction:column}}
+</style>
+<script>
+let growthWizardStep=0;
+const growthWizardTitles=['مشخصات مجموعه','اطلاعات رابط و شعبه','نوع همکاری و نیاز بانکی','بارگذاری مدارک','بازبینی و ثبت نهایی'];
+function growthWizardRender(){const steps=[...document.querySelectorAll('.gw-step')];steps.forEach((x,i)=>x.classList.toggle('active',i===growthWizardStep));const f=document.getElementById('gw-progress-fill');if(f)f.style.width=((growthWizardStep+1)*20)+'%';const l=document.getElementById('gw-step-label');if(l)l.textContent='مرحله '+(growthWizardStep+1)+' از ۵ ـ '+growthWizardTitles[growthWizardStep];document.getElementById('gw-prev').style.display=growthWizardStep?'inline-block':'none';document.getElementById('gw-next').style.display=growthWizardStep===4?'none':'inline-block';document.getElementById('gw-submit').style.display=growthWizardStep===4?'inline-block':'none';if(growthWizardStep===4)growthWizardReview();}
+function growthWizardMove(dir){const form=document.getElementById('growth-company-form');if(dir>0){const section=document.querySelector('.gw-step[data-step="'+growthWizardStep+'"]');for(const el of section.querySelectorAll('input,select,textarea')){if(el.type==='file'||el.type==='checkbox')continue;if(!el.checkValidity()){el.reportValidity();return;}}if(growthWizardStep===3){const fs=[...(document.getElementById('growth-customer-files').files||[])];if(fs.length>5||fs.some(f=>f.size>5*1024*1024)){alert('حداکثر ۵ فایل و حجم هر فایل حداکثر ۵ مگابایت است.');return;}}}growthWizardStep=Math.max(0,Math.min(4,growthWizardStep+dir));growthWizardRender();}
+function growthWizardReview(){const f=document.getElementById('growth-company-form');const d=Object.fromEntries(new FormData(f).entries());const files=[...(document.getElementById('growth-customer-files').files||[])].map(x=>x.name);document.getElementById('gw-review').innerHTML=Object.entries(d).filter(([k,v])=>k!=='').map(([k,v])=>'<div><b>'+growthEscape(k)+':</b> '+growthEscape(v)+'</div>').join('')+'<div><b>فایل‌های پیوست:</b> '+(files.length?files.map(growthEscape).join('، '):'هنوز فایلی انتخاب نشده')+'</div>';}
+async function growthTrackRequest(){const code=document.getElementById('growth-track-code').value.trim();const box=document.getElementById('growth-track-result');if(!code){box.textContent='کد رهگیری را وارد کنید.';return;}box.textContent='در حال دریافت وضعیت...';try{const x=await fetch(SCRIPT_URL+'?action=growthTrackRequest&code='+encodeURIComponent(code)).then(r=>r.json());if(!x.success)throw Error(x.error||'درخواستی یافت نشد');box.innerHTML='<div class="gw-status"><b>وضعیت:</b> '+growthEscape(x.status)+'<br><b>شرح آخرین اقدام:</b> '+growthEscape(x.note||'در انتظار بررسی')+'<br><b>تاریخ ثبت:</b> '+growthEscape(x.date||'')+'<br><b>مدارک ثبت‌شده:</b> '+(x.documents||0)+'</div>';}catch(e){box.textContent='خطا: '+e.message;}}
+async function growthLoadCustomerRequests(){const box=document.getElementById('growth-employee-requests');box.textContent='در حال دریافت...';try{const x=await growthCall({action:'growthGetCustomerRequests'});if(!x.success)throw Error(x.error||'دریافت ناموفق');box.innerHTML=(x.items||[]).map(r=>'<div class="gw-request-card"><b>'+growthEscape(r.id)+' ـ '+growthEscape(r.company)+'</b><div>نوع درخواست: '+growthEscape(r.service)+' | رابط: '+growthEscape(r.contact)+' | همراه: '+growthEscape(r.phone)+'</div><div>شعبه: '+growthEscape(r.branch)+' | کارکنان: '+growthEscape(r.staff)+'</div><div>وضعیت فعلی: '+growthEscape(r.status)+'</div><div class="gw-request-files">'+(r.files||[]).map(f=>'<a target="_blank" rel="noopener" href="'+growthEscape(f.url)+'">'+growthEscape(f.name)+'</a>').join(' ')+'</div><select id="gws-'+growthEscape(r.id)+'"><option>جدید</option><option>در حال بررسی مدارک</option><option>مدارک ناقص</option><option>در انتظار تکمیل مشتری</option><option>در حال تماس و مذاکره</option><option>ارجاع به شعبه</option><option>تکمیل‌شده</option><option>رد درخواست</option></select><textarea id="gwn-'+growthEscape(r.id)+'" rows="2" placeholder="شرح اقدام، نقص مدارک یا نتیجه تماس"></textarea><button class="growth-action" onclick="growthUpdateCustomerRequest(\''+growthEscape(r.id)+'\')">ثبت پیگیری</button></div>').join('')||'درخواستی ثبت نشده است.';}catch(e){box.textContent='خطا: '+e.message;}}
+async function growthUpdateCustomerRequest(id){const status=document.getElementById('gws-'+id).value,note=document.getElementById('gwn-'+id).value;try{const x=await growthCall({action:'growthUpdateCustomerRequest',id,status,note});if(!x.success)throw Error(x.error||'ثبت نشد');alert('وضعیت و یادداشت پیگیری ثبت شد.');growthLoadCustomerRequests();}catch(e){alert('خطا: '+e.message);}}
+</script>
+
 </body></html>`);
 printWindow.document.close();
 printWindow.focus();
@@ -3005,7 +3020,7 @@ function growthShowChooser(){
 function chooseGrowthPath(path){
  const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
  const target=document.getElementById(path==='customer'?'growth-customer-flow':'growth-employee-flow');if(target)target.style.display='block';
- if(path==='customer')growthUpdateRequirements();
+ if(path==='customer'){growthUpdateRequirements();growthWizardStep=0;growthWizardRender();}
 }
 function growthBackToChooser(){growthShowChooser();}
 function growthEmployeeLogin(){
@@ -3036,27 +3051,16 @@ function growthUpdateRequirements(){
 }
 async function growthReadFile(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',')[1]);r.onerror=reject;r.readAsDataURL(file);});}
 async function submitGrowthCompany(event){
- event.preventDefault();const form=event.currentTarget;const btn=form.querySelector('button[type=submit]');const fb=document.getElementById('growth-company-feedback');
- const phone=String(form.elements.phone.value||'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
- if(!/^09\d{9}$/.test(phone)){fb.textContent='شماره همراه باید ۱۱ رقم و با 09 شروع شود.';return;}
- const files=Array.from(document.getElementById('growth-customer-files')?.files||[]);
- if(files.length>5){fb.textContent='حداکثر ۵ فایل می‌توانید بارگذاری کنید.';return;}
- for(const f of files){if(f.size>5*1024*1024){fb.textContent='حجم هر فایل نباید بیشتر از ۵ مگابایت باشد: '+f.name;return;}}
- const d=Object.fromEntries(new FormData(form).entries());d.phone=phone;d.action='growthCustomerRequest';
- btn.disabled=true;fb.textContent='در حال ثبت درخواست...';
- try{
-  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(d)});const result=await response.json();
-  if(!result.success)throw new Error(result.error||'ثبت درخواست انجام نشد');
-  let uploadNote='';
-  if(files.length){
-   for(const f of files){const base64=await growthReadFile(f);const up=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthCustomerUpload',trackingId:result.id,fileName:f.name,mimeType:f.type||'application/octet-stream',base64})}).then(r=>r.json());if(!up.success)throw new Error('درخواست ثبت شد اما بارگذاری '+f.name+' انجام نشد: '+(up.error||''));}
-   uploadNote=' مدارک نیز بارگذاری شد.';
-  }
-  fb.textContent='درخواست با موفقیت ثبت شد. کد پیگیری: '+result.id+'.'+uploadNote+' این کد را نگهداری کنید.';
-  form.reset();growthUpdateRequirements();
- }catch(err){fb.textContent='خطا: '+err.message;}
- finally{btn.disabled=false;}
+ event.preventDefault();const form=event.currentTarget;const btn=document.getElementById('gw-submit');const fb=document.getElementById('growth-company-feedback');if(!document.getElementById('gw-confirm').checked){fb.textContent='لطفاً تأیید نهایی را علامت بزنید.';return;}
+ const phone=String(form.elements.phone.value||'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c));if(!/^09\d{9}$/.test(phone)){fb.textContent='شماره همراه باید ۱۱ رقم و با 09 شروع شود.';growthWizardStep=1;growthWizardRender();return;}
+ const files=Array.from(document.getElementById('growth-customer-files')?.files||[]);if(files.length>5||files.some(f=>f.size>5*1024*1024)){fb.textContent='حداکثر ۵ فایل و حجم هر فایل ۵ مگابایت است.';return;}
+ const d=Object.fromEntries(new FormData(form).entries());d.phone=phone;d.action='growthCustomerRequest';btn.disabled=true;fb.textContent='در حال ثبت درخواست...';
+ try{const result=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json());if(!result.success)throw new Error(result.error||'ثبت درخواست انجام نشد');
+  for(const f of files){const base64=await growthReadFile(f);const up=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthCustomerUpload',trackingId:result.id,fileName:f.name,mimeType:f.type||'application/octet-stream',base64})}).then(r=>r.json());if(!up.success)throw new Error('درخواست ثبت شد اما بارگذاری '+f.name+' انجام نشد: '+(up.error||''));}
+  fb.textContent='درخواست ثبت شد. کد رهگیری: '+result.id+' ـ این کد را برای پیگیری نگهداری کنید.';document.getElementById('growth-track-code').value=result.id;form.reset();growthWizardStep=0;growthWizardRender();growthUpdateRequirements();
+ }catch(err){fb.textContent='خطا: '+err.message;}finally{btn.disabled=false;}
 }
+
 function renderGrowthPortalModules(list){
  const grid=document.getElementById('growth-portal-module-grid');if(!grid)return;
  grid.innerHTML=list.map((m,i)=>`<article class="growth-card" style="cursor:default">
@@ -3170,32 +3174,59 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
    <section id="growth-customer-flow" style="display:none">
     <button type="button" class="growth-back" onclick="growthBackToChooser()">← بازگشت به انتخاب مسیر</button>
     <h3>ثبت درخواست همکاری مجموعه</h3><p>نوع مجموعه و خدمت موردنیاز را انتخاب کنید تا مدارک و اطلاعات متناسب نمایش داده شود.</p>
-    <form class="growth-form" onsubmit="submitGrowthCompany(event)">
-     <label>نوع مجموعه<select id="growth-org-type" name="orgType" required onchange="growthUpdateRequirements()"><option value="شرکت / موسسه خصوصی">شرکت / مؤسسه خصوصی</option><option value="اداره دولتی">اداره</option><option value="سازمان">سازمان</option><option value="اتحادیه / صنف">اتحادیه / صنف</option><option value="نهاد عمومی">نهاد عمومی</option><option value="شخص حقیقی / کسب‌وکار">شخص حقیقی / کسب‌وکار</option><option value="سایر">سایر</option></select></label>
-     <label>نام مجموعه / کسب‌وکار<input required name="company" maxlength="150" placeholder="نام کامل مجموعه"></label>
-     <label>نام و نام خانوادگی رابط<input required name="contact" maxlength="100" placeholder="نام رابط پیگیری"></label>
-     <label>شماره همراه رابط<input required name="phone" inputmode="numeric" maxlength="11" placeholder="09xxxxxxxxx"></label>
-     <label>استان / شهر<input required name="city" maxlength="100" placeholder="مثلاً گیلان / رشت"></label>
-     <label>شعبه موردنظر<input required name="branch" maxlength="100" placeholder="نام یا کد شعبه ترجیحی"></label>
-     <label class="wide">نوع درخواست<select id="growth-service" name="service" required onchange="growthUpdateRequirements()"><option value="افتتاح حساب">افتتاح حساب مجموعه</option><option value="افتتاح حساب کارکنان">افتتاح حساب کارکنان</option><option value="انتقال حقوق کارکنان">ارسال فایل و انتقال حقوق کارکنان</option><option value="کارتخوان و خدمات پرداخت">درخواست کارتخوان و خدمات پرداخت</option><option value="تسهیلات و تأمین مالی">تسهیلات و تأمین مالی</option><option value="خدمات بانکی سازمانی">سایر خدمات بانکی سازمانی</option></select></label>
-     <label>تعداد کارکنان / اعضا<input name="staff" type="number" min="0" placeholder="تعداد تقریبی"></label>
-     <label>حوزه فعالیت<select name="industry"><option>توزیع و پخش</option><option>صنعت و تولید</option><option>بازرگانی و فروشگاه</option><option>خدمات و گردشگری</option><option>درمان و دارو</option><option>اداری و آموزشی</option><option>سایر</option></select></label>
-     <label class="wide">توضیحات و ظرفیت همکاری<textarea name="details" rows="3" maxlength="1500" placeholder="شرح نیاز، تعداد کارکنان، مبلغ تقریبی حقوق یا توضیحات تکمیلی"></textarea></label>
-     <div class="wide growth-doc-requirements" id="growth-doc-requirements"></div>
-     <label class="wide">بارگذاری مدارک و فایل‌ها (حداکثر ۵ فایل، هرکدام ۵ مگابایت)<input type="file" id="growth-customer-files" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv"></label>
-     <div class="wide"><button class="growth-action" type="submit">ثبت درخواست و دریافت کد پیگیری</button><span id="growth-company-feedback" class="growth-muted" style="margin-right:8px"></span></div>
+    <div class="gw-progress"><div id="gw-progress-fill"></div></div><div class="gw-step-label" id="gw-step-label">مرحله ۱ از ۵ ـ مشخصات مجموعه</div>
+    <form class="growth-form" id="growth-company-form" onsubmit="submitGrowthCompany(event)">
+     <section class="gw-step active" data-step="0"><h4>۱. مشخصات مجموعه</h4>
+      <label>نوع مجموعه<select id="growth-org-type" name="orgType" required onchange="growthUpdateRequirements()"><option value="شرکت / موسسه خصوصی">شرکت / مؤسسه خصوصی</option><option value="اداره دولتی">اداره</option><option value="سازمان">سازمان</option><option value="اتحادیه / صنف">اتحادیه / صنف</option><option value="نهاد عمومی">نهاد عمومی</option><option value="شخص حقیقی / کسب‌وکار">شخص حقیقی / کسب‌وکار</option><option value="سایر">سایر</option></select></label>
+      <label>نام مجموعه / کسب‌وکار<input required name="company" maxlength="150" placeholder="نام کامل مجموعه"></label>
+      <label>حوزه فعالیت<select name="industry"><option>توزیع و پخش</option><option>صنعت و تولید</option><option>بازرگانی و فروشگاه</option><option>خدمات و گردشگری</option><option>درمان و دارو</option><option>اداری و آموزشی</option><option>سایر</option></select></label>
+     </section>
+     <section class="gw-step" data-step="1"><h4>۲. اطلاعات رابط و شعبه</h4>
+      <label>نام و نام خانوادگی رابط<input required name="contact" maxlength="100" placeholder="نام رابط پیگیری"></label>
+      <label>شماره همراه رابط<input required name="phone" inputmode="numeric" maxlength="11" placeholder="09xxxxxxxxx"></label>
+      <label>استان / شهر<input required name="city" maxlength="100" placeholder="مثلاً گیلان / رشت"></label>
+      <label>شعبه موردنظر<input required name="branch" maxlength="100" placeholder="نام یا کد شعبه ترجیحی"></label>
+     </section>
+     <section class="gw-step" data-step="2"><h4>۳. نوع همکاری و نیاز بانکی</h4>
+      <label class="wide">نوع درخواست<select id="growth-service" name="service" required onchange="growthUpdateRequirements()"><option value="افتتاح حساب">افتتاح حساب مجموعه</option><option value="افتتاح حساب کارکنان">افتتاح حساب کارکنان</option><option value="انتقال حقوق کارکنان">ارسال فایل و انتقال حقوق کارکنان</option><option value="کارتخوان و خدمات پرداخت">درخواست کارتخوان و خدمات پرداخت</option><option value="تسهیلات و تأمین مالی">تسهیلات و تأمین مالی</option><option value="خدمات بانکی سازمانی">سایر خدمات بانکی سازمانی</option></select></label>
+      <label>تعداد کارکنان / اعضا<input name="staff" type="number" min="0" placeholder="تعداد تقریبی"></label>
+      <label class="wide">توضیحات و ظرفیت همکاری<textarea name="details" rows="3" maxlength="1500" placeholder="شرح نیاز، تعداد کارکنان، مبلغ تقریبی حقوق یا توضیحات تکمیلی"></textarea></label>
+     </section>
+     <section class="gw-step" data-step="3"><h4>۴. بارگذاری مدارک</h4><div class="wide growth-doc-requirements" id="growth-doc-requirements"></div>
+      <label class="wide">بارگذاری مدارک و فایل‌ها (حداکثر ۵ فایل، هرکدام ۵ مگابایت)<input type="file" id="growth-customer-files" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv"></label>
+      <small class="wide">فایل‌ها پس از ثبت درخواست در پوشه تعیین‌شده در Google Drive ذخیره و به کد رهگیری متصل می‌شوند.</small>
+     </section>
+     <section class="gw-step" data-step="4"><h4>۵. بازبینی و ثبت نهایی</h4><div id="gw-review" class="gw-review">اطلاعات تکمیل‌شده در این بخش نمایش داده می‌شود.</div><label class="wide"><input type="checkbox" id="gw-confirm" required style="width:auto"> صحت اطلاعات و ارسال درخواست را تأیید می‌کنم.</label></section>
+     <div class="wide gw-nav"><button type="button" class="growth-back" id="gw-prev" onclick="growthWizardMove(-1)" style="display:none">مرحله قبل</button><button type="button" class="growth-action" id="gw-next" onclick="growthWizardMove(1)">مرحله بعد</button><button class="growth-action" id="gw-submit" type="submit" style="display:none">ثبت نهایی درخواست</button></div>
+     <div class="wide"><span id="growth-company-feedback" class="growth-muted"></span></div>
     </form>
+    <section class="gw-track"><h4>پیگیری درخواست ثبت‌شده</h4><div class="gw-track-row"><input id="growth-track-code" placeholder="کد رهگیری مانند GCR-..."><button type="button" class="growth-action" onclick="growthTrackRequest()">پیگیری</button></div><div id="growth-track-result"></div></section>
    </section>
    <section id="growth-employee-flow" style="display:none">
     <button type="button" class="growth-back" onclick="growthBackToChooser()">← بازگشت به انتخاب مسیر</button>
     <h3>ورود همکاران بانک</h3><p>برای دسترسی به امکانات مدیریت کسب‌وکار، با نام کاربری و رمز عبور سازمانی خود وارد شوید. پس از احراز هویت، مستقیماً به پنل داخلی هدایت می‌شوید.</p>
     <div id="growth-employee-login-actions" class="growth-role-actions"><button type="button" onclick="growthEmployeeLogin()">🔐 ورود با حساب همکار</button></div>
-    <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none"><h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div><h4>منوها و کارکردهای مدیریت کسب‌وکار</h4><div class="growth-grid" id="growth-portal-module-grid"></div><button type="button" class="growth-action" onclick="growthOpenMainEmployeePanel()">ورود به محیط کامل پنل همکار و مدیریت درخواست‌ها</button><div class="growth-detail" id="growth-portal-detail" onclick="if(event.target===this)this.style.display='none'"><button type="button" class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن پنجره</button><div id="growth-portal-detail-content"></div></div></div>
+    <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none"><h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div><h4>منوها و کارکردهای مدیریت کسب‌وکار</h4><div class="growth-grid" id="growth-portal-module-grid"></div><button type="button" class="growth-action" onclick="growthOpenMainEmployeePanel()">ورود به محیط کامل پنل همکار و مدیریت درخواست‌ها</button><div class="gw-employee-requests"><h4>درخواست‌های همکاری مشتریان</h4><button type="button" class="growth-action" onclick="growthLoadCustomerRequests()">دریافت و به‌روزرسانی درخواست‌ها</button><div id="growth-employee-requests"></div></div><div class="growth-detail" id="growth-portal-detail" onclick="if(event.target===this)this.style.display='none'"><button type="button" class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن پنجره</button><div id="growth-portal-detail-content"></div></div></div>
     <div class="growth-modal-note">این بخش برای مشتریان و سازمان‌های بیرونی نمایش داده نمی‌شود.</div>
    </section>
   </div>
  </div>
 </div>
+
+<style>
+.gw-progress{height:7px;background:#e8edf2;border-radius:20px;overflow:hidden;margin:16px 0 8px}.gw-progress #gw-progress-fill{height:100%;width:20%;background:#168653;transition:width .25s}.gw-step-label{font-size:12px;color:#168653;font-weight:bold;margin-bottom:14px}.gw-step{display:none;grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.gw-step.active{display:grid}.gw-step h4{grid-column:1/-1;margin:0 0 4px;color:#174d35}.gw-nav{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:12px}.gw-review{background:#f5f8f6;border:1px solid #dce9e0;border-radius:12px;padding:14px;line-height:2;font-size:13px}.gw-track,.gw-employee-requests{margin-top:22px;padding:15px;border:1px solid #e0e7e3;border-radius:14px}.gw-track-row{display:flex;gap:8px}.gw-track-row input{flex:1;min-width:0}.gw-status{padding:10px;border-radius:9px;background:#f4f7f5;margin-top:10px;font-size:13px}.gw-request-card{border:1px solid #e1e8e3;padding:12px;border-radius:12px;margin:10px 0;font-size:13px}.gw-request-card select,.gw-request-card textarea{margin:6px 0}.gw-request-files a{display:inline-block;margin:4px}.gw-muted{color:#69766f;font-size:12px}@media(max-width:600px){.gw-step{grid-template-columns:1fr}.gw-nav{flex-wrap:wrap}.gw-track-row{flex-direction:column}}
+</style>
+<script>
+let growthWizardStep=0;
+const growthWizardTitles=['مشخصات مجموعه','اطلاعات رابط و شعبه','نوع همکاری و نیاز بانکی','بارگذاری مدارک','بازبینی و ثبت نهایی'];
+function growthWizardRender(){const steps=[...document.querySelectorAll('.gw-step')];steps.forEach((x,i)=>x.classList.toggle('active',i===growthWizardStep));const f=document.getElementById('gw-progress-fill');if(f)f.style.width=((growthWizardStep+1)*20)+'%';const l=document.getElementById('gw-step-label');if(l)l.textContent='مرحله '+(growthWizardStep+1)+' از ۵ ـ '+growthWizardTitles[growthWizardStep];document.getElementById('gw-prev').style.display=growthWizardStep?'inline-block':'none';document.getElementById('gw-next').style.display=growthWizardStep===4?'none':'inline-block';document.getElementById('gw-submit').style.display=growthWizardStep===4?'inline-block':'none';if(growthWizardStep===4)growthWizardReview();}
+function growthWizardMove(dir){const form=document.getElementById('growth-company-form');if(dir>0){const section=document.querySelector('.gw-step[data-step="'+growthWizardStep+'"]');for(const el of section.querySelectorAll('input,select,textarea')){if(el.type==='file'||el.type==='checkbox')continue;if(!el.checkValidity()){el.reportValidity();return;}}if(growthWizardStep===3){const fs=[...(document.getElementById('growth-customer-files').files||[])];if(fs.length>5||fs.some(f=>f.size>5*1024*1024)){alert('حداکثر ۵ فایل و حجم هر فایل حداکثر ۵ مگابایت است.');return;}}}growthWizardStep=Math.max(0,Math.min(4,growthWizardStep+dir));growthWizardRender();}
+function growthWizardReview(){const f=document.getElementById('growth-company-form');const d=Object.fromEntries(new FormData(f).entries());const files=[...(document.getElementById('growth-customer-files').files||[])].map(x=>x.name);document.getElementById('gw-review').innerHTML=Object.entries(d).filter(([k,v])=>k!=='').map(([k,v])=>'<div><b>'+growthEscape(k)+':</b> '+growthEscape(v)+'</div>').join('')+'<div><b>فایل‌های پیوست:</b> '+(files.length?files.map(growthEscape).join('، '):'هنوز فایلی انتخاب نشده')+'</div>';}
+async function growthTrackRequest(){const code=document.getElementById('growth-track-code').value.trim();const box=document.getElementById('growth-track-result');if(!code){box.textContent='کد رهگیری را وارد کنید.';return;}box.textContent='در حال دریافت وضعیت...';try{const x=await fetch(SCRIPT_URL+'?action=growthTrackRequest&code='+encodeURIComponent(code)).then(r=>r.json());if(!x.success)throw Error(x.error||'درخواستی یافت نشد');box.innerHTML='<div class="gw-status"><b>وضعیت:</b> '+growthEscape(x.status)+'<br><b>شرح آخرین اقدام:</b> '+growthEscape(x.note||'در انتظار بررسی')+'<br><b>تاریخ ثبت:</b> '+growthEscape(x.date||'')+'<br><b>مدارک ثبت‌شده:</b> '+(x.documents||0)+'</div>';}catch(e){box.textContent='خطا: '+e.message;}}
+async function growthLoadCustomerRequests(){const box=document.getElementById('growth-employee-requests');box.textContent='در حال دریافت...';try{const x=await growthCall({action:'growthGetCustomerRequests'});if(!x.success)throw Error(x.error||'دریافت ناموفق');box.innerHTML=(x.items||[]).map(r=>'<div class="gw-request-card"><b>'+growthEscape(r.id)+' ـ '+growthEscape(r.company)+'</b><div>نوع درخواست: '+growthEscape(r.service)+' | رابط: '+growthEscape(r.contact)+' | همراه: '+growthEscape(r.phone)+'</div><div>شعبه: '+growthEscape(r.branch)+' | کارکنان: '+growthEscape(r.staff)+'</div><div>وضعیت فعلی: '+growthEscape(r.status)+'</div><div class="gw-request-files">'+(r.files||[]).map(f=>'<a target="_blank" rel="noopener" href="'+growthEscape(f.url)+'">'+growthEscape(f.name)+'</a>').join(' ')+'</div><select id="gws-'+growthEscape(r.id)+'"><option>جدید</option><option>در حال بررسی مدارک</option><option>مدارک ناقص</option><option>در انتظار تکمیل مشتری</option><option>در حال تماس و مذاکره</option><option>ارجاع به شعبه</option><option>تکمیل‌شده</option><option>رد درخواست</option></select><textarea id="gwn-'+growthEscape(r.id)+'" rows="2" placeholder="شرح اقدام، نقص مدارک یا نتیجه تماس"></textarea><button class="growth-action" onclick="growthUpdateCustomerRequest(\''+growthEscape(r.id)+'\')">ثبت پیگیری</button></div>').join('')||'درخواستی ثبت نشده است.';}catch(e){box.textContent='خطا: '+e.message;}}
+async function growthUpdateCustomerRequest(id){const status=document.getElementById('gws-'+id).value,note=document.getElementById('gwn-'+id).value;try{const x=await growthCall({action:'growthUpdateCustomerRequest',id,status,note});if(!x.success)throw Error(x.error||'ثبت نشد');alert('وضعیت و یادداشت پیگیری ثبت شد.');growthLoadCustomerRequests();}catch(e){alert('خطا: '+e.message);}}
+</script>
+
 </body>
 </html>
 
