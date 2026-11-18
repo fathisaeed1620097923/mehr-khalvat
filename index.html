@@ -276,7 +276,11 @@ body { background: #fff !important; padding: 0 !important; }
 .growth-admin-tile small{color:#65756b;}
 .growth-modal-note{background:#fff8e7;border:1px solid #f0dfae;color:#735d20;border-radius:10px;padding:10px;font-size:12px;line-height:1.8;margin:12px 0;}
 .growth-muted{display:inline-block;color:#64756b;font-size:11px;line-height:1.8;margin-top:8px;}
-.growth-detail{display:none;background:#fff;border:1px solid #dce9e0;border-radius:12px;padding:14px;margin-top:14px;}
+.growth-detail{display:none;position:fixed;inset:0;z-index:100001;background:rgba(7,28,20,.78);border:0;border-radius:0;padding:18px; margin:0; overflow:auto; align-items:center;justify-content:center;}
+.growth-detail[style*="display: block"]{display:flex !important;}
+#growth-portal-detail-content{width:min(900px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:16px;padding:20px;box-shadow:0 20px 70px #0006;}
+#growth-portal-detail>.growth-action{position:fixed;top:24px;left:24px;z-index:2;background:#fff;color:#075b3b;border:2px solid #075b3b;}
+@media(max-width:600px){.growth-detail{padding:8px}#growth-portal-detail-content{padding:13px;max-height:92vh}#growth-portal-detail>.growth-action{top:12px;left:12px}}
 .growth-upload-box{background:#f0f7f3;border:1px dashed #83b99b;border-radius:12px;padding:13px;margin-top:15px}.growth-upload-box input{display:block;max-width:100%;margin:9px 0}.growth-upload-box p{font-size:12px;color:#52675b}.growth-upload-box ul{font-size:12px;line-height:1.9;overflow-wrap:anywhere}
 .growth-detail h3{color:#075b3b;}
 .growth-list{padding-right:22px;line-height:2;color:#40564a;font-size:13px;}
@@ -306,7 +310,7 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 <div class="tabs" id="main-tabs">
-<button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="openGrowthPortal(this)">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
+<button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="window.openGrowthPortal(this)">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
 <button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری</button>
 <button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
@@ -1366,8 +1370,8 @@ document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
 if (window.__growthAfterLogin) { window.__growthAfterLogin = false; growthGoToEmployeeSection(); }
 requestNotificationPermission();
-} else { showToast("نام کاربری یا رمز عبور اشتباه است.", "error"); }
-}).catch(() => alert("خطا در ارتباط با سرور."));
+} else { window.__growthAfterLogin=false; showToast("نام کاربری یا رمز عبور اشتباه است.", "error"); }
+}).catch(() => { window.__growthAfterLogin=false; alert("خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه جدید را بررسی کنید."); });
 }
 function logoutUser() { if (!confirm('از حساب خارج می‌شوید؟')) return; sessionStorage.clear(); location.reload(); }
 function changeCredentials() { alert('برای تغییر نام کاربری / رمز، با مدیر سیستم تماس بگیرید.'); }
@@ -3006,7 +3010,9 @@ function chooseGrowthPath(path){
 function growthBackToChooser(){growthShowChooser();}
 function growthEmployeeLogin(){
  if(sessionStorage.getItem('adminToken')){growthGoToEmployeeSection();return;}
- window.__growthAfterLogin=true;closeGrowthPortal();askAdminPassword();
+ window.__growthAfterLogin=true;
+ const modal=document.getElementById('growth-portal-modal');if(modal)modal.classList.add('open');
+ askAdminPassword();
 }
 function growthGoToEmployeeSection(){
  growthRenderAllStats();
@@ -3051,7 +3057,14 @@ async function submitGrowthCompany(event){
  }catch(err){fb.textContent='خطا: '+err.message;}
  finally{btn.disabled=false;}
 }
-function renderGrowthPortalModules(list){const grid=document.getElementById('growth-portal-module-grid');if(!grid)return;grid.innerHTML=list.map(m=>`<div class="growth-card" role="button" tabindex="0" onclick="openGrowthPortalModule('${m.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGrowthPortalModule('${m.id}');}"><h3>${m.title}</h3><p>${m.desc}</p><small>مشاهده قابلیت‌ها ←</small></div>`).join('')||'<p>ماژولی یافت نشد.</p>';}
+function renderGrowthPortalModules(list){
+ const grid=document.getElementById('growth-portal-module-grid');if(!grid)return;
+ grid.innerHTML=list.map((m,i)=>`<article class="growth-card" style="cursor:default">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><small>ماژول ${i+1} از ${list.length}</small><span class="growth-pill">${growthEscape(m.cat||'')}</span></div>
+  <h3>${growthEscape(m.title)}</h3><p>${growthEscape(m.desc)}</p>
+  <button type="button" class="growth-action" onclick="openGrowthPortalModule('${m.id}')">📘 شرح و توضیحات کامل ماژول</button>
+ </article>`).join('')||'<p>ماژولی یافت نشد.</p>';
+}
 // الگوی داده و آموزش اختصاصی برای هر یک از ۳۰ ماژول
 window.__growthModuleFiles = window.__growthModuleFiles || {};
 window.__growthModuleImports = window.__growthModuleImports || {};
@@ -3101,12 +3114,49 @@ function growthUploadCsv(id,input){const file=input.files&&input.files[0];if(!fi
 function growthRenderModuleStats(id){const el=document.getElementById('gpd-stats');if(!el)return;const x=window.__growthModuleImports[id];if(!x){el.innerHTML='<p class="growth-muted">هنوز داده‌ای بارگذاری نشده است.</p>';return;}el.innerHTML=`<div style="display:flex;gap:12px;flex-wrap:wrap"><div><b>${x.rows}</b><small> ردیف داده</small></div><div><b>${Object.keys(x.statusCounts).length}</b><small> وضعیت متمایز</small></div></div><p>فایل: ${growthEscape(x.file)} | زمان خواندن: ${growthEscape(x.at)}</p>${Object.keys(x.statusCounts).length?'<ul>'+Object.entries(x.statusCounts).map(([k,v])=>`<li>${growthEscape(k)}: ${v}</li>`).join('')+'</ul>':''}`;}
 function growthRenderAllStats(){const imports=window.__growthModuleImports||{};const used=Object.keys(imports);const rows=used.reduce((n,k)=>n+(imports[k].rows||0),0);const actions=(window.growthPortalRecords||[]).length;const el=document.getElementById('growth-portal-stats');if(el)el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin:12px 0"><div class="growth-stat"><b>${growthModules.length}</b><small>ماژول</small></div><div class="growth-stat"><b>${used.length}</b><small>ماژول دارای داده</small></div><div class="growth-stat"><b>${rows}</b><small>ردیف بارگذاری‌شده</small></div><div class="growth-stat"><b>${actions}</b><small>اقدام ثبت‌شده</small></div></div><p class="growth-muted">آمار تجمیعی فایل‌های خوانده‌شده در این نشست؛ پس از اتصال پایگاه داده و بارگذاری امن، امکان گزارش ماندگار و مدیریتی فراهم می‌شود.</p>`;}
 function growthAddLocalFiles(id,input){growthUploadCsv(id,input);}
-function openGrowthPortalModule(id){if(!sessionStorage.getItem('adminToken')){alert('ابتدا با حساب همکار مجاز وارد شوید.');return;}const module=growthModules.find(x=>x.id===id);if(!module)return;const t=growthTemplateFor(id);const box=document.getElementById('growth-portal-detail');const content=document.getElementById('growth-portal-detail-content');if(!box||!content)return;content.innerHTML=`<h3>${module.title}</h3><p>${module.desc}</p><h4>کارمند در این بخش چه کاری انجام می‌دهد؟</h4><ul class="growth-list">${module.items.map(x=>`<li>${x}</li>`).join('')}</ul><div style="padding:12px;border-radius:10px;background:rgba(16,150,90,.08);margin:12px 0"><b>نتیجه مورد انتظار:</b><p>ساختارمند شدن اطلاعات این حوزه، امکان پیگیری و گزارش‌گیری و مقایسه عملکرد. نتیجه نهایی وابسته به صحت داده و کنترل کارشناس است.</p></div><h4>۱) راهنمای فایل این منو</h4><p>${t.help}</p><p><b>ستون‌های فایل:</b> ${t.headers.join('، ')}</p><p><b>یک ردیف نمونه:</b> ${t.sample.join(' | ')}</p><button type="button" class="growth-action" onclick="growthAddSampleFile('${id}')">＋ ساخت و دانلود قالب CSV</button><h4>۲) بارگذاری فایل تکمیل‌شده</h4><p class="growth-muted">قالب CSV را در Excel باز کنید، ردیف‌های خود را اضافه کنید و با فرمت CSV UTF-8 ذخیره کنید. فعلاً تحلیل آماری روی CSV انجام می‌شود.</p><label style="display:block;margin:10px 0">انتخاب فایل CSV<input type="file" accept=".csv,text/csv" onchange="growthUploadCsv('${id}',this)"></label><div id="gpd-files"></div><h4>۳) آمار فایل این بخش</h4><div id="gpd-stats"></div><hr><h4>۴) ثبت اقدام پیگیری</h4><label>عنوان اقدام<input id="gpd-title" placeholder="عنوان اقدام"></label><label>مسئول پیگیری<input id="gpd-owner" placeholder="نام کارشناس"></label><button class="growth-action" onclick="saveGrowthPortalAction('${id}')">ثبت اقدام</button><div id="gpd-msg" class="growth-muted">اقدام آزمایشی در حافظه نشست ثبت می‌شود.</div>`;box.style.display='block';growthRenderModuleFiles(id);growthRenderModuleStats(id);box.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function growthDownloadText(filename,content,mime='text/plain;charset=utf-8'){
+ const blob=new Blob(['\ufeff',content],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200);
+}
+function growthBuildGuide(m,t){
+ const fields=t.headers.map((h,i)=>`${i+1}. ${h.replace(/_/g,' ')}: این ستون را مطابق عنوان آن تکمیل کنید؛ اگر اطلاعاتی موجود نیست، خالی بگذارید و مقدار حدسی وارد نکنید.`).join('\n');
+ return `راهنمای اجرایی ماژول: ${m.title}\n\n۱) هدف و کاربرد\n${m.desc}\nاین ماژول برای ثبت منظم فرصت‌ها/اطلاعات، تعیین مسئول، پیگیری وضعیت و تهیه گزارش مدیریتی طراحی شده است. استفاده از آن جایگزین سامانه‌های رسمی بانک یا مجوزهای عملیاتی نیست.\n\n۲) چه کارهایی در این ماژول انجام می‌شود؟\n${m.items.map((x,i)=>`${i+1}. ${x}`).join('\n')}\n\n۳) مسئولیت‌ها\n- کارشناس: گردآوری اطلاعات مجاز، ثبت دقیق، بارگذاری فایل و به‌روزرسانی وضعیت.\n- رئیس/معاون شعبه: تعیین مسئول، کنترل موارد معوق، بررسی کیفیت داده و تصمیم درباره اقدام بعدی در حدود اختیارات.\n- واحد تخصصی: بررسی و تأیید مواردی که طبق مقررات نیازمند نظر اعتبارات، تطبیق، فناوری یا واحدهای دیگر است.\n\n۴) راهنمای تکمیل فایل\nفایل CSV نمونه و قالب خام را از همین پنجره دریافت کنید. ردیف اول نام ستون‌هاست؛ آن را حذف یا جابه‌جا نکنید. هر ردیف بعدی یک مشتری، پرونده، فرصت یا رخداد مستقل است. تاریخ را با قالب YYYY/MM/DD وارد کنید. مبالغ را فقط عددی و با واحدی که در نام ستون آمده وارد کنید. از درج فرمول، ادغام سلول، خط جدید در سلول و جداکننده اضافی خودداری کنید. فایل را با گزینه CSV UTF-8 ذخیره کنید.\n\n۵) شرح ستون‌ها\n${fields}\n\n۶) نمونه تکمیل‌شده\n${t.headers.map((h,i)=>h+': '+(t.sample[i]??'')).join('\n')}\n\n۷) کنترل پیش از ارسال\n- اطلاعات با منبع معتبر تطبیق داده شده باشد.\n- شناسه تکراری نباشد و وضعیت/مسئول مشخص باشد.\n- اطلاعات شخصی یا محرمانه غیرضروری در فایل نمونه یا محیط آزمایشی وارد نشود.\n- فایل با CSV UTF-8 ذخیره و یک بار بازبینی شود.\n\n۸) خروجی و منفعت مورد انتظار\nایجاد پرونده قابل پیگیری، کاهش دوباره‌کاری، مشخص‌شدن مسئول و موعد اقدام، شناسایی فرصت‌های جذب/نگهداشت و فراهم‌شدن گزارش برای مدیر شعبه. منافع مالی فقط پس از تحقق و تأیید عملیات واقعی قابل محاسبه است.\n\nتذکر مهم: اطلاعات این نسخه و ردیف‌های نمونه فرضی‌اند. هیچ ثبت آزمایشی به معنی افتتاح حساب، تصویب تسهیلات، نصب کارتخوان، انتقال وجه یا اتصال به هسته بانک نیست. اطلاعات واقعی مشتری فقط در بستر مورد تأیید بانک و با رعایت محرمانگی وارد شود.\n`;
+}
+function growthDownloadModuleGuide(id){const m=growthModules.find(x=>x.id===id);if(!m)return;const t=growthTemplateFor(id);growthDownloadText('راهنمای_'+growthFileSafeName(id)+'.txt',growthBuildGuide(m,t));}
+function growthDownloadBlankTemplate(id){const m=growthModules.find(x=>x.id===id);if(!m)return;const t=growthTemplateFor(id);const csv='\ufeff'+t.headers.map(growthCsvCell).join(',')+'\r\n';growthDownloadText('قالب_خام_'+growthFileSafeName(id)+'.csv',csv,'text/csv;charset=utf-8');}
+function growthDownloadExample(id){const m=growthModules.find(x=>x.id===id);if(!m)return;growthDownloadText('نمونه_تکمیل_شده_'+growthFileSafeName(id)+'.csv',growthMockCsv(m),'text/csv;charset=utf-8');}
+function openGrowthPortalModule(id){
+ if(!sessionStorage.getItem('adminToken')){alert('ابتدا با حساب همکار مجاز وارد شوید.');return;}
+ const module=growthModules.find(x=>x.id===id);if(!module)return;const t=growthTemplateFor(id);
+ const box=document.getElementById('growth-portal-detail');const content=document.getElementById('growth-portal-detail-content');if(!box||!content)return;
+ content.innerHTML=`<div class="growth-guide-head"><small>راهنمای مدیران و کارکنان | ${growthEscape(module.cat||'')}</small><h2>${growthEscape(module.title)}</h2><p>${growthEscape(module.desc)}</p></div>
+ <div class="growth-guide-actions">
+  <button type="button" class="growth-action" onclick="document.getElementById('gpd-description').scrollIntoView({behavior:'smooth'})">شرح و توضیحات</button>
+  <button type="button" class="growth-action" onclick="document.getElementById('gpd-instructions').scrollIntoView({behavior:'smooth'})">راهنمای تکمیل</button>
+  <button type="button" class="growth-action" onclick="document.getElementById('gpd-downloads').scrollIntoView({behavior:'smooth'})">دانلود فایل‌ها</button>
+ </div>
+ <section id="gpd-description" class="growth-guide-section"><h3>۱) شرح و توضیحات برای مدیر و کارمند</h3><p><b>هدف:</b> ${growthEscape(module.desc)}</p><h4>کارکردهای این ماژول</h4><ul class="growth-list">${module.items.map(x=>`<li>${growthEscape(x)}</li>`).join('')}</ul><h4>مسئولیت و گردش کار</h4><ol class="growth-list"><li>کارشناس اطلاعات مجاز را از منبع معتبر دریافت و ثبت می‌کند.</li><li>مسئول پیگیری و تاریخ اقدام بعدی مشخص می‌شود.</li><li>مدیر شعبه وضعیت، موارد معوق و کیفیت اطلاعات را بررسی می‌کند.</li><li>در صورت نیاز، پرونده به واحد تخصصی مجاز ارجاع می‌شود.</li><li>نتیجه اقدام ثبت و در گزارش مدیریتی منعکس می‌شود.</li></ol><p><b>منفعت مورد انتظار:</b> کاهش دوباره‌کاری، جلوگیری از فراموش‌شدن پیگیری‌ها، شفافیت مسئولیت‌ها و تبدیل اطلاعات به فرصت قابل سنجش کسب‌وکار.</p></section>
+ <section id="gpd-instructions" class="growth-guide-section"><h3>۲) راهنمای گام‌به‌گام تکمیل</h3><p>${growthEscape(t.help)}</p><ol class="growth-list"><li>ابتدا فایل «قالب خام» را دانلود و در Excel باز کنید.</li><li>ردیف اول عنوان ستون‌هاست؛ عنوان‌ها را تغییر ندهید.</li><li>هر ردیف فقط مربوط به یک مورد مستقل باشد.</li><li>اطلاعات را دقیقاً مطابق نام ستون وارد کنید؛ مبالغ و واحدها را رعایت کنید.</li><li>برای اطلاعات ناموجود حدس نزنید؛ سلول را خالی بگذارید.</li><li>فایل را با فرمت CSV UTF-8 ذخیره کنید.</li><li>فایل را بازبینی کنید و سپس از قسمت بارگذاری انتخاب کنید.</li></ol><h4>تعریف ستون‌ها</h4><div class="growth-field-guide">${t.headers.map((h,i)=>`<p><b>${i+1}. ${growthEscape(h.replace(/_/g,' '))}</b><br>مقدار این ستون را مطابق عنوان آن وارد کنید. از داده ساختگی در پرونده واقعی استفاده نکنید.</p>`).join('')}</div></section>
+ <section id="gpd-downloads" class="growth-guide-section"><h3>۳) دانلود راهنما و فایل‌های نمونه</h3><p>هر سه فایل برای همین ماژول اختصاصی هستند؛ ابتدا راهنما را بخوانید، سپس نمونه را ببینید و برای کار واقعی از قالب خام استفاده کنید.</p><div class="growth-download-grid"><button type="button" class="growth-action" onclick="growthDownloadModuleGuide('${id}')">📘 دانلود راهنمای کامل و نحوه پرکردن</button><button type="button" class="growth-action" onclick="growthDownloadExample('${id}')">📄 دانلود نمونه فایل تکمیل‌شده</button><button type="button" class="growth-action" onclick="growthDownloadBlankTemplate('${id}')">⬇️ دانلود فایل خام قابل تکمیل</button></div><h4>ستون‌های فایل</h4><p>${t.headers.map(h=>growthEscape(h.replace(/_/g,' '))).join('، ')}</p><h4>نمونه یک ردیف</h4><div class="growth-sample-row">${t.sample.map((v,i)=>`<div><b>${growthEscape(t.headers[i].replace(/_/g,' '))}</b><span>${growthEscape(v)}</span></div>`).join('')}</div></section>
+ <section class="growth-guide-section"><h3>۴) بارگذاری فایل تکمیل‌شده و مشاهده نتیجه آزمایشی</h3><p class="growth-muted">فقط فایل CSV UTF-8 خوانده می‌شود. در نسخه فعلی، تحلیل فایل در مرورگر و همان نشست انجام می‌شود و به پایگاه داده مرکزی منتقل نمی‌شود.</p><label style="display:block;margin:10px 0">انتخاب فایل CSV<input type="file" accept=".csv,text/csv" onchange="growthUploadCsv('${id}',this)"></label><div id="gpd-files"></div><h4>خلاصه داده خوانده‌شده</h4><div id="gpd-stats"></div></section>
+ <section class="growth-guide-section"><h3>۵) ثبت اقدام پیگیری آزمایشی</h3><label>عنوان اقدام<input id="gpd-title" placeholder="مثلاً تماس با مدیر مالی شرکت"></label><label>مسئول پیگیری<input id="gpd-owner" placeholder="نام کارشناس مسئول"></label><button type="button" class="growth-action" onclick="saveGrowthPortalAction('${id}')">ثبت اقدام آزمایشی</button><div id="gpd-msg" class="growth-muted">این ثبت فقط در حافظه نشست مرورگر نگهداری می‌شود.</div></section>
+ <p class="growth-warning">هشدار: تمام داده‌های نمونه فرضی‌اند. این ماژول ابزار آزمایشی مدیریت و پیگیری است و جایگزین سامانه‌های رسمی، مجوزهای بانکی یا تصمیم مراجع مجاز نیست. اطلاعات محرمانه مشتری را در فایل آزمایشی وارد نکنید.</p>`;
+ box.style.display='block';growthRenderModuleFiles(id);growthRenderModuleStats(id);box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 function saveGrowthPortalAction(id){const title=document.getElementById('gpd-title')?.value.trim();if(!title){alert('عنوان اقدام را وارد کنید.');return;}const module=growthModules.find(x=>x.id===id);window.growthPortalRecords=window.growthPortalRecords||[];window.growthPortalRecords.push({module:module?.title||id,title,owner:document.getElementById('gpd-owner')?.value||'',at:new Date().toLocaleString('fa-IR')});const msg=document.getElementById('gpd-msg');if(msg)msg.textContent='اقدام آزمایشی ثبت شد. تعداد ثبت‌های این نشست: '+window.growthPortalRecords.length;growthRenderAllStats();}
 function showAllGrowthModules(){document.getElementById('growth-portal-module-grid')?.scrollIntoView({behavior:'smooth',block:'start'});}
 function growthOpenMainEmployeePanel(){if(!sessionStorage.getItem('adminToken')){alert('ابتدا وارد شوید.');return;}closeGrowthPortal();const emp=document.getElementById('employee-tab-btn');if(emp){emp.style.display='block';switchTab('employee',emp);}const s=document.getElementById('e-section');const opt=s&&Array.from(s.options).find(o=>o.value==='growth');if(opt&&!opt.hidden){s.value='growth';handleEmployeeSectionChange();}}
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeGrowthPortal();});
+// Export portal handlers explicitly for the GitHub Pages HTML page.
+window.openGrowthPortal=openGrowthPortal;
+window.closeGrowthPortal=closeGrowthPortal;
+window.chooseGrowthPath=chooseGrowthPath;
+window.growthBackToChooser=growthBackToChooser;
+window.growthEmployeeLogin=growthEmployeeLogin;
+window.growthGoToEmployeeSection=growthGoToEmployeeSection;
 </script>
+<style>
+.growth-guide-head{padding:14px;border-radius:12px;background:#f1f7f3;margin-bottom:12px}.growth-guide-head h2{margin:6px 0;color:#0a4d2e}.growth-guide-actions,.growth-download-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:12px 0}.growth-guide-section{border:1px solid #dfe8e2;border-radius:12px;padding:14px;margin:12px 0;background:#fff;scroll-margin-top:12px}.growth-guide-section h3{color:#0a4d2e;margin-bottom:10px}.growth-guide-section h4{margin:12px 0 6px}.growth-guide-section p,.growth-guide-section li{line-height:2}.growth-field-guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}.growth-field-guide p{background:#f7faf8;border-radius:8px;padding:8px;margin:0}.growth-sample-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:7px}.growth-sample-row div{background:#f7faf8;padding:8px;border-radius:8px;display:flex;flex-direction:column;gap:4px}.growth-sample-row span{font-size:12px}.growth-warning{background:#fff7e6;border:1px solid #e8c66a;border-radius:10px;padding:12px;line-height:2;font-size:12px}.growth-card .growth-action{margin-top:10px;width:100%}.growth-pill{font-size:10px;background:#eef4f0;padding:3px 8px;border-radius:20px}
+</style>
 <div class="growth-modal" id="growth-portal-modal" role="dialog" aria-modal="true" aria-labelledby="growth-portal-title" onclick="if(event.target===this)closeGrowthPortal()">
  <div class="growth-modal-card">
   <div class="growth-modal-head"><div><h2 id="growth-portal-title">🚀 درگاه مدیریت کسب‌وکار بانک مهر</h2><small>لطفاً مسیر موردنظر را انتخاب کنید</small></div><button class="growth-close" onclick="closeGrowthPortal()" aria-label="بستن">×</button></div>
@@ -3140,7 +3190,7 @@ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeGrowthP
     <button type="button" class="growth-back" onclick="growthBackToChooser()">← بازگشت به انتخاب مسیر</button>
     <h3>ورود همکاران بانک</h3><p>برای دسترسی به امکانات مدیریت کسب‌وکار، با نام کاربری و رمز عبور سازمانی خود وارد شوید. پس از احراز هویت، مستقیماً به پنل داخلی هدایت می‌شوید.</p>
     <div id="growth-employee-login-actions" class="growth-role-actions"><button type="button" onclick="growthEmployeeLogin()">🔐 ورود با حساب همکار</button></div>
-    <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none"><h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div><h4>منوها و کارکردهای مدیریت کسب‌وکار</h4><div class="growth-grid" id="growth-portal-module-grid"></div><button type="button" class="growth-action" onclick="growthOpenMainEmployeePanel()">ورود به محیط کامل پنل همکار و مدیریت درخواست‌ها</button><div class="growth-detail" id="growth-portal-detail"><button class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن جزئیات</button><div id="growth-portal-detail-content"></div></div></div>
+    <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none"><h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div><h4>منوها و کارکردهای مدیریت کسب‌وکار</h4><div class="growth-grid" id="growth-portal-module-grid"></div><button type="button" class="growth-action" onclick="growthOpenMainEmployeePanel()">ورود به محیط کامل پنل همکار و مدیریت درخواست‌ها</button><div class="growth-detail" id="growth-portal-detail" onclick="if(event.target===this)this.style.display='none'"><button type="button" class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن پنجره</button><div id="growth-portal-detail-content"></div></div></div>
     <div class="growth-modal-note">این بخش برای مشتریان و سازمان‌های بیرونی نمایش داده نمی‌شود.</div>
    </section>
   </div>
