@@ -1828,6 +1828,76 @@ function printPOSForm(row) {
 const printContents = document.getElementById('print-area-' + row).innerHTML;
 const printWindow = window.open('', '_blank');
 printWindow.document.write(`<html dir="rtl" lang="fa"><head><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8;}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px;}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px;}strong{color:#333;}a{color:#2980b9;text-decoration:none;}img{max-width:200px;display:block;margin:0 auto;}</style></head><body>${printContents}
+<script id="growth-entry-demo-dashboard-final-fix">
+(function(){
+'use strict';
+// مسیر واحد ورود: فقط از دکمه «مدیریت کسب‌وکار» در صفحه اصلی
+window.openGrowthPortal=function(btn){
+ const modal=document.getElementById('growth-portal-modal');
+ if(!modal){alert('پنجره مدیریت کسب‌وکار در صفحه پیدا نشد.');return;}
+ document.querySelectorAll('#main-tabs .tab-btn').forEach(x=>x.classList.remove('active'));
+ const b=btn||document.getElementById('growth-tab-btn');if(b)b.classList.add('active');
+ modal.classList.add('open');document.body.style.overflow='hidden';
+ if(typeof window.growthShowChooser==='function')window.growthShowChooser();
+};
+// ورود همکار در همان درگاه؛ هرگز کاربر را به تب/پنل مستقل کارمند منتقل نکن
+window.askAdminPassword=function(){
+ const username=prompt('نام کاربری سازمانی همکار را وارد کنید:');
+ if(username===null||!username.trim())return;
+ const pass=prompt('رمز عبور سازمانی را وارد کنید:');if(pass===null)return;
+ fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'login',username:username.trim(),pass})})
+ .then(r=>r.json()).then(data=>{
+  if(!data.access){alert('نام کاربری یا رمز عبور صحیح نیست.');return;}
+  sessionStorage.setItem('adminToken',data.token);sessionStorage.setItem('loggedInUser',username.trim());
+  sessionStorage.setItem('role',data.role||'');sessionStorage.setItem('department',data.department||'');sessionStorage.setItem('branch',data.branch||'');
+  window.__growthAfterLogin=false;
+  const employeeTab=document.getElementById('employee-tab-btn');if(employeeTab)employeeTab.style.display='none';
+  if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();
+  const auth=document.getElementById('growth-employee-authenticated');if(auth)auth.style.display='block';
+  const flow=document.getElementById('growth-employee-flow');if(flow)flow.style.display='block';
+  const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
+  if(typeof requestNotificationPermission==='function')requestNotificationPermission();
+ }).catch(e=>alert('خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه را بررسی کنید.'));
+};
+// خروج نیز کاربر را به انتخاب نوع ورود در همان درگاه برمی‌گرداند
+window.growthPortalLogout=function(){sessionStorage.removeItem('adminToken');sessionStorage.removeItem('loggedInUser');sessionStorage.removeItem('role');sessionStorage.removeItem('department');sessionStorage.removeItem('branch');if(typeof growthShowChooser==='function')growthShowChooser();};
+const demoCss=document.createElement('style');demoCss.textContent=`
+.growth-live-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.growth-live-dashboard .gd-card{background:#fff;border:1px solid #dce9e1;border-radius:13px;padding:12px;min-width:0}
+.growth-live-dashboard .gd-card h4{margin:0 0 8px;color:#075b3b}
+.growth-live-dashboard canvas{width:100%!important;max-height:240px}
+.growth-module-proof{background:#f4faf6;border:1px solid #d5e8dc;border-radius:12px;padding:12px;margin:12px 0;line-height:2}
+.growth-module-proof b{color:#075b3b}
+@media(max-width:600px){.growth-live-dashboard{grid-template-columns:1fr}}
+`;document.head.appendChild(demoCss);
+function addDemoDashboard(){
+ const host=document.getElementById('growth-mode-content');if(!host||document.getElementById('growth-live-dashboard'))return;
+ const wrap=document.createElement('div');wrap.id='growth-live-dashboard';wrap.className='growth-live-dashboard';
+ wrap.innerHTML='<div class="gd-card"><h4>روند عملیات تکمیل‌شده (فرضی)</h4><canvas id="gd-month-chart"></canvas></div><div class="gd-card"><h4>وضعیت پرونده‌های نمونه</h4><canvas id="gd-status-chart"></canvas></div><div class="gd-card"><h4>منافع قابل اندازه‌گیری</h4><p>منابع جذب‌شده: <b>۳۰ میلیارد تومان فرضی</b></p><p>حساب‌های افتتاح‌شده: <b>۸۵ حساب فرضی</b></p><p>حقوق‌بگیران جذب‌شده: <b>۶۳ نفر فرضی</b></p><p>پایانه فعال: <b>۷ دستگاه فرضی</b></p></div><div class="gd-card"><h4>راهنمای خواندن آمار</h4><p>تمام اعداد این محیط ساختگی و صرفاً آموزشی‌اند. با اجرای سناریوها و ثبت اقدام در ماژول‌ها، شمارنده‌های آزمایشی به‌روزرسانی می‌شوند؛ هیچ‌یک آمار واقعی بانک نیست.</p></div>';
+ host.insertBefore(wrap,host.firstChild);
+ if(typeof Chart!=='undefined'){
+  new Chart(document.getElementById('gd-month-chart'),{type:'bar',data:{labels:['فروردین','اردیبهشت','خرداد','تیر','مرداد'],datasets:[{label:'عملیات تکمیل‌شده',data:[12,19,27,34,46],backgroundColor:'#15965b'}]},options:{responsive:true,plugins:{legend:{display:true}}}});
+  new Chart(document.getElementById('gd-status-chart'),{type:'doughnut',data:{labels:['تکمیل‌شده','در حال بررسی','نیازمند مدرک'],datasets:[{data:[18,5,3],backgroundColor:['#15965b','#e2ad35','#6b8fb5']}]},options:{responsive:true}});
+ }
+}
+const oldSelect=window.growthSelectMode;
+window.growthSelectMode=function(mode){if(typeof oldSelect==='function')oldSelect(mode);if(mode==='demo')setTimeout(addDemoDashboard,0);};
+const oldOpenModule=window.openGrowthPortalModule;
+window.openGrowthPortalModule=function(id){
+ if(typeof oldOpenModule==='function')oldOpenModule(id);
+ const mode=document.getElementById('growth-mode-content');
+ const activeText=mode&&mode.innerText||'';
+ if(!mode||!activeText.includes('محیط آزمایشی'))return;
+ const module=growthModules.find(x=>x.id===id);if(!module)return;
+ const content=document.getElementById('growth-portal-detail-content');if(!content)return;
+ if(document.getElementById('growth-proof-'+id))return;
+ const proof=document.createElement('div');proof.id='growth-proof-'+id;proof.className='growth-module-proof';
+ proof.innerHTML='<b>نمونه عملیات تکمیل‌شده این ماژول</b><p>پرونده فرضی '+module.title+' با شناسه DEMO-'+String(id).toUpperCase()+' ثبت، بررسی و نتیجه آن در محیط آزمایشی ثبت شده است.</p><ol><li>دریافت اطلاعات و کنترل کامل بودن داده‌ها</li><li>بررسی توسط مسئول نمونه و ثبت نتیجه کارشناسی</li><li>تأیید مرحله نهایی در سناریوی آموزشی</li><li>ثبت اثر قابل سنجش در گزارش آزمایشی</li></ol><p><b>نتیجه مورد انتظار:</b> '+module.desc+'</p><p><b>مسئول نمونه:</b> کارشناس آزمایشی مرتبط | <b>وضعیت:</b> تکمیل‌شده (فرضی)</p>';
+ content.appendChild(proof);
+};
+})();
+
+</script>
 </body></html>`);
 printWindow.document.close();
 printWindow.focus();
@@ -3271,6 +3341,76 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
 })();
 </script>
 
+<script id="growth-entry-demo-dashboard-final-fix">
+(function(){
+'use strict';
+// مسیر واحد ورود: فقط از دکمه «مدیریت کسب‌وکار» در صفحه اصلی
+window.openGrowthPortal=function(btn){
+ const modal=document.getElementById('growth-portal-modal');
+ if(!modal){alert('پنجره مدیریت کسب‌وکار در صفحه پیدا نشد.');return;}
+ document.querySelectorAll('#main-tabs .tab-btn').forEach(x=>x.classList.remove('active'));
+ const b=btn||document.getElementById('growth-tab-btn');if(b)b.classList.add('active');
+ modal.classList.add('open');document.body.style.overflow='hidden';
+ if(typeof window.growthShowChooser==='function')window.growthShowChooser();
+};
+// ورود همکار در همان درگاه؛ هرگز کاربر را به تب/پنل مستقل کارمند منتقل نکن
+window.askAdminPassword=function(){
+ const username=prompt('نام کاربری سازمانی همکار را وارد کنید:');
+ if(username===null||!username.trim())return;
+ const pass=prompt('رمز عبور سازمانی را وارد کنید:');if(pass===null)return;
+ fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'login',username:username.trim(),pass})})
+ .then(r=>r.json()).then(data=>{
+  if(!data.access){alert('نام کاربری یا رمز عبور صحیح نیست.');return;}
+  sessionStorage.setItem('adminToken',data.token);sessionStorage.setItem('loggedInUser',username.trim());
+  sessionStorage.setItem('role',data.role||'');sessionStorage.setItem('department',data.department||'');sessionStorage.setItem('branch',data.branch||'');
+  window.__growthAfterLogin=false;
+  const employeeTab=document.getElementById('employee-tab-btn');if(employeeTab)employeeTab.style.display='none';
+  if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();
+  const auth=document.getElementById('growth-employee-authenticated');if(auth)auth.style.display='block';
+  const flow=document.getElementById('growth-employee-flow');if(flow)flow.style.display='block';
+  const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
+  if(typeof requestNotificationPermission==='function')requestNotificationPermission();
+ }).catch(e=>alert('خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه را بررسی کنید.'));
+};
+// خروج نیز کاربر را به انتخاب نوع ورود در همان درگاه برمی‌گرداند
+window.growthPortalLogout=function(){sessionStorage.removeItem('adminToken');sessionStorage.removeItem('loggedInUser');sessionStorage.removeItem('role');sessionStorage.removeItem('department');sessionStorage.removeItem('branch');if(typeof growthShowChooser==='function')growthShowChooser();};
+const demoCss=document.createElement('style');demoCss.textContent=`
+.growth-live-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.growth-live-dashboard .gd-card{background:#fff;border:1px solid #dce9e1;border-radius:13px;padding:12px;min-width:0}
+.growth-live-dashboard .gd-card h4{margin:0 0 8px;color:#075b3b}
+.growth-live-dashboard canvas{width:100%!important;max-height:240px}
+.growth-module-proof{background:#f4faf6;border:1px solid #d5e8dc;border-radius:12px;padding:12px;margin:12px 0;line-height:2}
+.growth-module-proof b{color:#075b3b}
+@media(max-width:600px){.growth-live-dashboard{grid-template-columns:1fr}}
+`;document.head.appendChild(demoCss);
+function addDemoDashboard(){
+ const host=document.getElementById('growth-mode-content');if(!host||document.getElementById('growth-live-dashboard'))return;
+ const wrap=document.createElement('div');wrap.id='growth-live-dashboard';wrap.className='growth-live-dashboard';
+ wrap.innerHTML='<div class="gd-card"><h4>روند عملیات تکمیل‌شده (فرضی)</h4><canvas id="gd-month-chart"></canvas></div><div class="gd-card"><h4>وضعیت پرونده‌های نمونه</h4><canvas id="gd-status-chart"></canvas></div><div class="gd-card"><h4>منافع قابل اندازه‌گیری</h4><p>منابع جذب‌شده: <b>۳۰ میلیارد تومان فرضی</b></p><p>حساب‌های افتتاح‌شده: <b>۸۵ حساب فرضی</b></p><p>حقوق‌بگیران جذب‌شده: <b>۶۳ نفر فرضی</b></p><p>پایانه فعال: <b>۷ دستگاه فرضی</b></p></div><div class="gd-card"><h4>راهنمای خواندن آمار</h4><p>تمام اعداد این محیط ساختگی و صرفاً آموزشی‌اند. با اجرای سناریوها و ثبت اقدام در ماژول‌ها، شمارنده‌های آزمایشی به‌روزرسانی می‌شوند؛ هیچ‌یک آمار واقعی بانک نیست.</p></div>';
+ host.insertBefore(wrap,host.firstChild);
+ if(typeof Chart!=='undefined'){
+  new Chart(document.getElementById('gd-month-chart'),{type:'bar',data:{labels:['فروردین','اردیبهشت','خرداد','تیر','مرداد'],datasets:[{label:'عملیات تکمیل‌شده',data:[12,19,27,34,46],backgroundColor:'#15965b'}]},options:{responsive:true,plugins:{legend:{display:true}}}});
+  new Chart(document.getElementById('gd-status-chart'),{type:'doughnut',data:{labels:['تکمیل‌شده','در حال بررسی','نیازمند مدرک'],datasets:[{data:[18,5,3],backgroundColor:['#15965b','#e2ad35','#6b8fb5']}]},options:{responsive:true}});
+ }
+}
+const oldSelect=window.growthSelectMode;
+window.growthSelectMode=function(mode){if(typeof oldSelect==='function')oldSelect(mode);if(mode==='demo')setTimeout(addDemoDashboard,0);};
+const oldOpenModule=window.openGrowthPortalModule;
+window.openGrowthPortalModule=function(id){
+ if(typeof oldOpenModule==='function')oldOpenModule(id);
+ const mode=document.getElementById('growth-mode-content');
+ const activeText=mode&&mode.innerText||'';
+ if(!mode||!activeText.includes('محیط آزمایشی'))return;
+ const module=growthModules.find(x=>x.id===id);if(!module)return;
+ const content=document.getElementById('growth-portal-detail-content');if(!content)return;
+ if(document.getElementById('growth-proof-'+id))return;
+ const proof=document.createElement('div');proof.id='growth-proof-'+id;proof.className='growth-module-proof';
+ proof.innerHTML='<b>نمونه عملیات تکمیل‌شده این ماژول</b><p>پرونده فرضی '+module.title+' با شناسه DEMO-'+String(id).toUpperCase()+' ثبت، بررسی و نتیجه آن در محیط آزمایشی ثبت شده است.</p><ol><li>دریافت اطلاعات و کنترل کامل بودن داده‌ها</li><li>بررسی توسط مسئول نمونه و ثبت نتیجه کارشناسی</li><li>تأیید مرحله نهایی در سناریوی آموزشی</li><li>ثبت اثر قابل سنجش در گزارش آزمایشی</li></ol><p><b>نتیجه مورد انتظار:</b> '+module.desc+'</p><p><b>مسئول نمونه:</b> کارشناس آزمایشی مرتبط | <b>وضعیت:</b> تکمیل‌شده (فرضی)</p>';
+ content.appendChild(proof);
+};
+})();
+
+</script>
 </body>
 </html>
 
