@@ -254,7 +254,7 @@ body { background: #fff !important; padding: 0 !important; }
 .growth-modal-head h2{font-size:18px;margin:0;color:#fff;}
 .growth-modal-head small{display:block;margin-top:5px;color:#e5f5eb;}
 .growth-close{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:9px;width:38px;height:38px;font-size:25px;cursor:pointer;}
-.growth-rolebar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px 18px;background:#fff;border-bottom:1px solid #e4ece7;}
+.growth-rolebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px 18px;background:#fff;border-bottom:1px solid #e4ece7;}
 .growth-role{border:1px solid #d6e5dc;background:#f8fbf9;border-radius:12px;padding:12px 8px;color:#174d37;font-family:inherit;font-weight:700;cursor:pointer;}
 .growth-role.active{background:#e2f4e9;border:2px solid #12845b;color:#075b3b;}
 .growth-role span{display:block;font-size:23px;margin-bottom:4px;}
@@ -300,7 +300,7 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 <div class="tabs" id="main-tabs">
-<button type="button" class="tab-btn growth-entry-btn" onclick="openGrowthPortal()">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
+<button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="openGrowthPortal(this)">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
 <button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری</button>
 <button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
@@ -1358,6 +1358,7 @@ sessionStorage.setItem('department', data.department);
 sessionStorage.setItem('branch', data.branch);
 document.getElementById('employee-tab-btn').style.display = 'block';
 switchTab('employee', document.getElementById('employee-tab-btn'));
+if (window.__growthAfterLogin) { window.__growthAfterLogin = false; growthGoToEmployeeSection(); }
 requestNotificationPermission();
 } else { showToast("نام کاربری یا رمز عبور اشتباه است.", "error"); }
 }).catch(() => alert("خطا در ارتباط با سرور."));
@@ -2919,302 +2920,8 @@ else if (val.indexOf('rast') !== -1) this.value = "6418 - رازی";
 });
   
 </script>
-</body>
-</html>
 
-
-function getUsers() {
-const props = PropertiesService.getScriptProperties();
-const defaultUsers = {
-"admin": "Mehr@1405", "etehbarat": "Etehbarat123", "digital": "Digital123", "it": "IT123", "hoghoughi": "Hoghoughi123", "daneshbonyan": "Danesh123",
-"branch6400": "Branch6400@", "branch6401": "Branch6401@", "branch6402": "Branch6402@", "branch6403": "Branch6403@", "branch6404": "Branch6404@", "branch6405": "Branch6405@", "branch6406": "Branch6406@", "branch6407": "Branch6407@", "branch6408": "Branch6408@", "branch6409": "Branch6409@", "branch6410": "Branch6410@", "branch6411": "Branch6411@", "branch6412": "Branch6412@", "branch6413": "Branch6413@", "branch6414": "Branch6414@", "branch6415": "Branch6415@", "branch6416": "Branch6416@", "branch6417": "Branch6417@", "branch6418": "Branch6418@", "branch6419": "Branch6419@"
-};
-let usersString = props.getProperty('USERS_DATA');
-let users = {};
-if (usersString) { try { users = JSON.parse(usersString); } catch(e) { users = {}; } }
-if (!users["branch6400"]) { users = defaultUsers; props.setProperty('USERS_DATA', JSON.stringify(users)); }
-return users;
-}
-
-function doGet(e) {
-if (e && e.parameter && e.parameter.action === 'getTickets') return getTicketsJSON(e.parameter.token);
-if (e && e.parameter && e.parameter.action === 'trackTicket') return trackTicket(e.parameter.code);
-if (e && e.parameter && e.parameter.action === 'emotionForm') return serveEmotionForm(e.parameter.branch, e.parameter.counter);
-if (e && e.parameter && e.parameter.action === 'managerEmotionForm') return serveManagerEmotionForm(e.parameter.branch, e.parameter.token);
-if (e && e.parameter && e.parameter.action === 'trackSatna') return ContentService.createTextOutput(JSON.stringify(trackSatna(e.parameter.code))).setMimeType(ContentService.MimeType.JSON);
-return ContentService.createTextOutput("System Active");
-}
-
-function doPost(e) {
-try {
-const data = JSON.parse(e.postData.contents);
-const ss = SpreadsheetApp.getActiveSpreadsheet();
-const sheet = ss.getSheetByName('Form Responses 1');
-
-if (data.action === 'login') {
-const users = getUsers();
-let enteredUser = String(data.username).trim();
-let enteredPass = String(data.pass).trim();
-let userPass = users[enteredUser];
-if (typeof userPass === 'object' && userPass !== null) userPass = userPass.pass;
-
-if (userPass === enteredPass) {
-let role = 'admin'; let department = ''; let branch = '';
-if (enteredUser.startsWith('branch')) { role = 'branch'; branch = enteredUser.replace('branch', ''); }
-else if (enteredUser !== 'admin') {
-role = 'department';
-if (enteredUser === 'etehbarat') department = 'اعتبارات';
-else if (enteredUser === 'digital') department = 'بانکداری دیجیتال';
-else if (enteredUser === 'it') department = 'انفورماتیک';
-else if (enteredUser === 'hoghoughi') department = 'حقوقی';
-else if (enteredUser === 'daneshbonyan') department = 'دانش‌بنیان';
-}
-return ContentService.createTextOutput(JSON.stringify({ access: true, token: "AUTH_OK", role: role, department: department, branch: branch })).setMimeType(ContentService.MimeType.JSON);
-}
-return ContentService.createTextOutput(JSON.stringify({access: false})).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'changeCredentials') {
-const users = getUsers();
-if (users[data.oldUsername] !== data.oldPass) return ContentService.createTextOutput(JSON.stringify({success: false, error: "رمز عبور فعلی اشتباه است!"})).setMimeType(ContentService.MimeType.JSON);
-if (data.oldUsername !== data.newUsername && users[data.newUsername]) return ContentService.createTextOutput(JSON.stringify({success: false, error: "این نام کاربری قبلاً انتخاب شده است!"})).setMimeType(ContentService.MimeType.JSON);
-if (data.oldUsername !== data.newUsername) delete users[data.oldUsername];
-users[data.newUsername] = data.newPass;
-PropertiesService.getScriptProperties().setProperty('USERS_DATA', JSON.stringify(users));
-return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'getTicketsSecured') {
-if (data.token !== "AUTH_OK") return ContentService.createTextOutput(JSON.stringify({error: "Unauthorized"})).setMimeType(ContentService.MimeType.JSON);
-return getTicketsJSON("AUTH_OK");
-}
-if (data.action === 'getDashboardStats') { return getDashboardStats(data); }
-if (data.action === 'getBestCounterOfMonth') { return ContentService.createTextOutput(JSON.stringify(getBestCounterOfMonth())).setMimeType(ContentService.MimeType.JSON); }
-
-if (data.action === 'updateStatus') {
-sheet.getRange(data.row, 6).setValue(data.status);
-if (data.reply) sheet.getRange(data.row, 8).setValue(data.reply);
-return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'deleteAppointment') {
-let appSheet = ss.getSheetByName('Appointments');
-appSheet.deleteRow(parseInt(data.row));
-return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'cancelAppointmentByCustomer') {
-let appSheet = ss.getSheetByName('Appointments');
-appSheet.deleteRow(parseInt(data.row));
-return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'submitPOS') {
-const timestamp = new Date(); let posSheet = ss.getSheetByName('POS_Requests');
-const requiredHeaders = ["ردیف", "تاریخ", "نام", "کد ملی / شناسه", "همراه", "تلفن ثابت", "ایمیل", "نام کسب‌وکار", "نوع کسب‌وکار", "جواز کسب", "کد اقتصادی", "آدرس", "کد پستی", "نوع دستگاه", "بانک عامل", "شبا", "شماره حساب", "نام صاحب حساب", "لینک مدارک", "امضا", "وضعیت", "کد رهگیری مالیاتی"];
-if (!posSheet) { posSheet = ss.insertSheet('POS_Requests'); posSheet.appendRow(requiredHeaders); }
-const nextRow = posSheet.getLastRow() + 1;
-posSheet.appendRow([nextRow, timestamp, data.formData.name || "", data.formData.nid || "", data.formData.phone || "", data.formData.landline || "", data.formData.email || "", data.formData.business || "", data.formData.type || "", data.formData.license || "", data.formData.ecoCode || "", data.formData.address || "", data.formData.postal || "", data.formData.deviceType || "", data.formData.bankName || "", data.formData.iban || "", data.formData.accountNumber || "", data.formData.accountHolder || "", "", "", "در انتظار بررسی", data.formData.taxCode || ""]);
-return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'getPOSRequests') {
-let posSheet = ss.getSheetByName('POS_Requests');
-if (!posSheet) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-const rows = posSheet.getDataRange().getDisplayValues(); const posList = [];
-for (let i = 1; i < rows.length; i++) {
-if (rows[i][20] === "در انتظار بررسی") {
-posList.push({ row: i + 1, name: rows[i][2], nid: rows[i][3], phone: rows[i][4], landline: rows[i][5], email: rows[i][6], business: rows[i][7], type: rows[i][8], license: rows[i][9], ecoCode: rows[i][10], address: rows[i][11], postal: rows[i][12], deviceType: rows[i][13], bankName: rows[i][14], iban: rows[i][15], accountNumber: rows[i][16], accountHolder: rows[i][17], files: rows[i][18], signatureUrl: rows[i][19], taxCode: rows[i][21] || "" });
-}
-}
-return ContentService.createTextOutput(JSON.stringify(posList.reverse())).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'updatePOSStatus') {
-let posSheet = ss.getSheetByName('POS_Requests');
-posSheet.getRange(data.row, 21).setValue("نصب شد");
-return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'getBookedTimes') {
-let appSheet = ss.getSheetByName('Appointments');
-if (!appSheet) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-const rows = appSheet.getDataRange().getValues(); let bookedTimes = [];
-const inputBranch = String(data.branch).trim(); const inputDateStr = String(data.date).replace(/\//g, '-').trim();
-for (let i = 1; i < rows.length; i++) {
-if (String(rows[i][4]).trim() !== inputBranch) continue;
-let sheetDateStr = ""; let dVal = rows[i][5];
-if (dVal instanceof Date) { sheetDateStr = dVal.getFullYear() + '-' + String(dVal.getMonth() + 1).padStart(2, '0') + '-' + String(dVal.getDate()).padStart(2, '0'); }
-else { sheetDateStr = String(dVal).replace(/\//g, '-').trim(); }
-let isSameDate = (sheetDateStr === inputDateStr) || (new Date(sheetDateStr).getTime() === new Date(inputDateStr).getTime());
-if (isSameDate) {
-let tVal = rows[i][6]; let sheetTimeStr = "";
-if (tVal instanceof Date) { sheetTimeStr = String(tVal.getHours()).padStart(2, '0') + ':' + String(tVal.getMinutes()).padStart(2, '0'); }
-else { sheetTimeStr = String(tVal).substring(0, 5).trim(); }
-bookedTimes.push(sheetTimeStr);
-}
-}
-return ContentService.createTextOutput(JSON.stringify(bookedTimes)).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'submitAppointment') {
-let appSheet = ss.getSheetByName('Appointments');
-const headers = ["ردیف", "تاریخ ثبت", "کد پیگیری", "نوع خدمت", "شعبه", "تاریخ نوبت", "ساعت", "نام", "شماره همراه"];
-if (!appSheet) { appSheet = ss.insertSheet('Appointments'); appSheet.appendRow(headers); }
-const nextRow = appSheet.getLastRow() + 1;
-appSheet.appendRow([nextRow, new Date(), data.trackingCode, data.serviceType, data.branch, data.date, data.time, data.name, data.phone]);
-return ContentService.createTextOutput(JSON.stringify({success: true})).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'getAppointments') {
-let appSheet = ss.getSheetByName('Appointments');
-if (!appSheet) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-const rows = appSheet.getDataRange().getDisplayValues(); const list = [];
-for (let i = 1; i < rows.length; i++) {
-if (data.branch === 'all' || !data.branch || data.branch === rows[i][4]) {
-list.push({ row: i + 1, trackingCode: rows[i][2], serviceType: rows[i][3], branch: rows[i][4], date: rows[i][5], time: rows[i][6], name: rows[i][7], phone: rows[i][8] });
-}
-}
-return ContentService.createTextOutput(JSON.stringify(list.reverse())).setMimeType(ContentService.MimeType.JSON);
-}
-
-if (data.action === 'addVipCustomer') { return ContentService.createTextOutput(JSON.stringify(addVipCustomer(data))).setMimeType(ContentService.MimeType.JSON); }
-if (data.action === 'getVipCustomers') { return ContentService.createTextOutput(JSON.stringify(getVipCustomers())).setMimeType(ContentService.MimeType.JSON); }
-if (data.action === 'submitEmotion') { return ContentService.createTextOutput(JSON.stringify(submitEmotion(data))).setMimeType(ContentService.MimeType.JSON); }
-if (data.action === 'getEmotionStatsBranch') { return ContentService.createTextOutput(JSON.stringify(getEmotionStatsForBranch(data))).setMimeType(ContentService.MimeType.JSON); }
-if (data.action === 'getEmotionStatsAdmin') { return ContentService.createTextOutput(JSON.stringify(getEmotionStatsForAdmin(data))).setMimeType(ContentService.MimeType.JSON); }
-if (data.action === 'submitSatna') { return ContentService.createTextOutput(JSON.stringify(submitSatnaRequest(data))).setMimeType(ContentService.MimeType.JSON); }
-if (data.action === 'getSatnaRequests') { return ContentService.createTextOutput(JSON.stringify(getSatnaRequestsForEmployee(data.branch))).setMimeType(ContentService.MimeType.JSON); }
-if (data.action === 'approveSatnaByEmployee') { return ContentService.createTextOutput(JSON.stringify(approveSatnaByEmployee(data))).setMimeType(ContentService.MimeType.JSON); }
-if (data.action === 'customerFinalApproveSatna') { return ContentService.createTextOutput(JSON.stringify(customerFinalApproveSatna(data.row))).setMimeType(ContentService.MimeType.JSON); }
-
-const timestamp = new Date();
-const nextRow = sheet.getLastRow() + 1;
-sheet.appendRow([timestamp, data.name || "No Name", data.description || "", "", data.trackingCode || nextRow, "در حال بررسی", data.department || "", "", data.email || "", data.branch || "نامشخص"]);
-return ContentService.createTextOutput(JSON.stringify({"result": "success"})).setMimeType(ContentService.MimeType.JSON);
-
-} catch (error) {
-return ContentService.createTextOutput(JSON.stringify({"result": "error", "error": error.message})).setMimeType(ContentService.MimeType.JSON);
-}
-}
-
-function getDashboardStats(data) {
-const ss = SpreadsheetApp.getActiveSpreadsheet();
-const ticketSheet = ss.getSheetByName('Form Responses 1');
-let totalTickets = 0, pendingTickets = 0, resolvedTickets = 0;
-if (ticketSheet) {
-const tData = ticketSheet.getDataRange().getDisplayValues();
-for (let i = 1; i < tData.length; i++) { if (tData[i][1] === "") continue; totalTickets++; if (tData[i][5] === 'حل شد') resolvedTickets++; else pendingTickets++; }
-}
-const appSheet = ss.getSheetByName('Appointments');
-let totalApps = appSheet ? Math.max(0, appSheet.getLastRow() - 1) : 0;
-const posSheet = ss.getSheetByName('POS_Requests');
-let totalPOS = posSheet ? Math.max(0, posSheet.getLastRow() - 1) : 0;
-
-let branchStats = {};
-if (ticketSheet) {
-const tData = ticketSheet.getDataRange().getDisplayValues();
-for (let i = 1; i < tData.length; i++) {
-if (tData[i][1] === "") continue;
-const branch = tData[i][9] || "نامشخص";
-if (!branchStats[branch]) branchStats[branch] = { tickets: 0, appointments: 0 };
-branchStats[branch].tickets++;
-}
-}
-if (appSheet) {
-const aData = appSheet.getDataRange().getDisplayValues();
-for (let i = 1; i < aData.length; i++) {
-const branch = aData[i][4] || "نامشخص";
-if (!branchStats[branch]) branchStats[branch] = { tickets: 0, appointments: 0 };
-branchStats[branch].appointments++;
-}
-}
-let branchStatsArray = [];
-for (let b in branchStats) { branchStatsArray.push({ branch: b, tickets: branchStats[b].tickets, appointments: branchStats[b].appointments }); }
-branchStatsArray.sort((a, b) => a.branch.localeCompare(b.branch));
-
-return ContentService.createTextOutput(JSON.stringify({ totalTickets, pendingTickets, resolvedTickets, totalApps, totalPOS, branchStats: branchStatsArray })).setMimeType(ContentService.MimeType.JSON);
-}
-
-function trackTicket(code) {
-const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form Responses 1');
-const data = sheet.getDataRange().getDisplayValues();
-for (let i = 1; i < data.length; i++) {
-if (data[i][4] == code) { return ContentService.createTextOutput(JSON.stringify({ found: true, type: 'ticket', status: data[i][5] || "در حال بررسی", department: data[i][6] || "نامشخص", reply: data[i][7] || "" })).setMimeType(ContentService.MimeType.JSON); }
-}
-const appSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Appointments');
-if (appSheet) {
-const appData = appSheet.getDataRange().getDisplayValues();
-for (let i = 1; i < appData.length; i++) {
-if (appData[i][2] == code) { return ContentService.createTextOutput(JSON.stringify({ found: true, type: 'appointment', row: i + 1, serviceType: appData[i][3], branch: appData[i][4], date: appData[i][5], time: appData[i][6], name: appData[i][7] })).setMimeType(ContentService.MimeType.JSON); }
-}
-}
-return ContentService.createTextOutput(JSON.stringify({found: false})).setMimeType(ContentService.MimeType.JSON);
-}
-
-function getTicketsJSON(token) {
-if(token !== "AUTH_OK") return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Form Responses 1');
-const data = sheet.getDataRange().getDisplayValues(); const tickets = [];
-for (let i = 1; i < data.length; i++) {
-if (data[i][1] === "") continue;
-tickets.push({ row: i + 1, name: data[i][1], description: data[i][2], imageUrl: data[i][3], trackingCode: data[i][4], status: data[i][5] || "Pending", department: data[i][6] || "", reply: data[i][7] || "", branch: data[i][9] || "نامشخص" });
-}
-return ContentService.createTextOutput(JSON.stringify(tickets.reverse())).setMimeType(ContentService.MimeType.JSON);
-}
-
-function serveEmotionForm(branch, counter) {
-const branchName = branch || 'نامشخص';
-const counterName = (counter === '0') ? 'ریاست' : (counter || 'نامشخص');
-const scriptUrl = ScriptApp.getService().getUrl();
-const html = `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>آینه احساسات</title><style>*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,sans-serif} body{background:linear-gradient(135deg,#0a4d2e,#148a4f);min-height:100vh;padding:20px;display:flex;justify-content:center;align-items:center} .card{background:#fff;border-radius:20px;padding:25px;max-width:500px;width:100%;text-align:center} h1{color:#0a4d2e;font-size:20px;margin-bottom:8px} .info{background:#eaf3fd;padding:10px;border-radius:10px;margin-bottom:20px;font-size:14px;color:#1a5490;font-weight:bold} .emojis{display:flex; justify-content:center; gap:10px; margin:20px 0; direction:ltr;} .emoji{font-size:40px; cursor:pointer; transition:0.2s; filter:grayscale(100%); opacity:0.5;} .emoji.active{filter:grayscale(0%); opacity:1; transform:scale(1.2);} .stars{display:flex; justify-content:center; gap:10px; margin:10px 0 20px 0; direction:ltr;} .star{font-size:30px; color:#ddd; cursor:pointer; transition:0.2s;} textarea{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;font-size:13px;resize:none;height:80px;margin-bottom:15px} .btn{width:100%;padding:15px;background:#0a4d2e;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer} .msg{padding:12px;border-radius:10px;margin-top:15px;font-weight:bold;display:none} .msg.success{background:#d4edda;color:#155724}.msg.error{background:#f8d7da;color:#721c24}</style></head><body><div class="card"><h1>🪞 آینه احساسات</h1><div class="info">🏢 شعبه ${branchName} | 🚪 ${counterName}</div><p style="font-size:13px;color:#555;margin-bottom:10px">چه حسی به این باجه دارید؟</p><div class="emojis" id="emojis"><span class="emoji" data-score="1" onclick="pickEmoji(this)">😠</span><span class="emoji" data-score="2" onclick="pickEmoji(this)">😞</span><span class="emoji" data-score="3" onclick="pickEmoji(this)">😐</span><span class="emoji" data-score="4" onclick="pickEmoji(this)">🙂</span><span class="emoji" data-score="5" onclick="pickEmoji(this)">😍</span></div><div class="stars" id="stars"><span class="star" data-score="1" onclick="pickStar(this)">★</span><span class="star" data-score="2" onclick="pickStar(this)">★</span><span class="star" data-score="3" onclick="pickStar(this)">★</span><span class="star" data-score="4" onclick="pickStar(this)">★</span><span class="star" data-score="5" onclick="pickStar(this)">★</span></div><textarea id="comment" placeholder="توضیح اختیاری..."></textarea><button class="btn" id="submitBtn" onclick="sendEmotion()" disabled>ثبت امتیاز</button><div class="msg" id="msg"></div></div><script>
-const SCRIPT_URL='${scriptUrl}';
-let selectedScore=0;
-function setScore(score){
-selectedScore=score;
-document.querySelectorAll('.emoji').forEach((e,idx)=>{ if(idx+1===score) e.classList.add('active'); else e.classList.remove('active'); });
-document.querySelectorAll('.star').forEach((s,idx)=>{ if(idx<score) s.style.color='#f1c40f'; else s.style.color='#ddd'; });
-document.getElementById('submitBtn').disabled=false;
-}
-function pickEmoji(el){ setScore(Number(el.dataset.score)); }
-function pickStar(el){ setScore(Number(el.dataset.score)); }
-function sendEmotion(){
-if(!selectedScore)return;
-const btn=document.getElementById('submitBtn');btn.disabled=true;btn.innerText='در حال ارسال...';
-const now=new Date(); const hour=now.getHours();
-if(hour<8 || hour>=13){ const m=document.getElementById('msg'); m.className='msg error'; m.style.display='block'; m.innerText='⛔ ساعت کاری نظر سنجی ۸ صبح تا ۱۳ است.'; btn.disabled=false; btn.innerText='ثبت امتیاز'; return; }
-let deviceId=localStorage.getItem('mehr_device_id'); if(!deviceId){ deviceId='DEV-'+Math.random().toString(36).substr(2,9)+'-'+Date.now(); localStorage.setItem('mehr_device_id',deviceId); }
-if(localStorage.getItem('mehr_emotion_done_${branchName}_${counterName}')){ const m=document.getElementById('msg'); m.className='msg error'; m.style.display='block'; m.innerText='شما قبلاً رأی داده‌اید.'; btn.disabled=false; btn.innerText='ثبت امتیاز'; return; }
-const payload={action:'submitEmotion',type:'customer',branch:'${branchName}',counter:'${counterName}',score:selectedScore,label:selectedScore+' ستاره',comment:document.getElementById('comment').value,userAgent:navigator.userAgent,ip:'auto',deviceId:deviceId};
-fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json()).then(data=>{
-const msg=document.getElementById('msg');msg.className='msg '+(data.success?'success':'error');msg.style.display='block';msg.innerText=data.message||data.error;
-if(data.success){ localStorage.setItem('mehr_emotion_done_${branchName}_${counterName}','1'); document.querySelectorAll('.star,.emoji').forEach(e=>e.style.pointerEvents='none');document.getElementById('comment').disabled=true;btn.innerText='✅ ثبت شد'; } else { btn.disabled=false; btn.innerText='تلاش مجدد'; }
-}).catch(()=>{document.getElementById('msg').className='msg error';document.getElementById('msg').style.display='block';document.getElementById('msg').innerText='خطا در ارتباط';btn.disabled=false;btn.innerText='تلاش مجدد';});
-}
-if(localStorage.getItem('mehr_emotion_done_${branchName}_${counterName}')){ const m=document.getElementById('msg'); m.className='msg success'; m.style.display='block'; m.innerText='شما قبلاً رأی داده‌اید. ممنون!'; document.getElementById('submitBtn').style.display='none'; }
-</script></body></html>`;
-return HtmlService.createHtmlOutput(html).setTitle('آینه احساسات').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-}
-
-function serveManagerEmotionForm(branch, token) {
-if (token !== 'AUTH_OK') { return HtmlService.createHtmlOutput('<h2 style="color:red;text-align:center;margin-top:50px;">⛔ دسترسی غیرمجاز</h2>'); }
-const scriptUrl = ScriptApp.getService().getUrl();
-const html = `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>احساس مدیر</title><style>*{box-sizing:border-box;margin:0;padding:0;font-family:Tahoma,sans-serif} body{background:linear-gradient(135deg,#0a4d2e,#148a4f);min-height:100vh;padding:20px;display:flex;justify-content:center;align-items:center} .card{background:#fff;border-radius:20px;padding:25px;max-width:500px;width:100%;text-align:center} h1{color:#0a4d2e;font-size:18px;margin-bottom:15px} .emojis{display:flex; justify-content:center; gap:10px; margin:10px 0; direction:ltr;} .emoji{font-size:40px; cursor:pointer; transition:0.2s; filter:grayscale(100%); opacity:0.5;} .emoji.active{filter:grayscale(0%); opacity:1; transform:scale(1.2);} .stars{display:flex; justify-content:center; gap:10px; margin:10px 0 20px 0; direction:ltr;} .star{font-size:30px; color:#ddd; cursor:pointer; transition:0.2s;} textarea{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-family:inherit;height:80px;resize:none;margin-bottom:15px} .btn{width:100%;padding:15px;background:#0a4d2e;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer} .msg{padding:12px;border-radius:10px;margin-top:15px;font-weight:bold;display:none} .msg.success{background:#d4edda;color:#155724}.msg.error{background:#f8d7da;color:#721c24}</style></head><body><div class="card"><h1>🪞 احساس مدیر - شعبه ${branch}</h1><div class="emojis" id="emojis"><span class="emoji" data-score="1" onclick="pickEmoji(this)">😠</span><span class="emoji" data-score="2" onclick="pickEmoji(this)">😞</span><span class="emoji" data-score="3" onclick="pickEmoji(this)">😐</span><span class="emoji" data-score="4" onclick="pickEmoji(this)">🙂</span><span class="emoji" data-score="5" onclick="pickEmoji(this)">😍</span></div><div class="stars" id="stars"><span class="star" data-score="1" onclick="pickStar(this)">★</span><span class="star" data-score="2" onclick="pickStar(this)">★</span><span class="star" data-score="3" onclick="pickStar(this)">★</span><span class="star" data-score="4" onclick="pickStar(this)">★</span><span class="star" data-score="5" onclick="pickStar(this)">★</span></div><textarea id="comment" placeholder="توضیح اختیاری..."></textarea><button class="btn" id="submitBtn" onclick="send()" disabled>ثبت احساس مدیر</button><div class="msg" id="msg"></div></div><script>
-let score=0; const URL='${scriptUrl}';
-function setScore(s){
-score=s;
-document.querySelectorAll('.emoji').forEach((e,idx)=>{ if(idx+1===s) e.classList.add('active'); else e.classList.remove('active'); });
-document.querySelectorAll('.star').forEach((e,idx)=>{ if(idx<s) e.style.color='#f1c40f'; else e.style.color='#ddd'; });
-document.getElementById('submitBtn').disabled=false;
-}
-function pickEmoji(el){ setScore(+el.dataset.score); }
-function pickStar(el){ setScore(+el.dataset.score); }
-function send(){
-if(!score)return;const b=document.getElementById('submitBtn');b.disabled=true;b.innerText='...';
-let deviceId=localStorage.getItem('mehr_device_id'); if(!deviceId){ deviceId='MGR-'+Math.random().toString(36).substr(2,9); localStorage.setItem('mehr_device_id',deviceId); }
-fetch(URL,{method:'POST',body:JSON.stringify({action:'submitEmotion',type:'manager',branch:'${branch}',counter:'مدیر',score:score,label:score+' ستاره',comment:document.getElementById('comment').value,userAgent:navigator.userAgent,ip:'auto',deviceId:deviceId})}).then(r=>r.json()).then(d=>{const m=document.getElementById('msg');m.className='msg '+(d.success?'success':'error');m.style.display='block';m.innerText=d.message||d.error;if(d.success){b.innerText='✅ ثبت شد';}else{b.disabled=false;b.innerText='تلاش مجدد';}}).catch(()=>{document.getElementById('msg').className='msg error';document.getElementById('msg').style.display='block';document.getElementById('msg').innerText='خطا در ارتباط';b.disabled=false;b.innerText='تلاش مجدد';});
-}
-
+<script>
 let growthLeadsCache=[];
 function growthCall(payload){payload.token=sessionStorage.getItem('adminToken')||'';return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());}
 function growthSaveLead(){
@@ -3265,9 +2972,49 @@ const growthModules = [
 {id:'security',cat:'risk',title:'مرکز امنیت و اعتماد صفر تطبیقی',desc:'معماری امنیتی پنج‌لایه برای حفاظت از هویت، دستگاه، رفتار، شبکه و استمرار خدمت.',items:['هویت و احراز مستمر','کنترل دسترسی و ریزبخش‌بندی','تحلیل رفتار و تهدید (UEBA)','تصمیم تطبیقی مبتنی بر ریسک و پاسخ خودکار','تاب‌آوری، ثبت حسابرسی و استمرار خدمت']}
 ];
 
-function openGrowthPortal(){const modal=document.getElementById('growth-portal-modal');if(!modal)return;modal.classList.add('open');document.body.style.overflow='hidden';renderGrowthPortalModules(growthModules);}
-function closeGrowthPortal(){const modal=document.getElementById('growth-portal-modal');if(modal)modal.classList.remove('open');document.body.style.overflow='';}
-function selectGrowthRole(role,btn){document.querySelectorAll('.growth-role').forEach(x=>x.classList.toggle('active',x===btn));document.querySelectorAll('.growth-role-panel').forEach(x=>x.classList.remove('active'));const panel=document.getElementById('growth-role-'+role);if(panel)panel.classList.add('active');const detail=document.getElementById('growth-portal-detail');if(detail)detail.style.display='none';}
+
+let __growthPrevTab=null;
+function openGrowthPortal(btn){
+  const modal=document.getElementById('growth-portal-modal');if(!modal)return;
+  __growthPrevTab=document.querySelector('#main-tabs .tab-btn.active:not(#growth-tab-btn)')||__growthPrevTab;
+  const b=btn||document.getElementById('growth-tab-btn');
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(x=>x.classList.remove('active'));
+  if(b)b.classList.add('active');
+  modal.classList.add('open');document.body.style.overflow='hidden';
+  renderGrowthPortalModules(growthModules);
+  selectGrowthRole('employee',document.querySelector('.growth-role[data-role="employee"]'));
+}
+function closeGrowthPortal(){
+  const modal=document.getElementById('growth-portal-modal');if(modal)modal.classList.remove('open');
+  document.body.style.overflow='';
+  const g=document.getElementById('growth-tab-btn');if(g)g.classList.remove('active');
+  const emp=document.getElementById('employee-tab-btn');
+  const empPanel=document.getElementById('panel-employee');
+  if(empPanel&&empPanel.classList.contains('active')&&emp)emp.classList.add('active');
+  else if(__growthPrevTab)__growthPrevTab.classList.add('active');
+}
+function selectGrowthRole(role,btn){
+  document.querySelectorAll('.growth-role').forEach(x=>x.classList.toggle('active',x===btn));
+  document.querySelectorAll('.growth-role-panel').forEach(x=>x.classList.remove('active'));
+  const panel=document.getElementById('growth-role-'+role);if(panel)panel.classList.add('active');
+  const detail=document.getElementById('growth-portal-detail');if(detail)detail.style.display='none';
+  const logged=!!sessionStorage.getItem('adminToken');
+  const lb=document.getElementById('growth-emp-login-btn'),eb=document.getElementById('growth-emp-enter-btn');
+  if(lb)lb.style.display=logged?'none':'inline-block';
+  if(eb)eb.style.display=logged?'inline-block':'none';
+}
+function growthGoToEmployeeSection(){
+  closeGrowthPortal();
+  const emp=document.getElementById('employee-tab-btn');
+  if(emp){emp.style.display='block';switchTab('employee',emp);}
+  const s=document.getElementById('e-section');
+  const opt=s&&Array.from(s.options).find(o=>o.value==='growth');
+  if(opt&&!opt.hidden){s.value='growth';handleEmployeeSectionChange();}
+}
+function growthEmployeeLogin(){
+  if(sessionStorage.getItem('adminToken')){growthGoToEmployeeSection();return;}
+  closeGrowthPortal();window.__growthAfterLogin=true;askAdminPassword();
+}
 function renderGrowthPortalModules(list){const grid=document.getElementById('growth-portal-module-grid');if(!grid)return;grid.innerHTML=list.map(m=>`<div class="growth-card" role="button" tabindex="0" onclick="openGrowthPortalModule('${m.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGrowthPortalModule('${m.id}');}"><h3>${m.title}</h3><p>${m.desc}</p><small>مشاهده قابلیت‌ها ←</small></div>`).join('')||'<p>ماژولی یافت نشد.</p>';}
 function openGrowthPortalModule(id){const module=growthModules.find(x=>x.id===id);if(!module)return;const box=document.getElementById('growth-portal-detail');const content=document.getElementById('growth-portal-detail-content');if(!box||!content)return;content.innerHTML=`<h3>${module.title}</h3><p>${module.desc}</p><ul class="growth-list">${module.items.map(x=>`<li>${x}</li>`).join('')}</ul><h4>ثبت اقدام و پیوست مستندات</h4><label>عنوان اقدام<input id="gpd-title" placeholder="عنوان فرصت یا اقدام"></label><label>مسئول پیگیری<input id="gpd-owner" placeholder="نام کارشناس"></label><button class="growth-action" onclick="saveGrowthPortalAction('${module.id}')">ثبت اقدام</button><div id="gpd-msg" class="growth-muted">اقدام در این نسخه در حافظه همین نشست ثبت می‌شود.</div><div class="growth-upload-box"><h4>بارگذاری مستندات این بخش</h4><p>فایل‌های PDF، تصویر، Word و Excel را برای همین ماژول پیوست کنید (حداکثر ۵ مگابایت برای هر فایل).</p><input type="file" id="gpd-files" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv"><button class="growth-action" onclick="uploadGrowthFiles('${module.id}')">بارگذاری و ثبت در پوشه مستندات</button><div id="gpd-upload-msg" class="growth-muted">بارگذاری واقعی پس از تنظیم پوشه Google Drive و انتشار نسخه جدید Apps Script فعال می‌شود.</div><ul id="gpd-file-list"></ul></div>`;box.style.display='block';box.scrollIntoView({behavior:'smooth',block:'nearest'});}
 function saveGrowthPortalAction(id){const title=document.getElementById('gpd-title')?.value.trim();if(!title){alert('عنوان اقدام را وارد کنید.');return;}const module=growthModules.find(x=>x.id===id);window.growthPortalRecords=window.growthPortalRecords||[];window.growthPortalRecords.push({module:module?.title||id,title,owner:document.getElementById('gpd-owner')?.value||'',at:new Date().toLocaleString('fa-IR')});const msg=document.getElementById('gpd-msg');if(msg)msg.textContent='اقدام آزمایشی ثبت شد. تعداد ثبت‌های این نشست: '+window.growthPortalRecords.length;}
@@ -3288,47 +3035,57 @@ async function uploadGrowthFiles(moduleId){
  const list=document.getElementById('gpd-file-list');if(list)list.innerHTML=results.map(x=>`<li><a href="${x.url}" target="_blank" rel="noopener">${x.name}</a> — ${x.id}</li>`).join('');input.value='';
  }catch(err){if(msg)msg.textContent='بارگذاری کامل نشد: '+err.message;}
 }
-function submitGrowthCompany(event){event.preventDefault();const form=event.currentTarget;const data=Object.fromEntries(new FormData(form).entries());window.growthPortalCompanies=window.growthPortalCompanies||[];window.growthPortalCompanies.push({...data,createdAt:new Date().toLocaleString('fa-IR')});const feedback=document.getElementById('growth-company-feedback');if(feedback)feedback.textContent='ثبت نمایشی انجام شد؛ تعداد شرکت‌های ثبت‌شده در این نشست: '+window.growthPortalCompanies.length+' (به بانک ارسال نشده است).';form.reset();}
-function showAllGrowthModules(){const admin=document.querySelector('.growth-role[data-role="admin"]');selectGrowthRole('admin',admin);document.getElementById('growth-portal-module-grid')?.scrollIntoView({behavior:'smooth',block:'start'});}
-document.addEventListener('keydown',event=>{if(event.key==='Escape')closeGrowthPortal();});
-// ===== پایان درگاه یکپارچه =====
 
-</script><div class="growth-modal" id="growth-portal-modal" role="dialog" aria-modal="true" aria-labelledby="growth-portal-title" onclick="if(event.target===this)closeGrowthPortal()">
+function submitGrowthCompany(event){
+  event.preventDefault();const form=event.currentTarget;
+  const d=Object.fromEntries(new FormData(form).entries());
+  const fb=document.getElementById('growth-company-feedback');
+  if(!/^09\d{9}$/.test(String(d.phone||'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)))){if(fb)fb.textContent='شماره تماس باید به شکل 09xxxxxxxxx باشد.';return;}
+  d.phone=String(d.phone).replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
+  const btn=form.querySelector('button[type=submit]');if(btn)btn.disabled=true;
+  if(fb)fb.textContent='در حال ارسال...';
+  d.action='growthCustomerRequest';
+  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(d)}).then(r=>r.json()).then(x=>{
+    if(!x.success)throw new Error(x.error||'ارسال انجام نشد');
+    if(fb)fb.textContent='درخواست ثبت شد؛ کد پیگیری: '+x.id+' . کارشناس شعبه با شما تماس می‌گیرد.';form.reset();
+  }).catch(e=>{if(fb)fb.textContent='خطا: '+e.message;}).finally(()=>{if(btn)btn.disabled=false;});
+}
+function showAllGrowthModules(){document.getElementById('growth-portal-module-grid')?.scrollIntoView({behavior:'smooth',block:'start'});}
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeGrowthPortal();});
+</script>
+<div class="growth-modal" id="growth-portal-modal" role="dialog" aria-modal="true" aria-labelledby="growth-portal-title" onclick="if(event.target===this)closeGrowthPortal()">
  <div class="growth-modal-card">
-  <div class="growth-modal-head"><div><h2 id="growth-portal-title">🚀 مدیریت هوشمند کسب‌وکار و توسعه بازار</h2><small>درگاه یکپارچه مشتریان، کارکنان و مدیران</small></div><button class="growth-close" onclick="closeGrowthPortal()" aria-label="بستن">×</button></div>
+  <div class="growth-modal-head"><div><h2 id="growth-portal-title">🚀 مدیریت هوشمند کسب‌وکار و توسعه بازار</h2><small>ورود همکاران و ثبت درخواست همکاری سازمان‌ها، شرکت‌ها، ادارات و اصناف</small></div><button class="growth-close" onclick="closeGrowthPortal()" aria-label="بستن">×</button></div>
   <div class="growth-rolebar">
-   <button class="growth-role active" data-role="customer" onclick="selectGrowthRole('customer',this)"><span>🏢</span>ورود مشتری / شرکت</button>
-   <button class="growth-role" data-role="employee" onclick="selectGrowthRole('employee',this)"><span>👨‍💼</span>ورود کارمند</button>
-   <button class="growth-role" data-role="admin" onclick="selectGrowthRole('admin',this)"><span>🛡️</span>ورود مدیر سیستم</button>
+   <button class="growth-role active" data-role="employee" onclick="selectGrowthRole('employee',this)"><span>👨‍💼</span>ورود همکار</button>
+   <button class="growth-role" data-role="customer" onclick="selectGrowthRole('customer',this)"><span>🏢</span>درخواست همکاری (سازمان / شرکت / صنف)</button>
   </div>
   <div class="growth-modal-body">
-   <section class="growth-role-panel active" id="growth-role-customer">
-    <h3>ثبت اطلاعات شرکت یا کسب‌وکار و درخواست همکاری</h3><p>شرکت‌ها و صاحبان کسب‌وکار می‌توانند اطلاعات اولیه و زمینه همکاری موردنظر را برای بررسی شعبه ارسال کنند.</p>
-    <form class="growth-form" onsubmit="submitGrowthCompany(event)">
-     <label>نام شرکت / کسب‌وکار<input required name="company" placeholder="مثلاً شرکت پخش ..."></label>
-     <label>نام و نام خانوادگی رابط<input required name="contact" placeholder="نام رابط شرکت"></label>
-     <label>شماره تماس<input required name="phone" inputmode="tel" placeholder="09xxxxxxxxx"></label>
-     <label>حوزه فعالیت<select name="industry"><option>توزیع و پخش</option><option>صنعت و تولید</option><option>بازرگانی و فروشگاه</option><option>خدمات و گردشگری</option><option>درمان و دارو</option><option>سایر</option></select></label>
-     <label>تعداد تقریبی کارکنان<input name="staff" type="number" min="0" placeholder="مثلاً ۴۰"></label>
-     <label>زمینه همکاری<select name="need"><option>انتقال حقوق کارکنان</option><option>افتتاح حساب و جذب منابع</option><option>دریافت کارتخوان و خدمات پرداخت</option><option>تسهیلات و تأمین مالی</option><option>خدمات بانکی شرکتی</option><option>همکاری تجاری و معرفی مشتری</option></select></label>
-     <label class="wide">توضیحات و ظرفیت همکاری<textarea name="details" rows="3" placeholder="شرح کوتاه نیاز یا پیشنهاد همکاری"></textarea></label>
-     <div class="wide"><button class="growth-action" type="submit">ثبت آزمایشی اطلاعات شرکت</button><span id="growth-company-feedback" class="growth-muted" style="margin-right:8px">اطلاعات این نسخه نمایشی فقط در همین مرورگر ثبت موقت می‌شود.</span></div>
-    </form>
-   </section>
-   <section class="growth-role-panel" id="growth-role-employee">
-    <h3>محیط کاری کارشناس و بازاریاب شعبه</h3><p>دسترسی نمایشی به ثبت سرنخ، پیگیری شرکت‌ها، فرصت‌های جذب منابع و گزارش اقدامات.</p>
+   <section class="growth-role-panel active" id="growth-role-employee">
+    <h3>محیط کاری کارشناس و بازاریاب شعبه</h3><p>همکاران بانک با نام کاربری و رمز خود وارد بخش ثبت و پیگیری شرکت‌ها، فرصت‌های جذب منابع و گزارش اقدامات می‌شوند.</p>
+    <div class="growth-role-actions"><button id="growth-emp-login-btn" onclick="growthEmployeeLogin()">🔐 ورود همکار</button><button id="growth-emp-enter-btn" style="display:none" onclick="growthGoToEmployeeSection()">📋 ورود به پنل مدیریت کسب‌وکار</button></div>
+    <p style="margin-top:14px;font-size:12px;color:#64756b">معرفی قابلیت‌ها (نمایشی):</p>
     <div class="growth-role-actions"><button onclick="openGrowthPortalModule('leads')">ثبت و پیگیری سرنخ</button><button onclick="openGrowthPortalModule('companies')">پرونده شرکت‌ها</button><button onclick="openGrowthPortalModule('resource')">فرصت جذب منابع</button><button onclick="openGrowthPortalModule('acquiring')">پذیرندگان و کارتخوان</button><button onclick="openGrowthPortalModule('payroll')">انتقال حقوق</button></div>
-    <div class="growth-modal-note">در نسخه عملیاتی، ورود کارمند باید با احراز هویت سازمانی و سطح دسترسی مصوب بانک انجام شود. این نسخه برای نمایش مسیرهاست و رمز یا هویت بانکی دریافت نمی‌کند.</div>
    </section>
-   <section class="growth-role-panel" id="growth-role-admin">
-    <h3>نمای مدیریتی و کنترل سامانه</h3><p>نمای کلی ماژول‌ها و ابزارهای مدیریتی برای ارائه به مدیران.</p>
-    <div class="growth-admin-grid"><div class="growth-admin-tile"><b>۲۷+</b><small>ماژول قابل نمایش</small></div><div class="growth-admin-tile"><b>۳</b><small>گروه کاربری</small></div><div class="growth-admin-tile"><b>A / B / C</b><small>اولویت‌بندی فرصت‌ها</small></div><div class="growth-admin-tile"><b>Demo</b><small>داده‌های آزمایشی</small></div></div>
-    <div class="growth-role-actions"><button onclick="openGrowthPortalModule('branch')">داشبورد مدیر شعبه</button><button onclick="openGrowthPortalModule('performance')">عملکرد و اهداف</button><button onclick="openGrowthPortalModule('bi')">هوش تجاری</button><button onclick="openGrowthPortalModule('security')">امنیت و دسترسی</button><button onclick="showAllGrowthModules()">نمایش همه ماژول‌ها</button></div>
-    <div class="growth-modal-note">مدیر سیستم در این پیش‌نمایش بدون رمز ثابت و صرفاً با انتخاب نقش وارد نمای نمایشی می‌شود؛ برای بهره‌برداری واقعی، احراز هویت، ثبت رویداد و مجوزهای بانکی الزامی است.</div>
+   <section class="growth-role-panel" id="growth-role-customer">
+    <h3>درخواست همکاری سازمان‌ها، شرکت‌ها، ادارات و اصناف</h3><p>اطلاعات مجموعه و زمینه همکاری موردنظر را ثبت کنید تا کارشناس شعبه برای بررسی با شما تماس بگیرد.</p>
+    <form class="growth-form" onsubmit="submitGrowthCompany(event)">
+     <label>نوع مجموعه<select name="orgType"><option>شرکت / موسسه خصوصی</option><option>اداره / سازمان دولتی</option><option>اتحادیه / صنف</option><option>نهاد عمومی / خیریه</option><option>سایر</option></select></label>
+     <label>نام مجموعه<input required name="company" maxlength="150" placeholder="مثلاً شرکت پخش ... / اداره ... / اتحادیه ..."></label>
+     <label>نام و نام خانوادگی رابط<input required name="contact" maxlength="100" placeholder="نام رابط"></label>
+     <label>شماره تماس<input required name="phone" inputmode="tel" maxlength="11" placeholder="09xxxxxxxxx"></label>
+     <label>حوزه فعالیت<select name="industry"><option>توزیع و پخش</option><option>صنعت و تولید</option><option>بازرگانی و فروشگاه</option><option>خدمات و گردشگری</option><option>درمان و دارو</option><option>اداری و آموزشی</option><option>سایر</option></select></label>
+     <label>تعداد تقریبی کارکنان / اعضا<input name="staff" type="number" min="0" placeholder="مثلاً ۴۰"></label>
+     <label class="wide">زمینه همکاری<select name="need"><option>انتقال حقوق کارکنان</option><option>افتتاح حساب و جذب منابع</option><option>دریافت کارتخوان و خدمات پرداخت</option><option>تسهیلات و تأمین مالی</option><option>خدمات بانکی سازمانی</option><option>همکاری تجاری و معرفی مشتری</option></select></label>
+     <label class="wide">توضیحات و ظرفیت همکاری<textarea name="details" rows="3" maxlength="1000" placeholder="شرح کوتاه نیاز یا پیشنهاد همکاری"></textarea></label>
+     <div class="wide"><button class="growth-action" type="submit">ارسال درخواست همکاری</button><span id="growth-company-feedback" class="growth-muted" style="margin-right:8px"></span></div>
+    </form>
    </section>
    <div style="border-top:1px solid #e2ebe5;margin-top:15px;padding-top:14px"><h3 style="font-size:15px">فهرست قابلیت‌های مدیریت کسب‌وکار</h3><div class="growth-grid" id="growth-portal-module-grid"></div></div>
    <div class="growth-detail" id="growth-portal-detail"><button class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن جزئیات</button><div id="growth-portal-detail-content"></div></div>
   </div>
  </div>
 </div>
-</body></html>
+</body>
+</html>
+
