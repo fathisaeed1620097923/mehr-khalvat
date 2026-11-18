@@ -294,14 +294,6 @@ body { background: #fff !important; padding: 0 !important; }
 .growth-back{border:1px solid #b9d4c4;background:#f3faf5;color:#087348;border-radius:9px;padding:8px 12px;font-family:inherit;font-weight:700;cursor:pointer;margin-bottom:12px}
 .growth-doc-requirements{background:#f5faf6;border:1px solid #dcebe1;border-radius:10px;padding:12px;font-size:12px;line-height:1.9;color:#3f5d4b}.growth-doc-requirements ul{padding-right:20px;margin:5px 0}.growth-employee-modules{margin-top:14px}
 @media(max-width:600px){.growth-choice-grid{grid-template-columns:1fr}.growth-choice{min-height:120px;padding:15px}}
-.growth-login-card{max-width:520px;margin:18px auto;background:#f8fbf9;border:1px solid #dce9e0;border-radius:14px;padding:16px}
-.growth-login-card label{display:block;margin:9px 0 4px;font-size:12px;font-weight:700;color:#365544}
-.growth-login-card input{width:100%;padding:11px;border:1px solid #cadbd0;border-radius:9px;background:#fff;font:inherit}
-.growth-demo-cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
-.growth-demo-case{background:#fff;border:1px solid #dce8e0;border-radius:13px;padding:13px;line-height:1.9}
-.growth-demo-case b{color:#075b3b}.growth-demo-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px;margin:12px 0}
-.growth-demo-kpi{background:#f0f7f3;border:1px solid #dcebe1;border-radius:11px;padding:11px}.growth-demo-kpi strong{display:block;font-size:19px;color:#087348}
-.growth-userbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#eff7f1;border:1px solid #d9e9de;border-radius:10px;padding:10px;margin:10px 0}
 @media(max-width:600px){.growth-modal{padding:5px}.growth-modal-card{max-height:98vh;border-radius:12px}.growth-modal-body{padding:12px}.growth-rolebar{gap:6px;padding:9px}.growth-role{font-size:12px;padding:9px 4px}.growth-form{grid-template-columns:1fr}.growth-form .wide{grid-column:auto}#growth-portal-module-grid{grid-template-columns:1fr 1fr;gap:7px}#growth-portal-module-grid .growth-card{padding:10px;font-size:12px}}
 
 </style>
@@ -3017,35 +3009,19 @@ function chooseGrowthPath(path){
  if(path==='customer'){growthUpdateRequirements();growthWizardStep=0;growthWizardRender();}
 }
 function growthBackToChooser(){growthShowChooser();}
-async function growthEmployeeLogin(){
- const username=(document.getElementById('growth-employee-username')?.value||'').trim();
- const pass=document.getElementById('growth-employee-password')?.value||'';
- const msg=document.getElementById('growth-employee-login-message');
- if(!username||!pass){if(msg)msg.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}
- if(msg)msg.textContent='در حال بررسی اطلاعات ورود...';
- try{
-  const data=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'login',username:username,pass:pass})}).then(r=>r.json());
-  if(!data.access)throw new Error('نام کاربری یا رمز عبور صحیح نیست.');
-  sessionStorage.setItem('adminToken',data.token);sessionStorage.setItem('loggedInUser',data.username||username);
-  sessionStorage.setItem('role',data.role||'employee');sessionStorage.setItem('department',data.department||'');sessionStorage.setItem('branch',data.branch||'');
-  sessionStorage.setItem('roleTitle',data.roleTitle||'همکار بانک');sessionStorage.setItem('allowedCategories',JSON.stringify(data.allowedCategories||['customer','business']));
-  if(msg)msg.textContent='ورود موفق؛ میزکار اختصاصی شما آماده است.';
-  growthGoToEmployeeSection(data);
- }catch(e){if(msg)msg.textContent='ورود انجام نشد: '+e.message;}
+function growthEmployeeLogin(){
+ if(sessionStorage.getItem('adminToken')){growthGoToEmployeeSection();return;}
+ window.__growthAfterLogin=true;
+ const modal=document.getElementById('growth-portal-modal');if(modal)modal.classList.add('open');
+ askAdminPassword();
 }
-function growthGoToEmployeeSection(data){
- const role=sessionStorage.getItem('roleTitle')||'همکار بانک';
- const user=sessionStorage.getItem('loggedInUser')||'';const dept=sessionStorage.getItem('department')||'';const branch=sessionStorage.getItem('branch')||'';
- const bar=document.getElementById('growth-employee-userbar');if(bar)bar.textContent='وارد شده: '+user+' | '+role+' | '+dept+(branch?' | شعبه '+branch:'');
- const cats=(()=>{try{return JSON.parse(sessionStorage.getItem('allowedCategories')||'[]')}catch(e){return []}})();
- const visible=(sessionStorage.getItem('role')==='admin'||sessionStorage.getItem('role')==='regional')?growthModules:growthModules.filter(m=>cats.includes(m.cat));
+function growthGoToEmployeeSection(){
  growthRenderAllStats();
+ const emp=document.getElementById('employee-tab-btn');if(emp)emp.style.display='block';
  const loginBox=document.getElementById('growth-employee-login-actions');if(loginBox)loginBox.style.display='none';
  const area=document.getElementById('growth-employee-authenticated');if(area)area.style.display='block';
- renderGrowthPortalModules(visible);
- const adminOnly=document.getElementById('growth-employee-requests-wrap');if(adminOnly)adminOnly.style.display=(['admin','branch','regional','operations'].includes(sessionStorage.getItem('role')))?'block':'none';
+ renderGrowthPortalModules(growthModules);
 }
-function growthEmployeeLogout(){sessionStorage.removeItem('adminToken');sessionStorage.removeItem('loggedInUser');sessionStorage.removeItem('role');sessionStorage.removeItem('department');sessionStorage.removeItem('branch');sessionStorage.removeItem('roleTitle');sessionStorage.removeItem('allowedCategories');const a=document.getElementById('growth-employee-authenticated');if(a)a.style.display='none';const l=document.getElementById('growth-employee-login-actions');if(l)l.style.display='block';const m=document.getElementById('growth-employee-login-message');if(m)m.textContent='از حساب همکار خارج شدید.';}
 function growthUpdateRequirements(){
  const service=document.getElementById('growth-service')?.value||'';
  const type=document.getElementById('growth-org-type')?.value||'';
@@ -3157,18 +3133,6 @@ function openGrowthPortalModule(id){
  box.style.display='block';growthRenderModuleFiles(id);growthRenderModuleStats(id);box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function saveGrowthPortalAction(id){const title=document.getElementById('gpd-title')?.value.trim();if(!title){alert('عنوان اقدام را وارد کنید.');return;}const module=growthModules.find(x=>x.id===id);window.growthPortalRecords=window.growthPortalRecords||[];window.growthPortalRecords.push({module:module?.title||id,title,owner:document.getElementById('gpd-owner')?.value||'',at:new Date().toLocaleString('fa-IR')});const msg=document.getElementById('gpd-msg');if(msg)msg.textContent='اقدام آزمایشی ثبت شد. تعداد ثبت‌های این نشست: '+window.growthPortalRecords.length;growthRenderAllStats();}
-function growthDownloadCompletedCase(){
- const rows=[
- ['پرونده','فایل ورودی','ردیف ورودی','اقدام انجام‌شده','نتیجه فرضی','مقدار','واحد'],
- ['شرکت پخش نمونه گیلان','فهرست کارکنان و حقوق','120','افتتاح حساب و انتقال حقوق','حساب افتتاح‌شده','90','حساب'],
- ['شرکت پخش نمونه گیلان','فهرست کارکنان و حقوق','120','انتقال حقوق','حقوق منتقل‌شده','75','نفر'],
- ['شرکت پخش نمونه گیلان','گزارش منابع','1','جذب و تثبیت منابع','منابع تحقق‌یافته','3200000000','تومان مانده متوسط'],
- ['مجموعه بازرگانی نمونه شمال','فهرست ظرفیت شرکت‌ها','3','مذاکره و عقد همکاری','منابع جذب‌شده','12000000000','تومان'],
- ['پذیرندگان صنفی نمونه','فهرست پذیرندگان','15','نصب و فعال‌سازی POS','پایانه نصب‌شده','9','دستگاه'],
- ['پذیرندگان صنفی نمونه','فهرست پذیرندگان','15','پایش عملکرد','پایانه فعال','7','دستگاه']
- ];
- growthDownloadText('نمونه_کارهای_انجام_شده_و_نتیجه_فرضی.csv',rows.map(r=>r.map(growthCsvCell).join(',')).join('\r\n'),'text/csv;charset=utf-8');
-}
 function showAllGrowthModules(){document.getElementById('growth-portal-module-grid')?.scrollIntoView({behavior:'smooth',block:'start'});}
 function growthOpenMainEmployeePanel(){if(!sessionStorage.getItem('adminToken')){alert('ابتدا وارد شوید.');return;}closeGrowthPortal();const emp=document.getElementById('employee-tab-btn');if(emp){emp.style.display='block';switchTab('employee',emp);}const s=document.getElementById('e-section');const opt=s&&Array.from(s.options).find(o=>o.value==='growth');if(opt&&!opt.hidden){s.value='growth';handleEmployeeSectionChange();}}
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeGrowthPortal();});
@@ -3179,8 +3143,6 @@ window.chooseGrowthPath=chooseGrowthPath;
 window.growthBackToChooser=growthBackToChooser;
 window.growthEmployeeLogin=growthEmployeeLogin;
 window.growthGoToEmployeeSection=growthGoToEmployeeSection;
-window.growthEmployeeLogout=growthEmployeeLogout;
-window.growthDownloadCompletedCase=growthDownloadCompletedCase;
 </script>
 <style>
 .growth-guide-head{padding:14px;border-radius:12px;background:#f1f7f3;margin-bottom:12px}.growth-guide-head h2{margin:6px 0;color:#0a4d2e}.growth-guide-actions,.growth-download-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:12px 0}.growth-guide-section{border:1px solid #dfe8e2;border-radius:12px;padding:14px;margin:12px 0;background:#fff;scroll-margin-top:12px}.growth-guide-section h3{color:#0a4d2e;margin-bottom:10px}.growth-guide-section h4{margin:12px 0 6px}.growth-guide-section p,.growth-guide-section li{line-height:2}.growth-field-guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}.growth-field-guide p{background:#f7faf8;border-radius:8px;padding:8px;margin:0}.growth-sample-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:7px}.growth-sample-row div{background:#f7faf8;padding:8px;border-radius:8px;display:flex;flex-direction:column;gap:4px}.growth-sample-row span{font-size:12px}.growth-warning{background:#fff7e6;border:1px solid #e8c66a;border-radius:10px;padding:12px;line-height:2;font-size:12px}.growth-card .growth-action{margin-top:10px;width:100%}.growth-pill{font-size:10px;background:#eef4f0;padding:3px 8px;border-radius:20px}
@@ -3229,30 +3191,8 @@ window.growthDownloadCompletedCase=growthDownloadCompletedCase;
    <section id="growth-employee-flow" style="display:none">
     <button type="button" class="growth-back" onclick="growthBackToChooser()">← بازگشت به انتخاب مسیر</button>
     <h3>ورود همکاران بانک</h3><p>برای دسترسی به امکانات مدیریت کسب‌وکار، با نام کاربری و رمز عبور سازمانی خود وارد شوید. پس از احراز هویت، مستقیماً به پنل داخلی هدایت می‌شوید.</p>
-    <div id="growth-employee-login-actions" class="growth-login-card">
-      <label for="growth-employee-username">نام کاربری سازمانی</label><input id="growth-employee-username" autocomplete="username" placeholder="نام کاربری اختصاصی همکار">
-      <label for="growth-employee-password">رمز عبور</label><input id="growth-employee-password" type="password" autocomplete="current-password" placeholder="رمز عبور اختصاصی">
-      <button type="button" class="growth-action" style="width:100%;margin-top:14px" onclick="growthEmployeeLogin()">🔐 ورود مستقیم به میزکار خودم</button>
-      <div id="growth-employee-login-message" class="growth-muted" role="status"></div>
-      <small class="growth-muted">ورود هر همکار مستقل است؛ پس از ورود، ماژول‌ها بر اساس نقش و واحد سازمانی نمایش داده می‌شوند. ادمین پیش‌نیاز ورود همکار نیست.</small>
-    </div>
-    <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none">
-      <div class="growth-userbar"><b id="growth-employee-userbar">میزکار همکار</b><button type="button" class="growth-action" onclick="growthEmployeeLogout()">خروج از میزکار</button></div>
-      <h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div>
-      <section class="growth-card"><h3>نمونه کارهای انجام‌شده و نتیجه اقتصادی</h3><p class="growth-sub">پرونده‌های زیر کاملاً فرضی‌اند و برای نمایش مسیر «فایل ورودی ← پردازش ← اقدام ← نتیجه» درج شده‌اند؛ عملکرد واقعی بانک نیستند.</p>
-       <div class="growth-demo-kpis"><div class="growth-demo-kpi"><strong>۳</strong><small>پرونده نمونه</small></div><div class="growth-demo-kpi"><strong>۹۰</strong><small>افتتاح حساب فرضی</small></div><div class="growth-demo-kpi"><strong>۱۲ میلیارد</strong><small>منابع تحقق‌یافته فرضی (تومان)</small></div><div class="growth-demo-kpi"><strong>۹</strong><small>پایانه نصب‌شده فرضی</small></div></div>
-       <div class="growth-demo-cases">
-        <article class="growth-demo-case"><b>۱) شرکت پخش نمونه گیلان</b><p>فایل ورودی: فهرست ۱۲۰ نفر کارکنان و فایل حقوق ماهانه ۶ میلیارد تومان.</p><p>پردازش: کنترل ۱۲۰ ردیف؛ ۹۰ پرونده افتتاح حساب تکمیل، ۳۰ مورد نیازمند رفع نقص.</p><p><b>نتیجه نمونه:</b> ۹۰ حساب، انتقال حقوق ۷۵ نفر، میانگین مانده فرضی ۳.۲ میلیارد تومان.</p></article>
-        <article class="growth-demo-case"><b>۲) مجموعه بازرگانی نمونه شمال</b><p>فایل ورودی: فهرست گردش و ظرفیت همکاری ۳ شرکت.</p><p>پردازش: اولویت‌بندی A/B/C و تخصیص جلسه به دو شرکت اولویت A.</p><p><b>نتیجه نمونه:</b> جذب فرضی ۱۲ میلیارد تومان منابع و ثبت یک قرارداد همکاری؛ برآورد اولیه ۲۷ میلیاردی محقق‌شده تلقی نشده است.</p></article>
-        <article class="growth-demo-case"><b>۳) پذیرندگان صنفی نمونه</b><p>فایل ورودی: ۱۵ پذیرنده بالقوه با اطلاعات صنف و محل فعالیت.</p><p>پردازش: کنترل اطلاعات، ارجاع و پیگیری نصب.</p><p><b>نتیجه نمونه:</b> ۹ پایانه نصب و ۷ پایانه فعال؛ گردش ماهانه فرضی ۱.۸ میلیارد تومان.</p></article>
-       </div>
-       <p class="growth-muted">جمع‌بندی نمونه: ۹۰ حساب + ۷۵ حقوق منتقل‌شده + ۱۲ میلیارد تومان منابع فرضی + ۹ پایانه نصب‌شده. درآمد یا سود بانک از این ارقام محاسبه نشده و برای نتیجه واقعی باید داده‌های تأییدشده و دوره زمانی مشخص ثبت شود.</p>
-       <button type="button" class="growth-action" onclick="growthDownloadCompletedCase()">⬇️ دانلود فایل نمونه تکمیل‌شده و نتیجه‌گیری (CSV)</button>
-      </section>
-      <h4>منوها و کارکردهای مجاز برای نقش شما</h4><div class="growth-grid" id="growth-portal-module-grid"></div>
-      <div class="gw-employee-requests" id="growth-employee-requests-wrap"><h4>درخواست‌های همکاری مشتریان</h4><button type="button" class="growth-action" onclick="growthLoadCustomerRequests()">دریافت و به‌روزرسانی درخواست‌ها</button><div id="growth-employee-requests"></div></div>
-      <div class="growth-detail" id="growth-portal-detail" onclick="if(event.target===this)this.style.display='none'"><button type="button" class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن پنجره</button><div id="growth-portal-detail-content"></div></div>
-    </div>
+    <div id="growth-employee-login-actions" class="growth-role-actions"><button type="button" onclick="growthEmployeeLogin()">🔐 ورود با حساب همکار</button></div>
+    <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none"><h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div><h4>منوها و کارکردهای مدیریت کسب‌وکار</h4><div class="growth-grid" id="growth-portal-module-grid"></div><button type="button" class="growth-action" onclick="growthOpenMainEmployeePanel()">ورود به محیط کامل پنل همکار و مدیریت درخواست‌ها</button><div class="gw-employee-requests"><h4>درخواست‌های همکاری مشتریان</h4><button type="button" class="growth-action" onclick="growthLoadCustomerRequests()">دریافت و به‌روزرسانی درخواست‌ها</button><div id="growth-employee-requests"></div></div><div class="growth-detail" id="growth-portal-detail" onclick="if(event.target===this)this.style.display='none'"><button type="button" class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن پنجره</button><div id="growth-portal-detail-content"></div></div></div>
     <div class="growth-modal-note">این بخش برای مشتریان و سازمان‌های بیرونی نمایش داده نمی‌شود.</div>
    </section>
   </div>
