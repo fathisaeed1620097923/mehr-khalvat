@@ -3289,6 +3289,47 @@ async function growthLoadCustomerRequests(){const box=document.getElementById('g
 async function growthUpdateCustomerRequest(id){const status=document.getElementById('gws-'+id).value,note=document.getElementById('gwn-'+id).value;try{const x=await growthCall({action:'growthUpdateCustomerRequest',id,status,note});if(!x.success)throw Error(x.error||'ثبت نشد');alert('وضعیت و یادداشت پیگیری ثبت شد.');growthLoadCustomerRequests();}catch(e){alert('خطا: '+e.message);}}
 </script>
 
+
+<!-- PATCH: پشتیبان مستقل برای بازشدن درگاه مدیریت کسب‌وکار -->
+<script>
+(function(){
+  function byId(id){ return document.getElementById(id); }
+  window.openGrowthPortal = function(btn){
+    var modal=byId('growth-portal-modal');
+    if(!modal){ alert('خطا: بخش درگاه مدیریت کسب‌وکار در صفحه پیدا نشد. فایل index.html کامل بارگذاری نشده است.'); return; }
+    document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+    var b=btn||byId('growth-tab-btn'); if(b)b.classList.add('active');
+    ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var e=byId(id);if(e)e.style.display='none';});
+    var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
+    modal.classList.add('open'); modal.style.display='flex'; document.body.style.overflow='hidden';
+  };
+  window.closeGrowthPortal = function(){
+    var modal=byId('growth-portal-modal');if(modal){modal.classList.remove('open');modal.style.display='none';}
+    document.body.style.overflow='';
+    var g=byId('growth-tab-btn');if(g)g.classList.remove('active');
+  };
+  window.chooseGrowthPath = function(path){
+    var chooser=byId('growth-chooser');if(chooser)chooser.style.display='none';
+    var target=byId(path==='customer'?'growth-customer-flow':'growth-employee-flow');
+    if(!target){alert('بخش انتخاب‌شده در فایل سایت پیدا نشد.');return;}
+    target.style.display='block';
+    if(path==='customer'){
+      if(typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+      if(typeof window.growthWizardRender==='function')window.growthWizardRender();
+    }
+  };
+  window.growthBackToChooser = function(){
+    ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var e=byId(id);if(e)e.style.display='none';});
+    var c=byId('growth-chooser');if(c)c.style.display='block';
+  };
+  document.addEventListener('click',function(ev){
+    var tab=ev.target.closest && ev.target.closest('#growth-tab-btn');
+    if(tab){ev.preventDefault();window.openGrowthPortal(tab);}
+  },true);
+  document.addEventListener('keydown',function(ev){if(ev.key==='Escape')window.closeGrowthPortal();});
+})();
+</script>
+
 </body>
 </html>
 
