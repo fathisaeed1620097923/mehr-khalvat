@@ -461,9 +461,7 @@ body { background: #fff !important; padding: 0 !important; }
 <div class="footer-print-note">این رسید توسط سامانه جامع مهر صادر شده است.</div>
 </div>
 
-<div class="admin-login-link">
-<button onclick="askAdminPassword()">ورود کارمندان (مدیریت)</button>
-</div>
+
 </div>
 
 <!-- ۲. پیگیری -->
@@ -2943,7 +2941,7 @@ else if (val.indexOf('rast') !== -1) this.value = "6418 - رازی";
 
 <script>
 let growthLeadsCache=[];
-function growthCall(payload){payload.token=sessionStorage.getItem('adminToken')||'';return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());}
+function growthCall(payload){payload.growthToken=sessionStorage.getItem('growthToken')||'';return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());}
 function growthSaveLead(){
  const name=document.getElementById('g-name').value.trim(); if(!name){alert('نام شرکت یا کسب‌وکار الزامی است.');return;}
  const data={action:'growthAddLead',name,contact:document.getElementById('g-contact').value.trim(),phone:document.getElementById('g-phone').value.trim(),type:document.getElementById('g-type').value.trim(),opportunity:document.getElementById('g-opportunity').value,priority:document.getElementById('g-priority').value,estimate:document.getElementById('g-estimate').value,nextDate:document.getElementById('g-next').value,status:document.getElementById('g-status').value,notes:document.getElementById('g-notes').value.trim()};
@@ -3032,21 +3030,20 @@ async function growthEmployeeLogin(){
  if(button){button.disabled=true;button.textContent='در حال بررسی اطلاعات...';}
  if(feedback)feedback.textContent='';
  try{
-  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'login',username:username,pass:pass})});
+  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthEmployeeLogin',username:username,pass:pass})});
   const data=await response.json();
-  if(!data.access)throw new Error('نام کاربری یا رمز عبور صحیح نیست.');
-  sessionStorage.setItem('adminToken',data.token||'AUTH_OK');
-  sessionStorage.setItem('loggedInUser',data.username||username);
-  sessionStorage.setItem('role',data.role||'');
-  sessionStorage.setItem('department',data.department||'');
-  sessionStorage.setItem('branch',data.branch||'');
+  if(!data.access||!data.token)throw new Error(data.error||'نام کاربری یا رمز عبور صحیح نیست.');
+  sessionStorage.setItem('growthToken',data.token);
+  sessionStorage.setItem('growthUser',data.username||username);
+  sessionStorage.setItem('growthRole',data.role||'');
+  sessionStorage.setItem('growthDepartment',data.department||'');
+  sessionStorage.setItem('growthBranch',data.branch||'');
   sessionStorage.setItem('growthAllowedCategories',JSON.stringify(data.allowedCategories||[]));
-  // پس از احراز هویت، فقط پنل همکار نمایش داده می‌شود؛ مسیر مشتری بسته می‌ماند.
+  sessionStorage.removeItem('adminToken');
   const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
   const customer=document.getElementById('growth-customer-flow');if(customer)customer.style.display='none';
   const employee=document.getElementById('growth-employee-flow');if(employee)employee.style.display='block';
   growthGoToEmployeeSection();
-  requestNotificationPermission();
  }catch(error){if(feedback)feedback.textContent=error.message||'ورود انجام نشد؛ اتصال سامانه را بررسی کنید.';}
  finally{if(button){button.disabled=false;button.textContent='🔐 ورود به پنل همکار';}}
 }
@@ -3055,7 +3052,7 @@ function growthGoToEmployeeSection(){
  const customer=document.getElementById('growth-customer-flow');if(customer)customer.style.display='none';
  const employee=document.getElementById('growth-employee-flow');if(employee)employee.style.display='block';
  growthRenderAllStats();
- const emp=document.getElementById('employee-tab-btn');if(emp)emp.style.display='block';
+ const emp=document.getElementById('employee-tab-btn');if(emp)emp.style.display='none';
  const loginBox=document.getElementById('growth-employee-login-actions');if(loginBox)loginBox.style.display='none';
  const area=document.getElementById('growth-employee-authenticated');if(area)area.style.display='block';
  renderGrowthPortalModules(growthModules);
@@ -3317,24 +3314,7 @@ window.openGrowthPortal=function(btn){
  if(typeof window.growthShowChooser==='function')window.growthShowChooser();
 };
 // ورود همکار در همان درگاه؛ هرگز کاربر را به تب/پنل مستقل کارمند منتقل نکن
-window.askAdminPassword=function(){
- const username=prompt('نام کاربری سازمانی همکار را وارد کنید:');
- if(username===null||!username.trim())return;
- const pass=prompt('رمز عبور سازمانی را وارد کنید:');if(pass===null)return;
- fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'login',username:username.trim(),pass})})
- .then(r=>r.json()).then(data=>{
-  if(!data.access){alert('نام کاربری یا رمز عبور صحیح نیست.');return;}
-  sessionStorage.setItem('adminToken',data.token);sessionStorage.setItem('loggedInUser',username.trim());
-  sessionStorage.setItem('role',data.role||'');sessionStorage.setItem('department',data.department||'');sessionStorage.setItem('branch',data.branch||'');
-  window.__growthAfterLogin=false;
-  const employeeTab=document.getElementById('employee-tab-btn');if(employeeTab)employeeTab.style.display='none';
-  if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();
-  const auth=document.getElementById('growth-employee-authenticated');if(auth)auth.style.display='block';
-  const flow=document.getElementById('growth-employee-flow');if(flow)flow.style.display='block';
-  const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
-  if(typeof requestNotificationPermission==='function')requestNotificationPermission();
- }).catch(e=>alert('خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه را بررسی کنید.'));
-};
+window.askAdminPassword=function(){window.openGrowthPortal();window.chooseGrowthPath('employee');};
 // خروج نیز کاربر را به انتخاب نوع ورود در همان درگاه برمی‌گرداند
 window.growthPortalLogout=function(){sessionStorage.removeItem('adminToken');sessionStorage.removeItem('loggedInUser');sessionStorage.removeItem('role');sessionStorage.removeItem('department');sessionStorage.removeItem('branch');if(typeof growthShowChooser==='function')growthShowChooser();};
 const demoCss=document.createElement('style');demoCss.textContent=`
@@ -3373,6 +3353,25 @@ window.openGrowthPortalModule=function(id){
 };
 })();
 
+</script>
+
+<script id="growth-independent-entry-final">
+(function(){
+  window.openGrowthPortal=function(btn){
+    var modal=document.getElementById('growth-portal-modal');
+    if(!modal){alert('درگاه مدیریت کسب‌وکار در صفحه پیدا نشد.');return;}
+    document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+    var b=btn||document.getElementById('growth-tab-btn');if(b)b.classList.add('active');
+    modal.classList.add('open');document.body.style.overflow='hidden';
+    if(typeof window.growthShowChooser==='function')window.growthShowChooser();
+  };
+  window.askAdminPassword=function(){window.openGrowthPortal();window.chooseGrowthPath('employee');};
+  window.growthPortalLogout=function(){
+    ['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(function(k){sessionStorage.removeItem(k);});
+    if(typeof window.growthShowChooser==='function')window.growthShowChooser();
+  };
+  var legacy=document.querySelector('.admin-login-link');if(legacy)legacy.remove();
+})();
 </script>
 </body>
 </html>
