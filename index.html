@@ -313,6 +313,12 @@ body { background: #fff !important; padding: 0 !important; }
 <p>خدمات اعتباری و پشتیبانی</p>
 </div>
 
+<!-- ورودی عمومی و مستقل مدیریت کسب‌وکار؛ قبل از هر نوع ورود سایت -->
+<div id="growth-public-entry" style="display:block;padding:12px 15px;background:#f2faf5;border-bottom:1px solid #dcebe1;text-align:center">
+ <button type="button" onclick="window.openGrowthPortal()" style="width:100%;max-width:520px;border:0;border-radius:12px;padding:15px 18px;background:#087348;color:#fff;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer">🚀 ورود به مدیریت کسب‌وکار | مشتریان و همکاران</button>
+ <div style="font-size:11px;color:#496456;margin-top:6px">برای مشتریان و همکاران؛ بدون نیاز به ورود قبلی به سامانه</div>
+</div>
+
 <div class="tabs" id="main-tabs">
 <button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="window.openGrowthPortal(this)">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
@@ -3039,7 +3045,7 @@ async function growthEmployeeLogin(){
   sessionStorage.setItem('growthDepartment',data.department||'');
   sessionStorage.setItem('growthBranch',data.branch||'');
   sessionStorage.setItem('growthAllowedCategories',JSON.stringify(data.allowedCategories||[]));
-  sessionStorage.removeItem('adminToken');
+  // نشست قدیمی پنل تیکت‌ها را حفظ می‌کنیم؛ نشست مدیریت کسب‌وکار جداگانه است.
   const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
   const customer=document.getElementById('growth-customer-flow');if(customer)customer.style.display='none';
   const employee=document.getElementById('growth-employee-flow');if(employee)employee.style.display='block';
@@ -3143,7 +3149,7 @@ function growthUploadCsv(id,input){const file=input.files&&input.files[0];if(!fi
 function growthRenderModuleStats(id){const el=document.getElementById('gpd-stats');if(!el)return;const x=window.__growthModuleImports[id];if(!x){el.innerHTML='<p class="growth-muted">هنوز داده‌ای بارگذاری نشده است.</p>';return;}el.innerHTML=`<div style="display:flex;gap:12px;flex-wrap:wrap"><div><b>${x.rows}</b><small> ردیف داده</small></div><div><b>${Object.keys(x.statusCounts).length}</b><small> وضعیت متمایز</small></div></div><p>فایل: ${growthEscape(x.file)} | زمان خواندن: ${growthEscape(x.at)}</p>${Object.keys(x.statusCounts).length?'<ul>'+Object.entries(x.statusCounts).map(([k,v])=>`<li>${growthEscape(k)}: ${v}</li>`).join('')+'</ul>':''}`;}
 function growthRenderAllStats(){const imports=window.__growthModuleImports||{};const used=Object.keys(imports);const rows=used.reduce((n,k)=>n+(imports[k].rows||0),0);const actions=(window.growthPortalRecords||[]).length;const el=document.getElementById('growth-portal-stats');if(el)el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin:12px 0"><div class="growth-stat"><b>${growthModules.length}</b><small>ماژول</small></div><div class="growth-stat"><b>${used.length}</b><small>ماژول دارای داده</small></div><div class="growth-stat"><b>${rows}</b><small>ردیف بارگذاری‌شده</small></div><div class="growth-stat"><b>${actions}</b><small>اقدام ثبت‌شده</small></div></div><p class="growth-muted">آمار تجمیعی فایل‌های خوانده‌شده در این نشست؛ پس از اتصال پایگاه داده و بارگذاری امن، امکان گزارش ماندگار و مدیریتی فراهم می‌شود.</p>`;}
 function growthAddLocalFiles(id,input){growthUploadCsv(id,input);}
-function openGrowthPortalModule(id){if(!sessionStorage.getItem('adminToken')){alert('ابتدا با حساب همکار مجاز وارد شوید.');return;}const module=growthModules.find(x=>x.id===id);if(!module)return;const t=growthTemplateFor(id);const box=document.getElementById('growth-portal-detail');const content=document.getElementById('growth-portal-detail-content');if(!box||!content)return;content.innerHTML=`<h3>${module.title}</h3><p>${module.desc}</p><h4>کارمند در این بخش چه کاری انجام می‌دهد؟</h4><ul class="growth-list">${module.items.map(x=>`<li>${x}</li>`).join('')}</ul><div style="padding:12px;border-radius:10px;background:rgba(16,150,90,.08);margin:12px 0"><b>نتیجه مورد انتظار:</b><p>ساختارمند شدن اطلاعات این حوزه، امکان پیگیری و گزارش‌گیری و مقایسه عملکرد. نتیجه نهایی وابسته به صحت داده و کنترل کارشناس است.</p></div><h4>۱) راهنمای فایل این منو</h4><p>${t.help}</p><p><b>ستون‌های فایل:</b> ${t.headers.join('، ')}</p><p><b>یک ردیف نمونه:</b> ${t.sample.join(' | ')}</p><button type="button" class="growth-action" onclick="growthAddSampleFile('${id}')">＋ ساخت و دانلود قالب CSV</button><h4>۲) بارگذاری فایل تکمیل‌شده</h4><p class="growth-muted">قالب CSV را در Excel باز کنید، ردیف‌های خود را اضافه کنید و با فرمت CSV UTF-8 ذخیره کنید. فعلاً تحلیل آماری روی CSV انجام می‌شود.</p><label style="display:block;margin:10px 0">انتخاب فایل CSV<input type="file" accept=".csv,text/csv" onchange="growthUploadCsv('${id}',this)"></label><div id="gpd-files"></div><h4>۳) آمار فایل این بخش</h4><div id="gpd-stats"></div><hr><h4>۴) ثبت اقدام پیگیری</h4><label>عنوان اقدام<input id="gpd-title" placeholder="عنوان اقدام"></label><label>مسئول پیگیری<input id="gpd-owner" placeholder="نام کارشناس"></label><button class="growth-action" onclick="saveGrowthPortalAction('${id}')">ثبت اقدام</button><div id="gpd-msg" class="growth-muted">اقدام آزمایشی در حافظه نشست ثبت می‌شود.</div>`;box.style.display='block';growthRenderModuleFiles(id);growthRenderModuleStats(id);box.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function openGrowthPortalModule(id){if(!sessionStorage.getItem('growthToken')){alert('ابتدا از مسیر ورود همکار مدیریت کسب‌وکار وارد شوید.');return;}const module=growthModules.find(x=>x.id===id);if(!module)return;const t=growthTemplateFor(id);const box=document.getElementById('growth-portal-detail');const content=document.getElementById('growth-portal-detail-content');if(!box||!content)return;content.innerHTML=`<h3>${module.title}</h3><p>${module.desc}</p><h4>کارمند در این بخش چه کاری انجام می‌دهد؟</h4><ul class="growth-list">${module.items.map(x=>`<li>${x}</li>`).join('')}</ul><div style="padding:12px;border-radius:10px;background:rgba(16,150,90,.08);margin:12px 0"><b>نتیجه مورد انتظار:</b><p>ساختارمند شدن اطلاعات این حوزه، امکان پیگیری و گزارش‌گیری و مقایسه عملکرد. نتیجه نهایی وابسته به صحت داده و کنترل کارشناس است.</p></div><h4>۱) راهنمای فایل این منو</h4><p>${t.help}</p><p><b>ستون‌های فایل:</b> ${t.headers.join('، ')}</p><p><b>یک ردیف نمونه:</b> ${t.sample.join(' | ')}</p><button type="button" class="growth-action" onclick="growthAddSampleFile('${id}')">＋ ساخت و دانلود قالب CSV</button><h4>۲) بارگذاری فایل تکمیل‌شده</h4><p class="growth-muted">قالب CSV را در Excel باز کنید، ردیف‌های خود را اضافه کنید و با فرمت CSV UTF-8 ذخیره کنید. فعلاً تحلیل آماری روی CSV انجام می‌شود.</p><label style="display:block;margin:10px 0">انتخاب فایل CSV<input type="file" accept=".csv,text/csv" onchange="growthUploadCsv('${id}',this)"></label><div id="gpd-files"></div><h4>۳) آمار فایل این بخش</h4><div id="gpd-stats"></div><hr><h4>۴) ثبت اقدام پیگیری</h4><label>عنوان اقدام<input id="gpd-title" placeholder="عنوان اقدام"></label><label>مسئول پیگیری<input id="gpd-owner" placeholder="نام کارشناس"></label><button class="growth-action" onclick="saveGrowthPortalAction('${id}')">ثبت اقدام</button><div id="gpd-msg" class="growth-muted">اقدام آزمایشی در حافظه نشست ثبت می‌شود.</div>`;box.style.display='block';growthRenderModuleFiles(id);growthRenderModuleStats(id);box.scrollIntoView({behavior:'smooth',block:'nearest'});}
 function saveGrowthPortalAction(id){const title=document.getElementById('gpd-title')?.value.trim();if(!title){alert('عنوان اقدام را وارد کنید.');return;}const module=growthModules.find(x=>x.id===id);window.growthPortalRecords=window.growthPortalRecords||[];window.growthPortalRecords.push({module:module?.title||id,title,owner:document.getElementById('gpd-owner')?.value||'',at:new Date().toLocaleString('fa-IR')});const msg=document.getElementById('gpd-msg');if(msg)msg.textContent='اقدام آزمایشی ثبت شد. تعداد ثبت‌های این نشست: '+window.growthPortalRecords.length;growthRenderAllStats();}
 function showAllGrowthModules(){document.getElementById('growth-portal-module-grid')?.scrollIntoView({behavior:'smooth',block:'start'});}
 function growthOpenMainEmployeePanel(){if(!sessionStorage.getItem('adminToken')){alert('ابتدا وارد شوید.');return;}closeGrowthPortal();const emp=document.getElementById('employee-tab-btn');if(emp){emp.style.display='block';switchTab('employee',emp);}const s=document.getElementById('e-section');const opt=s&&Array.from(s.options).find(o=>o.value==='growth');if(opt&&!opt.hidden){s.value='growth';handleEmployeeSectionChange();}}
@@ -3314,7 +3320,7 @@ window.openGrowthPortal=function(btn){
  if(typeof window.growthShowChooser==='function')window.growthShowChooser();
 };
 // ورود همکار در همان درگاه؛ هرگز کاربر را به تب/پنل مستقل کارمند منتقل نکن
-window.askAdminPassword=function(){window.openGrowthPortal();window.chooseGrowthPath('employee');};
+// ورود قدیمی کارمند برای مشاهده تیکت‌ها حفظ می‌شود؛ تابع اصلی askAdminPassword بدون تغییر فعال است.
 // خروج نیز کاربر را به انتخاب نوع ورود در همان درگاه برمی‌گرداند
 window.growthPortalLogout=function(){sessionStorage.removeItem('adminToken');sessionStorage.removeItem('loggedInUser');sessionStorage.removeItem('role');sessionStorage.removeItem('department');sessionStorage.removeItem('branch');if(typeof growthShowChooser==='function')growthShowChooser();};
 const demoCss=document.createElement('style');demoCss.textContent=`
@@ -3365,12 +3371,12 @@ window.openGrowthPortalModule=function(id){
     modal.classList.add('open');document.body.style.overflow='hidden';
     if(typeof window.growthShowChooser==='function')window.growthShowChooser();
   };
-  window.askAdminPassword=function(){window.openGrowthPortal();window.chooseGrowthPath('employee');};
+  // ورود قدیمی کارمند برای مشاهده تیکت‌ها حفظ می‌شود؛ تابع اصلی askAdminPassword بدون تغییر فعال است.
   window.growthPortalLogout=function(){
     ['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(function(k){sessionStorage.removeItem(k);});
     if(typeof window.growthShowChooser==='function')window.growthShowChooser();
   };
-  var legacy=document.querySelector('.admin-login-link');if(legacy)legacy.remove();
+  // پیوند ورود قدیمی کارکنان حذف نمی‌شود؛ برای مشاهده و پاسخ‌گویی به تیکت‌ها لازم است.
 })();
 </script>
 </body>
