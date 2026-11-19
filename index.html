@@ -3023,12 +3023,37 @@ function chooseGrowthPath(path){
  if(path==='customer')growthUpdateRequirements();
 }
 function growthBackToChooser(){growthShowChooser();}
-function growthEmployeeLogin(){
- window.__growthAfterLogin=true;
- const modal=document.getElementById('growth-portal-modal');if(modal)modal.classList.add('open');
- askAdminPassword();
+async function growthEmployeeLogin(){
+ const username=(document.getElementById('growth-employee-username')?.value||'').trim();
+ const pass=(document.getElementById('growth-employee-password')?.value||'').trim();
+ const feedback=document.getElementById('growth-employee-login-feedback');
+ const button=document.getElementById('growth-employee-login-button');
+ if(!username||!pass){if(feedback)feedback.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}
+ if(button){button.disabled=true;button.textContent='در حال بررسی اطلاعات...';}
+ if(feedback)feedback.textContent='';
+ try{
+  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'login',username:username,pass:pass})});
+  const data=await response.json();
+  if(!data.access)throw new Error('نام کاربری یا رمز عبور صحیح نیست.');
+  sessionStorage.setItem('adminToken',data.token||'AUTH_OK');
+  sessionStorage.setItem('loggedInUser',data.username||username);
+  sessionStorage.setItem('role',data.role||'');
+  sessionStorage.setItem('department',data.department||'');
+  sessionStorage.setItem('branch',data.branch||'');
+  sessionStorage.setItem('growthAllowedCategories',JSON.stringify(data.allowedCategories||[]));
+  // پس از احراز هویت، فقط پنل همکار نمایش داده می‌شود؛ مسیر مشتری بسته می‌ماند.
+  const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
+  const customer=document.getElementById('growth-customer-flow');if(customer)customer.style.display='none';
+  const employee=document.getElementById('growth-employee-flow');if(employee)employee.style.display='block';
+  growthGoToEmployeeSection();
+  requestNotificationPermission();
+ }catch(error){if(feedback)feedback.textContent=error.message||'ورود انجام نشد؛ اتصال سامانه را بررسی کنید.';}
+ finally{if(button){button.disabled=false;button.textContent='🔐 ورود به پنل همکار';}}
 }
 function growthGoToEmployeeSection(){
+ const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
+ const customer=document.getElementById('growth-customer-flow');if(customer)customer.style.display='none';
+ const employee=document.getElementById('growth-employee-flow');if(employee)employee.style.display='block';
  growthRenderAllStats();
  const emp=document.getElementById('employee-tab-btn');if(emp)emp.style.display='block';
  const loginBox=document.getElementById('growth-employee-login-actions');if(loginBox)loginBox.style.display='none';
@@ -3166,7 +3191,12 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
    <section id="growth-employee-flow" style="display:none">
     <button type="button" class="growth-back" onclick="growthBackToChooser()">← بازگشت به انتخاب مسیر</button>
     <h3>ورود همکاران بانک</h3><p>برای دسترسی به امکانات مدیریت کسب‌وکار، با نام کاربری و رمز عبور سازمانی خود وارد شوید. پس از احراز هویت، مستقیماً به پنل داخلی هدایت می‌شوید.</p>
-    <div id="growth-employee-login-actions" class="growth-role-actions"><button type="button" onclick="growthEmployeeLogin()">🔐 ورود با حساب همکار</button></div>
+    <div id="growth-employee-login-actions" class="growth-role-actions growth-login-form">
+     <label>نام کاربری سازمانی<input id="growth-employee-username" type="text" autocomplete="username" placeholder="نام کاربری" onkeydown="if(event.key==='Enter')growthEmployeeLogin()"></label>
+     <label>رمز عبور<input id="growth-employee-password" type="password" autocomplete="current-password" placeholder="رمز عبور" onkeydown="if(event.key==='Enter')growthEmployeeLogin()"></label>
+     <button type="button" id="growth-employee-login-button" onclick="growthEmployeeLogin()">🔐 ورود به پنل همکار</button>
+     <div id="growth-employee-login-feedback" role="status" aria-live="polite" class="growth-muted"></div>
+    </div>
     <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none"><h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div><h4>منوها و کارکردهای مدیریت کسب‌وکار</h4><div class="growth-grid" id="growth-portal-module-grid"></div><button type="button" class="growth-action" onclick="growthBackToChooser()">بازگشت به انتخاب مسیر مدیریت کسب‌وکار</button><div class="growth-detail" id="growth-portal-detail"><button class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن جزئیات</button><div id="growth-portal-detail-content"></div></div></div>
     <div class="growth-modal-note">این بخش برای مشتریان و سازمان‌های بیرونی نمایش داده نمی‌شود.</div>
    </section>
@@ -3176,6 +3206,7 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
 
 <style id="growth-final-fix-style">
 /* اصلاح نهایی درگاه مدیریت کسب‌وکار؛ افزوده‌شده بدون حذف ظاهر و امکانات سایت قبلی */
+.growth-login-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:620px;margin:16px auto;padding:16px;background:#f5faf7;border:1px solid #dcebe1;border-radius:12px}.growth-login-form label{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px}.growth-login-form input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #cbdccf;border-radius:8px;font:inherit;background:#fff}.growth-login-form button{grid-column:1/-1;padding:12px;border:0;border-radius:9px;background:#087348;color:#fff;font:inherit;font-weight:700;cursor:pointer}.growth-login-form button:disabled{opacity:.65;cursor:wait}.growth-login-form #growth-employee-login-feedback{grid-column:1/-1;color:#b42318;min-height:20px}@media(max-width:600px){.growth-login-form{grid-template-columns:1fr}.growth-login-form button,.growth-login-form #growth-employee-login-feedback{grid-column:1}}
 .growth-mode-wrap{padding:14px;background:#f4faf6;border:1px solid #d8e9de;border-radius:14px;margin:12px 0}
 .growth-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .growth-mode-card{background:#fff;border:2px solid #d7e8dd;border-radius:14px;padding:16px;text-align:right;cursor:pointer;font:inherit;color:#174d32;min-height:130px}
