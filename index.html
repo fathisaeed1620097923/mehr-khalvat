@@ -313,12 +313,7 @@ body { background: #fff !important; padding: 0 !important; }
 <p>خدمات اعتباری و پشتیبانی</p>
 </div>
 
-<!-- ورودی عمومی و مستقل مدیریت کسب‌وکار؛ قبل از هر نوع ورود سایت -->
-<div id="growth-public-entry" style="display:block;padding:12px 15px;background:#f2faf5;border-bottom:1px solid #dcebe1;text-align:center">
- <button type="button" onclick="window.openGrowthPortal()" style="width:100%;max-width:520px;border:0;border-radius:12px;padding:15px 18px;background:#087348;color:#fff;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer">🚀 ورود به مدیریت کسب‌وکار | مشتریان و همکاران</button>
- <div style="font-size:11px;color:#496456;margin-top:6px">برای مشتریان و همکاران؛ بدون نیاز به ورود قبلی به سامانه</div>
-</div>
-
+<!-- ورود مدیریت کسب‌وکار فقط از گزینه اصلی داخل نوار منو انجام می‌شود. -->
 <div class="tabs" id="main-tabs">
 <button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="window.openGrowthPortal(this)">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
@@ -467,6 +462,10 @@ body { background: #fff !important; padding: 0 !important; }
 <div class="footer-print-note">این رسید توسط سامانه جامع مهر صادر شده است.</div>
 </div>
 
+<!-- ورود قدیمی همکاران برای رسیدگی به تیکت‌ها؛ مستقل از درگاه مدیریت کسب‌وکار -->
+<div class="admin-login-link" id="legacy-ticket-employee-login" style="display:block;text-align:center;margin:22px auto 8px;padding:12px 8px;border-top:1px dashed #d4ddd7;max-width:420px">
+ <button type="button" onclick="askAdminPassword()" style="background:transparent;border:0;color:#888;text-decoration:underline;font-family:inherit;font-size:12px;cursor:pointer">ورود همکاران و مدیران برای مدیریت تیکت‌ها</button>
+</div>
 
 </div>
 
