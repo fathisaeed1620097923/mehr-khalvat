@@ -322,7 +322,7 @@ body { background: #fff !important; padding: 0 !important; }
 
 <!-- درگاه مدیریت کسب‌وکار فقط از تب اصلی پایین باز می‌شود؛ کادر ورود جداگانه حذف شد. -->
 <div class="tabs" id="main-tabs">
-<button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="window.openGrowthPortal(this)">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
+<button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="window.openGrowthPortal(this)">🚀 مدیریت کسب‌وکار | ورود مشتری و همکار</button>
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
 <button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری</button>
 <button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
@@ -1840,7 +1840,111 @@ function printPOSForm(row) {
   const printWindow = window.open('', '_blank');
   if (!printWindow) { alert('مرورگر پنجره چاپ را مسدود کرده است. اجازه بازشدن پنجره را فعال کنید.'); return; }
   printWindow.document.open();
-  printWindow.document.write('<!doctype html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px}strong{color:#333}a{color:#2980b9;text-decoration:none}img{max-width:200px;display:block;margin:0 auto}</style></head><body>' + area.innerHTML + '</body></html>');
+  printWindow.document.write('<!doctype html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px}strong{color:#333}a{color:#2980b9;text-decoration:none}img{max-width:200px;display:block;margin:0 auto}</style></head><body>' + area.innerHTML + '
+<script id="growth-homepage-entry-stable-fix">
+(function(){
+ 'use strict';
+ function byId(id){return document.getElementById(id);}
+ // تنها درگاه ورود به مدیریت کسب‌وکار از دکمه موجود در صفحه اصلی باز می‌شود.
+ window.openGrowthPortal=function(btn){
+  var modal=byId('growth-portal-modal');
+  if(!modal){alert('درگاه مدیریت کسب‌وکار بارگذاری نشده است.');return;}
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+  var entry=btn||byId('growth-tab-btn');if(entry)entry.classList.add('active');
+  modal.classList.add('open');document.body.style.overflow='hidden';
+  window.growthBackToChooser();
+ };
+ // از صفحه اصلی، مشتری و همکار هر دو در همین پنجره مسیر مستقل دارند.
+ window.chooseGrowthPath=function(path){
+  if(path!=='customer'&&path!=='employee')return;
+  var chooser=byId('growth-chooser');
+  var customer=byId('growth-customer-flow');
+  var employee=byId('growth-employee-flow');
+  if(chooser)chooser.style.display='none';
+  if(customer)customer.style.display=path==='customer'?'block':'none';
+  if(employee)employee.style.display=path==='employee'?'block':'none';
+  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+  if(path==='employee'){
+   var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+   var feedback=byId('growth-employee-login-feedback');if(feedback)feedback.textContent='';
+  }
+ };
+ window.growthBackToChooser=function(){
+  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var e=byId(id);if(e)e.style.display='none';});
+  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
+  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+  var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+ };
+ // خروج فقط نشست مدیریت کسب‌وکار را پاک می‌کند؛ ورود مستقل تیکت‌ها دست‌نخورده می‌ماند.
+ window.growthPortalLogout=function(){
+  ['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(function(k){sessionStorage.removeItem(k);});
+  window.growthBackToChooser();
+ };
+ // اطمینان از در دسترس بودن توابع فرم و ورود برای دکمه‌های همین پنجره.
+ if(typeof submitGrowthCompany==='function')window.submitGrowthCompany=submitGrowthCompany;
+ if(typeof growthEmployeeLogin==='function')window.growthEmployeeLogin=growthEmployeeLogin;
+ if(typeof growthShowChooser==='function')window.growthShowChooser=growthShowChooser;
+ function bindEntry(){
+  var entry=byId('growth-tab-btn');
+  if(entry){entry.onclick=function(){window.openGrowthPortal(entry);};}
+  var modal=byId('growth-portal-modal');
+  if(modal&&!modal.dataset.homeEntryBound){
+   modal.dataset.homeEntryBound='1';
+   modal.addEventListener('click',function(e){if(e.target===modal){if(typeof window.closeGrowthPortal==='function')window.closeGrowthPortal();else{modal.classList.remove('open');document.body.style.overflow='';}}});
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindEntry);else bindEntry();
+})();
+</script>
+
+
+<script id="growth-smart-customer-management-addon">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const css=document.createElement('style');css.textContent=`
+ #growth-smart-crm{margin:16px 0;padding:14px;border:1px solid #d7e9dd;border-radius:15px;background:#f7fbf8;color:#173d2b}
+ #growth-smart-crm h3{color:#075b3b;margin:8px 0 12px;font-size:17px}
+ #growth-smart-crm .crm-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+ #growth-smart-crm .crm-kpi,#growth-smart-crm .crm-panel{background:#fff;border:1px solid #dce9e1;border-radius:11px;padding:11px;min-width:0}
+ #growth-smart-crm .crm-kpi b{display:block;font-size:19px;color:#087348;overflow-wrap:anywhere}
+ #growth-smart-crm .crm-kpi small{font-size:11px;color:#607268}
+ #growth-smart-crm .crm-charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+ #growth-smart-crm canvas{width:100%!important;max-height:230px}
+ #growth-smart-crm .crm-forms{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+ #growth-smart-crm label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700}
+ #growth-smart-crm input,#growth-smart-crm select{width:100%;padding:10px;border:1px solid #cbdccf;border-radius:8px;background:#fff;font:inherit;min-width:0}
+ #growth-smart-crm button{border:0;border-radius:8px;background:#087348;color:#fff;padding:10px 13px;font:inherit;font-weight:700;cursor:pointer}
+ #growth-smart-crm .crm-wide{grid-column:1/-1}#growth-smart-crm .crm-note{font-size:11px;color:#607268;line-height:1.9;margin-top:9px}
+ @media(max-width:650px){#growth-smart-crm .crm-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#growth-smart-crm .crm-charts,#growth-smart-crm .crm-forms{grid-template-columns:1fr}}
+ `;document.head.appendChild(css);
+ let charts=[];
+ function token(){return sessionStorage.getItem('growthToken')||'';}
+ async function call(action,extra={}){const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,growthToken:token(),...extra})});return r.json();}
+ function money(n){n=Number(n)||0;return n.toLocaleString('fa-IR');}
+ function ensure(){const host=$('growth-employee-authenticated');if(!host||$('growth-smart-crm'))return;const wrap=document.createElement('section');wrap.id='growth-smart-crm';wrap.innerHTML=`
+ <h3>🧠 مدیریت هوشمند مشتریان | هسته مرکزی سامانه</h3>
+ <p class="crm-note">چرخه جذب مشتری، توسعه بازار، افزایش منابع، پیگیری تا حصول نتیجه و نگهداشت مشتری. ارقام این داشبورد از اطلاعات ثبت‌شده در ماژول‌های عملیاتی همین سامانه خوانده می‌شوند.</p>
+ <div class="crm-kpis" id="crm-kpis"><div class="crm-kpi"><b>—</b><small>کل مشتریان ثبت‌شده</small></div><div class="crm-kpi"><b>—</b><small>مشتریان در معرض خروج</small></div><div class="crm-kpi"><b>—</b><small>مأموریت‌های باز</small></div><div class="crm-kpi"><b>—</b><small>مأموریت‌های تکمیل‌شده</small></div><div class="crm-kpi"><b>—</b><small>منابع جذب‌شده (تومان)</small></div><div class="crm-kpi"><b>—</b><small>منابع حفظ‌شده (تومان)</small></div><div class="crm-kpi"><b>—</b><small>سرنخ‌های بازاریابی</small></div><div class="crm-kpi"><b>—</b><small>مأموریت‌های سررسیدگذشته</small></div></div>
+ <div class="crm-charts"><div class="crm-panel"><b>وضعیت مشتریان</b><canvas id="crm-customer-chart"></canvas></div><div class="crm-panel"><b>وضعیت پیگیری مأموریت‌ها</b><canvas id="crm-task-chart"></canvas></div></div>
+ <div class="crm-forms"><div class="crm-panel"><h3>ثبت مشتری / فرصت جدید</h3><form id="crm-customer-form"><label>نام مشتری یا مجموعه<input name="name" required maxlength="150"></label><label>نوع مشتری<select name="type"><option>شرکت</option><option>کسب‌وکار</option><option>حقیقی</option><option>سازمان</option></select></label><label>شماره تماس<input name="phone" maxlength="30"></label><label>شهر<input name="city" maxlength="80"></label><label>منبع آشنایی<input name="source" placeholder="معرفی، بازاریابی، مراجعه..."></label><label>وضعیت ارتباط<select name="status"><option>جدید</option><option>فعال</option><option>در معرض خروج</option><option>غیرفعال</option></select></label><label>برآورد منابع (تومان)<input name="estimate" type="number" min="0"></label><label>منابع جذب‌شده (تومان)<input name="acquired" type="number" min="0"></label><label>منابع حفظ‌شده (تومان)<input name="retained" type="number" min="0"></label><label>مسئول پیگیری<input name="owner"></label><button class="crm-wide" type="submit">ثبت مشتری</button><div class="crm-note" id="crm-customer-msg"></div></form></div>
+ <div class="crm-panel"><h3>تعریف مأموریت و پیگیری</h3><form id="crm-task-form"><label>عنوان مأموریت<input name="title" required placeholder="مثلاً تماس برای جلوگیری از خروج منابع"></label><label>نوع مأموریت<select name="type"><option>جذب مشتری</option><option>افزایش منابع</option><option>نگهداشت مشتری</option><option>رسیدگی به نارضایتی</option><option>بازگشت مشتری غیرفعال</option><option>پیگیری مذاکره</option></select></label><label>شناسه مشتری (در صورت وجود)<input name="customerId"></label><label>مسئول<input name="owner"></label><label>مهلت انجام<input name="due" type="date"></label><button class="crm-wide" type="submit">ثبت مأموریت</button><div class="crm-note" id="crm-task-msg"></div></form></div></div>
+ <div class="crm-note" id="crm-refresh-msg">برای به‌روزرسانی آمار، دکمه زیر را بزنید.</div><button type="button" id="crm-refresh">↻ به‌روزرسانی آمار عملیاتی</button>
+ <p class="crm-note">توجه: این نمودارها در نسخه عملیاتی بر اساس مشتریان و مأموریت‌هایی هستند که از طریق این بخش ثبت می‌شوند؛ داده‌های قدیمی یا منابع خارج از سامانه خودبه‌خود قابل مشاهده نیستند. برای محاسبه دقیق سهم بازار، اطلاعات بازار/رقبا و مبنای مقایسه نیز باید ثبت شود.</p>`;
+ const detail=$('growth-portal-detail');if(detail)host.insertBefore(wrap,detail);else host.appendChild(wrap);
+ $('crm-customer-form').addEventListener('submit',saveCustomer);$('crm-task-form').addEventListener('submit',saveTask);$('crm-refresh').addEventListener('click',loadStats);
+ }
+ async function saveCustomer(e){e.preventDefault();const f=e.currentTarget;const d=Object.fromEntries(new FormData(f).entries());try{const x=await call('growthCrmSaveCustomer',d);$('crm-customer-msg').textContent=x.success?'ثبت شد؛ شناسه: '+x.id:(x.error||'ثبت انجام نشد');if(x.success){f.reset();loadStats();}}catch(err){$('crm-customer-msg').textContent='خطا در ارتباط با سامانه: '+err.message;}}
+ async function saveTask(e){e.preventDefault();const f=e.currentTarget;const d=Object.fromEntries(new FormData(f).entries());try{const x=await call('growthCrmSaveTask',d);$('crm-task-msg').textContent=x.success?'مأموریت ثبت شد؛ شناسه: '+x.id:(x.error||'ثبت انجام نشد');if(x.success){f.reset();loadStats();}}catch(err){$('crm-task-msg').textContent='خطا در ارتباط با سامانه: '+err.message;}}
+ async function loadStats(){const msg=$('crm-refresh-msg');try{msg.textContent='در حال دریافت آمار...';const d=await call('growthCrmStats');if(!d.success)throw new Error(d.error||'دریافت آمار ناموفق بود');const vals=[d.customers,d.atRisk,d.openTasks,d.doneTasks,money(d.acquiredResources),money(d.retainedResources),d.leads,d.lateTasks];const k=$('crm-kpis');k.querySelectorAll('.crm-kpi b').forEach((el,i)=>el.textContent=vals[i]);charts.forEach(c=>c.destroy());charts=[];if(typeof Chart!=='undefined'){charts.push(new Chart($('crm-customer-chart'),{type:'doughnut',data:{labels:['فعال','در معرض خروج','غیرفعال','سایر'],datasets:[{data:[d.active,d.atRisk,d.inactive,Math.max(0,d.customers-d.active-d.atRisk-d.inactive)]}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}}));charts.push(new Chart($('crm-task-chart'),{type:'bar',data:{labels:['باز','تکمیل‌شده','سررسیدگذشته'],datasets:[{label:'تعداد مأموریت',data:[d.openTasks,d.doneTasks,d.lateTasks]}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}}));}msg.textContent='آخرین به‌روزرسانی: '+new Date().toLocaleString('fa-IR')+' | منبع: داده عملیاتی ثبت‌شده';}catch(err){msg.textContent='آمار بارگذاری نشد: '+err.message+'؛ اتصال Web App و انتشار نسخه جدید را بررسی کنید.';}}
+ function observe(){const host=$('growth-employee-authenticated'),mode=$('growth-mode-content');const live=!!(mode&&mode.innerText&&mode.innerText.includes('محیط عملیاتی انتخاب شد'));const panel=$('growth-smart-crm');if(panel)panel.style.display=live?'block':'none';if(host&&host.style.display!=='none'&&live){ensure();if($('growth-smart-crm')&&!$('growth-smart-crm').dataset.loaded){$('growth-smart-crm').dataset.loaded='1';loadStats();}}}
+ const observer=new MutationObserver(observe);document.addEventListener('DOMContentLoaded',function(){const host=$('growth-employee-authenticated');if(host)observer.observe(host,{attributes:true,attributeFilter:['style','class']});observe();});
+ const oldLogin=window.growthEmployeeLogin;window.growthEmployeeLogin=async function(){if(typeof oldLogin==='function')await oldLogin();setTimeout(observe,500);setTimeout(observe,1300);};
+})();
+</script>
+
+</body></html>');
   printWindow.document.close();
   printWindow.focus();
   setTimeout(function () { printWindow.print(); }, 500);
@@ -3420,6 +3524,64 @@ window.openGrowthPortalModule=function(id){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',restoreTicketEntry);else restoreTicketEntry();
 })();
 </script>
+
+<script id="growth-homepage-entry-stable-fix">
+(function(){
+ 'use strict';
+ function byId(id){return document.getElementById(id);}
+ // تنها درگاه ورود به مدیریت کسب‌وکار از دکمه موجود در صفحه اصلی باز می‌شود.
+ window.openGrowthPortal=function(btn){
+  var modal=byId('growth-portal-modal');
+  if(!modal){alert('درگاه مدیریت کسب‌وکار بارگذاری نشده است.');return;}
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+  var entry=btn||byId('growth-tab-btn');if(entry)entry.classList.add('active');
+  modal.classList.add('open');document.body.style.overflow='hidden';
+  window.growthBackToChooser();
+ };
+ // از صفحه اصلی، مشتری و همکار هر دو در همین پنجره مسیر مستقل دارند.
+ window.chooseGrowthPath=function(path){
+  if(path!=='customer'&&path!=='employee')return;
+  var chooser=byId('growth-chooser');
+  var customer=byId('growth-customer-flow');
+  var employee=byId('growth-employee-flow');
+  if(chooser)chooser.style.display='none';
+  if(customer)customer.style.display=path==='customer'?'block':'none';
+  if(employee)employee.style.display=path==='employee'?'block':'none';
+  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+  if(path==='employee'){
+   var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+   var feedback=byId('growth-employee-login-feedback');if(feedback)feedback.textContent='';
+  }
+ };
+ window.growthBackToChooser=function(){
+  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var e=byId(id);if(e)e.style.display='none';});
+  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
+  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+  var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+ };
+ // خروج فقط نشست مدیریت کسب‌وکار را پاک می‌کند؛ ورود مستقل تیکت‌ها دست‌نخورده می‌ماند.
+ window.growthPortalLogout=function(){
+  ['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(function(k){sessionStorage.removeItem(k);});
+  window.growthBackToChooser();
+ };
+ // اطمینان از در دسترس بودن توابع فرم و ورود برای دکمه‌های همین پنجره.
+ if(typeof submitGrowthCompany==='function')window.submitGrowthCompany=submitGrowthCompany;
+ if(typeof growthEmployeeLogin==='function')window.growthEmployeeLogin=growthEmployeeLogin;
+ if(typeof growthShowChooser==='function')window.growthShowChooser=growthShowChooser;
+ function bindEntry(){
+  var entry=byId('growth-tab-btn');
+  if(entry){entry.onclick=function(){window.openGrowthPortal(entry);};}
+  var modal=byId('growth-portal-modal');
+  if(modal&&!modal.dataset.homeEntryBound){
+   modal.dataset.homeEntryBound='1';
+   modal.addEventListener('click',function(e){if(e.target===modal){if(typeof window.closeGrowthPortal==='function')window.closeGrowthPortal();else{modal.classList.remove('open');document.body.style.overflow='';}}});
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindEntry);else bindEntry();
+})();
+</script>
+
 </body>
 </html>
 
