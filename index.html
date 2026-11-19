@@ -313,12 +313,7 @@ body { background: #fff !important; padding: 0 !important; }
 <p>خدمات اعتباری و پشتیبانی</p>
 </div>
 
-<!-- ورودی عمومی و مستقل مدیریت کسب‌وکار؛ قبل از هر نوع ورود سایت -->
-<div id="growth-public-entry" style="display:block;padding:12px 15px;background:#f2faf5;border-bottom:1px solid #dcebe1;text-align:center">
- <button type="button" onclick="window.openGrowthPortal()" style="width:100%;max-width:520px;border:0;border-radius:12px;padding:15px 18px;background:#087348;color:#fff;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer">🚀 ورود به مدیریت کسب‌وکار | مشتریان و همکاران</button>
- <div style="font-size:11px;color:#496456;margin-top:6px">برای مشتریان و همکاران؛ بدون نیاز به ورود قبلی به سامانه</div>
-</div>
-
+<!-- درگاه مدیریت کسب‌وکار فقط از تب اصلی پایین باز می‌شود؛ کادر ورود جداگانه حذف شد. -->
 <div class="tabs" id="main-tabs">
 <button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="window.openGrowthPortal(this)">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
@@ -329,6 +324,9 @@ body { background: #fff !important; padding: 0 !important; }
 <button class="tab-btn" onclick="switchTab('satna', this)">💸 درخواست ساتنا</button>
 <button class="tab-btn" onclick="switchTab('emotion-tab', this)">🪞 آینه احساسات</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
+</div>
+<div style="text-align:left;padding:4px 10px 10px">
+ <button type="button" onclick="askAdminPassword()" style="border:0;background:transparent;color:#718078;text-decoration:underline;font-family:inherit;font-size:12px;cursor:pointer;padding:5px 2px">ورود همکاران برای مدیریت تیکت‌ها</button>
 </div>
 
 <!-- ۱. پنل مشتری -->
@@ -3025,10 +3023,16 @@ function growthShowChooser(){
 }
 function chooseGrowthPath(path){
  if(path!=='customer' && path!=='employee')return;
- const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
- const target=document.getElementById(path==='customer'?'growth-customer-flow':'growth-employee-flow');if(target)target.style.display='block';
+ const chooser=document.getElementById('growth-chooser');
+ const customer=document.getElementById('growth-customer-flow');
+ const employee=document.getElementById('growth-employee-flow');
+ if(chooser)chooser.style.display='none';
+ if(customer)customer.style.display=path==='customer'?'block':'none';
+ if(employee)employee.style.display=path==='employee'?'block':'none';
  if(path==='customer')growthUpdateRequirements();
 }
+window.chooseGrowthPath=chooseGrowthPath;
+window.growthShowChooser=growthShowChooser;
 function growthBackToChooser(){growthShowChooser();}
 async function growthEmployeeLogin(){
  const username=(document.getElementById('growth-employee-username')?.value||'').trim();
