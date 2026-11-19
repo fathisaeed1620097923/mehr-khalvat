@@ -313,7 +313,12 @@ body { background: #fff !important; padding: 0 !important; }
 <p>خدمات اعتباری و پشتیبانی</p>
 </div>
 
-<!-- ورود مدیریت کسب‌وکار فقط از گزینه اصلی داخل نوار منو انجام می‌شود. -->
+<!-- ورودی عمومی و مستقل مدیریت کسب‌وکار؛ قبل از هر نوع ورود سایت -->
+<div id="growth-public-entry" style="display:block;padding:12px 15px;background:#f2faf5;border-bottom:1px solid #dcebe1;text-align:center">
+ <button type="button" onclick="window.openGrowthPortal()" style="width:100%;max-width:520px;border:0;border-radius:12px;padding:15px 18px;background:#087348;color:#fff;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer">🚀 ورود به مدیریت کسب‌وکار | مشتریان و همکاران</button>
+ <div style="font-size:11px;color:#496456;margin-top:6px">برای مشتریان و همکاران؛ بدون نیاز به ورود قبلی به سامانه</div>
+</div>
+
 <div class="tabs" id="main-tabs">
 <button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="window.openGrowthPortal(this)">🚀 مدیریت کسب‌وکار و توسعه بازار</button>
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
@@ -462,10 +467,6 @@ body { background: #fff !important; padding: 0 !important; }
 <div class="footer-print-note">این رسید توسط سامانه جامع مهر صادر شده است.</div>
 </div>
 
-<!-- ورود قدیمی همکاران برای رسیدگی به تیکت‌ها؛ مستقل از درگاه مدیریت کسب‌وکار -->
-<div class="admin-login-link" id="legacy-ticket-employee-login" style="display:block;text-align:center;margin:22px auto 8px;padding:12px 8px;border-top:1px dashed #d4ddd7;max-width:420px">
- <button type="button" onclick="askAdminPassword()" style="background:transparent;border:0;color:#888;text-decoration:underline;font-family:inherit;font-size:12px;cursor:pointer">ورود همکاران و مدیران برای مدیریت تیکت‌ها</button>
-</div>
 
 </div>
 
@@ -1360,26 +1361,32 @@ setTimeout(function(){ toast.className = toast.className.replace("show", ""); },
 }
 
 function askAdminPassword() {
+// فقط ورود قدیمی پنل تیکت‌ها؛ این تابع هرگز وارد مدیریت کسب‌وکار نمی‌شود.
 let username = prompt("لطفاً نام کاربری خود را وارد کنید:");
-if (username === null || username === "") { window.__growthAfterLogin=false; return; }
+if (username === null || username.trim() === "") return;
 let pass = prompt("لطفاً رمز عبور خود را وارد کنید:");
-if (pass === null) { window.__growthAfterLogin=false; return; }
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: username, pass: pass}) })
-.then(res => res.json())
+if (pass === null || pass === "") return;
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: username.trim(), pass: pass}) })
+.then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
 .then(data => {
-if (data.access) {
-sessionStorage.setItem('adminToken', data.token);
-sessionStorage.setItem('loggedInUser', username);
-sessionStorage.setItem('role', data.role);
-sessionStorage.setItem('department', data.department);
-sessionStorage.setItem('branch', data.branch);
-document.getElementById('employee-tab-btn').style.display = 'block';
-// ورود قدیمی کارکنان فقط برای پنل تیکت‌هاست؛ هرگز به مدیریت کسب‌وکار هدایت نشود.
-window.__growthAfterLogin = false;
-switchTab('employee', document.getElementById('employee-tab-btn'));
-requestNotificationPermission();
-} else { window.__growthAfterLogin=false; showToast("نام کاربری یا رمز عبور اشتباه است.", "error"); }
-}).catch(() => { window.__growthAfterLogin=false; alert("خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه جدید را بررسی کنید."); });
+ if (data.access) {
+  sessionStorage.setItem('adminToken', data.token);
+  sessionStorage.setItem('loggedInUser', username.trim());
+  sessionStorage.setItem('role', data.role || '');
+  sessionStorage.setItem('department', data.department || '');
+  sessionStorage.setItem('branch', data.branch || '');
+  const employeeTab=document.getElementById('employee-tab-btn');
+  if(employeeTab) employeeTab.style.display='block';
+  // مقصد ورود قدیمی فقط پنل تیکت/کارمند است؛ هیچ تب مدیریت کسب‌وکاری باز نمی‌شود.
+  if(typeof switchTab==='function' && employeeTab) switchTab('employee', employeeTab);
+  if(typeof requestNotificationPermission==='function') requestNotificationPermission();
+ } else {
+  showToast("نام کاربری یا رمز عبور اشتباه است.", "error");
+ }
+}).catch(err => {
+ console.error('Ticket employee login failed:',err);
+ alert("خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه جدید را بررسی کنید.");
+});
 }
 function logoutUser() { if (!confirm('از حساب خارج می‌شوید؟')) return; sessionStorage.clear(); location.reload(); }
 function changeCredentials() { alert('برای تغییر نام کاربری / رمز، با مدیر سیستم تماس بگیرید.'); }
@@ -3025,7 +3032,7 @@ function chooseGrowthPath(path){
 function growthBackToChooser(){growthShowChooser();}
 async function growthEmployeeLogin(){
  const username=(document.getElementById('growth-employee-username')?.value||'').trim();
- const pass=(document.getElementById('growth-employee-password')?.value||'').trim();
+ const pass=(document.getElementById('growth-employee-password')?.value||'');
  const feedback=document.getElementById('growth-employee-login-feedback');
  const button=document.getElementById('growth-employee-login-button');
  if(!username||!pass){if(feedback)feedback.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}
@@ -3033,18 +3040,16 @@ async function growthEmployeeLogin(){
  if(feedback)feedback.textContent='';
  try{
   const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthEmployeeLogin',username:username,pass:pass})});
+  if(!response.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+response.status+').');
   const data=await response.json();
-  if(!data.access||!data.token)throw new Error(data.error||'نام کاربری یا رمز عبور صحیح نیست.');
+  if(!data||data.access!==true||!data.token)throw new Error((data&&data.error)||'نام کاربری یا رمز عبور صحیح نیست.');
+  // نشست مدیریت کسب‌وکار مستقل از نشست تیکت‌ها نگهداری می‌شود.
   sessionStorage.setItem('growthToken',data.token);
   sessionStorage.setItem('growthUser',data.username||username);
   sessionStorage.setItem('growthRole',data.role||'');
   sessionStorage.setItem('growthDepartment',data.department||'');
   sessionStorage.setItem('growthBranch',data.branch||'');
   sessionStorage.setItem('growthAllowedCategories',JSON.stringify(data.allowedCategories||[]));
-  // نشست قدیمی پنل تیکت‌ها را حفظ می‌کنیم؛ نشست مدیریت کسب‌وکار جداگانه است.
-  const chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='none';
-  const customer=document.getElementById('growth-customer-flow');if(customer)customer.style.display='none';
-  const employee=document.getElementById('growth-employee-flow');if(employee)employee.style.display='block';
   growthGoToEmployeeSection();
  }catch(error){if(feedback)feedback.textContent=error.message||'ورود انجام نشد؛ اتصال سامانه را بررسی کنید.';}
  finally{if(button){button.disabled=false;button.textContent='🔐 ورود به پنل همکار';}}
@@ -3360,14 +3365,16 @@ window.openGrowthPortalModule=function(id){
 <script id="growth-independent-entry-final">
 (function(){
   window.openGrowthPortal=function(btn){
-    // ورود مدیریت کسب‌وکار فقط از درگاه خودش؛ نشست ورود تیکت‌ها دخالتی ندارد.
-    window.__growthAfterLogin=false;
     var modal=document.getElementById('growth-portal-modal');
     if(!modal){alert('درگاه مدیریت کسب‌وکار در صفحه پیدا نشد.');return;}
-    document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+    var tabs=document.querySelectorAll('#main-tabs .tab-btn');
+    tabs.forEach(function(x){x.classList.remove('active');});
     var b=btn||document.getElementById('growth-tab-btn');if(b)b.classList.add('active');
     modal.classList.add('open');document.body.style.overflow='hidden';
     if(typeof window.growthShowChooser==='function')window.growthShowChooser();
+    // هر بار ورود از درگاه اصلی، ابتدا انتخاب مشتری/همکار نمایش داده می‌شود.
+    var chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='block';
+    ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
   };
   // ورود قدیمی کارمند برای مشاهده تیکت‌ها حفظ می‌شود؛ تابع اصلی askAdminPassword بدون تغییر فعال است.
   window.growthPortalLogout=function(){
