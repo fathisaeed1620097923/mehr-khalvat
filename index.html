@@ -301,6 +301,13 @@ body { background: #fff !important; padding: 0 !important; }
 .growth-demo-results{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px!important}.growth-demo-results>div{background:#fff;border:1px solid #dbe9df;border-radius:11px;padding:12px;text-align:center;line-height:1.8;font-size:12px}.growth-demo-results strong{display:block;color:#087443;font-size:20px}
 @media(max-width:650px){.growth-demo-hero{grid-template-columns:1fr}.growth-demo-gallery{grid-template-columns:1fr}}
 </style>
+<style id="ticket-and-growth-entry-visibility-guard">
+#ticket-employee-login-entry{display:block!important;visibility:visible!important;opacity:1!important}
+#ticket-employee-login-button{display:inline-flex!important;visibility:visible!important;opacity:1!important}
+#growth-portal-modal.open{display:flex!important}
+#growth-chooser .growth-choice-grid{display:grid!important;visibility:visible!important;opacity:1!important}
+#growth-chooser .growth-choice{display:flex!important;visibility:visible!important;opacity:1!important}
+</style>
 </head>
 <body>
 
@@ -325,9 +332,7 @@ body { background: #fff !important; padding: 0 !important; }
 <button class="tab-btn" onclick="switchTab('emotion-tab', this)">🪞 آینه احساسات</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
 </div>
-<div style="text-align:left;padding:4px 10px 10px">
- <button type="button" onclick="askAdminPassword()" style="border:0;background:transparent;color:#718078;text-decoration:underline;font-family:inherit;font-size:12px;cursor:pointer;padding:5px 2px">ورود همکاران برای مدیریت تیکت‌ها</button>
-</div>
+<div id="ticket-employee-login-entry" style="display:block !important;visibility:visible !important;opacity:1 !important;text-align:left;padding:7px 10px 12px;position:relative;z-index:5"> <button id="ticket-employee-login-button" type="button" onclick="askAdminPassword()" style="display:inline-flex !important;align-items:center;gap:6px;border:1px solid #d8e2dc;background:#fff;color:#52675a;text-decoration:underline;font-family:inherit;font-size:12px;cursor:pointer;padding:8px 11px;border-radius:8px">🔐 ورود همکاران برای مدیریت تیکت‌ها</button> </div>
 
 <!-- ۱. پنل مشتری -->
 <div class="content panel active" id="panel-customer">
@@ -3368,24 +3373,51 @@ window.openGrowthPortalModule=function(id){
 
 <script id="growth-independent-entry-final">
 (function(){
+  // مسیر تیکت مستقل از مدیریت کسب‌وکار؛ دکمه ورود همیشه روی صفحه اصلی قابل مشاهده است.
+  function restoreTicketEntry(){
+    var entry=document.getElementById('ticket-employee-login-entry');
+    if(entry){entry.style.setProperty('display','block','important');entry.style.setProperty('visibility','visible','important');}
+    var button=document.getElementById('ticket-employee-login-button');
+    if(button){button.style.setProperty('display','inline-flex','important');button.onclick=function(){if(typeof window.askAdminPassword==='function')window.askAdminPassword();else alert('تابع ورود همکاران تیکت در صفحه بارگذاری نشده است.');};}
+  }
+  // هر بار کلیک روی خود تب مدیریت کسب‌وکار، فقط انتخاب مشتری/همکار را نشان بده.
   window.openGrowthPortal=function(btn){
     var modal=document.getElementById('growth-portal-modal');
     if(!modal){alert('درگاه مدیریت کسب‌وکار در صفحه پیدا نشد.');return;}
-    var tabs=document.querySelectorAll('#main-tabs .tab-btn');
-    tabs.forEach(function(x){x.classList.remove('active');});
+    document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
     var b=btn||document.getElementById('growth-tab-btn');if(b)b.classList.add('active');
     modal.classList.add('open');document.body.style.overflow='hidden';
-    if(typeof window.growthShowChooser==='function')window.growthShowChooser();
-    // هر بار ورود از درگاه اصلی، ابتدا انتخاب مشتری/همکار نمایش داده می‌شود.
-    var chooser=document.getElementById('growth-chooser');if(chooser)chooser.style.display='block';
-    ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+    var chooser=document.getElementById('growth-chooser');
+    var customer=document.getElementById('growth-customer-flow');
+    var employee=document.getElementById('growth-employee-flow');
+    if(chooser){chooser.style.display='block';chooser.style.setProperty('visibility','visible','important');}
+    if(customer)customer.style.display='none';
+    if(employee)employee.style.display='none';
+    var login=document.getElementById('growth-employee-login-actions');if(login)login.style.display='grid';
+    var auth=document.getElementById('growth-employee-authenticated');if(auth)auth.style.display='none';
+    restoreTicketEntry();
   };
-  // ورود قدیمی کارمند برای مشاهده تیکت‌ها حفظ می‌شود؛ تابع اصلی askAdminPassword بدون تغییر فعال است.
+  // دکمه‌های انتخاب مسیر را تضمین کن؛ کلیک مشتری و همکار به توابع اصلی متصل می‌ماند.
+  window.chooseGrowthPath=function(path){
+    if(path!=='customer' && path!=='employee')return;
+    var chooser=document.getElementById('growth-chooser');
+    var target=document.getElementById(path==='customer'?'growth-customer-flow':'growth-employee-flow');
+    var other=document.getElementById(path==='customer'?'growth-employee-flow':'growth-customer-flow');
+    if(chooser)chooser.style.display='none';
+    if(other)other.style.display='none';
+    if(target)target.style.display='block';
+    if(path==='customer' && typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+  };
+  window.growthBackToChooser=function(){
+    var chooser=document.getElementById('growth-chooser');
+    ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display='none';});
+    if(chooser)chooser.style.display='block';
+  };
   window.growthPortalLogout=function(){
     ['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(function(k){sessionStorage.removeItem(k);});
-    if(typeof window.growthShowChooser==='function')window.growthShowChooser();
+    window.growthBackToChooser();
   };
-  // پیوند ورود قدیمی کارکنان حذف نمی‌شود؛ برای مشاهده و پاسخ‌گویی به تیکت‌ها لازم است.
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',restoreTicketEntry);else restoreTicketEntry();
 })();
 </script>
 </body>
