@@ -308,6 +308,21 @@ body { background: #fff !important; padding: 0 !important; }
 #growth-chooser .growth-choice-grid{display:grid!important;visibility:visible!important;opacity:1!important}
 #growth-chooser .growth-choice{display:flex!important;visibility:visible!important;opacity:1!important}
 </style>
+
+<style id="growth-portal-modal-hoist-guard">
+/* درگاه مدیریت کسب‌وکار مستقل از پنل‌های صفحه اصلی و به‌صورت پنجره شناور */
+#growth-portal-modal{display:none;position:fixed;inset:0;z-index:2147483000;background:rgba(7,28,20,.78);padding:14px;overflow:auto;align-items:center;justify-content:center;}
+#growth-portal-modal.open{display:flex!important;}
+#growth-portal-modal .growth-modal-card{width:min(1100px,100%);max-height:94vh;overflow:auto;background:#f7faf8;border-radius:18px;direction:rtl;}
+#growth-portal-modal .growth-modal-body{display:block;padding:16px 18px 22px;}
+@media(max-width:600px){#growth-portal-modal{padding:5px}#growth-portal-modal .growth-modal-card{max-height:98vh}}
+</style>
+
+<script id="mehr-api-bootstrap">
+/* تعریف زودهنگام آدرس API برای جلوگیری از خطای mehrApiUrl */
+window.SCRIPT_URL = window.SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec';
+window.mehrApiUrl = function() { return window.SCRIPT_URL; };
+</script>
 </head>
 <body>
 
@@ -766,6 +781,10 @@ body { background: #fff !important; padding: 0 !important; }
 <label>شماره باجه (برای رئیس شعبه عدد ۰ را وارد کنید):</label>
 <input type="number" id="main-emotion-counter" min="0" max="20" placeholder="مثلاً 1">
 </div>
+<div class="form-group">
+<label for="main-emotion-comment">توضیحات یا نظر شما (اختیاری):</label>
+<textarea id="main-emotion-comment" rows="3" maxlength="1000" placeholder="نظر یا پیشنهاد خود را بنویسید..."></textarea>
+</div>
 
 <div style="display:flex; justify-content:center; gap:10px; margin:20px 0; direction:ltr;">
 <span class="star-rating" style="font-size:40px; cursor:pointer; line-height:1;" data-score="1" onclick="pickMainEmotion(this)">😠</span>
@@ -1044,7 +1063,12 @@ body { background: #fff !important; padding: 0 !important; }
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec";
+// سازگاری با ماژول‌هایی که آدرس API را به شکل تابع فراخوانی می‌کنند
+window.SCRIPT_URL = window.SCRIPT_URL || SCRIPT_URL;
+window.mehrApiUrl = function(){ return window.SCRIPT_URL; };
+
+window.SCRIPT_URL = SCRIPT_URL; // آدرس سراسری برای تمام اسکریپت‌ها، از جمله پنل مستقل تیکت
 
 /* ================== Notifications ================== */
 function requestNotificationPermission() {
@@ -1364,34 +1388,40 @@ setTimeout(function(){ toast.className = toast.className.replace("show", ""); },
 }
 
 function askAdminPassword() {
-// فقط ورود قدیمی پنل تیکت‌ها؛ این تابع هرگز وارد مدیریت کسب‌وکار نمی‌شود.
-let username = prompt("لطفاً نام کاربری خود را وارد کنید:");
-if (username === null || username.trim() === "") return;
-let pass = prompt("لطفاً رمز عبور خود را وارد کنید:");
-if (pass === null || pass === "") return;
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: username.trim(), pass: pass}) })
-.then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-.then(data => {
- if (data.access) {
-  sessionStorage.setItem('adminToken', data.token);
-  sessionStorage.setItem('loggedInUser', username.trim());
-  sessionStorage.setItem('role', data.role || '');
-  sessionStorage.setItem('department', data.department || '');
-  sessionStorage.setItem('branch', data.branch || '');
-  const employeeTab=document.getElementById('employee-tab-btn');
-  if(employeeTab) employeeTab.style.display='block';
-  // مقصد ورود قدیمی فقط پنل تیکت/کارمند است؛ هیچ تب مدیریت کسب‌وکاری باز نمی‌شود.
-  if(typeof switchTab==='function' && employeeTab) switchTab('employee', employeeTab);
-  if(typeof requestNotificationPermission==='function') requestNotificationPermission();
- } else {
-  showToast("نام کاربری یا رمز عبور اشتباه است.", "error");
+ let modal=document.getElementById('mehr-ticket-login-modal');
+ if(!modal){
+  modal=document.createElement('div'); modal.id='mehr-ticket-login-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.58);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl';
+  modal.innerHTML='<div style="background:#fff;width:min(390px,100%);padding:22px;border-radius:16px;box-shadow:0 12px 40px #0004"><h3 style="margin:0 0 12px;color:#0a4d2e">ورود همکاران برای مدیریت تیکت</h3><label style="display:block;margin:8px 0 4px">نام کاربری</label><input id="mehr-ticket-username" autocomplete="username" style="width:100%;padding:11px;border:1px solid #ccd8d0;border-radius:8px"><label style="display:block;margin:10px 0 4px">رمز عبور</label><input id="mehr-ticket-password" type="password" autocomplete="current-password" style="width:100%;padding:11px;border:1px solid #ccd8d0;border-radius:8px"><p id="mehr-ticket-login-message" role="status" style="min-height:24px;color:#b03a2e;font-size:12px;margin:8px 0"></p><div style="display:flex;gap:8px"><button type="button" id="mehr-ticket-login-submit" style="flex:1;background:#0a7a43;color:white;border:0;padding:11px;border-radius:8px">ورود</button><button type="button" id="mehr-ticket-login-cancel" style="padding:11px 16px;border:1px solid #ccc;background:#fff;border-radius:8px">انصراف</button></div></div>';
+  document.body.appendChild(modal);
+  modal.querySelector('#mehr-ticket-login-cancel').onclick=()=>modal.remove();
+  modal.querySelector('#mehr-ticket-login-submit').onclick=submitTicketEmployeeLogin;
+  modal.addEventListener('keydown',e=>{if(e.key==='Enter')submitTicketEmployeeLogin();if(e.key==='Escape')modal.remove();});
  }
-}).catch(err => {
- console.error('Ticket employee login failed:',err);
- alert("خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه جدید را بررسی کنید.");
-});
+ modal.style.display='flex';
+ const u=document.getElementById('mehr-ticket-username'); if(u)u.focus();
 }
+async function submitTicketEmployeeLogin(){
+ const modal=document.getElementById('mehr-ticket-login-modal'); if(!modal)return;
+ const username=(document.getElementById('mehr-ticket-username').value||'').trim();
+ const pass=document.getElementById('mehr-ticket-password').value||'';
+ const msg=document.getElementById('mehr-ticket-login-message'); const btn=document.getElementById('mehr-ticket-login-submit');
+ if(!username||!pass){msg.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}
+ btn.disabled=true;btn.textContent='در حال بررسی...';msg.textContent='';
+ try{
+  const response=await fetch(window.mehrApiUrl(),{method:'POST',body:JSON.stringify({action:'login',username:username,pass:pass})});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json();
+  if(!data.access){msg.textContent=data.error||'نام کاربری یا رمز عبور صحیح نیست.';btn.disabled=false;btn.textContent='ورود';return;}
+  sessionStorage.setItem('adminToken',data.token||'');sessionStorage.setItem('loggedInUser',username);sessionStorage.setItem('role',data.role||'');sessionStorage.setItem('department',data.department||'');sessionStorage.setItem('branch',data.branch||'');
+  modal.remove();const tab=document.getElementById('employee-tab-btn');if(tab){tab.style.display='block';if(typeof switchTab==='function')switchTab('employee',tab);}
+  if(typeof requestNotificationPermission==='function')requestNotificationPermission();
+  if(typeof showToast==='function')showToast('ورود همکار با موفقیت انجام شد.','success');
+ }catch(err){console.error('Ticket login failed:',err);msg.textContent='ارتباط با سرویس برقرار نشد؛ در نسخه آزمایشی باید شبیه‌ساز فعال باشد.';btn.disabled=false;btn.textContent='تلاش مجدد';}
+}
+
 window.askAdminPassword=askAdminPassword;
+window.submitTicketEmployeeLogin=submitTicketEmployeeLogin;
 function logoutUser() { if (!confirm('از حساب خارج می‌شوید؟')) return; sessionStorage.clear(); location.reload(); }
 function changeCredentials() { alert('برای تغییر نام کاربری / رمز، با مدیر سیستم تماس بگیرید.'); }
 
@@ -1432,6 +1462,7 @@ let trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 let department = getDepartment(problemType);
 btn.innerText = "در حال ثبت..."; btn.disabled = true;
 let payload = {
+action: 'submitTicket',
 name: mobile + " - کد ملی: " + nationalId,
 description: "نوع مشکل: " + document.getElementById('c-problemType').options[document.getElementById('c-problemType').selectedIndex].text + " | " + description,
 imageBase64: photoBase64,
@@ -1843,137 +1874,7 @@ function printPOSForm(row) {
   printWindow.document.open();
   printWindow.document.write('<!doctype html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px}strong{color:#333}a{color:#2980b9;text-decoration:none}img{max-width:200px;display:block;margin:0 auto}</style></head><body>' + area.innerHTML + '</body></html>');
   printWindow.document.close();
- }
-</script>
-<script id="growth-homepage-entry-stable-fix">
-(function(){
- 'use strict';
- function byId(id){return document.getElementById(id);}
- // تنها درگاه ورود به مدیریت کسب‌وکار از دکمه موجود در صفحه اصلی باز می‌شود.
- window.openGrowthPortal=function(btn){
-  var modal=byId('growth-portal-modal');
-  if(!modal){alert('درگاه مدیریت کسب‌وکار بارگذاری نشده است.');return;}
-  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
-  var entry=btn||byId('growth-tab-btn');if(entry)entry.classList.add('active');
-  modal.classList.add('open');document.body.style.overflow='hidden';
-  window.growthBackToChooser();
- };
- // از صفحه اصلی، مشتری و همکار هر دو در همین پنجره مسیر مستقل دارند.
- window.chooseGrowthPath=function(path){
-  if(path!=='customer'&&path!=='employee')return;
-  var chooser=byId('growth-chooser');
-  var customer=byId('growth-customer-flow');
-  var employee=byId('growth-employee-flow');
-  if(chooser)chooser.style.display='none';
-  if(customer)customer.style.display=path==='customer'?'block':'none';
-  if(employee)employee.style.display=path==='employee'?'block':'none';
-  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
-  if(path==='employee'){
-   var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
-   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
-   var feedback=byId('growth-employee-login-feedback');if(feedback)feedback.textContent='';
-  }
- };
- window.growthBackToChooser=function(){
-  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var e=byId(id);if(e)e.style.display='none';});
-  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
-  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
-  var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
- };
- // خروج فقط نشست مدیریت کسب‌وکار را پاک می‌کند؛ ورود مستقل تیکت‌ها دست‌نخورده می‌ماند.
- window.growthPortalLogout=function(){
-  ['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(function(k){sessionStorage.removeItem(k);});
-  window.growthBackToChooser();
- };
- // اطمینان از در دسترس بودن توابع فرم و ورود برای دکمه‌های همین پنجره.
- if(typeof submitGrowthCompany==='function')window.submitGrowthCompany=submitGrowthCompany;
- if(typeof growthEmployeeLogin==='function')window.growthEmployeeLogin=growthEmployeeLogin;
- if(typeof growthShowChooser==='function')window.growthShowChooser=growthShowChooser;
- function bindEntry(){
-  var entry=byId('growth-tab-btn');
-  if(entry){entry.onclick=function(){window.openGrowthPortal(entry);};}
-  var modal=byId('growth-portal-modal');
-  if(modal&&!modal.dataset.homeEntryBound){
-   modal.dataset.homeEntryBound='1';
-   modal.addEventListener('click',function(e){if(e.target===modal){if(typeof window.closeGrowthPortal==='function')window.closeGrowthPortal();else{modal.classList.remove('open');document.body.style.overflow='';}}});
-  }
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindEntry);else bindEntry();
-})();
-</script>
-
-
-<script id="growth-task-center-v1">
-(function(){
- 'use strict';
- const $=id=>document.getElementById(id);
- const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const api=async (action,payload)=>{const token=sessionStorage.getItem('growthToken')||'';const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token,growthToken:token},payload||{}))});return r.json();};
- function canManage(){return ['admin','regional','branch','manager','branch_manager'].includes(sessionStorage.getItem('growthRole')||'');}
- function mount(){const host=$('growth-employee-authenticated');if(!host||$('growth-task-center'))return;
-  const section=document.createElement('section');section.id='growth-task-center';section.className='growth-guide-block';
-  section.innerHTML='<h3>مرکز مأموریت‌ها و شرح وظایف</h3><p>وظایف بر اساس سمت، مسئول، مهلت و نتیجه پیگیری می‌شوند. انجام کار بدون ثبت نتیجه، تکمیل‌شده محسوب نمی‌شود.</p><div id="gt-summary" class="gt-summary">در حال دریافت وظایف...</div><div id="gt-create-wrap"></div><div id="gt-list"></div><div id="gt-feedback" role="status"></div>';
-  const anchor=host.querySelector('.growth-grid')||host.firstElementChild; if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(section,anchor.nextSibling);else host.appendChild(section);
-  if(canManage())$('gt-create-wrap').innerHTML='<h4>تعریف مأموریت جدید</h4><div class="gt-form"><label>عنوان مأموریت<input id="gt-title" placeholder="مثلاً شناسایی ۲۰ شرکت هدف"></label><label>نام کاربری مسئول<input id="gt-assignee" placeholder="نام کاربری دقیق همکار"></label><label>سمت هدف<input id="gt-role" placeholder="مثلاً کارمند بازاریابی"></label><label>شعبه / واحد<input id="gt-branch" placeholder="کد شعبه یا نام واحد"></label><label>نوع وظیفه<select id="gt-type"><option>دائمی</option><option selected>دوره‌ای</option><option>مأموریتی</option></select></label><label>اولویت<select id="gt-priority"><option>عادی</option><option>مهم</option><option>فوری</option></select></label><label>مهلت انجام<input id="gt-due" type="date"></label><label class="gt-wide">شرح و مراحل اجرا<textarea id="gt-description" rows="3" placeholder="اقدامات مورد انتظار، تعداد تماس/مراجعه و خروجی قابل تحویل"></textarea></label><button type="button" onclick="growthTaskCreateUI()">ثبت و ابلاغ مأموریت</button></div>';
-  load();
- }
- async function load(){const box=$('gt-list');if(!box)return;try{const d=await api('growthTaskList');if(!d.success)throw Error(d.error||'دریافت وظایف ناموفق بود');const items=d.items||[];const counts={total:items.length,pending:items.filter(x=>x.status==='در انتظار انجام').length,doing:items.filter(x=>x.status==='در حال انجام').length,review:items.filter(x=>x.status==='انجام‌شده؛ در انتظار تأیید').length,closed:items.filter(x=>x.status==='تأیید و بسته‌شده').length};$('gt-summary').innerHTML='<div>کل: '+counts.total+'</div><div>در انتظار: '+counts.pending+'</div><div>در حال انجام: '+counts.doing+'</div><div>آماده تأیید: '+counts.review+'</div><div>بسته‌شده: '+counts.closed+'</div>';
-  box.innerHTML=items.length?items.map(t=>'<article class="gt-card"><b>'+esc(t.title)+'</b><small>شناسه: '+esc(t.id)+' | مسئول: '+esc(t.assignee)+' | مهلت: '+esc(t.due)+' | اولویت: '+esc(t.priority)+'</small><p>'+esc(t.description)+'</p><p><b>وضعیت:</b> '+esc(t.status)+'</p><p><b>نتیجه ثبت‌شده:</b> '+esc(t.result||'هنوز گزارشی ثبت نشده')+'</p><div class="gt-actions"><select id="gt-status-'+esc(t.id)+'"><option>در انتظار انجام</option><option>در حال انجام</option><option>انجام‌شده؛ در انتظار تأیید</option><option>نیازمند رفع مانع</option>'+ (canManage()?'<option>تأیید و بسته‌شده</option>':'')+'</select><input id="gt-result-'+esc(t.id)+'" placeholder="نتیجه، تعداد اقدامات و خروجی واقعی"><input id="gt-evidence-'+esc(t.id)+'" placeholder="شماره پرونده یا شناسه مستند (بدون اطلاعات محرمانه)"><button type="button" onclick="growthTaskUpdateUI(\''+esc(t.id)+'\')">ثبت گزارش / تغییر وضعیت</button></div></article>').join(''):'<p>در حال حاضر مأموریتی برای نمایش وجود ندارد.</p>';
- }catch(e){box.textContent=e.message||'خطا در دریافت مأموریت‌ها';}}
- window.growthTaskCreateUI=async function(){const fb=$('gt-feedback');const data={title:$('gt-title').value,assignee:$('gt-assignee').value,targetRole:$('gt-role').value,branch:$('gt-branch').value,type:$('gt-type').value,priority:$('gt-priority').value,due:$('gt-due').value,description:$('gt-description').value};if(!data.title||!data.assignee||!data.due){fb.textContent='عنوان، نام کاربری مسئول و مهلت را تکمیل کنید.';return;}try{const r=await api('growthTaskCreate',data);if(!r.success)throw Error(r.error);fb.textContent='مأموریت '+r.id+' ثبت و ابلاغ شد.';$('gt-title').value='';$('gt-description').value='';load();}catch(e){fb.textContent=e.message||'ثبت مأموریت انجام نشد.';}};
- window.growthTaskUpdateUI=async function(id){const fb=$('gt-feedback');try{const r=await api('growthTaskUpdate',{id:id,status:$('gt-status-'+id).value,result:$('gt-result-'+id).value,evidence:$('gt-evidence-'+id).value});if(!r.success)throw Error(r.error);fb.textContent=r.message||'گزارش ثبت شد.';load();}catch(e){fb.textContent=e.message||'ثبت گزارش انجام نشد.';}};
- const old=window.growthGoToEmployeeSection;window.growthGoToEmployeeSection=function(){if(typeof old==='function')old();setTimeout(mount,0);};
- document.addEventListener('DOMContentLoaded',function(){if(sessionStorage.getItem('growthToken'))setTimeout(mount,100);});
-})();
-</script>
-<style id="growth-task-center-style">
-#growth-task-center{margin:18px 0;padding:16px;border:1px solid #cfe2d5;border-radius:14px;background:#fbfefc}#growth-task-center h3{color:#075b3b;margin-bottom:8px}#growth-task-center .gt-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:12px 0}#growth-task-center .gt-summary div{padding:10px;background:#eaf5ee;border-radius:9px;text-align:center;font-weight:700}#growth-task-center .gt-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0 18px}#growth-task-center label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700}#growth-task-center input,#growth-task-center textarea,#growth-task-center select{width:100%;padding:9px;border:1px solid #cbd8cf;border-radius:8px;font:inherit;background:white}#growth-task-center .gt-wide{grid-column:1/-1}#growth-task-center button{padding:10px 14px;border:0;border-radius:8px;background:#087348;color:#fff;font:inherit;font-weight:700;cursor:pointer}#growth-task-center .gt-card{background:#fff;border:1px solid #dce9e0;border-radius:11px;padding:12px;margin:10px 0}#growth-task-center .gt-card small{display:block;color:#62736a;margin:5px 0}#growth-task-center .gt-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}#growth-task-center #gt-feedback{margin-top:8px;color:#075b3b;font-weight:700}@media(max-width:600px){#growth-task-center .gt-form,#growth-task-center .gt-actions{grid-template-columns:1fr}}
-</style>
-
-
-<script id="growth-two-choice-entry-final">
-(function(){
- 'use strict';
- function byId(id){return document.getElementById(id);}
- window.openGrowthPortal=function(btn){
-  var modal=byId('growth-portal-modal');
-  if(!modal){alert('پنجره مدیریت کسب‌وکار پیدا نشد.');return;}
-  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
-  var entry=btn||byId('growth-tab-btn');if(entry)entry.classList.add('active');
-  modal.classList.add('open');modal.style.display='flex';document.body.style.overflow='hidden';
-  window.growthBackToChooser();
- };
- window.growthBackToChooser=function(){
-  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
-  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var el=byId(id);if(el)el.style.display='none';});
-  var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
-  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
- };
- window.growthShowChooser=window.growthBackToChooser;
- window.chooseGrowthPath=function(path){
-  if(path!=='customer'&&path!=='employee')return;
-  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='none';
-  var customer=byId('growth-customer-flow');if(customer)customer.style.display=path==='customer'?'block':'none';
-  var employee=byId('growth-employee-flow');if(employee)employee.style.display=path==='employee'?'block':'none';
-  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
-  if(path==='employee'){
-   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
-   var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
-   var fb=byId('growth-employee-login-feedback');if(fb)fb.textContent='';
-  }
- };
- window.closeGrowthPortal=function(){var modal=byId('growth-portal-modal');if(modal){modal.classList.remove('open');modal.style.display='none';}document.body.style.overflow='';};
- function bind(){var b=byId('growth-tab-btn');if(b)b.onclick=function(){window.openGrowthPortal(b);};}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
-})();
-</script>
-
-</body></html>');
-  printWindow.document.close();
-  printWindow.focus();
-  setTimeout(function () { printWindow.print(); }, 500);
 }
-
 function resolvePOSRequest(row, btnElement) {
 if (!confirm("آیا از نصب دستگاه پوز برای این مشتری مطمئن هستید؟")) return;
 btnElement.innerText = "در حال تایید..."; btnElement.disabled = true;
@@ -2426,7 +2327,7 @@ const payload = {
 action: 'submitEmotion', type: 'customer',
 branch: branch, counter: counter,
 score: selectedMainEmotion, label: 'امتیاز ' + selectedMainEmotion,
-comment: '', userAgent: navigator.userAgent, ip: 'auto'
+comment: (document.getElementById('main-emotion-comment')?.value || '').trim(), userAgent: navigator.userAgent, ip: 'auto'
 };
 fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(r => r.json())
@@ -3078,7 +2979,128 @@ else if (val.indexOf('rast') !== -1) this.value = "6418 - رازی";
 });
   
 </script>
+<script id="growth-homepage-entry-stable-legacy">
+(function(){
+ 'use strict';
+ function byId(id){return document.getElementById(id);}
+ // تنها درگاه ورود به مدیریت کسب‌وکار از دکمه موجود در صفحه اصلی باز می‌شود.
+ window.openGrowthPortal=function(btn){
+  var modal=byId('growth-portal-modal');
+  if(!modal){alert('درگاه مدیریت کسب‌وکار بارگذاری نشده است.');return;}
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+  var entry=btn||byId('growth-tab-btn');if(entry)entry.classList.add('active');
+  modal.classList.add('open');document.body.style.overflow='hidden';
+  window.growthBackToChooser();
+ };
+ // از صفحه اصلی، مشتری و همکار هر دو در همین پنجره مسیر مستقل دارند.
+ window.chooseGrowthPath=function(path){
+  if(path!=='customer'&&path!=='employee')return;
+  var chooser=byId('growth-chooser');
+  var customer=byId('growth-customer-flow');
+  var employee=byId('growth-employee-flow');
+  if(chooser)chooser.style.display='none';
+  if(customer)customer.style.display=path==='customer'?'block':'none';
+  if(employee)employee.style.display=path==='employee'?'block':'none';
+  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+  if(path==='employee'){
+   var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+   var feedback=byId('growth-employee-login-feedback');if(feedback)feedback.textContent='';
+  }
+ };
+ window.growthBackToChooser=function(){
+  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var e=byId(id);if(e)e.style.display='none';});
+  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
+  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+  var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+ };
+ // خروج فقط نشست مدیریت کسب‌وکار را پاک می‌کند؛ ورود مستقل تیکت‌ها دست‌نخورده می‌ماند.
+ window.growthPortalLogout=function(){
+  ['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(function(k){sessionStorage.removeItem(k);});
+  window.growthBackToChooser();
+ };
+ // اطمینان از در دسترس بودن توابع فرم و ورود برای دکمه‌های همین پنجره.
+ if(typeof submitGrowthCompany==='function')window.submitGrowthCompany=submitGrowthCompany;
+ if(typeof growthEmployeeLogin==='function')window.growthEmployeeLogin=growthEmployeeLogin;
+ if(typeof growthShowChooser==='function')window.growthShowChooser=growthShowChooser;
+ function bindEntry(){
+  var entry=byId('growth-tab-btn');
+  if(entry){entry.onclick=function(){window.openGrowthPortal(entry);};}
+  var modal=byId('growth-portal-modal');
+  if(modal&&!modal.dataset.homeEntryBound){
+   modal.dataset.homeEntryBound='1';
+   modal.addEventListener('click',function(e){if(e.target===modal){if(typeof window.closeGrowthPortal==='function')window.closeGrowthPortal();else{modal.classList.remove('open');document.body.style.overflow='';}}});
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindEntry);else bindEntry();
+})();
+</script>
 
+
+<script id="growth-task-center-v1">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const api=async (action,payload)=>{const token=sessionStorage.getItem('growthToken')||'';const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token,growthToken:token},payload||{}))});return r.json();};
+ function canManage(){return ['admin','regional','branch','manager','branch_manager'].includes(sessionStorage.getItem('growthRole')||'');}
+ function mount(){const host=$('growth-employee-authenticated');if(!host||$('growth-task-center'))return;
+  const section=document.createElement('section');section.id='growth-task-center';section.className='growth-guide-block';
+  section.innerHTML='<h3>مرکز مأموریت‌ها و شرح وظایف</h3><p>وظایف بر اساس سمت، مسئول، مهلت و نتیجه پیگیری می‌شوند. انجام کار بدون ثبت نتیجه، تکمیل‌شده محسوب نمی‌شود.</p><div id="gt-summary" class="gt-summary">در حال دریافت وظایف...</div><div id="gt-create-wrap"></div><div id="gt-list"></div><div id="gt-feedback" role="status"></div>';
+  const anchor=host.querySelector('.growth-grid')||host.firstElementChild; if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(section,anchor.nextSibling);else host.appendChild(section);
+  if(canManage())$('gt-create-wrap').innerHTML='<h4>تعریف مأموریت جدید</h4><div class="gt-form"><label>عنوان مأموریت<input id="gt-title" placeholder="مثلاً شناسایی ۲۰ شرکت هدف"></label><label>نام کاربری مسئول<input id="gt-assignee" placeholder="نام کاربری دقیق همکار"></label><label>سمت هدف<input id="gt-role" placeholder="مثلاً کارمند بازاریابی"></label><label>شعبه / واحد<input id="gt-branch" placeholder="کد شعبه یا نام واحد"></label><label>نوع وظیفه<select id="gt-type"><option>دائمی</option><option selected>دوره‌ای</option><option>مأموریتی</option></select></label><label>اولویت<select id="gt-priority"><option>عادی</option><option>مهم</option><option>فوری</option></select></label><label>مهلت انجام<input id="gt-due" type="date"></label><label class="gt-wide">شرح و مراحل اجرا<textarea id="gt-description" rows="3" placeholder="اقدامات مورد انتظار، تعداد تماس/مراجعه و خروجی قابل تحویل"></textarea></label><button type="button" onclick="growthTaskCreateUI()">ثبت و ابلاغ مأموریت</button></div>';
+  load();
+ }
+ async function load(){const box=$('gt-list');if(!box)return;try{const d=await api('growthTaskList');if(!d.success)throw Error(d.error||'دریافت وظایف ناموفق بود');const items=d.items||[];const counts={total:items.length,pending:items.filter(x=>x.status==='در انتظار انجام').length,doing:items.filter(x=>x.status==='در حال انجام').length,review:items.filter(x=>x.status==='انجام‌شده؛ در انتظار تأیید').length,closed:items.filter(x=>x.status==='تأیید و بسته‌شده').length};$('gt-summary').innerHTML='<div>کل: '+counts.total+'</div><div>در انتظار: '+counts.pending+'</div><div>در حال انجام: '+counts.doing+'</div><div>آماده تأیید: '+counts.review+'</div><div>بسته‌شده: '+counts.closed+'</div>';
+  box.innerHTML=items.length?items.map(t=>'<article class="gt-card"><b>'+esc(t.title)+'</b><small>شناسه: '+esc(t.id)+' | مسئول: '+esc(t.assignee)+' | مهلت: '+esc(t.due)+' | اولویت: '+esc(t.priority)+'</small><p>'+esc(t.description)+'</p><p><b>وضعیت:</b> '+esc(t.status)+'</p><p><b>نتیجه ثبت‌شده:</b> '+esc(t.result||'هنوز گزارشی ثبت نشده')+'</p><div class="gt-actions"><select id="gt-status-'+esc(t.id)+'"><option>در انتظار انجام</option><option>در حال انجام</option><option>انجام‌شده؛ در انتظار تأیید</option><option>نیازمند رفع مانع</option>'+ (canManage()?'<option>تأیید و بسته‌شده</option>':'')+'</select><input id="gt-result-'+esc(t.id)+'" placeholder="نتیجه، تعداد اقدامات و خروجی واقعی"><input id="gt-evidence-'+esc(t.id)+'" placeholder="شماره پرونده یا شناسه مستند (بدون اطلاعات محرمانه)"><button type="button" onclick="growthTaskUpdateUI(\''+esc(t.id)+'\')">ثبت گزارش / تغییر وضعیت</button></div></article>').join(''):'<p>در حال حاضر مأموریتی برای نمایش وجود ندارد.</p>';
+ }catch(e){box.textContent=e.message||'خطا در دریافت مأموریت‌ها';}}
+ window.growthTaskCreateUI=async function(){const fb=$('gt-feedback');const data={title:$('gt-title').value,assignee:$('gt-assignee').value,targetRole:$('gt-role').value,branch:$('gt-branch').value,type:$('gt-type').value,priority:$('gt-priority').value,due:$('gt-due').value,description:$('gt-description').value};if(!data.title||!data.assignee||!data.due){fb.textContent='عنوان، نام کاربری مسئول و مهلت را تکمیل کنید.';return;}try{const r=await api('growthTaskCreate',data);if(!r.success)throw Error(r.error);fb.textContent='مأموریت '+r.id+' ثبت و ابلاغ شد.';$('gt-title').value='';$('gt-description').value='';load();}catch(e){fb.textContent=e.message||'ثبت مأموریت انجام نشد.';}};
+ window.growthTaskUpdateUI=async function(id){const fb=$('gt-feedback');try{const r=await api('growthTaskUpdate',{id:id,status:$('gt-status-'+id).value,result:$('gt-result-'+id).value,evidence:$('gt-evidence-'+id).value});if(!r.success)throw Error(r.error);fb.textContent=r.message||'گزارش ثبت شد.';load();}catch(e){fb.textContent=e.message||'ثبت گزارش انجام نشد.';}};
+ const old=window.growthGoToEmployeeSection;window.growthGoToEmployeeSection=function(){if(typeof old==='function')old();setTimeout(mount,0);};
+ document.addEventListener('DOMContentLoaded',function(){if(sessionStorage.getItem('growthToken'))setTimeout(mount,100);});
+})();
+</script>
+<style id="growth-task-center-style">
+#growth-task-center{margin:18px 0;padding:16px;border:1px solid #cfe2d5;border-radius:14px;background:#fbfefc}#growth-task-center h3{color:#075b3b;margin-bottom:8px}#growth-task-center .gt-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:12px 0}#growth-task-center .gt-summary div{padding:10px;background:#eaf5ee;border-radius:9px;text-align:center;font-weight:700}#growth-task-center .gt-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0 18px}#growth-task-center label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700}#growth-task-center input,#growth-task-center textarea,#growth-task-center select{width:100%;padding:9px;border:1px solid #cbd8cf;border-radius:8px;font:inherit;background:white}#growth-task-center .gt-wide{grid-column:1/-1}#growth-task-center button{padding:10px 14px;border:0;border-radius:8px;background:#087348;color:#fff;font:inherit;font-weight:700;cursor:pointer}#growth-task-center .gt-card{background:#fff;border:1px solid #dce9e0;border-radius:11px;padding:12px;margin:10px 0}#growth-task-center .gt-card small{display:block;color:#62736a;margin:5px 0}#growth-task-center .gt-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}#growth-task-center #gt-feedback{margin-top:8px;color:#075b3b;font-weight:700}@media(max-width:600px){#growth-task-center .gt-form,#growth-task-center .gt-actions{grid-template-columns:1fr}}
+</style>
+
+
+<script id="growth-two-choice-entry-legacy">
+(function(){
+ 'use strict';
+ function byId(id){return document.getElementById(id);}
+ window.openGrowthPortal=function(btn){
+  var modal=byId('growth-portal-modal');
+  if(!modal){alert('پنجره مدیریت کسب‌وکار پیدا نشد.');return;}
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+  var entry=btn||byId('growth-tab-btn');if(entry)entry.classList.add('active');
+  modal.classList.add('open');modal.style.display='flex';document.body.style.overflow='hidden';
+  window.growthBackToChooser();
+ };
+ window.growthBackToChooser=function(){
+  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
+  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var el=byId(id);if(el)el.style.display='none';});
+  var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+ };
+ window.growthShowChooser=window.growthBackToChooser;
+ window.chooseGrowthPath=function(path){
+  if(path!=='customer'&&path!=='employee')return;
+  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='none';
+  var customer=byId('growth-customer-flow');if(customer)customer.style.display=path==='customer'?'block':'none';
+  var employee=byId('growth-employee-flow');if(employee)employee.style.display=path==='employee'?'block':'none';
+  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+  if(path==='employee'){
+   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+   var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+   var fb=byId('growth-employee-login-feedback');if(fb)fb.textContent='';
+  }
+ };
+ window.closeGrowthPortal=function(){var modal=byId('growth-portal-modal');if(modal){modal.classList.remove('open');modal.style.display='none';}document.body.style.overflow='';};
+ function bind(){var b=byId('growth-tab-btn');if(b)b.onclick=function(){window.openGrowthPortal(b);};}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
+</script>
 <script>
 let growthLeadsCache=[];
 function growthCall(payload){payload.growthToken=sessionStorage.getItem('growthToken')||'';return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());}
@@ -3176,11 +3198,12 @@ async function growthEmployeeLogin(){
  if(button){button.disabled=true;button.textContent='در حال بررسی اطلاعات...';}
  if(feedback)feedback.textContent='';
  try{
-  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthEmployeeLogin',username:username,pass:pass})});
+  const loginMode='employee';
+  const action='growthEmployeeLogin';
+  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,username:username,pass:pass})});
   if(!response.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+response.status+').');
   const data=await response.json();
   if(!data||data.access!==true||!data.token)throw new Error((data&&data.error)||'نام کاربری یا رمز عبور صحیح نیست.');
-  if(window.growthLoginMode==='manager' && data.role!=='admin')throw new Error('این حساب دسترسی مدیریت سامانه ندارد. با حساب مدیر وارد شوید.');
   // نشست مدیریت کسب‌وکار مستقل از نشست تیکت‌ها نگهداری می‌شود.
   sessionStorage.setItem('growthToken',data.token);
   sessionStorage.setItem('growthUser',data.username||username);
@@ -3259,7 +3282,21 @@ async function submitGrowthCompany(event){
  }catch(err){fb.textContent='خطا: '+err.message;}
  finally{btn.disabled=false;}
 }
-function renderGrowthPortalModules(list){const grid=document.getElementById('growth-portal-module-grid');if(!grid)return;grid.innerHTML=list.map(m=>`<div class="growth-card" role="button" tabindex="0" onclick="openGrowthPortalModule('${m.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGrowthPortalModule('${m.id}');}"><h3>${m.title}</h3><p>${m.desc}</p><small>مشاهده قابلیت‌ها ←</small></div>`).join('')||'<p>ماژولی یافت نشد.</p>';}
+function renderGrowthPortalModules(list){
+ const grid=document.getElementById('growth-portal-module-grid');if(!grid)return;
+ const groups=[
+  {id:'crm360',title:'۱. مدیریت هوشمند مشتریان',desc:'پرونده واحد مشتری، سرنخ، پیشنهاد خدمت، معرفی و ارتباطات.',parts:'پرونده ۳۶۰ درجه + مشتریان بالقوه + پیشنهاد اقدام بعدی + شبکه ارجاع + شناخت مالی مجاز'},
+  {id:'campaign',title:'۲. بازاریابی و توسعه بازار',desc:'از شناسایی بازار تا طراحی کمپین، بازدید و توسعه همکاری.',parts:'کمپین + نقشه فرصت‌های منطقه + شرکای تجاری + توسعه کسب‌وکارهای کوچک'},
+  {id:'companies',title:'۳. مدیریت شرکت‌ها و سازمان‌ها',desc:'پرونده شرکت، انتقال حقوق، کارکنان، پذیرندگی و پیگیری قراردادها.',parts:'شرکت‌ها + حقوق و دستمزد + کارتخوان و پذیرندگان'},
+  {id:'resource',title:'۴. جذب، منابع و نگهداشت',desc:'شناسایی ظرفیت منابع، پیشگیری از ریزش و افزایش ارزش رابطه.',parts:'فرصت‌یاب منابع + نگهداشت + موتور ارزش و وفاداری'},
+  {id:'loanlead',title:'۵. اعتبارات و تسهیلات',desc:'نیازسنجی، تکمیل پرونده، گردش‌کار و پایش ریسک اعتباری.',parts:'سرنخ تسهیلات + گردش‌کار پرونده + اعتبارسنجی'},
+  {id:'complaints',title:'۶. خدمات و تجربه مشتری',desc:'رسیدگی یکپارچه به درخواست، شکایت، رضایت و تجربه مراجعه.',parts:'صدای مشتری + شکایات + صف و تجربه مراجعه'},
+  {id:'branch',title:'۷. مدیریت شعبه و عملکرد',desc:'اهداف، شاخص‌ها، مسئولیت کارشناسان و برنامه اقدام شعبه.',parts:'داشبورد مدیر شعبه + اهداف و عملکرد کارشناسان'},
+  {id:'security',title:'۸. ریسک، امنیت و انطباق',desc:'کنترل‌های شناخت مشتری، رفتار غیرعادی، امنیت و انطباق.',parts:'شناخت مشتری + پایش تقلب + اعتماد صفر تطبیقی'},
+  {id:'bi',title:'۹. داده و هوشمندسازی',desc:'گزارش‌گیری، تحلیل فرایند، اتصال سرویس‌ها و دستیار هوشمند.',parts:'هوش تجاری + تحلیل فرایند + API + دستیار هوشمند'}
+ ];
+ grid.innerHTML=groups.map(g=>`<div class="growth-card" role="button" tabindex="0" onclick="openGrowthPortalModule('${g.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGrowthPortalModule('${g.id}');}"><h3>${g.title}</h3><p>${g.desc}</p><small>زیرمجموعه‌ها: ${g.parts}</small><p style="margin-top:8px;color:#087348;font-weight:700">ورود به ماژول یکپارچه ←</p></div>`).join('');
+}
 // الگوی داده و آموزش اختصاصی برای هر یک از ۳۰ ماژول
 window.__growthModuleFiles = window.__growthModuleFiles || {};
 window.__growthModuleImports = window.__growthModuleImports || {};
@@ -3330,7 +3367,6 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
     <div class="growth-choice-grid">
      <button type="button" class="growth-choice customer-choice" onclick="chooseGrowthPath('customer')"><span>🏢</span><b>مشتری هستم</b><small>ثبت و پیگیری درخواست؛ بدون رمز یا با رمز دلخواه</small></button>
      <button type="button" class="growth-choice employee-choice" onclick="chooseGrowthPath('employee')"><span>👨‍💼</span><b>کارمند بانک هستم</b><small>ورود با نام کاربری و رمز عبور سازمانی</small></button>
-     <button type="button" class="growth-choice employee-choice" onclick="chooseGrowthPath('manager')"><span>🛡️</span><b>مدیریت سامانه</b><small>ورود مدیر با حساب دارای دسترسی مدیریتی</small></button>
     </div>
    </section>
    <section id="growth-customer-flow" style="display:none">
@@ -3430,6 +3466,9 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
 .growth-guide-block{background:#fff;border:1px solid #dfeae3;border-radius:11px;padding:12px;margin:10px 0;line-height:1.9;font-size:12px}
 .growth-guide-block h4{color:#075b3b;margin-bottom:5px}
 .growth-mode-back{background:#eef7f1;color:#087348;border:1px solid #b9d4c4;border-radius:8px;padding:8px 12px;font:inherit;font-weight:700;cursor:pointer;margin:5px 0}
+.growth-pipeline{background:#f7fbf8;border:1px solid #cfe3d6;border-radius:14px;padding:13px;margin:12px 0;line-height:1.9}.growth-pipeline-intro{background:#eaf5ee;border-radius:10px;padding:10px}.growth-pipeline-intro p{margin:4px 0}.growth-pipeline-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0}.growth-p-step{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #dce8df;border-radius:9px;padding:8px;font-size:11px}.growth-p-step b{display:grid;place-items:center;min-width:25px;height:25px;border-radius:50%;background:#e5ece7;color:#456}.growth-p-step.done{border-color:#17834f;background:#edf8f1}.growth-p-step.done b{background:#17834f;color:#fff}.growth-p-step.current{border-color:#d69b25;background:#fff9e9}.growth-pipeline-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}.growth-pipeline-card{background:#fff;border:1px solid #dce8df;border-radius:10px;padding:12px;margin:10px 0}.growth-pipeline-card label{display:block;font-size:12px;font-weight:700;margin:8px 0}.growth-pipeline-card input,.growth-pipeline-card select,.growth-pipeline-card textarea{display:block;box-sizing:border-box;width:100%;padding:9px;border:1px solid #cbd9cf;border-radius:7px;background:#fff;font:inherit;margin-top:4px}.growth-pipeline-table-wrap{overflow:auto;background:#fff;border-radius:9px;margin:9px 0}.growth-pipeline table{width:100%;border-collapse:collapse;min-width:620px;font-size:11px}.growth-pipeline th,.growth-pipeline td{border:1px solid #e1e9e3;padding:8px;text-align:right;vertical-align:top}.growth-pipeline th{background:#eaf4ed}.growth-pipeline-timeline{padding-right:23px}.growth-pipeline-timeline li{padding:7px 5px;border-bottom:1px dashed #d4e0d7}.growth-pipeline-timeline small{display:block;color:#68796e;font-size:10px}
+@media(max-width:600px){.growth-pipeline-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.growth-pipeline-actions{align-items:flex-start}.growth-pipeline table{min-width:580px}}
+
 @media(max-width:600px){.growth-mode-grid{grid-template-columns:1fr}.growth-demo-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 <script id="growth-final-fix-script">
@@ -3467,10 +3506,23 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
    <h4>پرونده شرکت‌های فرضی تکمیل‌شده؛ همراه با اطلاعات و اقدامات</h4><div class="growth-demo-table-wrap"><table class="growth-demo-table"><thead><tr><th>شرکت</th><th>شهر</th><th>حوزه</th><th>خدمت درخواستی</th><th>کارکنان</th><th>حساب</th><th>حقوق‌بگیر</th><th>منابع فرضی</th><th>مدارک</th><th>مراحل انجام‌شده</th><th>وضعیت</th></tr></thead><tbody>${demoCases.map(c=>`<tr><td>${c.company}</td><td>${c.city}</td><td>${c.type}</td><td>${c.service}</td><td>${money(c.staff)}</td><td>${money(c.accounts)}</td><td>${money(c.payroll)}</td><td>${money(c.resources)} تومان</td><td>${c.docs}</td><td>${c.steps}</td><td>${c.status}</td></tr>`).join('')}</tbody></table></div>
    <h4>گالری تصاویر مرجع و نمونه</h4><div class="growth-demo-gallery"><figure><img src="${demoGallery.handshake}" alt="همکاری با کسب‌وکارها"><figcaption>همکاری با شرکت‌ها و اصناف</figcaption></figure><figure><img src="${demoGallery.chart}" alt="نمودار رشد و توسعه بازار"><figcaption>رشد و توسعه بازار</figcaption></figure></div>
    <h4>اجرای عملیات نمونه؛ روی هر مرحله بزن و نتیجه را ببین</h4><div class="growth-role-actions"><button type="button" onclick="growthRunDemo('company')">۱. ثبت و ارجاع شرکت</button><button type="button" onclick="growthRunDemo('payroll')">۲. پردازش فایل حقوق</button><button type="button" onclick="growthRunDemo('pos')">۳. فعال‌سازی پایانه‌ها</button><button type="button" onclick="growthRunDemo('resources')">۴. محاسبه منابع</button><button type="button" onclick="growthRunDemo('all')">اجرای همه مراحل</button><button type="button" style="background:#a33" onclick="growthResetDemo()">بازنشانی نمونه‌ها</button></div>
-   <div id="growth-demo-log" class="growth-guide-block">وضعیت اولیه: سه پرونده نمونه تکمیل‌شده و شاخص‌های فرضی بارگذاری شده‌اند. برای مشاهده گردش کار، یکی از عملیات بالا را اجرا کن.</div><h4>راهنمای ۳۰ ماژول</h4>`;
+   <h4>گردش‌کار واقعی‌نما؛ از بارگذاری فهرست تا نتیجه نهایی</h4>
+   <section id="growth-demo-pipeline" class="growth-pipeline">
+    <div class="growth-pipeline-intro"><b>مسیر مسئولیت پرونده</b><p>هر مرحله فقط با اقدام کاربر جلو می‌رود؛ نام مسئول، مهلت، وضعیت و گزارش اقدام در سوابق دیده می‌شود. اطلاعات کاملاً فرضی و محلی است.</p></div>
+    <div class="growth-pipeline-steps"><div class="growth-p-step" data-step="1"><b>۱</b><span>بارگذاری فهرست</span></div><div class="growth-p-step" data-step="2"><b>۲</b><span>تخصیص مسئول</span></div><div class="growth-p-step" data-step="3"><b>۳</b><span>تماس و مذاکره</span></div><div class="growth-p-step" data-step="4"><b>۴</b><span>اقدام بعدی و نتیجه</span></div></div>
+    <div class="growth-pipeline-actions"><button type="button" class="growth-action" onclick="growthPipelineLoad()">۱. بارگذاری فهرست شرکت‌های نمونه</button><span id="growth-pipeline-load-status">فهرست هنوز بارگذاری نشده است.</span></div>
+    <div id="growth-pipeline-company-area"></div>
+    <div id="growth-pipeline-assignment" class="growth-pipeline-card" style="display:none"><h4>۲. چه کسی باید پیگیری کند؟</h4><label>شرکت انتخاب‌شده<select id="growth-pipeline-company"></select></label><label>مسئول پیگیری<select id="growth-pipeline-owner"><option>کارشناس جذب منابع</option><option>کارشناس امور شرکت‌ها</option><option>کارشناس حقوق و دستمزد</option><option>کارشناس پذیرندگی و کارتخوان</option><option>رئیس شعبه / مدیر پیگیری</option></select></label><label>مهلت اقدام بعدی<input id="growth-pipeline-due" type="date"></label><label>اولویت<select id="growth-pipeline-priority"><option>A ـ فوری</option><option>B ـ مهم</option><option>C ـ عادی</option></select></label><button type="button" class="growth-action" onclick="growthPipelineAssign()">ثبت مسئول و ارجاع پرونده</button><div id="growth-pipeline-assign-msg" class="growth-muted"></div></div>
+    <div id="growth-pipeline-followup" class="growth-pipeline-card" style="display:none"><h4>۳ و ۴. ثبت تماس، نتیجه و اقدام بعدی</h4><label>نتیجه تماس<select id="growth-pipeline-result"><option>تماس برقرار شد؛ نیازسنجی در انتظار</option><option>جلسه با مدیر شرکت تعیین شد</option><option>درخواست ارسال مدارک شد</option><option>فایل کارکنان دریافت شد</option><option>مذاکره به مرحله پیشنهاد رسید</option><option>فعلاً عدم پاسخگویی</option></select></label><label>گزارش کارشناس<textarea id="growth-pipeline-note" rows="2" placeholder="مثلاً مدیر مالی درخواست جلسه برای انتقال حقوق ۸۰ نفر را مطرح کرد."></textarea></label><label>وضعیت پرونده<select id="growth-pipeline-status"><option>در انتظار تماس</option><option>تماس اولیه انجام شد</option><option>جلسه تعیین شد</option><option>در انتظار مدارک</option><option>در حال مذاکره</option><option>تکمیل و تبدیل به مشتری</option><option>عدم همکاری / مختومه</option></select></label><label>تاریخ پیگیری بعدی<input id="growth-pipeline-next" type="date"></label><button type="button" class="growth-action" onclick="growthPipelineSaveFollowup()">ثبت گزارش و انتقال به مرحله بعد</button><div id="growth-pipeline-followup-msg" class="growth-muted"></div></div>
+    <h4>صف پیگیری؛ مسئول هر شرکت و اقدام بعدی</h4><div id="growth-pipeline-queue" class="growth-pipeline-queue"><p>ابتدا فهرست شرکت‌ها را بارگذاری کنید.</p></div>
+    <h4>ردپای مراحل انجام‌شده</h4><ol id="growth-pipeline-timeline" class="growth-pipeline-timeline"><li>هنوز اقدامی ثبت نشده است.</li></ol>
+    <button type="button" class="growth-action" style="background:#8a3434" onclick="growthPipelineReset()">بازنشانی گردش‌کار آزمایشی</button>
+   </section>
+   <div id="growth-demo-log" class="growth-guide-block">وضعیت اولیه: سه پرونده نمونه تکمیل‌شده و شاخص‌های فرضی بارگذاری شده‌اند. برای شروع، فهرست شرکت‌ها را بارگذاری کن؛ سپس مسئول، مهلت، تماس، نتیجه و اقدام بعدی را ثبت کن.</div><h4>۹ ماژول یکپارچه سامانه</h4>`;
    if(grid){grid.style.display='grid';grid.innerHTML='';}
    if(typeof renderGrowthPortalModules==='function')renderGrowthPortalModules(growthModules);
    growthRenderDemo();
+   if(window.growthPipelineRender)window.growthPipelineRender();
   }else{
    content.innerHTML='<div class="growth-demo-banner" style="background:#eaf3fd;border-color:#b8d2ef;color:#244d78"><b>محیط عملیاتی انتخاب شد.</b> فقط اطلاعات واقعی مجاز را وارد کنید. برای ثبت پایدار اطلاعات، اتصال Web App، مجوزها و پوشه اسناد باید توسط مدیر سامانه تأیید شده باشد. عملیات نمونه در این محیط اجرا نمی‌شود.</div><p class="growth-sub">ماژول موردنظر را انتخاب کنید. مشتریان و کاربران بیرونی به این داشبورد دسترسی ندارند.</p>';
    if(grid){grid.style.display='grid';}
@@ -3490,6 +3542,47 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
  };
  function growthRenderDemo(){const el=$('growth-demo-results');if(!el)return;el.innerHTML='<div><strong>'+money(demoState.companies)+'</strong>شرکت شناسایی‌شده</div><div><strong>'+money(demoState.meetings)+'</strong>مذاکره</div><div><strong>'+money(demoState.acquired)+'</strong>همکاری جذب‌شده</div><div><strong>'+money(demoState.staff)+'</strong>کارمند معرفی‌شده</div><div><strong>'+money(demoState.accounts)+'</strong>حساب بالقوه/افتتاح‌شده در نمونه</div><div><strong>'+money(demoState.payroll)+'</strong>حقوق‌بگیر</div><div><strong>'+money(demoState.pos)+'</strong>پذیرنده هدف</div><div><strong>'+money(demoState.posInstalled)+' / '+money(demoState.posActive)+'</strong>نصب‌شده / فعال</div><div><strong>'+money(demoState.resources)+'</strong>تومان منابع فرضی</div><div><strong>'+money(demoState.actions)+'</strong>عملیات نمونه ثبت‌شده</div>';}
  window.growthResetDemo=function(){if(!confirm('شاخص‌ها به اطلاعات فرضی اولیه بازگردند؟ اطلاعات عملیاتی دست‌نخورده می‌مانند.'))return;demoState={...demoInitialState};demoActionLog=[...demoInitialLog];growthRenderDemo();const log=$('growth-demo-log');if(log)log.innerHTML='<b>سوابق عملیات نمونه انجام‌شده</b><ol>'+demoActionLog.map(x=>'<li>'+x+'</li>').join('')+'</ol><p>شاخص‌ها به وضعیت اولیه نمونه‌های تکمیل‌شده بازگشتند؛ هیچ اطلاعات عملیاتی تغییر نکرد.</p>';};
+
+ const PIPE_KEY='mehr_growth_demo_pipeline_v1';
+ const pipelineSeed=()=>({loaded:false,companies:[],events:[]});
+ let pipelineState=pipelineSeed();
+ try{const saved=localStorage.getItem(PIPE_KEY);if(saved)pipelineState=Object.assign(pipelineSeed(),JSON.parse(saved));}catch(e){}
+ function pipelinePersist(){try{localStorage.setItem(PIPE_KEY,JSON.stringify(pipelineState));}catch(e){}}
+ function pipelineEsc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ function pipelineEvent(message,actor){pipelineState.events.unshift({at:new Date().toLocaleString('fa-IR'),message,actor:actor||'سامانه آزمایشی'});pipelinePersist();}
+ window.growthPipelineLoad=function(){
+  if(activeMode!=='demo'){alert('این گردش‌کار فقط در محیط آزمایشی فعال است.');return;}
+  if(!pipelineState.loaded){pipelineState.loaded=true;pipelineState.companies=demoCases.map((c,i)=>({id:'DEMO-ORG-'+(i+1),name:c.company,sector:c.type,need:c.service,staff:c.staff,priority:i===0?'A':i===1?'B':'C',owner:'تعیین نشده',due:'',status:'جدید؛ در صف تخصیص',next:'تعیین مسئول پیگیری',history:[]}));pipelineEvent('فهرست '+pipelineState.companies.length+' شرکت نمونه بارگذاری شد.','کاربر آزمایشی');}
+  pipelinePersist();window.growthPipelineRender();
+  const st=$('growth-pipeline-load-status');if(st)st.textContent='فهرست بارگذاری شد: '+pipelineState.companies.length+' شرکت نمونه؛ آماده تخصیص مسئول.';
+ };
+ window.growthPipelineAssign=function(){
+  const id=$('growth-pipeline-company')?.value;const c=pipelineState.companies.find(x=>x.id===id);if(!c)return;
+  const owner=$('growth-pipeline-owner').value,due=$('growth-pipeline-due').value,priority=$('growth-pipeline-priority').value;
+  if(!due){$('growth-pipeline-assign-msg').textContent='لطفاً مهلت اقدام را تعیین کنید.';return;}
+  c.owner=owner;c.due=due;c.priority=priority;c.status='ارجاع شد؛ در انتظار اقدام مسئول';c.next='تماس اولیه با شرکت';c.history.unshift({at:new Date().toLocaleString('fa-IR'),actor:owner,action:'پرونده به مسئول تخصیص داده شد؛ مهلت: '+due});
+  pipelineEvent(c.name+' به '+owner+' ارجاع شد؛ مهلت '+due, 'مدیر / ارجاع‌دهنده');pipelinePersist();window.growthPipelineRender();$('growth-pipeline-assign-msg').textContent='ارجاع ثبت شد. اکنون مسئول مشخص است و پرونده در صف پیگیری قرار گرفت.';
+ };
+ window.growthPipelineSaveFollowup=function(){
+  const id=$('growth-pipeline-company')?.value;const c=pipelineState.companies.find(x=>x.id===id);if(!c)return;
+  if(!c.owner||c.owner==='تعیین نشده'){ $('growth-pipeline-followup-msg').textContent='ابتدا باید برای این شرکت مسئول تعیین کنید.';return;}
+  const result=$('growth-pipeline-result').value,note=$('growth-pipeline-note').value.trim(),status=$('growth-pipeline-status').value,next=$('growth-pipeline-next').value;
+  if(!note){$('growth-pipeline-followup-msg').textContent='گزارش اقدام را بنویسید تا ردپای پیگیری قابل مشاهده باشد.';return;}
+  c.status=status;c.next=next?'پیگیری بعدی: '+next:result;c.due=next||c.due;c.history.unshift({at:new Date().toLocaleString('fa-IR'),actor:c.owner,action:result+' — '+note});
+  pipelineEvent(c.owner+' برای '+c.name+' گزارش ثبت کرد: '+result+'؛ وضعیت: '+status, c.owner);pipelinePersist();window.growthPipelineRender();$('growth-pipeline-followup-msg').textContent='گزارش ثبت شد و در سوابق پرونده قابل مشاهده است.';$('growth-pipeline-note').value='';
+ };
+ window.growthPipelineRender=function(){
+  const area=$('growth-pipeline-company-area'),assign=$('growth-pipeline-assignment'),follow=$('growth-pipeline-followup'),sel=$('growth-pipeline-company');if(!area||!sel)return;
+  const rows=pipelineState.companies||[];area.innerHTML=rows.length?'<div class="growth-pipeline-table-wrap"><table><thead><tr><th>شرکت</th><th>حوزه</th><th>نیاز</th><th>اولویت</th><th>وضعیت</th></tr></thead><tbody>'+rows.map(c=>'<tr><td>'+pipelineEsc(c.name)+'</td><td>'+pipelineEsc(c.sector)+'</td><td>'+pipelineEsc(c.need)+'</td><td>'+pipelineEsc(c.priority)+'</td><td>'+pipelineEsc(c.status)+'</td></tr>').join('')+'</tbody></table></div>':'<p class="growth-muted">فهرست هنوز بارگذاری نشده است.</p>';
+  const previous=sel.value;sel.innerHTML=rows.map(c=>'<option value="'+pipelineEsc(c.id)+'">'+pipelineEsc(c.name)+'</option>').join('');if(rows.some(c=>c.id===previous))sel.value=previous;
+  const c=rows.find(x=>x.id===sel.value);if(assign)assign.style.display=rows.length?'block':'none';if(follow)follow.style.display=c&&c.owner!=='تعیین نشده'?'block':'none';
+  const queue=$('growth-pipeline-queue');if(queue)queue.innerHTML=rows.length?'<div class="growth-pipeline-table-wrap"><table><thead><tr><th>شرکت</th><th>مسئول پیگیری</th><th>مهلت</th><th>وضعیت</th><th>اقدام بعدی</th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+pipelineEsc(x.name)+'</td><td>'+pipelineEsc(x.owner)+'</td><td>'+pipelineEsc(x.due||'—')+'</td><td>'+pipelineEsc(x.status)+'</td><td>'+pipelineEsc(x.next||'—')+'</td></tr>').join('')+'</tbody></table></div>':'<p>ابتدا فهرست شرکت‌ها را بارگذاری کنید.</p>';
+  const tl=$('growth-pipeline-timeline');if(tl)tl.innerHTML=pipelineState.events.length?pipelineState.events.slice(0,30).map(e=>'<li><b>'+pipelineEsc(e.message)+'</b><small>'+pipelineEsc(e.at)+' | ثبت‌کننده: '+pipelineEsc(e.actor)+'</small></li>').join(''):'<li>هنوز اقدامی ثبت نشده است.</li>';
+  const steps=[1,2,3,4];const done=[pipelineState.loaded,rows.some(x=>x.owner!=='تعیین نشده'),rows.some(x=>x.history.length>0),rows.some(x=>x.status==='تکمیل و تبدیل به مشتری')];document.querySelectorAll('.growth-p-step').forEach(el=>{const n=Number(el.dataset.step);el.classList.toggle('done',!!done[n-1]);el.classList.toggle('current',!done[n-1]&&(n===1||done.slice(0,n-1).every(Boolean)));});
+ };
+ window.growthPipelineReset=function(){if(!confirm('فقط سوابق گردش‌کار آزمایشی پاک و از ابتدا شروع شود؟'))return;pipelineState=pipelineSeed();pipelinePersist();window.growthPipelineRender();const st=$('growth-pipeline-load-status');if(st)st.textContent='فهرست هنوز بارگذاری نشده است.';};
+ document.addEventListener('change',function(e){if(e.target&&e.target.id==='growth-pipeline-company')window.growthPipelineRender();});
+
  const oldGo=window.growthGoToEmployeeSection;
  window.growthGoToEmployeeSection=function(){if(typeof oldGo==='function')oldGo();ensureModeUI();};
  const oldOpen=window.openGrowthPortal;
@@ -3747,6 +3840,218 @@ window.openGrowthPortalModule=function(id){
  window.closeGrowthPortal=function(){var modal=byId('growth-portal-modal');if(modal){modal.classList.remove('open');modal.style.display='none';}document.body.style.overflow='';};
  function bind(){var b=byId('growth-tab-btn');if(b)b.onclick=function(){window.openGrowthPortal(b);};}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
+</script>
+
+
+<!-- GROWTH PORTAL FINAL STRUCTURE GUARD -->
+<script id="growth-portal-final-structure-guard">
+(function(){
+ 'use strict';
+ var byId=function(id){return document.getElementById(id);};
+ var modal=byId('growth-portal-modal');
+ /* پنجره را از پنل داخلی صفحه اصلی بیرون می‌آوریم؛ ماژول‌ها فقط در همین پنجره دیده می‌شوند. */
+ if(modal && modal.parentNode!==document.body){document.body.appendChild(modal);}
+ if(modal){modal.classList.remove('open');modal.style.display='none';}
+ var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+ window.openGrowthPortal=function(btn){
+  var m=byId('growth-portal-modal');if(!m){alert('درگاه مدیریت کسب‌وکار پیدا نشد.');return;}
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+  var b=btn||byId('growth-tab-btn');if(b)b.classList.add('active');
+  m.style.display='flex';m.classList.add('open');document.body.style.overflow='hidden';
+  window.growthBackToChooser();
+ };
+ window.growthBackToChooser=function(){
+  var c=byId('growth-chooser');if(c)c.style.display='block';
+  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var el=byId(id);if(el)el.style.display='none';});
+  var a=byId('growth-employee-authenticated');if(a)a.style.display='none';
+  var l=byId('growth-employee-login-actions');if(l)l.style.display='grid';
+  var f=byId('growth-employee-login-feedback');if(f)f.textContent='';
+ };
+ window.growthShowChooser=window.growthBackToChooser;
+ window.chooseGrowthPath=function(path){
+  if(['customer','employee','manager'].indexOf(path)<0)return;
+  var c=byId('growth-chooser');if(c)c.style.display='none';
+  var customer=byId('growth-customer-flow');if(customer)customer.style.display=path==='customer'?'block':'none';
+  var employee=byId('growth-employee-flow');if(employee)employee.style.display=(path==='employee'||path==='manager')?'block':'none';
+  window.growthLoginMode=path==='manager'?'manager':'employee';
+  var heading=employee?employee.querySelector('h3'):null;if(heading)heading.textContent=path==='manager'?'ورود مدیریت سامانه کسب‌وکار':'ورود همکاران بانک';
+  var desc=employee?employee.querySelector('p'):null;if(desc)desc.textContent=path==='manager'?'برای ورود مدیریتی، نام کاربری و رمز حساب مدیر سامانه را وارد کنید.':'برای دسترسی به امکانات مدیریت کسب‌وکار، با نام کاربری و رمز عبور سازمانی خود وارد شوید.';
+  var btn=byId('growth-employee-login-button');if(btn)btn.textContent=path==='manager'?'🔐 ورود مدیریت':'🔐 ورود به پنل همکار';
+  var user=byId('growth-employee-username');if(user)user.placeholder=path==='manager'?'نام کاربری مدیر':'نام کاربری سازمانی';
+  var authArea=byId('growth-employee-authenticated');if(authArea)authArea.style.display='none';
+  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+ };
+ window.closeGrowthPortal=function(){var m=byId('growth-portal-modal');if(m){m.classList.remove('open');m.style.display='none';}document.body.style.overflow='';};
+ var ticket=byId('ticket-employee-login-button');if(ticket){ticket.onclick=function(){if(typeof window.askAdminPassword==='function')window.askAdminPassword();else alert('تابع ورود همکاران تیکت بارگذاری نشده است.');};}
+})();
+</script>
+
+<script id="growth-unified-request-and-login-final">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const token=()=>sessionStorage.getItem('growthToken')||'';
+ async function api(action,payload){const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token()},payload||{}))});return r.json();}
+ window.chooseGrowthPath=function(path){if(path!=='customer'&&path!=='employee')return;const c=$('growth-chooser'),cu=$('growth-customer-flow'),em=$('growth-employee-flow');if(c)c.style.display='none';if(cu)cu.style.display=path==='customer'?'block':'none';if(em)em.style.display=path==='employee'?'block':'none';if(path==='employee'){const a=$('growth-employee-login-actions');if(a)a.style.display='grid';const x=$('growth-employee-authenticated');if(x)x.style.display='none';}if(path==='customer'&&window.growthUpdateRequirements)window.growthUpdateRequirements();};
+ window.growthBackToChooser=function(){['growth-customer-flow','growth-employee-flow'].forEach(id=>{if($(id))$(id).style.display='none';});if($('growth-chooser'))$('growth-chooser').style.display='block';if($('growth-employee-authenticated'))$('growth-employee-authenticated').style.display='none';if($('growth-employee-login-actions'))$('growth-employee-login-actions').style.display='grid';};
+ window.openGrowthPortal=function(btn){const m=$('growth-portal-modal');if(!m){alert('درگاه مدیریت کسب‌وکار پیدا نشد.');return;}document.querySelectorAll('#main-tabs .tab-btn').forEach(x=>x.classList.remove('active'));(btn||$('growth-tab-btn'))?.classList.add('active');m.style.display='flex';m.classList.add('open');document.body.style.overflow='hidden';window.growthBackToChooser();};
+ window.closeGrowthPortal=function(){const m=$('growth-portal-modal');if(m){m.classList.remove('open');m.style.display='none';}document.body.style.overflow='';};
+ window.growthPortalLogout=function(){['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(k=>sessionStorage.removeItem(k));window.growthBackToChooser();};
+ function mountRequestCenter(){const host=$('growth-employee-authenticated');if(!host||$('growth-request-center'))return;const admin=sessionStorage.getItem('growthRole')==='admin';const sec=document.createElement('section');sec.id='growth-request-center';sec.className='growth-guide-block';sec.innerHTML='<h3>صف درخواست‌های مشتریان و شرکت‌ها</h3><p>درخواست ثبت‌شده ابتدا پرونده است؛ مدیر آن را به کارشناس مسئول ارجاع می‌دهد و کارشناس نتیجه رسیدگی را ثبت می‌کند.</p><div id="grq-list">در حال دریافت درخواست‌ها...</div><div id="grq-feedback" role="status"></div>';const anchor=host.querySelector('#growth-task-center')||host.firstElementChild;if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(sec,anchor);else host.appendChild(sec);refreshRequests();}
+ async function refreshRequests(){const box=$('grq-list');if(!box)return;try{const d=await api('growthRequestList');if(!d.success)throw Error(d.error||'دریافت درخواست‌ها ناموفق بود');const admin=sessionStorage.getItem('growthRole')==='admin';const users=['admin','etehbarat','digital','it','hoghoughi','daneshbonyan'].concat(Array.from({length:20},(_,i)=>'branch'+(6400+i)));box.innerHTML=(d.items||[]).length?(d.items||[]).map(x=>'<article class="gt-card"><b>'+esc(x.company)+' — '+esc(x.service)+'</b><small>کد: '+esc(x.id)+' | رابط: '+esc(x.contact)+' | تلفن: '+esc(x.phone)+' | شعبه: '+esc(x.branch)+'</small><p>'+esc(x.details||'')+'</p><p>وضعیت: <b>'+esc(x.status)+'</b> | مسئول: '+esc(x.assignee||'تعیین نشده')+'</p><p>نتیجه: '+esc(x.result||'ثبت نشده')+'</p>'+(admin?'<div class="gt-actions"><select id="grq-assignee-'+esc(x.id)+'">'+users.map(u=>'<option value="'+esc(u)+'" '+(u===x.assignee?'selected':'')+'>'+esc(u)+'</option>').join('')+'</select><button type="button" onclick="growthAssignRequest(\''+esc(x.id)+'\')">ارجاع به کارمند</button></div>':'')+'<div class="gt-actions"><select id="grq-status-'+esc(x.id)+'"><option>در حال بررسی</option><option>نیازمند تکمیل مدارک</option><option>انجام‌شده؛ در انتظار تأیید</option>'+(admin?'<option>مختومه / انجام‌شده</option><option>ناموفق / مختومه</option>':'')+'</select><input id="grq-result-'+esc(x.id)+'" placeholder="گزارش اقدام و نتیجه رسیدگی"><button type="button" onclick="growthUpdateRequest(\''+esc(x.id)+'\')">ثبت گزارش رسیدگی</button></div></article>').join(''):'<p>در حال حاضر درخواستی در صف دسترسی شما نیست.</p>';}catch(e){box.textContent=e.message||'خطا در دریافت درخواست‌ها';}}
+ window.growthAssignRequest=async function(id){const assignee=$('grq-assignee-'+id)?.value;const f=$('grq-feedback');try{const d=await api('growthRequestAssign',{id:id,assignee:assignee});if(!d.success)throw Error(d.error);if(f)f.textContent=d.message;refreshRequests();}catch(e){if(f)f.textContent=e.message;}};
+ window.growthUpdateRequest=async function(id){const f=$('grq-feedback');try{const d=await api('growthRequestUpdate',{id:id,status:$('grq-status-'+id).value,result:$('grq-result-'+id).value});if(!d.success)throw Error(d.error);if(f)f.textContent=d.message;refreshRequests();}catch(e){if(f)f.textContent=e.message;}};
+ const oldGo=window.growthGoToEmployeeSection;window.growthGoToEmployeeSection=function(){if(typeof oldGo==='function')oldGo();setTimeout(mountRequestCenter,80);};
+ document.addEventListener('DOMContentLoaded',function(){if(token())setTimeout(mountRequestCenter,150);});
+ // Customer tracking: code + registered mobile; public read-only status only.
+ function mountTracking(){const flow=$('growth-customer-flow');if(!flow||$('growth-request-tracker'))return;const box=document.createElement('div');box.id='growth-request-tracker';box.className='growth-card';box.style.cssText='margin:14px 0;padding:14px;border:1px solid #dcebe1;border-radius:12px';box.innerHTML='<h4>پیگیری درخواست ثبت‌شده</h4><div class="growth-form"><label>کد پیگیری<input id="grt-code" placeholder="GCR-XXXXXXXXXX"></label><label>شماره همراه ثبت‌شده<input id="grt-phone" inputmode="numeric" placeholder="09xxxxxxxxx"></label><button type="button" class="growth-action" id="grt-submit">مشاهده وضعیت درخواست</button><span id="grt-result" role="status"></span></div>';const form=flow.querySelector('form.growth-form');if(form)form.insertAdjacentElement('afterend',box);else flow.appendChild(box);$('grt-submit').onclick=async()=>{const out=$('grt-result');out.textContent='در حال بررسی...';try{const d=await api('growthTrackRequest',{id:$('grt-code').value.trim(),phone:$('grt-phone').value.trim()});if(!d.success)throw Error(d.error);out.textContent='وضعیت: '+d.status+' | نتیجه: '+(d.result||'هنوز نتیجه‌ای ثبت نشده است.');}catch(e){out.textContent=e.message;}};}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mountTracking);else mountTracking();
+})();
+</script>
+
+
+<!-- FINAL REPAIR: single authoritative business-portal entry and role-specific login -->
+<style id="mehr-business-entry-repair-style">
+#growth-portal-modal{display:none;position:fixed;inset:0;z-index:2147483000;background:rgba(7,28,20,.82);padding:12px;overflow:auto;align-items:center;justify-content:center}
+#growth-portal-modal.open{display:flex!important}
+#growth-portal-modal .growth-modal-card{width:min(1100px,100%);max-height:96vh;overflow:auto;background:#f7faf8;border-radius:18px}
+#growth-chooser .growth-choice-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+#growth-chooser .growth-choice{display:flex!important;visibility:visible!important;opacity:1!important;min-height:145px}
+</style>
+<script id="mehr-business-entry-repair-final">
+(function(){
+ 'use strict';
+ function el(id){return document.getElementById(id);}
+ function show(id,value){var n=el(id);if(n)n.style.display=value;}
+ function ensureManagerChoice(){
+   var grid=el('growth-chooser')&&el('growth-chooser').querySelector('.growth-choice-grid');
+   if(!grid)return;
+   if(el('growth-manager-choice'))return;
+   var b=document.createElement('button');
+   b.type='button';b.id='growth-manager-choice';b.className='growth-choice manager-choice';
+   b.innerHTML='<span>🛡️</span><b>مدیریت سامانه</b><small>ورود مستقل مدیر سامانه و دسترسی مدیریتی</small>';
+   b.addEventListener('click',function(){window.chooseGrowthPath('manager');});
+   grid.appendChild(b);
+ }
+ window.openGrowthPortal=function(btn){
+   var modal=el('growth-portal-modal');
+   if(!modal){alert('پنجره مدیریت کسب‌وکار در صفحه پیدا نشد.');return;}
+   ensureManagerChoice();
+   document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+   var entry=btn||el('growth-tab-btn');if(entry)entry.classList.add('active');
+   modal.style.display='flex';modal.classList.add('open');document.body.style.overflow='hidden';
+   window.growthBackToChooser();
+ };
+ window.chooseGrowthPath=function(path){
+   if(['customer','employee','manager'].indexOf(path)<0)return;
+   show('growth-chooser','none');
+   show('growth-customer-flow',path==='customer'?'block':'none');
+   show('growth-employee-flow',(path==='employee'||path==='manager')?'block':'none');
+   if(path==='customer'){
+     window.growthLoginMode='customer';
+     if(typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+     return;
+   }
+   window.growthLoginMode=path;
+   var flow=el('growth-employee-flow');
+   var heading=flow&&flow.querySelector('h3');
+   var desc=flow&&flow.querySelector('p');
+   if(heading)heading.textContent=path==='manager'?'ورود مدیریت سامانه کسب‌وکار':'ورود همکاران بانک';
+   if(desc)desc.textContent=path==='manager'?'برای ورود مدیریت، نام کاربری و رمز مدیر سامانه را وارد کنید.':'برای ورود به پنل همکار، نام کاربری و رمز سازمانی خود را وارد کنید.';
+   var button=el('growth-employee-login-button');if(button)button.textContent=path==='manager'?'🛡️ ورود مدیریت سامانه':'🔐 ورود به پنل همکار';
+   var user=el('growth-employee-username');if(user)user.placeholder=path==='manager'?'نام کاربری مدیر سامانه':'نام کاربری سازمانی';
+   show('growth-employee-login-actions','grid');show('growth-employee-authenticated','none');
+   var feedback=el('growth-employee-login-feedback');if(feedback)feedback.textContent='';
+ };
+ window.growthBackToChooser=function(){
+   show('growth-customer-flow','none');show('growth-employee-flow','none');
+   show('growth-employee-authenticated','none');show('growth-employee-login-actions','grid');
+   show('growth-chooser','block');window.growthLoginMode='employee';
+   var feedback=el('growth-employee-login-feedback');if(feedback)feedback.textContent='';
+   ensureManagerChoice();
+ };
+ window.growthShowChooser=window.growthBackToChooser;
+ window.closeGrowthPortal=function(){
+   var modal=el('growth-portal-modal');if(modal){modal.classList.remove('open');modal.style.display='none';}
+   document.body.style.overflow='';
+   var entry=el('growth-tab-btn');if(entry)entry.classList.remove('active');
+ };
+ window.growthEmployeeLogin=async function(){
+   var username=(el('growth-employee-username')&&el('growth-employee-username').value||'').trim();
+   var pass=(el('growth-employee-password')&&el('growth-employee-password').value)||'';
+   var feedback=el('growth-employee-login-feedback');var button=el('growth-employee-login-button');
+   var mode=window.growthLoginMode==='manager'?'manager':'employee';
+   if(!username||!pass){if(feedback)feedback.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}
+   if(button){button.disabled=true;button.textContent='در حال بررسی اطلاعات...';}
+   if(feedback)feedback.textContent='';
+   try{
+     var action=mode==='manager'?'growthManagerLogin':'growthEmployeeLogin';
+     var response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,username:username,pass:pass})});
+     if(!response.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+response.status+').');
+     var data=await response.json();
+     if(!data||data.access!==true||!data.token)throw new Error((data&&data.error)||(mode==='manager'?'اطلاعات مدیر سامانه صحیح نیست.':'نام کاربری یا رمز عبور صحیح نیست.'));
+     if(mode==='manager'&&data.role!=='admin')throw new Error('این حساب دسترسی مدیریت سامانه ندارد.');
+     if(mode==='employee'&&data.role==='admin')throw new Error('برای ورود مدیر سامانه، از گزینه «مدیریت سامانه» استفاده کنید.');
+     sessionStorage.setItem('growthToken',data.token);
+     sessionStorage.setItem('growthUser',data.username||username);
+     sessionStorage.setItem('growthRole',data.role||'');
+     sessionStorage.setItem('growthDepartment',data.department||'');
+     sessionStorage.setItem('growthBranch',data.branch||'');
+     sessionStorage.setItem('growthAllowedCategories',JSON.stringify(data.allowedCategories||[]));
+     if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();
+     else throw new Error('بخش داخلی پنل پیدا نشد؛ فایل Index را کامل جایگزین کنید.');
+   }catch(error){if(feedback)feedback.textContent=error.message||'ورود انجام نشد؛ اتصال سامانه را بررسی کنید.';}
+   finally{if(button){button.disabled=false;button.textContent=mode==='manager'?'🛡️ ورود مدیریت سامانه':'🔐 ورود به پنل همکار';}}
+ };
+ function bind(){var entry=el('growth-tab-btn');if(entry)entry.onclick=function(){window.openGrowthPortal(entry);};ensureManagerChoice();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeGrowthPortal();});
+})();
+</script>
+
+
+<!-- CLICK ROUTING PATCH: bind the three portal choices directly and reliably -->
+<script id="mehr-growth-choice-click-fix">
+(function(){
+ 'use strict';
+ function byId(id){return document.getElementById(id);}
+ function bindChoices(){
+   var chooser=byId('growth-chooser');
+   if(!chooser)return;
+   var grid=chooser.querySelector('.growth-choice-grid');
+   if(!grid)return;
+   var manager=byId('growth-manager-choice');
+   if(!manager){
+     manager=document.createElement('button');
+     manager.type='button'; manager.id='growth-manager-choice';
+     manager.className='growth-choice manager-choice';
+     manager.innerHTML='<span>🛡️</span><b>مدیریت سامانه</b><small>ورود مستقل مدیر سامانه</small>';
+     grid.appendChild(manager);
+   }
+   var customer=grid.querySelector('.customer-choice');
+   var employee=grid.querySelector('.employee-choice');
+   if(customer){customer.type='button';customer.onclick=function(ev){if(ev)ev.preventDefault();window.chooseGrowthPath('customer');};}
+   if(employee){employee.type='button';employee.onclick=function(ev){if(ev)ev.preventDefault();window.chooseGrowthPath('employee');};}
+   manager.onclick=function(ev){if(ev)ev.preventDefault();window.chooseGrowthPath('manager');};
+ }
+ function route(path){
+   if(typeof window.chooseGrowthPath!=='function'){alert('بخش انتخاب مسیر هنوز بارگذاری نشده است. صفحه را یک‌بار تازه‌سازی کنید.');return;}
+   window.chooseGrowthPath(path);
+ }
+ document.addEventListener('click',function(ev){
+   var btn=ev.target&&ev.target.closest?ev.target.closest('#growth-chooser .growth-choice'):null;
+   if(!btn)return;
+   ev.preventDefault();
+   ev.stopPropagation();
+   if(btn.classList.contains('customer-choice'))route('customer');
+   else if(btn.classList.contains('employee-choice'))route('employee');
+   else if(btn.id==='growth-manager-choice'||btn.classList.contains('manager-choice'))route('manager');
+ },true);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindChoices);else bindChoices();
+ window.addEventListener('load',bindChoices);
 })();
 </script>
 
