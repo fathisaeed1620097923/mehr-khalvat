@@ -236,7 +236,7 @@ body { background: #fff !important; padding: 0 !important; }
 .growth-stat b{display:block;font-size:23px;line-height:1.5;color:#0a6a3c}
 .growth-card{background:#fff;border:1px solid #e4ece7;border-radius:16px;padding:16px;margin:14px 0;box-shadow:0 4px 15px rgba(20,60,40,.045)}
 .growth-card h3{font-size:15px;color:#174d32;margin-bottom:4px}.growth-sub{font-size:11px;color:#77857d;margin-bottom:13px}
-.growth-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:11px}
+.growth-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
 .growth-fields .form-group{margin:0}.growth-fields label{font-size:11px}.growth-fields input,.growth-fields select,.growth-fields textarea{width:100%;min-width:0;padding:10px 11px;border:1px solid #dce6df;border-radius:10px;background:#f9fbf9;font:inherit;font-size:12px;outline:none}
 .growth-fields input:focus,.growth-fields select:focus,.growth-fields textarea:focus{border-color:#16834d;box-shadow:0 0 0 3px #16834d18}
 .growth-fields .wide{grid-column:1/-1}.growth-form-actions{display:flex;gap:8px;margin-top:14px}.growth-form-actions .btn{margin:0;font-size:12px;padding:11px}
@@ -1391,6 +1391,7 @@ fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'login', usern
  alert("خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه جدید را بررسی کنید.");
 });
 }
+window.askAdminPassword=askAdminPassword;
 function logoutUser() { if (!confirm('از حساب خارج می‌شوید؟')) return; sessionStorage.clear(); location.reload(); }
 function changeCredentials() { alert('برای تغییر نام کاربری / رمز، با مدیر سیستم تماس بگیرید.'); }
 
@@ -1840,45 +1841,7 @@ function printPOSForm(row) {
   const printWindow = window.open('', '_blank');
   if (!printWindow) { alert('مرورگر پنجره چاپ را مسدود کرده است. اجازه بازشدن پنجره را فعال کنید.'); return; }
   printWindow.document.open();
-  printWindow.document.write('<!doctype html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px}strong{color:#333}a{color:#2980b9;text-decoration:none}img{max-width:200px;display:block;margin:0 auto}</style></head><body>' + area.innerHTML + '
-<script id="growth-two-choice-entry-final">
-(function(){
- 'use strict';
- function byId(id){return document.getElementById(id);}
- window.openGrowthPortal=function(btn){
-  var modal=byId('growth-portal-modal');
-  if(!modal){alert('پنجره مدیریت کسب‌وکار پیدا نشد.');return;}
-  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
-  var entry=btn||byId('growth-tab-btn');if(entry)entry.classList.add('active');
-  modal.classList.add('open');modal.style.display='flex';document.body.style.overflow='hidden';
-  window.growthBackToChooser();
- };
- window.growthBackToChooser=function(){
-  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
-  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var el=byId(id);if(el)el.style.display='none';});
-  var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
-  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
- };
- window.growthShowChooser=window.growthBackToChooser;
- window.chooseGrowthPath=function(path){
-  if(path!=='customer'&&path!=='employee')return;
-  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='none';
-  var customer=byId('growth-customer-flow');if(customer)customer.style.display=path==='customer'?'block':'none';
-  var employee=byId('growth-employee-flow');if(employee)employee.style.display=path==='employee'?'block':'none';
-  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
-  if(path==='employee'){
-   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
-   var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
-   var fb=byId('growth-employee-login-feedback');if(fb)fb.textContent='';
-  }
- };
- window.closeGrowthPortal=function(){var modal=byId('growth-portal-modal');if(modal){modal.classList.remove('open');modal.style.display='none';}document.body.style.overflow='';};
- function bind(){var b=byId('growth-tab-btn');if(b)b.onclick=function(){window.openGrowthPortal(b);};}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
-})();
-</script>
-
-</body></html>');
+  printWindow.document.write('<!doctype html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px}strong{color:#333}a{color:#2980b9;text-decoration:none}img{max-width:200px;display:block;margin:0 auto}</style></head><body>' + area.innerHTML + '</body></html>');
   printWindow.document.close();
  }
 </script>
@@ -3185,9 +3148,6 @@ function closeGrowthPortal(){
  if(__growthPrevTab)__growthPrevTab.classList.add('active');
 }
 function growthShowChooser(){
- const title=document.querySelector('#growth-employee-flow h3');if(title)title.textContent='ورود همکاران بانک';
- const desc=document.querySelector('#growth-employee-flow p');if(desc)desc.textContent='برای دسترسی به امکانات مدیریت کسب‌وکار، با نام کاربری و رمز عبور سازمانی خود وارد شوید. پس از احراز هویت، مستقیماً به پنل داخلی هدایت می‌شوید.';
- const loginBtn=document.getElementById('growth-employee-login-button');if(loginBtn)loginBtn.textContent='🔐 ورود به پنل همکار';
  ['growth-chooser','growth-customer-flow','growth-employee-flow'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=id==='growth-chooser'?'block':'none';});
  const loginBox=document.getElementById('growth-employee-login-actions');if(loginBox)loginBox.style.display='block';
  const authArea=document.getElementById('growth-employee-authenticated');if(authArea)authArea.style.display='none';
@@ -3195,19 +3155,13 @@ function growthShowChooser(){
  if(window.growthResetActiveMode)window.growthResetActiveMode();
 }
 function chooseGrowthPath(path){
- if(path!=='customer' && path!=='employee' && path!=='manager')return;
+ if(path!=='customer' && path!=='employee')return;
  const chooser=document.getElementById('growth-chooser');
  const customer=document.getElementById('growth-customer-flow');
  const employee=document.getElementById('growth-employee-flow');
  if(chooser)chooser.style.display='none';
  if(customer)customer.style.display=path==='customer'?'block':'none';
- if(employee)employee.style.display=(path==='employee'||path==='manager')?'block':'none';
- const flowTitle=employee&&employee.querySelector('h3');
- const flowDesc=employee&&employee.querySelector('p');
- const loginBtn=document.getElementById('growth-employee-login-button');
- const userInput=document.getElementById('growth-employee-username');
- if(path==='manager'){if(flowTitle)flowTitle.textContent='ورود مدیریت سامانه کسب‌وکار';if(flowDesc)flowDesc.textContent='مدیر سامانه با حساب مدیریتی مجاز وارد می‌شود؛ دسترسی مدیریتی پس از احراز هویت فعال خواهد شد.';if(loginBtn)loginBtn.textContent='🔐 ورود مدیریت';if(userInput)userInput.placeholder='نام کاربری مدیر';}
- else if(path==='employee'){if(flowTitle)flowTitle.textContent='ورود همکاران بانک';if(flowDesc)flowDesc.textContent='برای دسترسی به امکانات مدیریت کسب‌وکار، با نام کاربری و رمز عبور سازمانی خود وارد شوید.';if(loginBtn)loginBtn.textContent='🔐 ورود به پنل همکار';if(userInput)userInput.placeholder='نام کاربری';}
+ if(employee)employee.style.display=path==='employee'?'block':'none';
  if(path==='customer')growthUpdateRequirements();
 }
 window.chooseGrowthPath=chooseGrowthPath;
@@ -3226,6 +3180,7 @@ async function growthEmployeeLogin(){
   if(!response.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+response.status+').');
   const data=await response.json();
   if(!data||data.access!==true||!data.token)throw new Error((data&&data.error)||'نام کاربری یا رمز عبور صحیح نیست.');
+  if(window.growthLoginMode==='manager' && data.role!=='admin')throw new Error('این حساب دسترسی مدیریت سامانه ندارد. با حساب مدیر وارد شوید.');
   // نشست مدیریت کسب‌وکار مستقل از نشست تیکت‌ها نگهداری می‌شود.
   sessionStorage.setItem('growthToken',data.token);
   sessionStorage.setItem('growthUser',data.username||username);
@@ -3375,7 +3330,7 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
     <div class="growth-choice-grid">
      <button type="button" class="growth-choice customer-choice" onclick="chooseGrowthPath('customer')"><span>🏢</span><b>مشتری هستم</b><small>ثبت و پیگیری درخواست؛ بدون رمز یا با رمز دلخواه</small></button>
      <button type="button" class="growth-choice employee-choice" onclick="chooseGrowthPath('employee')"><span>👨‍💼</span><b>کارمند بانک هستم</b><small>ورود با نام کاربری و رمز عبور سازمانی</small></button>
-     <button type="button" class="growth-choice employee-choice" onclick="chooseGrowthPath('manager')"><span>🛡️</span><b>مدیریت سامانه</b><small>ورود مستقل مدیر با نام کاربری و رمز عبور مدیریتی</small></button>
+     <button type="button" class="growth-choice employee-choice" onclick="chooseGrowthPath('manager')"><span>🛡️</span><b>مدیریت سامانه</b><small>ورود مدیر با حساب دارای دسترسی مدیریتی</small></button>
     </div>
    </section>
    <section id="growth-customer-flow" style="display:none">
@@ -3765,6 +3720,7 @@ window.openGrowthPortalModule=function(id){
   window.growthBackToChooser();
  };
  window.growthBackToChooser=function(){
+  window.growthLoginMode='employee';
   var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
   ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var el=byId(id);if(el)el.style.display='none';});
   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
@@ -3772,10 +3728,15 @@ window.openGrowthPortalModule=function(id){
  };
  window.growthShowChooser=window.growthBackToChooser;
  window.chooseGrowthPath=function(path){
-  if(path!=='customer'&&path!=='employee')return;
+  if(path!=='customer'&&path!=='employee'&&path!=='manager')return;
   var chooser=byId('growth-chooser');if(chooser)chooser.style.display='none';
   var customer=byId('growth-customer-flow');if(customer)customer.style.display=path==='customer'?'block':'none';
-  var employee=byId('growth-employee-flow');if(employee)employee.style.display=path==='employee'?'block':'none';
+  var employee=byId('growth-employee-flow');if(employee)employee.style.display=(path==='employee'||path==='manager')?'block':'none';
+  window.growthLoginMode=path==='manager'?'manager':'employee';
+  var heading=employee?employee.querySelector('h3'):null;if(heading)heading.textContent=path==='manager'?'ورود مدیریت سامانه کسب‌وکار':'ورود همکاران بانک';
+  var desc=employee?employee.querySelector('p'):null;if(desc)desc.textContent=path==='manager'?'برای ورود مدیریتی، نام کاربری و رمز حساب مدیر سامانه را وارد کنید.':'برای دسترسی به امکانات مدیریت کسب‌وکار، با نام کاربری و رمز عبور سازمانی خود وارد شوید.';
+  var loginBtn=byId('growth-employee-login-button');if(loginBtn)loginBtn.textContent=path==='manager'?'🔐 ورود مدیریت':'🔐 ورود به پنل همکار';
+  var userInput=byId('growth-employee-username');if(userInput)userInput.placeholder=path==='manager'?'نام کاربری مدیر':'نام کاربری';
   if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
   if(path==='employee'){
    var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
