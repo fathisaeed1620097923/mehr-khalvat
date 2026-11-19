@@ -302,7 +302,7 @@ body { background: #fff !important; padding: 0 !important; }
 @media(max-width:650px){.growth-demo-hero{grid-template-columns:1fr}.growth-demo-gallery{grid-template-columns:1fr}}
 </style>
 <style id="ticket-and-growth-entry-visibility-guard">
-#ticket-employee-login-entry{display:flex!important;visibility:visible!important;opacity:1!important}
+#ticket-employee-login-entry{display:block!important;visibility:visible!important;opacity:1!important}
 #ticket-employee-login-button{display:inline-flex!important;visibility:visible!important;opacity:1!important}
 #growth-portal-modal.open{display:flex!important}
 #growth-chooser .growth-choice-grid{display:grid!important;visibility:visible!important;opacity:1!important}
@@ -332,6 +332,8 @@ body { background: #fff !important; padding: 0 !important; }
 <button class="tab-btn" onclick="switchTab('emotion-tab', this)">🪞 آینه احساسات</button>
 <button class="tab-btn" id="employee-tab-btn" style="display: none;" onclick="switchTab('employee', this)">📋 پنل کارمندان <span id="tab-badge" class="badge-red">!</span></button>
 </div>
+<div id="ticket-employee-login-entry" style="display:block !important;visibility:visible !important;opacity:1 !important;text-align:left;padding:7px 10px 12px;position:relative;z-index:5"> <button id="ticket-employee-login-button" type="button" onclick="askAdminPassword()" style="display:inline-flex !important;align-items:center;gap:6px;border:1px solid #d8e2dc;background:#fff;color:#52675a;text-decoration:underline;font-family:inherit;font-size:12px;cursor:pointer;padding:8px 11px;border-radius:8px">🔐 ورود همکاران برای مدیریت تیکت‌ها</button> </div>
+
 <!-- ۱. پنل مشتری -->
 <div class="content panel active" id="panel-customer">
 <div style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 12px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #e9ecef;">
@@ -1838,27 +1840,96 @@ function printPOSForm(row) {
   const printWindow = window.open('', '_blank');
   if (!printWindow) { alert('مرورگر پنجره چاپ را مسدود کرده است. اجازه بازشدن پنجره را فعال کنید.'); return; }
   printWindow.document.open();
-  printWindow.document.write(`<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<title>چاپ فرم پوز - سامانه مهر</title>
-<style>
-body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8}
-h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px}
-p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px}
-strong{color:#333}a{color:#2980b9;text-decoration:none}img{max-width:200px;display:block;margin:0 auto}
+  printWindow.document.write('<!doctype html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px}strong{color:#333}a{color:#2980b9;text-decoration:none}img{max-width:200px;display:block;margin:0 auto}</style></head><body>' + area.innerHTML + '</body></html>');
+  printWindow.document.close();
+ }
+</script>
+<script id="growth-homepage-entry-stable-fix">
+(function(){
+ 'use strict';
+ function byId(id){return document.getElementById(id);}
+ // تنها درگاه ورود به مدیریت کسب‌وکار از دکمه موجود در صفحه اصلی باز می‌شود.
+ window.openGrowthPortal=function(btn){
+  var modal=byId('growth-portal-modal');
+  if(!modal){alert('درگاه مدیریت کسب‌وکار بارگذاری نشده است.');return;}
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
+  var entry=btn||byId('growth-tab-btn');if(entry)entry.classList.add('active');
+  modal.classList.add('open');document.body.style.overflow='hidden';
+  window.growthBackToChooser();
+ };
+ // از صفحه اصلی، مشتری و همکار هر دو در همین پنجره مسیر مستقل دارند.
+ window.chooseGrowthPath=function(path){
+  if(path!=='customer'&&path!=='employee')return;
+  var chooser=byId('growth-chooser');
+  var customer=byId('growth-customer-flow');
+  var employee=byId('growth-employee-flow');
+  if(chooser)chooser.style.display='none';
+  if(customer)customer.style.display=path==='customer'?'block':'none';
+  if(employee)employee.style.display=path==='employee'?'block':'none';
+  if(path==='customer'&&typeof window.growthUpdateRequirements==='function')window.growthUpdateRequirements();
+  if(path==='employee'){
+   var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+   var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+   var feedback=byId('growth-employee-login-feedback');if(feedback)feedback.textContent='';
+  }
+ };
+ window.growthBackToChooser=function(){
+  ['growth-customer-flow','growth-employee-flow'].forEach(function(id){var e=byId(id);if(e)e.style.display='none';});
+  var chooser=byId('growth-chooser');if(chooser)chooser.style.display='block';
+  var login=byId('growth-employee-login-actions');if(login)login.style.display='grid';
+  var auth=byId('growth-employee-authenticated');if(auth)auth.style.display='none';
+ };
+ // خروج فقط نشست مدیریت کسب‌وکار را پاک می‌کند؛ ورود مستقل تیکت‌ها دست‌نخورده می‌ماند.
+ window.growthPortalLogout=function(){
+  ['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories'].forEach(function(k){sessionStorage.removeItem(k);});
+  window.growthBackToChooser();
+ };
+ // اطمینان از در دسترس بودن توابع فرم و ورود برای دکمه‌های همین پنجره.
+ if(typeof submitGrowthCompany==='function')window.submitGrowthCompany=submitGrowthCompany;
+ if(typeof growthEmployeeLogin==='function')window.growthEmployeeLogin=growthEmployeeLogin;
+ if(typeof growthShowChooser==='function')window.growthShowChooser=growthShowChooser;
+ function bindEntry(){
+  var entry=byId('growth-tab-btn');
+  if(entry){entry.onclick=function(){window.openGrowthPortal(entry);};}
+  var modal=byId('growth-portal-modal');
+  if(modal&&!modal.dataset.homeEntryBound){
+   modal.dataset.homeEntryBound='1';
+   modal.addEventListener('click',function(e){if(e.target===modal){if(typeof window.closeGrowthPortal==='function')window.closeGrowthPortal();else{modal.classList.remove('open');document.body.style.overflow='';}}});
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindEntry);else bindEntry();
+})();
+</script>
+
+
+<script id="growth-task-center-v1">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const api=async (action,payload)=>{const token=sessionStorage.getItem('growthToken')||'';const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token,growthToken:token},payload||{}))});return r.json();};
+ function canManage(){return ['admin','regional','branch','manager','branch_manager'].includes(sessionStorage.getItem('growthRole')||'');}
+ function mount(){const host=$('growth-employee-authenticated');if(!host||$('growth-task-center'))return;
+  const section=document.createElement('section');section.id='growth-task-center';section.className='growth-guide-block';
+  section.innerHTML='<h3>مرکز مأموریت‌ها و شرح وظایف</h3><p>وظایف بر اساس سمت، مسئول، مهلت و نتیجه پیگیری می‌شوند. انجام کار بدون ثبت نتیجه، تکمیل‌شده محسوب نمی‌شود.</p><div id="gt-summary" class="gt-summary">در حال دریافت وظایف...</div><div id="gt-create-wrap"></div><div id="gt-list"></div><div id="gt-feedback" role="status"></div>';
+  const anchor=host.querySelector('.growth-grid')||host.firstElementChild; if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(section,anchor.nextSibling);else host.appendChild(section);
+  if(canManage())$('gt-create-wrap').innerHTML='<h4>تعریف مأموریت جدید</h4><div class="gt-form"><label>عنوان مأموریت<input id="gt-title" placeholder="مثلاً شناسایی ۲۰ شرکت هدف"></label><label>نام کاربری مسئول<input id="gt-assignee" placeholder="نام کاربری دقیق همکار"></label><label>سمت هدف<input id="gt-role" placeholder="مثلاً کارمند بازاریابی"></label><label>شعبه / واحد<input id="gt-branch" placeholder="کد شعبه یا نام واحد"></label><label>نوع وظیفه<select id="gt-type"><option>دائمی</option><option selected>دوره‌ای</option><option>مأموریتی</option></select></label><label>اولویت<select id="gt-priority"><option>عادی</option><option>مهم</option><option>فوری</option></select></label><label>مهلت انجام<input id="gt-due" type="date"></label><label class="gt-wide">شرح و مراحل اجرا<textarea id="gt-description" rows="3" placeholder="اقدامات مورد انتظار، تعداد تماس/مراجعه و خروجی قابل تحویل"></textarea></label><button type="button" onclick="growthTaskCreateUI()">ثبت و ابلاغ مأموریت</button></div>';
+  load();
+ }
+ async function load(){const box=$('gt-list');if(!box)return;try{const d=await api('growthTaskList');if(!d.success)throw Error(d.error||'دریافت وظایف ناموفق بود');const items=d.items||[];const counts={total:items.length,pending:items.filter(x=>x.status==='در انتظار انجام').length,doing:items.filter(x=>x.status==='در حال انجام').length,review:items.filter(x=>x.status==='انجام‌شده؛ در انتظار تأیید').length,closed:items.filter(x=>x.status==='تأیید و بسته‌شده').length};$('gt-summary').innerHTML='<div>کل: '+counts.total+'</div><div>در انتظار: '+counts.pending+'</div><div>در حال انجام: '+counts.doing+'</div><div>آماده تأیید: '+counts.review+'</div><div>بسته‌شده: '+counts.closed+'</div>';
+  box.innerHTML=items.length?items.map(t=>'<article class="gt-card"><b>'+esc(t.title)+'</b><small>شناسه: '+esc(t.id)+' | مسئول: '+esc(t.assignee)+' | مهلت: '+esc(t.due)+' | اولویت: '+esc(t.priority)+'</small><p>'+esc(t.description)+'</p><p><b>وضعیت:</b> '+esc(t.status)+'</p><p><b>نتیجه ثبت‌شده:</b> '+esc(t.result||'هنوز گزارشی ثبت نشده')+'</p><div class="gt-actions"><select id="gt-status-'+esc(t.id)+'"><option>در انتظار انجام</option><option>در حال انجام</option><option>انجام‌شده؛ در انتظار تأیید</option><option>نیازمند رفع مانع</option>'+ (canManage()?'<option>تأیید و بسته‌شده</option>':'')+'</select><input id="gt-result-'+esc(t.id)+'" placeholder="نتیجه، تعداد اقدامات و خروجی واقعی"><input id="gt-evidence-'+esc(t.id)+'" placeholder="شماره پرونده یا شناسه مستند (بدون اطلاعات محرمانه)"><button type="button" onclick="growthTaskUpdateUI(\''+esc(t.id)+'\')">ثبت گزارش / تغییر وضعیت</button></div></article>').join(''):'<p>در حال حاضر مأموریتی برای نمایش وجود ندارد.</p>';
+ }catch(e){box.textContent=e.message||'خطا در دریافت مأموریت‌ها';}}
+ window.growthTaskCreateUI=async function(){const fb=$('gt-feedback');const data={title:$('gt-title').value,assignee:$('gt-assignee').value,targetRole:$('gt-role').value,branch:$('gt-branch').value,type:$('gt-type').value,priority:$('gt-priority').value,due:$('gt-due').value,description:$('gt-description').value};if(!data.title||!data.assignee||!data.due){fb.textContent='عنوان، نام کاربری مسئول و مهلت را تکمیل کنید.';return;}try{const r=await api('growthTaskCreate',data);if(!r.success)throw Error(r.error);fb.textContent='مأموریت '+r.id+' ثبت و ابلاغ شد.';$('gt-title').value='';$('gt-description').value='';load();}catch(e){fb.textContent=e.message||'ثبت مأموریت انجام نشد.';}};
+ window.growthTaskUpdateUI=async function(id){const fb=$('gt-feedback');try{const r=await api('growthTaskUpdate',{id:id,status:$('gt-status-'+id).value,result:$('gt-result-'+id).value,evidence:$('gt-evidence-'+id).value});if(!r.success)throw Error(r.error);fb.textContent=r.message||'گزارش ثبت شد.';load();}catch(e){fb.textContent=e.message||'ثبت گزارش انجام نشد.';}};
+ const old=window.growthGoToEmployeeSection;window.growthGoToEmployeeSection=function(){if(typeof old==='function')old();setTimeout(mount,0);};
+ document.addEventListener('DOMContentLoaded',function(){if(sessionStorage.getItem('growthToken'))setTimeout(mount,100);});
+})();
+</script>
+<style id="growth-task-center-style">
+#growth-task-center{margin:18px 0;padding:16px;border:1px solid #cfe2d5;border-radius:14px;background:#fbfefc}#growth-task-center h3{color:#075b3b;margin-bottom:8px}#growth-task-center .gt-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:12px 0}#growth-task-center .gt-summary div{padding:10px;background:#eaf5ee;border-radius:9px;text-align:center;font-weight:700}#growth-task-center .gt-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0 18px}#growth-task-center label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700}#growth-task-center input,#growth-task-center textarea,#growth-task-center select{width:100%;padding:9px;border:1px solid #cbd8cf;border-radius:8px;font:inherit;background:white}#growth-task-center .gt-wide{grid-column:1/-1}#growth-task-center button{padding:10px 14px;border:0;border-radius:8px;background:#087348;color:#fff;font:inherit;font-weight:700;cursor:pointer}#growth-task-center .gt-card{background:#fff;border:1px solid #dce9e0;border-radius:11px;padding:12px;margin:10px 0}#growth-task-center .gt-card small{display:block;color:#62736a;margin:5px 0}#growth-task-center .gt-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}#growth-task-center #gt-feedback{margin-top:8px;color:#075b3b;font-weight:700}@media(max-width:600px){#growth-task-center .gt-form,#growth-task-center .gt-actions{grid-template-columns:1fr}}
 </style>
-</head>
-<body>${area.innerHTML}
 
-<!-- ورود مستقل همکاران و مدیریت تیکت‌ها؛ در پایین صفحه اصلی، مطابق چیدمان اولیه -->
-<div id="ticket-employee-login-entry" style="display:flex !important;justify-content:center;align-items:center;visibility:visible !important;opacity:1 !important;width:100%;box-sizing:border-box;padding:18px 12px 24px;margin:18px auto 0;border-top:1px solid #e4ebe6;position:relative;z-index:5;background:#fafcfb">
-  <button id="ticket-employee-login-button" type="button" onclick="askAdminPassword()" style="display:inline-flex !important;align-items:center;gap:7px;border:1px solid #d8e2dc;background:#fff;color:#52675a;font-family:inherit;font-size:12px;cursor:pointer;padding:9px 14px;border-radius:9px">🔐 ورود همکاران و مدیریت تیکت‌ها</button>
-</div>
-
-</body>
-</html>`);
+</body></html>');
   printWindow.document.close();
   printWindow.focus();
   setTimeout(function () { printWindow.print(); }, 500);
@@ -2988,12 +3059,12 @@ function growthShowDetail(id){const x=growthLeadsCache.find(a=>String(a.id)===St
 
 // ===== درگاه یکپارچه مدیریت کسب‌وکار (افزوده‌شده بدون حذف پنل‌های قبلی) =====
 const growthModules = [
-{id:'crm360',cat:'customer',title:'پرونده ۳۶۰ درجه مشتری',desc:'مرجع واحد مشاهده مشخصات و سوابق مشتری؛ اجرای عملیات نگهداشت و احیای مشتری فقط در ماژول مستقل نگهداشت انجام می‌شود.',items:['شناسه یکتای مشتری و اشخاص مرتبط','تجمیع محصولات و تعاملات مجاز','تاریخچه تماس، مراجعه، درخواست و نتیجه','نمای یکپارچه اطلاعات و ارجاع هشدارها به ماژول مسئول']},
+{id:'crm360',cat:'customer',title:'پرونده ۳۶۰ درجه مشتری',desc:'نمای واحد از مشخصات، حساب‌ها، تسهیلات، کارتخوان، تعاملات، شکایات، رضایت و تاریخچه ارتباط.',items:['شناسه یکتای مشتری و اشخاص مرتبط','تجمیع محصولات و تعاملات مجاز','تاریخچه تماس، مراجعه، درخواست و نتیجه','نمای هشدارها و فرصت‌های قابل اقدام']},
 {id:'leads',cat:'customer',title:'مدیریت مشتریان بالقوه و سرنخ‌ها',desc:'ثبت سرنخ، منبع معرفی، ارزش احتمالی، مسئول پیگیری، مرحله قیف و زمان اقدام بعدی.',items:['ثبت سرنخ از مراجعه، معرفی، رویداد و بازاریابی','امتیازدهی و اولویت A/B/C','ارجاع به کارشناس و یادآوری پیگیری','تبدیل سرنخ به مشتری و سنجش نرخ تبدیل']},
 {id:'nextbest',cat:'customer',title:'پیشنهاد هوشمند اقدام بعدی',desc:'پیشنهاد محصول یا اقدام متناسب با نیاز و وضعیت مشتری؛ با امکان تأیید انسانی.',items:['پیشنهاد حساب، کارتخوان، تسهیلات یا خدمات دیجیتال','نمایش دلیل پیشنهاد و داده مبنا','ثبت پذیرش یا رد پیشنهاد و علت آن','محدودیت تماس و کنترل مزاحمت بازاریابی']},
 {id:'campaign',cat:'customer',title:'مدیریت کمپین و بازاریابی هدفمند',desc:'طراحی کمپین برای گروه‌های مشخص و سنجش نتیجه واقعی آن.',items:['تعریف جامعه هدف و شرط ورود','کانال پیامک، تماس یا پیگیری شعبه با مجوز','بودجه، زمان‌بندی و مسئول اجرا','اندازه‌گیری جذب منابع، فروش و بازگشت سرمایه']},
-{id:'resource',cat:'resource',title:'جذب منابع و توسعه فرصت‌های جدید',desc:'تمرکز این ماژول فقط بر شناسایی و تبدیل فرصت‌های جدید جذب منابع است؛ پایش افت منابع و پیشگیری از ریزش منحصراً در ماژول نگهداشت انجام می‌شود.',items:['شناسایی مشتریان و کسب‌وکارهای دارای ظرفیت جذب منابع','کشف گردش‌های ورودی و فرصت‌های همکاری جدید','فهرست هدف‌های اولویت‌دار برای بازاریابی و مراجعه','ثبت مبلغ جذب‌شده، منبع معرفی و نتیجه اقدام']},
-{id:'retention',cat:'resource',title:'نگهداشت و احیای مشتریان و منابع',desc:'مالک واحد تمام فعالیت‌های پیشگیری از ریزش، شناسایی افت منابع و بازگرداندن مشتریان غیرفعال؛ سایر ماژول‌ها فقط داده و هشدار لازم را به این بخش ارجاع می‌دهند.',items:['پایش روند مانده، گردش و کاهش تعامل در بازه‌های زمانی','شناسایی مشتریان در معرض ریزش و اولویت‌بندی ریسک','برنامه تماس، جلسه و اقدام اصلاحی برای حفظ رابطه','احیای مشتریان غیرفعال و ثبت نتیجه و منابع حفظ‌شده']},
+{id:'resource',cat:'resource',title:'فرصت‌یاب هوشمند جذب منابع',desc:'شناسایی فرصت‌های جذب منابع از مشتریان فعلی، کسب‌وکارها، شرکت‌ها و بازار محلی.',items:['شناسایی کاهش مانده و احتمال خروج منابع','کشف گردش‌های ورودی و خروجی قابل پیگیری','فهرست هدف‌های اولویت‌دار برای بازاریابی','پیشنهاد اقدام و ثبت نتیجه جذب']},
+{id:'retention',cat:'resource',title:'پیش‌بینی ریزش و نگهداشت منابع',desc:'هشدار زودهنگام درباره کاهش رابطه مشتری و پیشنهاد اقدام نگهداشت.',items:['روند مانده و گردش در بازه‌های زمانی','نشانه‌های غیرفعال‌شدن رابطه','تقسیم‌بندی ریسک ریزش','ثبت اقدام نگهداشت و نتیجه']},
 {id:'loyalty',cat:'resource',title:'موتور ارزش و وفاداری مشتریان',desc:'امتیازدهی شفاف بر اساس رفتارهای قابل سنجش و ارزش رابطه؛ بدون قرعه‌کشی مبهم.',items:['امتیاز منابع و ماندگاری سپرده','امتیاز استفاده از خدمات و بانکداری دیجیتال','امتیاز خوش‌حسابی و عمق رابطه','سطوح مزایا، قواعد احراز و گزارش هزینه/فایده']},
 {id:'referral',cat:'resource',title:'معرفی مشتری و شبکه ارجاع',desc:'ثبت معرفی‌کننده و مشتری معرفی‌شده و سنجش اثربخشی شبکه ارتباطی.',items:['کد/شناسه ارجاع','ثبت رضایت برای تماس','کنترل معرفی تکراری','گزارش تبدیل و ارزش ایجادشده']},
 {id:'pfm',cat:'resource',title:'مدیریت مالی شخصی مشتری (PFM)',desc:'نمای تحلیلی و رضایت‌محور از درآمد، هزینه و جریان مالی؛ صرفاً با داده و مجوز معتبر.',items:['دسته‌بندی تراکنش‌های مجاز','نمای جریان نقدی و روند هزینه','هشدارهای بودجه‌ای انتخابی','پیشنهاد ابزارهای پس‌انداز و مدیریت مالی']},
@@ -3105,14 +3176,35 @@ function growthUpdateRequirements(){
  box.innerHTML='<b>مدارک پیشنهادی موردنیاز:</b><ul>'+items.map(x=>'<li>'+x+'</li>').join('')+'</ul><small>فهرست نهایی مدارک پس از بررسی شعبه و بر اساس ضوابط بانک اعلام می‌شود.</small>';
 }
 async function growthReadFile(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',')[1]);r.onerror=reject;r.readAsDataURL(file);});}
+async function growthCustomerLogin(){
+ const phone=String(document.getElementById('growth-customer-login-phone')?.value||'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
+ const password=document.getElementById('growth-customer-login-password')?.value||'';
+ const feedback=document.getElementById('growth-customer-login-feedback');
+ if(!/^09\d{9}$/.test(phone)||!password){if(feedback)feedback.textContent='شماره همراه و رمز عبور را وارد کنید.';return;}
+ if(feedback)feedback.textContent='در حال بررسی...';
+ try{
+  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthCustomerLogin',phone:phone,password:password})});
+  const result=await response.json();if(!result.success)throw new Error(result.error||'ورود انجام نشد.');
+  const form=document.querySelector('#growth-customer-flow form.growth-form');
+  if(form){['company','contact','phone','city','branch'].forEach(k=>{if(result[k]&&form.elements[k])form.elements[k].value=result[k];});}
+  sessionStorage.setItem('growthCustomerPhone',phone);
+  if(feedback)feedback.textContent='ورود موفق بود؛ اطلاعات حساب در فرم قرار گرفت. اکنون می‌توانید درخواست جدید ثبت کنید.';
+ }catch(e){if(feedback)feedback.textContent=e.message||'خطا در ورود مشتری.';}
+}
+window.growthCustomerLogin=growthCustomerLogin;
 async function submitGrowthCompany(event){
  event.preventDefault();const form=event.currentTarget;const btn=form.querySelector('button[type=submit]');const fb=document.getElementById('growth-company-feedback');
  const phone=String(form.elements.phone.value||'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c));
  if(!/^09\d{9}$/.test(phone)){fb.textContent='شماره همراه باید ۱۱ رقم و با 09 شروع شود.';return;}
+ const createAccount=!!document.getElementById('growth-customer-create-account')?.checked;
+ const newPassword=document.getElementById('growth-customer-new-password')?.value||'';
+ const confirmPassword=document.getElementById('growth-customer-confirm-password')?.value||'';
+ if(createAccount&&newPassword.length<8){fb.textContent='برای ساخت حساب، رمز حداقل ۸ نویسه باشد.';return;}
+ if(createAccount&&newPassword!==confirmPassword){fb.textContent='تکرار رمز عبور با رمز اصلی یکسان نیست.';return;}
  const files=Array.from(document.getElementById('growth-customer-files')?.files||[]);
  if(files.length>5){fb.textContent='حداکثر ۵ فایل می‌توانید بارگذاری کنید.';return;}
  for(const f of files){if(f.size>5*1024*1024){fb.textContent='حجم هر فایل نباید بیشتر از ۵ مگابایت باشد: '+f.name;return;}}
- const d=Object.fromEntries(new FormData(form).entries());d.phone=phone;d.action='growthCustomerRequest';
+ const d=Object.fromEntries(new FormData(form).entries());d.phone=phone;d.createAccount=createAccount?'yes':'no';d.customerPassword=createAccount?newPassword:'';d.action='growthCustomerRequest';
  btn.disabled=true;fb.textContent='در حال ثبت درخواست...';
  try{
   const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(d)});const result=await response.json();
@@ -3123,7 +3215,7 @@ async function submitGrowthCompany(event){
    uploadNote=' مدارک نیز بارگذاری شد.';
   }
   fb.textContent='درخواست با موفقیت ثبت شد. کد پیگیری: '+result.id+'.'+uploadNote+' این کد را نگهداری کنید.';
-  form.reset();growthUpdateRequirements();
+  form.reset();const pw=document.getElementById('growth-customer-password-wrap');if(pw)pw.style.display='none';growthUpdateRequirements();
  }catch(err){fb.textContent='خطا: '+err.message;}
  finally{btn.disabled=false;}
 }
@@ -3202,7 +3294,16 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
    </section>
    <section id="growth-customer-flow" style="display:none">
     <button type="button" class="growth-back" onclick="growthBackToChooser()">← بازگشت به انتخاب مسیر</button>
-    <h3>ثبت درخواست همکاری مجموعه</h3><p>نوع مجموعه و خدمت موردنیاز را انتخاب کنید تا مدارک و اطلاعات متناسب نمایش داده شود.</p>
+    <h3>ثبت درخواست همکاری مجموعه</h3><p>می‌توانید بدون رمز درخواست ثبت کنید؛ در صورت تمایل، حساب بسازید و برای پیگیری‌های بعدی رمز تعیین کنید.</p>
+    <div class="growth-card" style="margin:12px 0;padding:14px;background:#f5faf7;border:1px solid #dcebe1;border-radius:12px">
+     <b>قبلاً حساب ساخته‌اید؟</b>
+     <div class="growth-form" style="margin-top:10px">
+      <label>شماره همراه ثبت‌شده<input id="growth-customer-login-phone" inputmode="numeric" maxlength="11" placeholder="09xxxxxxxxx"></label>
+      <label>رمز عبور اختیاری<input id="growth-customer-login-password" type="password" autocomplete="current-password" placeholder="رمز حساب مشتری"></label>
+      <button type="button" class="growth-action" onclick="growthCustomerLogin()">ورود به حساب مشتری</button>
+      <span id="growth-customer-login-feedback" class="growth-muted" role="status"></span>
+     </div>
+    </div>
     <form class="growth-form" onsubmit="submitGrowthCompany(event)">
      <label>نوع مجموعه<select id="growth-org-type" name="orgType" required onchange="growthUpdateRequirements()"><option value="شرکت / موسسه خصوصی">شرکت / مؤسسه خصوصی</option><option value="اداره دولتی">اداره</option><option value="سازمان">سازمان</option><option value="اتحادیه / صنف">اتحادیه / صنف</option><option value="نهاد عمومی">نهاد عمومی</option><option value="شخص حقیقی / کسب‌وکار">شخص حقیقی / کسب‌وکار</option><option value="سایر">سایر</option></select></label>
      <label>نام مجموعه / کسب‌وکار<input required name="company" maxlength="150" placeholder="نام کامل مجموعه"></label>
@@ -3214,6 +3315,11 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
      <label>تعداد کارکنان / اعضا<input name="staff" type="number" min="0" placeholder="تعداد تقریبی"></label>
      <label>حوزه فعالیت<select name="industry"><option>توزیع و پخش</option><option>صنعت و تولید</option><option>بازرگانی و فروشگاه</option><option>خدمات و گردشگری</option><option>درمان و دارو</option><option>اداری و آموزشی</option><option>سایر</option></select></label>
      <label class="wide">توضیحات و ظرفیت همکاری<textarea name="details" rows="3" maxlength="1500" placeholder="شرح نیاز، تعداد کارکنان، مبلغ تقریبی حقوق یا توضیحات تکمیلی"></textarea></label>
+     <label class="wide" style="display:flex;align-items:center;gap:8px"><input id="growth-customer-create-account" type="checkbox" name="createAccount" value="yes" onchange="document.getElementById('growth-customer-password-wrap').style.display=this.checked?'grid':'none'"> مایلم حساب کاربری بسازم و برای درخواست‌های بعدی رمز داشته باشم (اختیاری)</label>
+     <div class="wide" id="growth-customer-password-wrap" style="display:none;grid-template-columns:1fr 1fr;gap:10px">
+      <label>تعیین رمز عبور<input id="growth-customer-new-password" name="customerPassword" type="password" minlength="8" autocomplete="new-password" placeholder="حداقل ۸ نویسه"></label>
+      <label>تکرار رمز عبور<input id="growth-customer-confirm-password" type="password" minlength="8" autocomplete="new-password" placeholder="تکرار رمز"></label>
+     </div>
      <div class="wide growth-doc-requirements" id="growth-doc-requirements"></div>
      <label class="wide">بارگذاری مدارک و فایل‌ها (حداکثر ۵ فایل، هرکدام ۵ مگابایت)<input type="file" id="growth-customer-files" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv"></label>
      <div class="wide"><button class="growth-action" type="submit">ثبت درخواست و دریافت کد پیگیری</button><span id="growth-company-feedback" class="growth-muted" style="margin-right:8px"></span></div>
@@ -3228,7 +3334,40 @@ window.growthGoToEmployeeSection=growthGoToEmployeeSection;
      <button type="button" id="growth-employee-login-button" onclick="growthEmployeeLogin()">🔐 ورود به پنل همکار</button>
      <div id="growth-employee-login-feedback" role="status" aria-live="polite" class="growth-muted"></div>
     </div>
-    <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none"><h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div><h4>منوها و کارکردهای مدیریت کسب‌وکار</h4><div class="growth-grid" id="growth-portal-module-grid"></div><button type="button" class="growth-action" onclick="growthBackToChooser()">بازگشت به انتخاب مسیر مدیریت کسب‌وکار</button><div class="growth-detail" id="growth-portal-detail"><button class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن جزئیات</button><div id="growth-portal-detail-content"></div></div></div>
+    <div id="growth-employee-authenticated" class="growth-employee-modules" style="display:none"><h4>داشبورد آمار مدیریت کسب‌وکار</h4><div id="growth-portal-stats"></div>
+<section id="growth-smart-customer-core" aria-label="هسته مدیریت هوشمند مشتریان">
+ <div class="gsc-head"><div><span class="gsc-kicker">هسته مرکزی تصمیم‌گیری و اجرای عملیات</span><h3>مدیریت هوشمند مشتریان</h3><p>شناسایی، جذب، توسعه و نگهداشت مشتریان و منابع؛ از تشخیص وضعیت تا اقدام، پیگیری و سنجش نتیجه.</p></div><span class="gsc-live">چرخه یکپارچه عملیات</span></div>
+ <div class="gsc-four">
+  <article class="gsc-card"><b>۱. نگهداشت و احیای مشتری</b><p>کاهش ریزش، شناسایی کاهش منابع و بازگرداندن مشتریان غیرفعال</p><button type="button" onclick="growthCoreOpen('retention')">ورود به حوزه نگهداشت</button></article>
+  <article class="gsc-card"><b>۲. مشتری‌مداری و تجربه مشتری</b><p>رضایت‌سنجی، شکایات، درخواست‌ها و رفع مشکلات مشتریان</p><button type="button" onclick="growthCoreOpen('crm360')">مشاهده پرونده و تعاملات</button></article>
+  <article class="gsc-card"><b>۳. بازاریابی و توسعه بازار</b><p>جذب مشتری جدید، افزایش سهم بازار و توسعه مشتریان فعلی</p><button type="button" onclick="growthCoreOpen('leads')">ورود به فرصت‌های جذب</button></article>
+  <article class="gsc-card"><b>۴. مدیریت عملکرد و مأموریت کارکنان</b><p>تخصیص وظایف، مسئولیت، مهلت و ارزیابی نتیجه اقدامات</p><button type="button" onclick="growthCoreOpen('tasks')">مدیریت مأموریت‌ها</button></article>
+ </div>
+ <div class="gsc-two"><article class="gsc-layer"><b>۵. پیگیری یکپارچه تا حصول نتیجه</b><p>هیچ مشتری، فرصت، درخواست یا مأموریتی بدون مسئول، اقدام بعدی و وضعیت نهایی رها نمی‌شود.</p></article><article class="gsc-layer"><b>۶. تحلیل هوشمند و سنجش منافع</b><p>اندازه‌گیری مشتریان جذب‌شده، منابع جدید و حفظ‌شده، سهم بازار، رضایت مشتری و عملکرد کارکنان.</p></article></div>
+ <div class="gsc-engine"><h4>موتور هوشمند تشخیص، تصمیم و اقدام</h4><div class="gsc-rules">
+  <div><b>کاهش محسوس موجودی</b><span>ایجاد مأموریت بررسی و حفظ منابع</span></div><div><b>مشتری غیرفعال</b><span>پیشنهاد برنامه بازگشت مشتری</span></div><div><b>مشتری ناراضی</b><span>ارجاع فوری برای رسیدگی</span></div><div><b>شناسایی شرکت جدید</b><span>ایجاد پرونده جذب و تعیین مسئول مذاکره</span></div><div><b>مذاکره بدون نتیجه</b><span>یادآوری و پیگیری مجدد</span></div><div><b>جذب مشتری و منابع</b><span>ثبت نتیجه و محاسبه ارزش جذب</span></div><div><b>احتمال خروج مشتری</b><span>هشدار و مأموریت پیشگیرانه</span></div>
+ </div><p class="gsc-note">هر اقدام باید علت، مسئول، مهلت و نتیجه داشته باشد؛ تصمیم‌های حساس با تأیید نیروی مجاز انجام می‌شوند.</p></div>
+</section>
+<section id="growth-ops-workspace" class="gop-wrap" aria-label="میزکار عملیاتی مدیریت هوشمند مشتریان">
+ <div class="gop-head"><div><span>میزکار عملیاتی</span><h3>مدیریت مشتری، فرصت و مأموریت</h3><p>اطلاعات را یک‌بار ثبت کنید؛ پیگیری و نتیجه در همین پنل مدیریت می‌شود.</p></div><button type="button" class="growth-action" onclick="growthOpsRefresh()">↻ به‌روزرسانی آمار</button></div>
+ <div class="gop-stats" id="growth-ops-stats"><div><b>—</b><small>پرونده‌ها</small></div><div><b>—</b><small>در حال پیگیری</small></div><div><b>—</b><small>به نتیجه رسیده</small></div><div><b>—</b><small>منابع ثبت‌شده (تومان)</small></div></div>
+ <div class="gop-grid">
+  <form id="growth-ops-form" class="gop-form" onsubmit="growthOpsSave(event)">
+   <h4>ثبت مشتری، فرصت یا مأموریت</h4>
+   <label>نوع پرونده<select name="type" required><option value="جذب مشتری">جذب مشتری / توسعه بازار</option><option value="نگهداشت مشتری">نگهداشت / احیای مشتری</option><option value="تجربه مشتری">درخواست / رضایت / شکایت</option><option value="مأموریت کارکنان">مأموریت و پیگیری کارکنان</option></select></label>
+   <label>نام مشتری یا شرکت<input name="title" required maxlength="150" placeholder="نام شخص یا مجموعه"></label>
+   <label>نام رابط / شماره تماس<input name="contact" maxlength="120" placeholder="نام رابط و تلفن تماس"></label>
+   <label>مبلغ منابع (تومان)<input name="amount" type="number" min="0" step="1" placeholder="فقط مبلغ واقعیِ تأییدشده؛ در غیر این صورت خالی"></label>
+   <label>اقدام بعدی / شرح مأموریت<input name="notes" maxlength="1000" required placeholder="مثلاً تماس با مدیر مالی برای جلسه"></label>
+   <div class="gop-two"><label>مهلت پیگیری<input name="dueDate" type="date"></label><label>وضعیت<select name="status"><option>جدید</option><option>در حال پیگیری</option><option>نیازمند بررسی مدیر</option><option>به نتیجه رسیده</option><option>ناموفق / مختومه</option></select></label></div>
+   <label>مسئول پیگیری<input name="owner" maxlength="100" placeholder="نام همکار مسئول"></label>
+   <button type="submit" class="growth-action">＋ ثبت در سامانه</button><div id="growth-ops-feedback" role="status" aria-live="polite"></div>
+  </form>
+  <div class="gop-list"><div class="gop-list-head"><h4>پرونده‌ها و پیگیری‌ها</h4><button type="button" class="growth-action" onclick="growthOpsRefresh()">بارگذاری مجدد</button></div><div class="gop-filters"><input id="growth-ops-search" placeholder="جست‌وجو در نام، نوع یا مسئول" oninput="growthOpsRender()"><select id="growth-ops-status" onchange="growthOpsRender()"><option value="">همه وضعیت‌ها</option><option>جدید</option><option>در حال پیگیری</option><option>نیازمند بررسی مدیر</option><option>به نتیجه رسیده</option><option>ناموفق / مختومه</option></select></div><div id="growth-ops-records"><p class="growth-muted">برای مشاهده پرونده‌ها، پنل را به‌روزرسانی کنید.</p></div></div>
+ </div>
+ <p class="gop-disclaimer">توجه: مبلغ منابع فقط پس از تحقق و تأیید ثبت شود. ظرفیت احتمالی جذب، منابع جذب‌شده محسوب نمی‌شود. اطلاعات این بخش در شیت عملیاتی مستقل ذخیره می‌شود.</p>
+</section>
+<h4>منوها و کارکردهای مدیریت کسب‌وکار</h4><div class="growth-grid" id="growth-portal-module-grid"></div><button type="button" class="growth-action" onclick="growthBackToChooser()">بازگشت به انتخاب مسیر مدیریت کسب‌وکار</button><div class="growth-detail" id="growth-portal-detail"><button class="growth-action" onclick="document.getElementById('growth-portal-detail').style.display='none'">بستن جزئیات</button><div id="growth-portal-detail-content"></div></div></div>
     <div class="growth-modal-note">این بخش برای مشتریان و سازمان‌های بیرونی نمایش داده نمی‌شود.</div>
    </section>
   </div>
@@ -3493,6 +3632,36 @@ window.openGrowthPortalModule=function(id){
   }
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindEntry);else bindEntry();
+})();
+</script>
+
+
+<style id="growth-smart-customer-core-style">
+#growth-smart-customer-core{margin:18px 0;padding:18px;border:1px solid #d8e9df;border-radius:18px;background:linear-gradient(145deg,#f7fcf8,#fff);color:#183b2c}#growth-smart-customer-core *{box-sizing:border-box}.gsc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:15px}.gsc-kicker{font-size:12px;color:#087348;font-weight:800}.gsc-head h3{font-size:23px;margin:5px 0}.gsc-head p,.gsc-card p,.gsc-layer p{font-size:13px;line-height:1.9;color:#52665b;margin:7px 0}.gsc-live{white-space:nowrap;background:#e4f5eb;color:#087348;border-radius:30px;padding:7px 11px;font-size:11px;font-weight:800}.gsc-four{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.gsc-card,.gsc-layer{background:#fff;border:1px solid #dce9e0;border-radius:13px;padding:13px;min-width:0}.gsc-card b,.gsc-layer b{font-size:14px}.gsc-card button{border:0;border-radius:8px;background:#087348;color:#fff;padding:8px 12px;font:inherit;font-size:12px;cursor:pointer}.gsc-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:11px}.gsc-layer{background:#f0f7ff;border-color:#d8e7f6}.gsc-engine{margin-top:13px;padding:14px;background:#f3f8f5;border:1px solid #dce9e0;border-radius:13px}.gsc-engine h4{margin:0 0 10px}.gsc-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.gsc-rules div{background:#fff;border:1px solid #e2ebe5;border-radius:9px;padding:9px;display:flex;flex-direction:column;gap:4px}.gsc-rules b{font-size:12px}.gsc-rules span{font-size:11px;color:#52665b;line-height:1.7}.gsc-note{font-size:11px;color:#52665b;line-height:1.8;margin:10px 0 0}@media(max-width:620px){.gsc-head{display:block}.gsc-live{display:inline-block;margin-top:8px}.gsc-four,.gsc-two,.gsc-rules{grid-template-columns:1fr}#growth-smart-customer-core{padding:12px}.gsc-head h3{font-size:20px}}
+</style>
+<script id="growth-smart-customer-core-actions">
+(function(){window.growthCoreOpen=function(id){if(!sessionStorage.getItem('growthToken')){alert('ابتدا وارد پنل همکار مدیریت کسب‌وکار شوید.');return;}var aliases={retention:['retention','resource'],crm360:['crm360','complaints','feedback'],leads:['leads','resource'],tasks:['tasks','mission','employeeTasks']};var ids=aliases[id]||[id],mods=window.growthModules||[],found=null;for(var i=0;i<ids.length&&!found;i++)found=mods.find(function(m){return m.id===ids[i];});if(found&&typeof window.openGrowthPortalModule==='function'){window.openGrowthPortalModule(found.id);return;}var grid=document.getElementById('growth-portal-module-grid');if(grid)grid.scrollIntoView({behavior:'smooth',block:'center'});alert('برای این حوزه هنوز ماژول اجرایی متناظر در نسخه فعلی تعریف نشده است.');};})();
+</script>
+
+
+<style id="growth-ops-style">
+.gop-wrap{margin:18px 0;padding:16px;border:1px solid #dce9e1;border-radius:16px;background:#fff;color:#20352a}.gop-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.gop-head>div>span{font-size:11px;color:#16824e;font-weight:800}.gop-head h3{margin:4px 0;font-size:19px}.gop-head p,.gop-disclaimer{font-size:12px;color:#66756b;margin:4px 0 12px}.gop-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0}.gop-stats>div{background:#f1f7f3;border:1px solid #e0ece4;border-radius:10px;padding:12px;text-align:center}.gop-stats b{display:block;font-size:20px;color:#087443;overflow-wrap:anywhere}.gop-stats small{font-size:11px;color:#52675a}.gop-grid{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(300px,1.2fr);gap:14px}.gop-form,.gop-list{border:1px solid #e4ebe6;border-radius:12px;padding:13px;min-width:0}.gop-form h4,.gop-list h4{margin:0 0 12px}.gop-form label{display:block;font-size:12px;font-weight:700;margin:9px 0}.gop-form input,.gop-form select,.gop-filters input,.gop-filters select{display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:10px;border:1px solid #d5e0d8;border-radius:8px;background:#fff;font:inherit;font-size:13px}.gop-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gop-list-head,.gop-filters{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}.gop-filters{margin:10px 0}.gop-filters input{flex:1;min-width:130px}.gop-filters select{width:auto;min-width:130px}.gop-record{border:1px solid #e4ebe6;border-radius:9px;padding:10px;margin:8px 0;background:#fcfefd}.gop-record strong{display:block;font-size:13px}.gop-record small{color:#65746a;font-size:11px}.gop-record p{font-size:12px;margin:6px 0}.gop-record select{padding:7px;border:1px solid #d5e0d8;border-radius:7px;font:inherit;font-size:12px}.gop-record button{padding:7px 10px;border:0;border-radius:7px;background:#087443;color:#fff;font:inherit;font-size:11px;cursor:pointer}.gop-disclaimer{margin-top:12px}.gop-wrap #growth-ops-feedback{font-size:12px;color:#087443;margin-top:8px}@media(max-width:700px){.gop-grid{grid-template-columns:1fr}.gop-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.gop-head .growth-action{width:100%}}
+</style>
+<script id="growth-ops-runtime">
+(function(){'use strict';
+ var records=[];var statusOptions=['جدید','در حال پیگیری','نیازمند بررسی مدیر','به نتیجه رسیده','ناموفق / مختومه'];
+ function token(){return sessionStorage.getItem('growthToken')||'';}
+ function post(action,extra){if(!token())return Promise.reject(new Error('نشست همکار معتبر نیست؛ دوباره از درگاه مدیریت کسب‌وکار وارد شوید.'));return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token()},extra||{}))}).then(function(r){if(!r.ok)throw new Error('ارتباط با سرور ناموفق بود.');return r.json();}).then(function(d){if(d&&d.success===false)throw new Error(d.error||'عملیات انجام نشد.');return d;});}
+ function el(id){return document.getElementById(id);}
+ window.growthOpsRefresh=function(){var host=el('growth-ops-records');if(host)host.innerHTML='<p class="growth-muted">در حال دریافت اطلاعات...</p>';post('growthOpsList',{}).then(function(d){records=d.items||[];var st=d.stats||{};var stats=el('growth-ops-stats');if(stats)stats.innerHTML='<div><b>'+Number(st.total||0).toLocaleString('fa-IR')+'</b><small>کل پرونده‌ها</small></div><div><b>'+Number(st.open||0).toLocaleString('fa-IR')+'</b><small>در حال پیگیری</small></div><div><b>'+Number(st.done||0).toLocaleString('fa-IR')+'</b><small>به نتیجه رسیده</small></div><div><b>'+Number(st.amount||0).toLocaleString('fa-IR')+'</b><small>منابع تأییدشده (تومان)</small></div>';window.growthOpsRender();}).catch(function(e){if(host)host.innerHTML='<p style="color:#b42318">'+e.message+'</p>';});};
+ window.growthOpsRender=function(){var host=el('growth-ops-records');if(!host)return;var q=(el('growth-ops-search')?.value||'').trim().toLowerCase();var f=el('growth-ops-status')?.value||'';var list=records.filter(function(r){return(!f||r.status===f)&&(!q||[r.title,r.type,r.owner,r.contact,r.notes].join(' ').toLowerCase().includes(q));});if(!list.length){host.innerHTML='<p class="growth-muted">پرونده‌ای با این فیلتر پیدا نشد.</p>';return;}host.innerHTML=list.map(function(r){var opts=statusOptions.map(function(x){return '<option '+(x===r.status?'selected':'')+'>'+x+'</option>';}).join('');return '<article class="gop-record"><strong>'+esc(r.title)+'</strong><small>'+esc(r.type)+' · '+esc(r.id)+' · '+esc(r.created||'')+'</small><p>'+esc(r.notes||'')+'</p><small>مسئول: '+esc(r.owner||'تعیین نشده')+' | مهلت: '+esc(r.dueDate||'—')+' | منابع تأییدشده: '+Number(r.amount||0).toLocaleString('fa-IR')+' تومان</small><div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:8px"><select id="gop-status-'+r.id+'">'+opts+'</select><button type="button" onclick="growthOpsUpdate(\''+r.id+'\')">ثبت وضعیت</button></div></article>';}).join('');};
+ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+ window.growthOpsSave=function(ev){ev.preventDefault();var form=ev.currentTarget;var data=Object.fromEntries(new FormData(form).entries());data.amount=Number(data.amount||0);var fb=el('growth-ops-feedback');var btn=form.querySelector('button[type=submit]');if(btn){btn.disabled=true;btn.textContent='در حال ثبت...';}post('growthOpsSave',data).then(function(d){if(fb)fb.textContent='پرونده با شناسه '+d.id+' ثبت شد.';form.reset();window.growthOpsRefresh();}).catch(function(e){if(fb)fb.textContent=e.message;}).finally(function(){if(btn){btn.disabled=false;btn.textContent='＋ ثبت در سامانه';}});};
+ window.growthOpsUpdate=function(id){var s=el('gop-status-'+id);if(!s)return;post('growthOpsUpdate',{id:id,status:s.value}).then(function(){window.growthOpsRefresh();}).catch(function(e){alert(e.message);});};
+ var oldGo=window.growthGoToEmployeeSection;window.growthGoToEmployeeSection=function(){if(typeof oldGo==='function')oldGo();setTimeout(window.growthOpsRefresh,150);};
+ var oldLogin=window.growthEmployeeLogin;window.growthEmployeeLogin=async function(){if(typeof oldLogin==='function')await oldLogin();if(token())window.growthOpsRefresh();};
+ var oldCore=window.growthCoreOpen;window.growthCoreOpen=function(id){if(!token()){alert('ابتدا وارد پنل همکار مدیریت کسب‌وکار شوید.');return;}var map={retention:'نگهداشت و احیای مشتری',crm360:'مشتری‌مداری و تجربه مشتری',leads:'بازاریابی و توسعه بازار',tasks:'مدیریت عملکرد و مأموریت کارکنان'};var form=el('growth-ops-form');if(form){var type=form.elements.type;var mapType={retention:'نگهداشت مشتری',crm360:'تجربه مشتری',leads:'جذب مشتری',tasks:'مأموریت کارکنان'};if(mapType[id])type.value=mapType[id];}var title=el('growth-ops-workspace');if(title){title.scrollIntoView({behavior:'smooth',block:'start'});var h=title.querySelector('.gop-head h3');if(h&&map[id])h.textContent=map[id]+' | ثبت و پیگیری';}if(typeof oldCore==='function'&&id!=='retention'&&id!=='crm360'&&id!=='leads'&&id!=='tasks')oldCore(id);};
+ document.addEventListener('DOMContentLoaded',function(){if(token())window.growthOpsRefresh();});
 })();
 </script>
 
