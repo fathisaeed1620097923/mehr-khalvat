@@ -1374,12 +1374,9 @@ sessionStorage.setItem('role', data.role);
 sessionStorage.setItem('department', data.department);
 sessionStorage.setItem('branch', data.branch);
 document.getElementById('employee-tab-btn').style.display = 'block';
-if (window.__growthAfterLogin) {
-  window.__growthAfterLogin = false;
-  growthGoToEmployeeSection();
-} else {
-  switchTab('employee', document.getElementById('employee-tab-btn'));
-}
+// ورود قدیمی کارکنان فقط برای پنل تیکت‌هاست؛ هرگز به مدیریت کسب‌وکار هدایت نشود.
+window.__growthAfterLogin = false;
+switchTab('employee', document.getElementById('employee-tab-btn'));
 requestNotificationPermission();
 } else { window.__growthAfterLogin=false; showToast("نام کاربری یا رمز عبور اشتباه است.", "error"); }
 }).catch(() => { window.__growthAfterLogin=false; alert("خطا در ارتباط با سرور؛ نشانی Web App و انتشار نسخه جدید را بررسی کنید."); });
@@ -3363,6 +3360,8 @@ window.openGrowthPortalModule=function(id){
 <script id="growth-independent-entry-final">
 (function(){
   window.openGrowthPortal=function(btn){
+    // ورود مدیریت کسب‌وکار فقط از درگاه خودش؛ نشست ورود تیکت‌ها دخالتی ندارد.
+    window.__growthAfterLogin=false;
     var modal=document.getElementById('growth-portal-modal');
     if(!modal){alert('درگاه مدیریت کسب‌وکار در صفحه پیدا نشد.');return;}
     document.querySelectorAll('#main-tabs .tab-btn').forEach(function(x){x.classList.remove('active');});
