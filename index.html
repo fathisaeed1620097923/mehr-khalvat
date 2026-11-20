@@ -394,8 +394,9 @@ body { background: #fff !important; padding: 0 !important; }
 <script id="mehr-api-bootstrap">
 /* تعریف زودهنگام آدرس API برای جلوگیری از خطای mehrApiUrl */
 window.MEHR_LOCAL_TEST = (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1' || new URLSearchParams(location.search).get('demo') === '1');
-/* محل تنظیم نشانی وب‌اپ: در اجرای مستقیم از Google Apps Script، تابع doGet در Code.gs این نشانگر را خودکار با نشانی /exec جایگزین می‌کند. اگر فایل Index را خارج از Apps Script میزبانی می‌کنید، فقط مقدار زیر را با نشانی وب‌اپ خود جایگزین کنید. */ window.MEHR_WEB_APP_URL = window.MEHR_WEB_APP_URL || '__MEHR_SCRIPT_URL__';
+/* محل تنظیم نشانی وب‌اپ: در اجرای مستقیم از Google Apps Script، تابع doGet در Code.gs این نشانگر را خودکار با نشانی /exec جایگزین می‌کند. اگر فایل Index را خارج از Apps Script میزبانی می‌کنید، فقط مقدار زیر را با نشانی وب‌اپ خود جایگزین کنید. */ window.MEHR_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec';
 window.SCRIPT_URL = window.SCRIPT_URL || window.MEHR_WEB_APP_URL; window.mehrApiUrl = function() { return window.SCRIPT_URL; };
+window.mehrFetch = window.mehrFetch || function(input, init) { return window.fetch(input, init); };
 </script>
 
 <style id="mehr-v54-layout-and-guidance">
