@@ -322,95 +322,9 @@ body { background: #fff !important; padding: 0 !important; }
 <script id="mehr-api-bootstrap">
 /* تعریف زودهنگام آدرس API برای جلوگیری از خطای mehrApiUrl */
 window.SCRIPT_URL = window.SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx34Y5v_7ckgt3jv80K60B9cpfPZ-jl3dV_MKEqkXtnhaIz/exec';
+var SCRIPT_URL = window.SCRIPT_URL; // دسترسی سازگار در Safari و همه اسکریپت‌های صفحه
 window.mehrApiUrl = function() { return window.SCRIPT_URL; };
-
-/* ===== شبیه‌ساز مستقل نسخه آزمایشی؛ هیچ داده‌ای به بانک/سرور ارسال نمی‌کند ===== */
-window.MEHR_DEMO_MODE = true;
-window.MEHR_DEMO_LABEL = 'نسخه آزمایشی ـ شبیه‌ساز محلی فعال';
-window.mehrDemoTickets = window.mehrDemoTickets || [
- {row:1,name:'09120000001 - کد ملی: ۰۰۱۲۳۴۵۶۷۸',description:'نمونه: مشکل ورود به همراه‌بانک',imageUrl:'',trackingCode:'14051',status:'در حال بررسی',department:'بانکداری دیجیتال',reply:'در حال بررسی توسط واحد مربوطه',branch:'رشت'},
- {row:2,name:'09120000002 - کد ملی: ۰۰۲۳۴۵۶۷۸۹',description:'نمونه: درخواست پیگیری تسهیلات',imageUrl:'',trackingCode:'14052',status:'جدید',department:'اعتبارات',reply:'',branch:'رشت'}
-];
-window.mehrDemoRequest = function(payload, url) {
-  payload = payload || {};
-  var action = payload.action || '';
-  var tickets = window.mehrDemoTickets;
-  var demoUsers = {admin:'Mehr@1405',etehbarat:'Etehbarat123',digital:'Digital123',it:'IT123',hoghoughi:'Hoghoughi123',daneshbonyan:'Danesh123'};
-  Object.keys(demoUsers).forEach(function(k){demoUsers[k]=demoUsers[k];});
-  var result = {};
-  if (action === 'login' || action === 'growthEmployeeLogin' || action === 'growthManagerLogin') {
-    var u=String(payload.username||'').trim(), p=String(payload.pass||'');
-    var ok=!!demoUsers[u] && demoUsers[u]===p;
-    if(action==='growthManagerLogin') ok=(u==='admin' && p===demoUsers.admin);
-    if(action==='growthEmployeeLogin') ok=ok && u!=='admin';
-    var role=u==='admin'?'admin':(u.indexOf('branch')===0?'branch':'department');
-    result=ok?{access:true,token:'DEMO-'+u+'-'+Date.now(),username:u,role:role,department:({etehbarat:'اعتبارات',digital:'بانکداری دیجیتال',it:'انفورماتیک',hoghoughi:'حقوقی',daneshbonyan:'دانش‌بنیان'})[u]||'',branch:u.indexOf('branch')===0?u.replace('branch',''):'',allowedCategories:[]}:{access:false,error:'نام کاربری یا رمز آزمایشی صحیح نیست.'};
-  } else if(action==='getTicketsSecured' || (url||'').indexOf('action=getTickets')>=0) {
-    result=tickets.slice().reverse();
-  } else if(action==='submitTicket') {
-    var code=String(payload.trackingCode||('D'+Math.floor(10000+Math.random()*89999)));
-    tickets.push({row:Math.max(0,...tickets.map(function(t){return Number(t.row)||0;}))+1,name:payload.name||'مشتری نمونه',description:payload.description||'درخواست نمونه',imageUrl:'',trackingCode:code,status:'جدید',department:payload.department||'پشتیبانی',reply:'',branch:payload.branch||'رشت'});
-    result={result:'success',code:code};
-  } else if(action==='updateStatus') {
-    var t=tickets.find(function(x){return Number(x.row)===Number(payload.row);});
-    if(t){t.status=payload.status||t.status;t.reply=payload.reply||t.reply;}
-    result={result:'success',success:true};
-  } else if(action==='growthOpsList') {
-    result={success:true,items:[],stats:{total:0,open:0,done:0,amount:0}};
-  } else if(action==='growthTaskList' || action==='growthRequestList' || action==='growthGetLeads' || action==='getPOSRequests' || action==='getAppointments' || action==='getSatnaRequests' || action==='getVipCustomers') {
-    result={success:true,items:[],stats:{},data:[]};
-    if(action==='growthTaskList' || action==='growthRequestList' || action==='growthGetLeads') result={success:true,items:[]};
-    if(action==='getPOSRequests' || action==='getAppointments' || action==='getSatnaRequests' || action==='getVipCustomers') result=[];
-  } else if(action==='growthOpsSave' || action==='growthOpsUpdate' || action==='growthTaskCreate' || action==='growthTaskUpdate' || action==='growthRequestAssign' || action==='growthRequestUpdate' || action==='growthAddLead' || action==='growthUpdateLead') {
-    result={success:true,id:'DEMO-'+Date.now(),message:'در نسخه آزمایشی ثبت شد؛ داده واقعی تغییر نکرد.'};
-  } else if(action==='getDashboardStats' || action==='mehrExecutiveDashboard') {
-    result={success:true,totalTickets:tickets.length,openTickets:tickets.filter(function(x){return x.status!=='حل شد';}).length,resources:12500000000,customers:42,leads:18};
-  } else if(action==='trackTicket') {
-    var found=tickets.find(function(x){return String(x.trackingCode)===String(payload.code);});
-    result=found?Object.assign({found:true,type:'ticket'},found):{found:false};
-  } else {
-    result={success:true,result:'success',message:'عملیات در شبیه‌ساز محلی انجام شد.',items:[]};
-  }
-  return Promise.resolve({ok:true,status:200,json:function(){return Promise.resolve(result);},text:function(){return Promise.resolve(JSON.stringify(result));}});
-};
-window.mehrFetch = function(url, init) {
-  if (!window.MEHR_DEMO_MODE) return window.fetch(url, init);
-  var payload={};
-  try { if(init && init.body) payload=JSON.parse(init.body); } catch(e) {}
-  var u=String(url||'');
-  if(!payload.action && u.indexOf('action=trackTicket')>=0) {
-    var m=u.match(/[?&]code=([^&]+)/); payload={action:'trackTicket',code:m?decodeURIComponent(m[1]):''};
-  }
-  if(!payload.action && u.indexOf('action=trackSatna')>=0) payload={action:'trackSatna'};
-  return window.mehrDemoRequest(payload,u);
-};
-document.addEventListener('DOMContentLoaded',function(){
- var banner=document.createElement('div');banner.id='mehr-demo-banner';
- banner.textContent='🧪 نسخه آزمایشی فعال است؛ ورود، تیکت و عملیات نمایشی به‌صورت محلی شبیه‌سازی می‌شوند و به سامانه بانک متصل نیستند.';
- banner.style.cssText='position:sticky;top:0;z-index:2147483645;background:#fff4cc;color:#684b00;border-bottom:1px solid #e7cf7b;padding:9px 12px;text-align:center;font: bold 12px/1.8 sans-serif;direction:rtl';
- document.body.insertBefore(banner,document.body.firstChild);
-});
-
 </script>
-<style>
-/* V5 Smart Guide - additive, non-destructive */
-#mehr-smart-guide-v5{position:fixed;right:14px;bottom:16px;z-index:2147483000;font-family:Tahoma,Vazirmatn,sans-serif;direction:rtl}
-#mehr-smart-guide-v5 .sg-launch{border:0;border-radius:999px;background:linear-gradient(135deg,#075b3b,#0b8b58);color:#fff;padding:13px 17px;font-weight:800;box-shadow:0 7px 25px #063d2b55;cursor:pointer}
-#mehr-smart-guide-v5 .sg-panel{display:none;position:absolute;right:0;bottom:60px;width:min(370px,calc(100vw - 28px));max-height:min(72vh,620px);overflow:auto;background:#fff;border:1px solid #cfe4d7;border-radius:18px;box-shadow:0 16px 55px #001d1240;color:#20372b}
-#mehr-smart-guide-v5.open .sg-panel{display:block}
-#mehr-smart-guide-v5 .sg-head{background:linear-gradient(120deg,#063c29,#11804c);color:#fff;padding:14px 16px;border-radius:17px 17px 0 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
-#mehr-smart-guide-v5 .sg-head b{font-size:14px}#mehr-smart-guide-v5 .sg-head small{display:block;font-size:10px;opacity:.85;margin-top:3px}
-#mehr-smart-guide-v5 .sg-body{padding:14px;line-height:1.95;font-size:12px}
-#mehr-smart-guide-v5 .sg-step{background:#f1f8f3;border:1px solid #dcece1;border-radius:12px;padding:11px;margin:9px 0}
-#mehr-smart-guide-v5 .sg-step strong{color:#075b3b;display:block;margin-bottom:4px}
-#mehr-smart-guide-v5 .sg-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
-#mehr-smart-guide-v5 .sg-actions button{border:0;border-radius:9px;padding:9px 11px;background:#087448;color:#fff;font-weight:700;font-size:11px;cursor:pointer}
-#mehr-smart-guide-v5 .sg-actions button.secondary{background:#e8f2ec;color:#145638}
-#mehr-smart-guide-v5 .sg-progress{height:6px;background:#e8eee9;border-radius:9px;overflow:hidden;margin:8px 0}
-#mehr-smart-guide-v5 .sg-progress i{display:block;height:100%;background:#15935b;width:0;transition:width .25s}
-#mehr-smart-guide-v5 .sg-muted{color:#718077;font-size:10px}
-@media(max-width:520px){#mehr-smart-guide-v5{right:9px;bottom:9px}#mehr-smart-guide-v5 .sg-launch{padding:11px 13px;font-size:12px}}
-</style>
 </head>
 <body>
 
@@ -1503,7 +1417,7 @@ async function submitTicketEmployeeLogin(){
  if(!username||!pass){msg.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}
  btn.disabled=true;btn.textContent='در حال بررسی...';msg.textContent='';
  try{
-  const response=await mehrFetch(window.mehrApiUrl(),{method:'POST',body:JSON.stringify({action:'login',username:username,pass:pass})});
+  const response=await fetch(window.mehrApiUrl(),{method:'POST',body:JSON.stringify({action:'login',username:username,pass:pass})});
   if(!response.ok)throw new Error('HTTP '+response.status);
   const data=await response.json();
   if(!data.access){msg.textContent=data.error||'نام کاربری یا رمز عبور صحیح نیست.';btn.disabled=false;btn.textContent='ورود';return;}
@@ -1565,7 +1479,7 @@ department: department,
 trackingCode: trackingCode,
 branch: document.getElementById('c-branch').value
 };
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
 .then(data => {
 if (data.result === 'error') { alert("خطا در ثبت: " + data.error); btn.innerText = "ثبت نهایی درخواست"; btn.disabled = false; return; }
@@ -1589,7 +1503,7 @@ document.getElementById('track-satna-section').style.display = 'none';
 document.getElementById('track-status-text').innerText = "در حال دریافت...";
 if (trackInterval) clearInterval(trackInterval);
 const fetchStatus = () => {
-mehrFetch(SCRIPT_URL + "?action=trackTicket&code=" + code)
+fetch(SCRIPT_URL + "?action=trackTicket&code=" + code)
 .then(res => res.json())
 .then(data => {
 if (data.found) {
@@ -1631,7 +1545,7 @@ if (trackInterval) clearInterval(trackInterval);
 };
 fetchStatus();
 trackInterval = setInterval(fetchStatus, 15000);
-mehrFetch(SCRIPT_URL + "?action=trackSatna&code=" + code)
+fetch(SCRIPT_URL + "?action=trackSatna&code=" + code)
 .then(r => r.json()).then(data => {
 if (data.found) {
 document.getElementById('track-ticket-section').style.display = 'none';
@@ -1657,7 +1571,7 @@ document.getElementById('track-satna-details').innerHTML = html;
 
 function cancelMyAppointment() {
 if (!confirm("آیا از لغو نوبت خود مطمئن هستید؟")) return;
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'cancelAppointmentByCustomer', row: currentAppointmentRow }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'cancelAppointmentByCustomer', row: currentAppointmentRow }) })
 .then(res => res.json())
 .then(data => {
 if (data.success) {
@@ -1676,7 +1590,7 @@ seenTicketRows.clear();
 fetchDepartmentTickets(true);
 employeeInterval = setInterval(() => {
 const token = sessionStorage.getItem('adminToken');
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
 .then(res => res.json())
 .then(tickets => {
 let newCount = 0;
@@ -1695,7 +1609,7 @@ const dept = document.getElementById('e-department').value;
 const listContainer = document.getElementById('employee-ticket-list');
 const token = sessionStorage.getItem('adminToken');
 if (isInitial) { listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت اطلاعات...</p>'; }
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'getTicketsSecured', token: token}) })
 .then(res => res.json())
 .then(tickets => {
 if (tickets.error) { listContainer.innerHTML = '<p style="text-align:center; color: red;">دسترسی غیرمجاز.</p>'; return; }
@@ -1715,7 +1629,7 @@ listContainer.innerHTML += html;
 function resolveTicket(row, btnElement) {
 btnElement.innerText = "در حال ذخیره..."; btnElement.disabled = true;
 let replyText = document.getElementById('reply-' + row).value;
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', row: row, status: 'حل شد', reply: replyText }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updateStatus', row: row, status: 'حل شد', reply: replyText }) })
 .then(() => { alert('تیکت حل شد.'); fetchDepartmentTickets(true); })
 .catch(() => { alert('خطا.'); btnElement.innerText = "علامت‌گذاری به عنوان حل شد"; btnElement.disabled = false; });
 }
@@ -1744,7 +1658,7 @@ const timeSelect = document.getElementById('app-time');
 Array.from(timeSelect.options).forEach(opt => { if (opt.value !== "") { opt.disabled = false; opt.text = opt.value; } });
 if (!branch || !date) return;
 timeSelect.disabled = true;
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBookedTimes', branch: branch, date: date }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBookedTimes', branch: branch, date: date }) })
 .then(res => res.json())
 .then(bookedTimes => {
 timeSelect.disabled = false;
@@ -1773,7 +1687,7 @@ if (!/^09\d{9}$/.test(phone)) { alert('شماره همراه نامعتبر اس
 const trackingCode = Math.floor(10000 + Math.random() * 90000).toString();
 const btn = event.target;
 btn.disabled = true; btn.innerText = "در حال ثبت...";
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'submitAppointment', serviceType, branch, date, time, name, phone, trackingCode }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'submitAppointment', serviceType, branch, date, time, name, phone, trackingCode }) })
 .then(res => res.json())
 .then(data => {
 if (data.success) {
@@ -1789,7 +1703,7 @@ function fetchAppointments() {
 const listContainer = document.getElementById('employee-appointments-list');
 listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت نوبت‌ها...</p>';
 const branchFilter = sessionStorage.getItem('branch') || 'all';
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAppointments', branch: branchFilter }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAppointments', branch: branchFilter }) })
 .then(res => res.json())
 .then(list => {
 listContainer.innerHTML = '';
@@ -1813,7 +1727,7 @@ listContainer.innerHTML += `
 function deleteAppointment(row, btnElement) {
 if (!confirm('آیا از حذف این نوبت اطمینان دارید؟')) return;
 btnElement.innerText = 'در حال حذف...'; btnElement.disabled = true;
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteAppointment', row: row }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteAppointment', row: row }) })
 .then(res => res.json())
 .then(data => {
 if (data.success === true) { alert('نوبت با موفقیت حذف شد.'); fetchAppointments(); }
@@ -1904,7 +1818,7 @@ action: 'submitPOS',
 formData: { name, nid, phone, landline, email, business, type, license, ecoCode, taxCode, address, postal, deviceType, bankName, iban, accountNumber, accountHolder },
 files: filesData, signature: signatureData
 };
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(res => res.json())
 .then(data => {
 if (data.status === 'success') {
@@ -1920,7 +1834,7 @@ showToast("درخواست پوز ثبت شد", "success");
 function fetchPOSRequests() {
 const listContainer = document.getElementById('employee-pos-list');
 listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت لیست پوزها...</p>';
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getPOSRequests' }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getPOSRequests' }) })
 .then(res => res.json())
 .then(posList => {
 listContainer.innerHTML = '';
@@ -1974,7 +1888,7 @@ function printPOSForm(row) {
 function resolvePOSRequest(row, btnElement) {
 if (!confirm("آیا از نصب دستگاه پوز برای این مشتری مطمئن هستید؟")) return;
 btnElement.innerText = "در حال تایید..."; btnElement.disabled = true;
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updatePOSStatus', row: row }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'updatePOSStatus', row: row }) })
 .then(res => res.json())
 .then(data => {
 if (data.success) { alert("وضعیت با موفقیت به 'نصب شد' تغییر یافت."); document.getElementById('pos-card-' + row).remove(); }
@@ -1985,7 +1899,7 @@ else { alert("خطایی رخ داد."); btnElement.innerText = "✅ نصب شد
 
 function loadDashboardStats() {
 const token = sessionStorage.getItem('adminToken');
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getDashboardStats', token: token }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getDashboardStats', token: token }) })
 .then(res => res.json())
 .then(data => {
 if (data.error) { alert(data.error); return; }
@@ -2148,7 +2062,7 @@ const branch = sessionStorage.getItem('branch') || '0000';
 const token = sessionStorage.getItem('adminToken');
 const box = document.getElementById('emotion-stats-branch-2');
 box.innerHTML = '<p style="text-align:center;">در حال دریافت...</p>';
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getEmotionStatsBranch', branch: branch, token: token }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getEmotionStatsBranch', branch: branch, token: token }) })
 .then(r => r.json())
 .then(d => { renderEmotionStats(d, box); })
 .catch(() => { box.innerHTML = '<p style="color:red;">خطا در ارتباط.</p>'; });
@@ -2185,7 +2099,7 @@ function loadAdminEmotionStats() {
 const token = sessionStorage.getItem('adminToken');
 const box = document.getElementById('admin-emotion-stats');
 box.innerHTML = '<p style="text-align:center;">در حال دریافت...</p>';
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getEmotionStatsAdmin', token: token }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getEmotionStatsAdmin', token: token }) })
 .then(r => r.json())
 .then(d => {
 if (!d.success) { box.innerHTML = '<p style="color:red;">خطا: ' + (d.error || '') + '</p>'; return; }
@@ -2211,7 +2125,7 @@ function loadBestCounter() {
 const box = document.getElementById('best-counter-result');
 box.innerHTML = '<p style="text-align:center;">در حال محاسبه...</p>';
 
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBestCounterOfMonth' }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getBestCounterOfMonth' }) })
 .then(r => r.json())
 .then(d => {
 if (d.success) {
@@ -2249,7 +2163,7 @@ ibanDest: document.getElementById('satna-ibanDest').value,
 amount: document.getElementById('satna-amount').value,
 receiverName: document.getElementById('satna-receiverName').value
 };
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(r => r.json())
 .then(d => {
 if (d.success) {
@@ -2267,7 +2181,7 @@ btn.disabled = false; btn.innerText = 'ارسال درخواست ساتنا';
 function fetchSatnaRequests() {
 const listContainer = document.getElementById('employee-satna-list');
 listContainer.innerHTML = '<p style="text-align:center;">در حال دریافت لیست ساتنا...</p>';
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getSatnaRequests', branch: sessionStorage.getItem('branch') }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getSatnaRequests', branch: sessionStorage.getItem('branch') }) })
 .then(res => res.json())
 .then(list => {
 listContainer.innerHTML = '';
@@ -2297,7 +2211,7 @@ if (!nid || !phone) { err.innerText = 'لطفاً کد ملی و شماره هم
 btn.innerText = 'در حال بررسی...';
 btn.disabled = true;
 err.style.display = 'none';
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
 .then(r => r.json())
 .then(vips => {
 const isVip = vips.find(v => v.nationalId === nid && v.phone === phone);
@@ -2322,7 +2236,7 @@ btn.disabled = false;
 }
 function customerFinalApprove() {
 if (!confirm('آیا از تأیید نهایی این تراکنش اطمینان دارید؟')) return;
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'customerFinalApproveSatna', row: currentSatnaRow }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'customerFinalApproveSatna', row: currentSatnaRow }) })
 .then(r => r.json())
 .then(d => {
 if (d.success) {
@@ -2342,7 +2256,7 @@ if (!nid || !phone) { alert('کد ملی و شماره همراه الزامی �
 const btn = event.target;
 btn.disabled = true;
 btn.innerText = 'در حال ثبت...';
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addVipCustomer', nationalId: nid, phone: phone, name: name }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addVipCustomer', nationalId: nid, phone: phone, name: name }) })
 .then(r => r.json())
 .then(d => {
 if (d.success) {
@@ -2360,7 +2274,7 @@ function loadVipList() {
 const container = document.getElementById('vip-list-container');
 if (!container) return;
 container.innerHTML = '<p style="text-align:center;">در حال دریافت لیست...</p>';
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getVipCustomers' }) })
 .then(r => r.json())
 .then(vips => {
 if (vips.length === 0) { container.innerHTML = '<p style="text-align:center; color:gray;">لیست VIP خالی است.</p>'; return; }
@@ -2425,7 +2339,7 @@ branch: branch, counter: counter,
 score: selectedMainEmotion, label: 'امتیاز ' + selectedMainEmotion,
 comment: (document.getElementById('main-emotion-comment')?.value || '').trim(), userAgent: navigator.userAgent, ip: 'auto'
 };
-mehrFetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
 .then(r => r.json())
 .then(data => {
 if (data.success) {
@@ -3201,7 +3115,7 @@ else if (val.indexOf('rast') !== -1) this.value = "6418 - رازی";
  'use strict';
  const $=id=>document.getElementById(id);
  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const api=async (action,payload)=>{const token=sessionStorage.getItem('growthToken')||'';const r=await mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token,growthToken:token},payload||{}))});return r.json();};
+ const api=async (action,payload)=>{const token=sessionStorage.getItem('growthToken')||'';const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token,growthToken:token},payload||{}))});return r.json();};
  function canManage(){return ['admin','regional','branch','manager','branch_manager'].includes(sessionStorage.getItem('growthRole')||'');}
  function mount(){const host=$('growth-employee-authenticated');if(!host||$('growth-task-center'))return;
   const section=document.createElement('section');section.id='growth-task-center';section.className='growth-guide-block';
@@ -3262,7 +3176,7 @@ else if (val.indexOf('rast') !== -1) this.value = "6418 - رازی";
 </script>
 <script>
 let growthLeadsCache=[];
-function growthCall(payload){const token=sessionStorage.getItem('growthToken')||'';payload.token=token;payload.growthToken=token;return mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());}
+function growthCall(payload){const token=sessionStorage.getItem('growthToken')||'';payload.token=token;payload.growthToken=token;return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());}
 function growthSaveLead(){
  const name=document.getElementById('g-name').value.trim(); if(!name){alert('نام شرکت یا کسب‌وکار الزامی است.');return;}
  const data={action:'growthAddLead',name,contact:document.getElementById('g-contact').value.trim(),phone:document.getElementById('g-phone').value.trim(),type:document.getElementById('g-type').value.trim(),opportunity:document.getElementById('g-opportunity').value,priority:document.getElementById('g-priority').value,estimate:document.getElementById('g-estimate').value,nextDate:document.getElementById('g-next').value,status:document.getElementById('g-status').value,notes:document.getElementById('g-notes').value.trim()};
@@ -3365,7 +3279,7 @@ async function growthEmployeeLogin(){
  try{
   const loginMode='employee';
   const action='growthEmployeeLogin';
-  const response=await mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,username:username,pass:pass})});
+  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,username:username,pass:pass})});
   if(!response.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+response.status+').');
   const data=await response.json();
   if(!data||data.access!==true||!data.token)throw new Error((data&&data.error)||'نام کاربری یا رمز عبور صحیح نیست.');
@@ -3411,7 +3325,7 @@ async function growthCustomerLogin(){
  if(!/^09\d{9}$/.test(phone)||!password){if(feedback)feedback.textContent='شماره همراه و رمز عبور را وارد کنید.';return;}
  if(feedback)feedback.textContent='در حال بررسی...';
  try{
-  const response=await mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthCustomerLogin',phone:phone,password:password})});
+  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthCustomerLogin',phone:phone,password:password})});
   const result=await response.json();if(!result.success)throw new Error(result.error||'ورود انجام نشد.');
   const form=document.querySelector('#growth-customer-flow form.growth-form');
   if(form){['company','contact','phone','city','branch'].forEach(k=>{if(result[k]&&form.elements[k])form.elements[k].value=result[k];});}
@@ -3435,11 +3349,11 @@ async function submitGrowthCompany(event){
  const d=Object.fromEntries(new FormData(form).entries());d.phone=phone;d.createAccount=createAccount?'yes':'no';d.customerPassword=createAccount?newPassword:'';d.action='growthCustomerRequest';
  btn.disabled=true;fb.textContent='در حال ثبت درخواست...';
  try{
-  const response=await mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(d)});const result=await response.json();
+  const response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(d)});const result=await response.json();
   if(!result.success)throw new Error(result.error||'ثبت درخواست انجام نشد');
   let uploadNote='';
   if(files.length){
-   for(const f of files){const base64=await growthReadFile(f);const up=await mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthCustomerUpload',trackingId:result.id,fileName:f.name,mimeType:f.type||'application/octet-stream',base64})}).then(r=>r.json());if(!up.success)throw new Error('درخواست ثبت شد اما بارگذاری '+f.name+' انجام نشد: '+(up.error||''));}
+   for(const f of files){const base64=await growthReadFile(f);const up=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:'growthCustomerUpload',trackingId:result.id,fileName:f.name,mimeType:f.type||'application/octet-stream',base64})}).then(r=>r.json());if(!up.success)throw new Error('درخواست ثبت شد اما بارگذاری '+f.name+' انجام نشد: '+(up.error||''));}
    uploadNote=' مدارک نیز بارگذاری شد.';
   }
   fb.textContent='درخواست با موفقیت ثبت شد. کد پیگیری: '+result.id+'.'+uploadNote+' این کد را نگهداری کنید.';
@@ -3950,7 +3864,7 @@ window.openGrowthPortalModule=function(id){
 (function(){'use strict';
  var records=[];var statusOptions=['جدید','در حال پیگیری','نیازمند بررسی مدیر','به نتیجه رسیده','ناموفق / مختومه'];
  function token(){return sessionStorage.getItem('growthToken')||'';}
- function post(action,extra){if(!token())return Promise.reject(new Error('نشست همکار معتبر نیست؛ دوباره از درگاه مدیریت کسب‌وکار وارد شوید.'));return mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token()},extra||{}))}).then(function(r){if(!r.ok)throw new Error('ارتباط با سرور ناموفق بود.');return r.json();}).then(function(d){if(d&&d.success===false)throw new Error(d.error||'عملیات انجام نشد.');return d;});}
+ function post(action,extra){if(!token())return Promise.reject(new Error('نشست همکار معتبر نیست؛ دوباره از درگاه مدیریت کسب‌وکار وارد شوید.'));return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token()},extra||{}))}).then(function(r){if(!r.ok)throw new Error('ارتباط با سرور ناموفق بود.');return r.json();}).then(function(d){if(d&&d.success===false)throw new Error(d.error||'عملیات انجام نشد.');return d;});}
  function el(id){return document.getElementById(id);}
  window.growthOpsRefresh=function(){var host=el('growth-ops-records');if(host)host.innerHTML='<p class="growth-muted">در حال دریافت اطلاعات...</p>';post('growthOpsList',{}).then(function(d){records=d.items||[];var st=d.stats||{};var stats=el('growth-ops-stats');if(stats)stats.innerHTML='<div><b>'+Number(st.total||0).toLocaleString('fa-IR')+'</b><small>کل پرونده‌ها</small></div><div><b>'+Number(st.open||0).toLocaleString('fa-IR')+'</b><small>در حال پیگیری</small></div><div><b>'+Number(st.done||0).toLocaleString('fa-IR')+'</b><small>به نتیجه رسیده</small></div><div><b>'+Number(st.amount||0).toLocaleString('fa-IR')+'</b><small>منابع تأییدشده (تومان)</small></div>';window.growthOpsRender();}).catch(function(e){if(host)host.innerHTML='<p style="color:#b42318">'+e.message+'</p>';});};
  window.growthOpsRender=function(){var host=el('growth-ops-records');if(!host)return;var q=(el('growth-ops-search')?.value||'').trim().toLowerCase();var f=el('growth-ops-status')?.value||'';var list=records.filter(function(r){return(!f||r.status===f)&&(!q||[r.title,r.type,r.owner,r.contact,r.notes].join(' ').toLowerCase().includes(q));});if(!list.length){host.innerHTML='<p class="growth-muted">پرونده‌ای با این فیلتر پیدا نشد.</p>';return;}host.innerHTML=list.map(function(r){var opts=statusOptions.map(function(x){return '<option '+(x===r.status?'selected':'')+'>'+x+'</option>';}).join('');return '<article class="gop-record"><strong>'+esc(r.title)+'</strong><small>'+esc(r.type)+' · '+esc(r.id)+' · '+esc(r.created||'')+'</small><p>'+esc(r.notes||'')+'</p><small>مسئول: '+esc(r.owner||'تعیین نشده')+' | مهلت: '+esc(r.dueDate||'—')+' | منابع تأییدشده: '+Number(r.amount||0).toLocaleString('fa-IR')+' تومان</small><div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:8px"><select id="gop-status-'+r.id+'">'+opts+'</select><button type="button" onclick="growthOpsUpdate(\''+r.id+'\')">ثبت وضعیت</button></div></article>';}).join('');};
@@ -4059,7 +3973,7 @@ window.openGrowthPortalModule=function(id){
  const $=id=>document.getElementById(id);
  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const token=()=>sessionStorage.getItem('growthToken')||'';
- async function api(action,payload){const r=await mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token()},payload||{}))});return r.json();}
+ async function api(action,payload){const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token()},payload||{}))});return r.json();}
  window.chooseGrowthPath=function(path){if(path!=='customer'&&path!=='employee')return;const c=$('growth-chooser'),cu=$('growth-customer-flow'),em=$('growth-employee-flow');if(c)c.style.display='none';if(cu)cu.style.display=path==='customer'?'block':'none';if(em)em.style.display=path==='employee'?'block':'none';if(path==='employee'){const a=$('growth-employee-login-actions');if(a)a.style.display='grid';const x=$('growth-employee-authenticated');if(x)x.style.display='none';}if(path==='customer'&&window.growthUpdateRequirements)window.growthUpdateRequirements();};
  window.growthBackToChooser=function(){['growth-customer-flow','growth-employee-flow'].forEach(id=>{if($(id))$(id).style.display='none';});if($('growth-chooser'))$('growth-chooser').style.display='block';if($('growth-employee-authenticated'))$('growth-employee-authenticated').style.display='none';if($('growth-employee-login-actions'))$('growth-employee-login-actions').style.display='grid';};
  window.openGrowthPortal=function(btn){const m=$('growth-portal-modal');if(!m){alert('درگاه مدیریت کسب‌وکار پیدا نشد.');return;}document.querySelectorAll('#main-tabs .tab-btn').forEach(x=>x.classList.remove('active'));(btn||$('growth-tab-btn'))?.classList.add('active');m.style.display='flex';m.classList.add('open');document.body.style.overflow='hidden';window.growthBackToChooser();};
@@ -4154,7 +4068,7 @@ window.openGrowthPortalModule=function(id){
    if(feedback)feedback.textContent='';
    try{
      var action=mode==='manager'?'growthManagerLogin':'growthEmployeeLogin';
-     var response=await mehrFetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,username:username,pass:pass})});
+     var response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,username:username,pass:pass})});
      if(!response.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+response.status+').');
      var data=await response.json();
      if(!data||data.access!==true||!data.token)throw new Error((data&&data.error)||(mode==='manager'?'اطلاعات مدیر سامانه صحیح نیست.':'نام کاربری یا رمز عبور صحیح نیست.'));
@@ -4237,22 +4151,6 @@ window.openGrowthPortalModule=function(id){
 .mehr-v5-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mehr-v5-form label{font-size:11px;color:#53665a}.mehr-v5-form input,.mehr-v5-form select,.mehr-v5-form textarea{display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:10px;border:1px solid #d8e5dc;border-radius:8px;font:12px Tahoma;background:#fff}.mehr-v5-form .wide{grid-column:1/-1}
 .mehr-v5-table{overflow:auto;margin-top:12px;border:1px solid #e1eae4;border-radius:10px}.mehr-v5-table table{width:100%;border-collapse:collapse;min-width:680px;font-size:11px}.mehr-v5-table th,.mehr-v5-table td{padding:9px;border-bottom:1px solid #edf1ee;text-align:right}.mehr-v5-table th{background:#edf6f0;color:#145638}.mehr-v5-muted{font-size:11px;color:#718077;line-height:1.9}.mehr-v5-alert{background:#fff8e8;border:1px solid #efdfb7;border-radius:10px;padding:10px;font-size:11px;line-height:1.8;margin:10px 0}
 @media(max-width:600px){#mehr-v5-launch{left:10px;bottom:10px;padding:11px 13px}.mehr-v5-form{grid-template-columns:1fr}.mehr-v5-form .wide{grid-column:auto}#mehr-v5-content{padding:10px}}
-
-/* ===== اصلاح نمایش تمام‌عرض موبایل؛ حفظ چیدمان دسکتاپ ===== */
-@media screen and (max-width: 768px) {
-  html { width:100% !important; min-width:0 !important; max-width:100% !important; overflow-x:hidden !important; }
-  body { display:block !important; width:100% !important; min-width:0 !important; max-width:100% !important; margin:0 !important; padding:0 !important; overflow-x:hidden !important; }
-  body > .container, .container { display:block !important; width:100% !important; max-width:100% !important; min-width:0 !important; margin:0 auto 24px !important; border-radius:0 !important; box-shadow:none !important; }
-  .content { width:100% !important; min-width:0 !important; padding:14px !important; }
-  .header { border-radius:0 !important; }
-  .tabs { width:100% !important; padding-left:8px !important; padding-right:8px !important; }
-  img, video, canvas, iframe { max-width:100% !important; }
-}
-@media screen and (max-width:420px) {
-  .content { padding:11px !important; }
-  .header { padding:18px 12px !important; }
-}
-
 </style>
 <button id="mehr-v5-launch" type="button" onclick="mehrV5Open()">📊 میزکار راهبردی رشد</button>
 <div id="mehr-v5-modal" aria-hidden="true"><div id="mehr-v5-card">
@@ -4300,82 +4198,47 @@ window.openGrowthPortalModule=function(id){
 })();
 </script>
 
-
-<div id="mehr-smart-guide-v5" aria-live="polite">
- <div class="sg-panel" role="dialog" aria-label="دستیار راهنمای هوشمند سامانه">
-  <div class="sg-head"><div><b>🧭 دستیار راهبر سامانه مهر</b><small>راهنمای مرحله‌به‌مرحله در نسخه ۵</small></div><button type="button" onclick="mehrSGToggle(false)" aria-label="بستن" style="border:0;background:#ffffff22;color:#fff;border-radius:8px;padding:5px 9px;font-size:18px">×</button></div>
-  <div class="sg-body">
-   <div id="mehr-sg-context">در حال بررسی صفحه...</div>
-   <div class="sg-progress"><i id="mehr-sg-progress"></i></div>
-   <div class="sg-step"><strong id="mehr-sg-title">قدم بعدی شما</strong><span id="mehr-sg-instruction">برای دریافت راهنمایی، شروع کنید.</span></div>
-   <div id="mehr-sg-check" class="sg-muted"></div>
-   <div class="sg-actions">
-    <button type="button" onclick="mehrSGNext()">رفتن به محل اقدام</button>
-    <button type="button" class="secondary" onclick="mehrSGSpeak()">🔊 پخش راهنما</button>
-    <button type="button" class="secondary" onclick="mehrSGRefresh()">به‌روزرسانی راهنما</button>
-   </div>
-   <p class="sg-muted" style="margin-top:9px">راهنما بر اساس صفحه و وضعیت قابل مشاهده سامانه مسیر پیشنهادی را تعیین می‌کند. ثبت، حذف، تأیید مالی یا ارسال نهایی بدون اقدام کاربر انجام نمی‌شود.</p>
+\n<!-- V5 SMART WORK GUIDE: additive overlay; existing menus and modules remain intact -->
+<style>
+#v5-work-fab{position:fixed;z-index:2147483000;left:16px;bottom:18px;border:0;border-radius:999px;background:linear-gradient(135deg,#075b39,#15965a);color:#fff;padding:13px 18px;font-weight:900;box-shadow:0 8px 28px #063b2b55;cursor:pointer;font-family:Tahoma,sans-serif}
+#v5-work-modal{display:none;position:fixed;inset:0;z-index:2147483001;background:#061b14c9;align-items:center;justify-content:center;padding:14px;direction:rtl;font-family:Tahoma,sans-serif}
+#v5-work-modal.open{display:flex}#v5-work-card{width:min(720px,100%);max-height:92vh;overflow:auto;background:#f7fbf8;border-radius:22px;padding:20px;box-shadow:0 20px 70px #0006;color:#17382b}
+#v5-work-card h2{margin:0 0 8px;color:#075b39}#v5-work-card .v5-step{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #dcebe1;border-radius:13px;padding:12px;margin:9px 0}
+#v5-work-card .v5-n{background:#0b7549;color:white;border-radius:50%;min-width:29px;height:29px;display:grid;place-items:center;font-weight:bold}
+#v5-work-card button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:bold}#v5-work-card .v5-primary{background:#0b7549;color:#fff}#v5-work-card .v5-light{background:#e5f1e9;color:#075b39}
+#v5-work-card select{padding:10px;border:1px solid #cbded1;border-radius:9px;background:#fff}
+</style>
+<button id="v5-work-fab" type="button" onclick="v5OpenWorkGuide()">🧭 شروع کار من</button>
+<div id="v5-work-modal" role="dialog" aria-modal="true" aria-label="راهنمای هوشمند نسخه پنج">
+ <div id="v5-work-card">
+  <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+   <div><h2>دستیار هوشمند گردش کار نسخه ۵</h2><div style="font-size:12px;color:#557064">راهنمای مشترک نگهداشت، تجربه مشتری، توسعه بازار و مأموریت کارکنان</div></div>
+   <button class="v5-light" onclick="v5CloseWorkGuide()">بستن ✕</button>
   </div>
+  <p style="margin:12px 0">نقش خود را انتخاب کنید تا مسیر شروع کار و اقدام بعدی نمایش داده شود.</p>
+  <select id="v5-guide-role" onchange="v5RenderGuide()"><option value="employee">کارشناس / همکار</option><option value="manager">مدیر / سرپرست</option><option value="marketing">بازاریابی و توسعه بازار</option><option value="service">مشتری‌مداری و پیگیری</option></select>
+  <div id="v5-guide-content" style="margin-top:12px"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="v5-primary" onclick="v5ReadGuide()">🔊 پخش راهنمای صوتی</button><button class="v5-light" onclick="v5StopGuide()">توقف صدا</button></div>
+  <div style="font-size:11px;color:#687d72;margin-top:12px">این راهنما در لایه رابط کاربری افزوده شده است. اجرای عملیات حساس، ارسال پیام و تغییر اطلاعات عملیاتی همچنان نیازمند مجوز و تأیید است.</div>
  </div>
- <button class="sg-launch" type="button" onclick="mehrSGToggle()">🧭 راهنمای هوشمند</button>
 </div>
-
 <script>
 (function(){
- 'use strict';
- var rootId='mehr-smart-guide-v5', current=null, observer=null;
- function el(id){return document.getElementById(id)}
- function visible(node){if(!node)return false;var st=getComputedStyle(node);return st.display!=='none'&&st.visibility!=='hidden'&&node.getClientRects().length>0;}
- function txt(node){return node?(node.innerText||node.textContent||'').trim():''}
- function target(selector){return document.querySelector(selector)}
- function activePanel(){return target('.panel.active')}
- function isOpen(id,cls){var n=el(id);return !!(n&&(cls?n.classList.contains(cls):visible(n)));}
- function context(){
-  var modal=el('growth-portal-modal');
-  if(modal&&visible(modal)){
-   if(visible(el('growth-chooser'))) return {area:'درگاه مدیریت کسب‌وکار',title:'انتخاب مسیر ورود',body:'اگر درخواست ثبت یا پیگیری دارید «مشتری هستم» را انتخاب کنید. اگر همکار بانک هستید، مسیر «کارمند بانک هستم» را بزنید.',selector:'#growth-chooser .growth-choice',step:1,total:4,check:'هنوز مسیر مشتری یا همکار انتخاب نشده است.'};
-   if(visible(el('growth-customer-flow'))){var f=el('growth-customer-flow');var form=f.querySelector('form');var first=form&&form.querySelector('input,select,textarea');return {area:'درگاه مشتری / شرکت',title:'تکمیل درخواست همکاری',body:'ابتدا نوع مجموعه، نام و اطلاعات تماس را وارد کنید. سپس خدمت موردنیاز را انتخاب کنید؛ چک‌لیست مدارک متناسب با درخواست نمایش داده می‌شود.',selector:first?'#'+first.id:null,step:2,total:4,check:'پیش از ثبت نهایی، اطلاعات تماس و مدارک را بازبینی کنید.'};}
-   if(visible(el('growth-employee-flow'))){
-    if(visible(el('growth-employee-login-actions'))){return {area:'ورود همکار',title:'احراز هویت همکار بانک',body:'نام کاربری و رمز سازمانی را وارد کنید. پس از ورود، سامانه بر اساس نقش شما بخش‌های مجاز را نمایش می‌دهد.',selector:'#growth-employee-login-actions input',step:2,total:4,check:'رمز خود را در اختیار دیگران قرار ندهید.'};}
-    if(visible(el('growth-employee-authenticated'))){var h=el('growth-employee-authenticated');var b=h.querySelector('button:not([disabled])');return {area:'میزکار همکار بانک',title:'شروع از فهرست مأموریت‌ها',body:'ابتدا پرونده‌ها و مأموریت‌های واگذارشده را بررسی کنید. پرونده ناقص را تکمیل، نتیجه تماس را ثبت و اقدام بعدی را تعیین کنید.',selector:b?'#'+(b.id||'growth-employee-authenticated'): '#growth-employee-authenticated',step:3,total:4,check:'اقدام‌های حساس مانند تأیید یا رد نهایی باید با بررسی مستندات انجام شود.'};}
-   }
-  }
-  var p=activePanel();
-  if(p){var id=p.id.replace('panel-','');
-   if(id==='employee'){
-    var logged=!!sessionStorage.getItem('loggedInUser');
-    if(!logged)return {area:'پنل همکاران',title:'ورود همکار بانک',body:'برای مشاهده مأموریت‌ها و ابزارهای سازمانی، ابتدا نام کاربری و رمز را وارد کنید. پس از ورود، گزینه‌های مجاز متناسب با نقش شما فعال می‌شود.',selector:'#employee-login-form input, #login-form input, #username',step:1,total:4,check:'اگر ورود خطا داد، چندبار رمز را حدس نزنید؛ نشانی سرویس و دسترسی محیط آزمایشی باید بررسی شود.'};
-    var sel=el('e-section'), val=sel?sel.value:'';var labels={tickets:'تیکت‌های پشتیبانی',pos:'درخواست‌های کارتخوان',appointments:'نوبت‌های آنلاین',emotions:'آینه احساسات',satna:'درخواست‌های ساتنا',vip:'مشتریان ویژه',dashboard:'داشبورد مدیریت',growth:'مدیریت کسب‌وکار'};
-    return {area:'پنل همکاران',title:'انتخاب مأموریت کاری',body:'بخش موردنظر را از فهرست انتخاب کنید. ابتدا موارد جدید یا دارای مهلت نزدیک را بررسی کنید و سپس نتیجه و اقدام بعدی را ثبت کنید.',selector:'#e-section',step:2,total:4,check:'بخش فعال فعلی: '+(labels[val]||'انتخاب نشده')};
-   }
-   if(id==='customer') {var step=window.currentStep||1;var field=step===1?'#c-branch':step===2?'#c-problemType':'#panel-customer button[type=submit]';return {area:'ثبت درخواست مشتری',title:'تکمیل مرحله '+step+' از ۳',body:step===1?'شعبه موردنظر را انتخاب کنید و سپس به مرحله بعد بروید.':step===2?'نوع درخواست را مشخص کنید تا فرم و مسیر رسیدگی درست تعیین شود.':'شرح درخواست و اطلاعات تماس را بازبینی کنید؛ سپس فقط در صورت صحت، ثبت نهایی را انجام دهید.',selector:field,step:step,total:3,check:'اطلاعات ناقص پیش از رفتن به مرحله بعد باید تکمیل شود.'};}
-   if(id==='pos'){var ps=window.posCurrentStep||1;return {area:'درخواست کارتخوان',title:'مرحله '+ps+' از ۴',body:ps===1?'اطلاعات هویتی متقاضی را وارد کنید.':ps===2?'مشخصات کسب‌وکار و نوع فعالیت را ثبت کنید.':ps===3?'نشانی، کد پستی و نوع دستگاه را تکمیل کنید.':'مدارک و اطلاعات نهایی را بازبینی کنید؛ ارسال نهایی با تأیید شما انجام می‌شود.',selector:'#pos-step-'+ps+' input, #pos-step-'+ps+' select, #pos-step-'+ps+' button',step:ps,total:4,check:'در صورت پیام خطا، همان فیلد مشخص‌شده را اصلاح کنید.'};}
-   if(id==='appointment')return {area:'نوبت‌دهی',title:'ثبت یا پیگیری نوبت',body:'نوع خدمت، شعبه و زمان مناسب را انتخاب کنید. پیش از ثبت، زمان‌های آزاد را بررسی کنید.',selector:'#panel-appointment select, #panel-appointment input',step:1,total:3,check:'ثبت نهایی نوبت فقط پس از کنترل تاریخ و شعبه انجام شود.'};
-   if(id==='track')return {area:'پیگیری درخواست',title:'یافتن وضعیت پرونده',body:'کد رهگیری را دقیق وارد کنید و گزینه پیگیری را بزنید. نتیجه، وضعیت و پاسخ ثبت‌شده را نمایش می‌دهد.',selector:'#panel-track input',step:1,total:2,check:'کد رهگیری را با اعداد و حروف دقیق وارد کنید.'};
-   if(id==='guide')return {area:'راهنمای خدمات',title:'انتخاب موضوع راهنما',body:'موضوع خدمت را انتخاب کنید و توضیحات همان بخش را بخوانید. اگر قصد اقدام دارید از تب مربوط به همان خدمت وارد شوید.',selector:'#panel-guide button, #panel-guide select',step:1,total:2,check:'راهنما جایگزین دستورالعمل‌های رسمی بانک نیست.'};
-   if(id==='satna')return {area:'درخواست ساتنا',title:'بررسی شرایط و اطلاعات انتقال',body:'ابتدا اطلاعات هویتی و شماره شبای مقصد را بررسی کنید. مبلغ و مشخصات گیرنده باید با مستندات مطابقت داشته باشد.',selector:'#panel-satna input, #panel-satna select',step:1,total:3,check:'هیچ انتقالی صرفاً با پیشنهاد راهنما تأیید یا اجرا نمی‌شود.'};
-   if(id==='emotion-tab')return {area:'ثبت بازخورد',title:'ثبت تجربه خدمت',body:'شعبه و باجه را انتخاب کنید، امتیاز را ثبت کنید و در صورت تمایل توضیح کوتاهی بنویسید.',selector:'#panel-emotion-tab select, #panel-emotion-tab button',step:1,total:2,check:'از درج اطلاعات محرمانه در توضیحات خودداری کنید.'};
-  }
-  var activeTab=target('.tab-btn.active');
-  return {area:'صفحه اصلی سامانه',title:'از کجا شروع کنم؟',body:'برای ثبت یا پیگیری درخواست، تب مربوط به مشتری را انتخاب کنید. برای کارهای سازمانی، وارد مسیر همکار شوید. برای توسعه بازار و پرونده شرکت‌ها، درگاه مدیریت کسب‌وکار را باز کنید.',selector:'#main-tabs .tab-btn',step:1,total:4,check:'حالت آزمایشی از سامانه متمرکز بانک جداست؛ داده‌های آزمایشی را واقعی تلقی نکنید.'};
- }
- function render(){current=context();var root=el(rootId);if(!root)return;
-  el('mehr-sg-context').textContent='موقعیت فعلی: '+current.area;
-  el('mehr-sg-title').textContent=current.title;
-  el('mehr-sg-instruction').textContent=current.body;
-  el('mehr-sg-check').textContent=current.check||'';
-  el('mehr-sg-progress').style.width=Math.max(5,Math.min(100,(current.step/current.total)*100))+'%';
- }
- window.mehrSGToggle=function(force){var r=el(rootId);if(!r)return;r.classList.toggle('open',force===undefined?!r.classList.contains('open'):!!force);if(r.classList.contains('open'))render();};
- window.mehrSGRefresh=render;
- window.mehrSGSpeak=function(){render();if(!('speechSynthesis' in window)){alert('پخش صوت در این مرورگر پشتیبانی نمی‌شود.');return;}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance((current.area||'')+'. '+(current.title||'')+'. '+(current.body||''));u.lang='fa-IR';u.rate=.92;var voices=speechSynthesis.getVoices();var v=voices.find(function(x){return /^fa(-|_)/i.test(x.lang)||/persian|farsi/i.test(x.name);});if(v)u.voice=v;speechSynthesis.speak(u);};
- window.mehrSGNext=function(){render();var n=current&&current.selector?target(current.selector):null;if(n){n.scrollIntoView({behavior:'smooth',block:'center'});try{n.focus({preventScroll:true});}catch(e){try{n.focus();}catch(_){}}if(n.tagName==='SELECT'&&n.options&&n.options.length>1){n.style.outline='3px solid #20a36b';setTimeout(function(){n.style.outline='';},2200);}return;}if(current&&current.area==='صفحه اصلی سامانه'){var b=target('#growth-tab-btn');if(b){b.click();return;}}alert('محل اقدام خودکار پیدا نشد؛ طبق توضیح بالا از منوی همین بخش ادامه دهید.');};
- document.addEventListener('click',function(e){if(e.target.closest('#'+rootId))return;setTimeout(function(){if(el(rootId)&&el(rootId).classList.contains('open'))render();},120);},true);
- document.addEventListener('change',function(e){if(e.target.closest('#'+rootId))return;setTimeout(render,80);},true);
- document.addEventListener('input',function(e){if(e.target.closest('#'+rootId))return;setTimeout(render,200);},true);
- document.addEventListener('DOMContentLoaded',function(){render();if(window.MutationObserver){observer=new MutationObserver(function(){if(el(rootId)&&el(rootId).classList.contains('open'))render();});observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','hidden']});}});
+ const plans={
+ employee:[['۱','ورود به صف کارها','ابتدا پرونده‌ها و مأموریت‌های ارجاع‌شده به نقش خود را بررسی کنید.'],['۲','اعتبارسنجی اطلاعات','نواقص و مغایرت‌ها را بررسی و فقط فیلدهای مشکل‌دار را اصلاح کنید.'],['۳','اقدام و ثبت نتیجه','تماس، مذاکره یا پیگیری را ثبت کنید؛ نتیجه بدون مستندات قطعی تلقی نمی‌شود.'],['۴','بستن پرونده و ثبت ارزش','نتیجه نهایی و منافع قابل اثبات را ثبت و برای تأیید ارسال کنید.']],
+ manager:[['۱','مرور داشبورد','پرونده‌های معوق، فرصت‌های A و ارزش اقتصادی را بررسی کنید.'],['۲','اولویت‌بندی','ظرفیت اقتصادی، احتمال موفقیت، کیفیت داده و هزینه پیگیری را هم‌زمان بسنجید.'],['۳','تخصیص مأموریت','مسئول، موعد و خروجی مورد انتظار را مشخص کنید.'],['۴','کنترل نتیجه','پرونده‌های بی‌اقدام و نتایج ثبت‌شده را بررسی و گزارش مدیریتی دریافت کنید.']],
+ marketing:[['۱','ورود فهرست','فایل CSV/Excel را در بخش مدیریت سرنخ‌ها وارد کنید.'],['۲','پاک‌سازی و تکراری‌یابی','شناسه‌ها و اطلاعات ناقص را بررسی کنید؛ سابقه رکورد تکراری حذف نشود.'],['۳','اولویت‌بندی دوباره','گروه‌های A آماده اقدام و A نیازمند تکمیل را جداگانه بسازید.'],['۴','مأموریت و نتیجه','سرنخ را به کارشناس تخصیص دهید و نتیجه و منابع جذب‌شده را ثبت کنید.']],
+ service:[['۱','دریافت درخواست','درخواست مشتری را با شناسه پیگیری ثبت یا بازیابی کنید.'],['۲','تشخیص موضوع و واحد','نوع درخواست، فوریت و واحد مسئول را مشخص کنید.'],['۳','پیگیری تا حل','وضعیت، پاسخ و مستندات را به‌روزرسانی کنید.'],['۴','سنجش تجربه','زمان پاسخ‌گویی، حل مسئله و بازخورد مشتری را ثبت کنید.']]
+ };
+ window.v5OpenWorkGuide=function(){document.getElementById('v5-work-modal').classList.add('open');v5RenderGuide();};
+ window.v5CloseWorkGuide=function(){document.getElementById('v5-work-modal').classList.remove('open');};
+ window.v5RenderGuide=function(){var k=document.getElementById('v5-guide-role').value, a=plans[k]||plans.employee, el=document.getElementById('v5-guide-content');el.innerHTML=a.map(x=>'<div class="v5-step"><span class="v5-n">'+x[0]+'</span><div><b>'+x[1]+'</b><div style="font-size:13px;color:#536a60">'+x[2]+'</div></div></div>').join('');};
+ window.v5ReadGuide=function(){var k=document.getElementById('v5-guide-role').value,a=plans[k]||plans.employee,t=a.map(x=>x[1]+'. '+x[2]).join(' ');if(!('speechSynthesis'in window)){alert('مرورگر این دستگاه از راهنمای صوتی پشتیبانی نمی‌کند.');return;}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='fa-IR';u.rate=.92;speechSynthesis.speak(u);};
+ window.v5StopGuide=function(){if('speechSynthesis'in window)speechSynthesis.cancel();};
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')v5CloseWorkGuide();});
 })();
 </script>
+
 </body>
 </html>
 
