@@ -1,6 +1,73 @@
 <!DOCTYPE html>
+<!-- Mehr Business Management V5 additive upgrade based on V4; save as Index.html -->
 <html lang="fa" dir="rtl">
 <head>
+<script id="mehr-v5-demo-adapter">
+(function(){
+  var params=new URLSearchParams(location.search);
+  var DEMO=window.MEHR_FORCE_DEMO===true || params.get('demo')==='1';
+  window.MEHR_DEMO_MODE=DEMO;
+  if(!DEMO) return;
+  var nativeFetch=window.fetch.bind(window), records={tickets:[],leads:[],ops:[],tasks:[],requests:[],cases:[]}, seq=1, sessions={};
+  function result(data){return Promise.resolve({ok:true,status:200,json:function(){return Promise.resolve(data)},text:function(){return Promise.resolve(JSON.stringify(data))}})}
+  function login(u,p,manager){
+    var users={admin:'Mehr@1405',etehbarat:'Etehbarat123',digital:'Digital123',it:'IT123',hoghoughi:'Hoghoughi123',daneshbonyan:'Danesh123'};
+    var ok=!!users[u]&&users[u]===p&&(!manager||u==='admin')&&(manager||u!=='admin');
+    if(!ok)return {access:false,error:'نام کاربری یا رمز عبور صحیح نیست.'};
+    var token='DEMO-'+Date.now()+'-'+Math.random().toString(36).slice(2); sessions[token]=u;
+    var role=u==='admin'?'admin':(u.indexOf('branch')===0?'branch':'department');
+    var map={etehbarat:'اعتبارات',digital:'بانکداری دیجیتال',it:'انفورماتیک',hoghoughi:'حقوقی',daneshbonyan:'دانش‌بنیان'};
+    return {access:true,token:token,username:u,role:role,department:map[u]||'',branch:u.indexOf('branch')===0?u.replace('branch',''):'',allowedCategories:[]};
+  }
+  function api(d){d=d||{};var a=d.action||'';
+    if(a==='login'){var ticketUsers={admin:'Mehr@1405',etehbarat:'Etehbarat123',digital:'Digital123',it:'IT123',hoghoughi:'Hoghoughi123',daneshbonyonyan:'Danesh123'};var passOk=(ticketUsers[d.username]===d.pass)||(/^branch64\d\d$/.test(d.username||'')&&d.pass===d.username.replace('branch','Branch')+'@');return {access:!!passOk,token:passOk?'DEMO-TICKET':'',role:d.username==='admin'?'admin':'department',department:'',branch:''};}
+    if(a==='growthManagerLogin')return login(d.username,d.pass,true);
+    if(a==='growthEmployeeLogin')return login(d.username,d.pass,false);
+    if(a==='growthOpsSave'){var x={id:'GOP-DEMO-'+seq++,title:d.title||'پرونده نمونه',type:d.type||'جذب مشتری',contact:d.contact||'',amount:Number(d.amount)||0,status:d.status||'جدید',owner:d.owner||'admin',notes:d.notes||'',branch:d.branch||'ستادی',created:'آزمایشی'};records.ops.push(x);return {success:true,id:x.id};}
+    if(a==='growthOpsList')return {success:true,items:records.ops,stats:{total:records.ops.length,open:records.ops.filter(x=>x.status!=='به نتیجه رسیده').length,done:records.ops.filter(x=>x.status==='به نتیجه رسیده').length,amount:records.ops.reduce((s,x)=>s+(x.status==='به نتیجه رسیده'?x.amount:0),0)}};
+    if(a==='growthOpsUpdate'){var op=records.ops.find(x=>x.id===d.id);if(op)op.status=d.status;return {success:!!op};}
+    if(a==='growthAddLead'||a==='growthBulkAddLeads'){var items=a==='growthAddLead'?[d]:(d.items||[]);items.forEach(v=>records.leads.push({id:'LEAD-'+seq++,name:v.name||v.title||'سرنخ آزمایشی',phone:v.phone||'',type:v.type||'کسب‌وکار',priority:v.priority||'B',status:v.status||'جدید',estimate:Number(v.estimate)||0}));return {success:true,inserted:items.length,duplicates:0,invalid:0};}
+    if(a==='growthGetLeads')return {success:true,items:records.leads};
+    if(a==='growthUpdateLead'){var l=records.leads.find(x=>x.id===d.id);if(l)l.status=d.status;return {success:!!l};}
+    if(a==='growthTaskCreate'){var t={id:'TASK-'+seq++,title:d.title,assignee:d.assignee,due:d.due,status:'در انتظار انجام'};records.tasks.push(t);return {success:true,id:t.id};}
+    if(a==='growthTaskList')return {success:true,items:records.tasks};
+    if(a==='growthTaskUpdate')return {success:true};
+    if(a==='growthRequestList')return {success:true,items:records.requests};
+    if(a==='growthCaseList'||a==='growthCaseHqList')return {success:true,items:records.cases};
+    if(a==='growthCustomerRequest'){var id='REQ-DEMO-'+seq++;records.requests.push({id:id,status:'ثبت آزمایشی',name:d.name||'مشتری نمونه',type:d.type||'درخواست'});return {success:true,id:id,trackingId:id};}
+    if(a==='growthTrackRequest')return {success:true,found:true,item:records.requests.find(x=>x.id===d.id||x.id===d.trackingId)||null};
+    if(a==='growthCustomerLogin')return {success:true,access:true,token:'DEMO-CUSTOMER'};
+    if(a==='growthCustomerUpload'||a==='growthUploadFile')return {success:true,id:'FILE-DEMO',name:d.fileName||d.name||'فایل آزمایشی'};
+    if(a==='getTicketsSecured'||a==='getTickets')return records.tickets;
+    if(a==='submitTicket'){var tk=d.trackingCode||('TKT-DEMO-'+seq++);records.tickets.push({row:records.tickets.length+2,name:d.name||'مشتری آزمایشی',description:d.description||'شرح نمونه',trackingCode:tk,status:'در حال بررسی',department:d.department||'پشتیبانی',branch:d.branch||'رشت'});return {result:'success',success:true,trackingCode:tk,code:tk};}
+    if(a==='updateStatus')return {result:'success'};
+    if(a==='getDashboardStats')return {totalTickets:records.tickets.length,totalAppointments:0};
+    if(a==='getBookedTimes'||a==='getAppointments'||a==='getPOSRequests')return [];
+    if(a==='submitAppointment')return {success:true,trackingCode:'APT-DEMO-'+seq++};
+    if(a==='submitPOS')return {success:true,trackingCode:'POS-DEMO-'+seq++};
+    if(a==='growthCaseCreate'||a==='growthCaseAssign'||a==='growthCaseInteraction'||a==='growthCaseValue'||a==='growthCaseEscalate'||a==='growthCaseHqRespond'||a==='growthRequestAssign'||a==='growthRequestUpdate')return {success:true,id:'DEMO-'+seq++};
+    if(a==='growthUploadFile'||a==='growthCustomerUpload')return {success:true};
+    return {success:true,access:true,items:[],message:'پاسخ شبیه‌ساز نسخه آزمایشی'};
+  }
+  window.fetch=function(input,init){
+    var url=typeof input==='string'?input:(input&&input.url)||'';
+    if(url.indexOf('script.google.com/macros/s/')!==-1){
+      var data={};try{if(init&&init.body)data=JSON.parse(init.body);else{var u=new URL(url);data.action=u.searchParams.get('action')||'';data.code=u.searchParams.get('code')||'';}}catch(e){}
+      if(data.action==='trackTicket')return result({found:false,type:'ticket'});
+      if(data.action==='trackSatna')return result({found:false});
+      return result(api(data));
+    }
+    return nativeFetch(input,init);
+  };
+  window.MEHR_DEMO_RESET=function(){records={tickets:[],leads:[],ops:[],tasks:[],requests:[],cases:[]};seq=1;};
+  document.addEventListener('DOMContentLoaded',function(){
+    var b=document.createElement('div');b.id='mehr-demo-banner';b.textContent='🧪 محیط آزمایشی فعال است — اطلاعات ساختگی است و به بانک یا سامانه واقعی ارسال نمی‌شود';
+    b.style.cssText='position:sticky;top:0;z-index:2147483647;background:#fff3cd;color:#664d03;border-bottom:1px solid #ffecb5;padding:9px 12px;text-align:center;font:700 12px/1.7 sans-serif';
+    document.body.insertBefore(b,document.body.firstChild);
+  });
+})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سامانه جامع مهر</title>
@@ -13,7 +80,9 @@
 @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', Tahoma, Arial, sans-serif !important; -webkit-tap-highlight-color: transparent; }
 body { background: linear-gradient(135deg, #e0f2f1 0%, #f4f7f6 100%) !important; color: #1a2e2a; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; line-height: 1.8; }
-.container { background: rgba(255,255,255,0.97) !important; width: 100%; max-width: 750px; border-radius: 24px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important; overflow: hidden; margin-bottom: 50px; }
+.container { background: rgba(255,255,255,0.97) !important; width: min(100%, 1500px); max-width: 1500px; min-width: 0; border-radius: 24px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important; overflow: hidden; margin: 0 auto 50px; }
+@media (min-width: 900px) { body { padding: 15px 20px; } .container { width: 100%; max-width: 1500px; } .tabs { justify-content: center; } .tab-btn { flex: 1 1 130px; max-width: 210px; } }
+@media (max-width: 899px) { .container { width: 100%; max-width: 100%; } }
 .header { background: linear-gradient(135deg, #0a4d2e 0%, #148a4f 100%) !important; color: #fff; padding: 25px 20px; text-align: center; border-bottom-left-radius: 24px !important; border-bottom-right-radius: 24px !important; box-shadow: 0 8px 20px rgba(10,77,46,0.2) !important; }
 .header h1 { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
 .header p { font-size: 13px; opacity: 0.9; }
@@ -1032,6 +1101,12 @@ window.mehrApiUrl = function() { return window.SCRIPT_URL; };
    <div class="growth-form-actions"><button class="btn" onclick="growthSaveLead()">ثبت اطلاعات شرکت</button><button class="btn btn-outline" onclick="growthResetForm()">پاک‌کردن فرم</button></div>
    <div id="growth-msg" role="status" style="font-size:12px;margin-top:10px"></div>
   </div>
+  <div class="growth-card" id="growth-bulk-import">
+   <h3>ورود گروهی مشتریان بالقوه</h3>
+   <p class="growth-sub">فهرست شرکت‌ها را از Excel با فرمت CSV UTF-8 وارد کنید. پیش از ثبت، تعداد ردیف‌ها و موارد تکراری بررسی می‌شود؛ حداکثر ۵۰۰ ردیف در هر بار.</p>
+   <div class="growth-form-actions"><button type="button" class="btn btn-outline" onclick="growthDownloadLeadTemplate()">دانلود قالب CSV</button><label class="btn btn-secondary" style="display:inline-flex;align-items:center;cursor:pointer">انتخاب فایل CSV<input id="growth-bulk-file" type="file" accept=".csv,text/csv" style="display:none" onchange="growthPreviewBulk(this)"></label></div>
+   <div id="growth-bulk-preview" style="margin-top:10px" aria-live="polite"></div>
+  </div>
   <div class="growth-card">
    <h3>فهرست فرصت‌ها و پیگیری‌ها</h3><p class="growth-sub">جست‌وجو و تغییر وضعیت هر فرصت از همین قسمت انجام می‌شود.</p>
    <div class="growth-toolbar"><input id="g-search" placeholder="جست‌وجوی نام، حوزه یا شماره تماس" oninput="growthRenderLeads()"><select id="g-filter-priority" onchange="growthRenderLeads()"><option value="">همه اولویت‌ها</option><option value="A">اولویت A</option><option value="B">اولویت B</option><option value="C">اولویت C</option></select><select id="g-filter-status" onchange="growthRenderLeads()"><option value="">همه وضعیت‌ها</option><option>جدید</option><option>تماس اولیه</option><option>جلسه برگزار شد</option><option>در حال مذاکره</option><option>تبدیل‌شده</option><option>عدم همکاری</option></select></div>
@@ -1068,7 +1143,7 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeCrCX-SC2x2OKzBKtsOx
 window.SCRIPT_URL = window.SCRIPT_URL || SCRIPT_URL;
 window.mehrApiUrl = function(){ return window.SCRIPT_URL; };
 
-window.SCRIPT_URL = SCRIPT_URL; // آدرس سراسری برای تمام اسکریپت‌ها، از جمله پنل مستقل تیکت
+window.SCRIPT_URL = window.SCRIPT_URL || SCRIPT_URL; // آدرس سراسری برای تمام اسکریپت‌ها، از جمله پنل مستقل تیکت
 
 /* ================== Notifications ================== */
 function requestNotificationPermission() {
@@ -1875,6 +1950,8 @@ function printPOSForm(row) {
   printWindow.document.write('<!doctype html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>چاپ فرم پوز - سامانه مهر</title><style>body{font-family:Tahoma,Arial,sans-serif;padding:20px;line-height:1.8}h4{text-align:center;color:#0a4d2e;border-bottom:2px solid #0a4d2e;padding-bottom:10px;margin-bottom:20px}p{font-size:14px;margin-bottom:10px;border-bottom:1px dotted #ccc;padding-bottom:5px}strong{color:#333}a{color:#2980b9;text-decoration:none}img{max-width:200px;display:block;margin:0 auto}</style></head><body>' + area.innerHTML + '</body></html>');
   printWindow.document.close();
 }
+
+
 function resolvePOSRequest(row, btnElement) {
 if (!confirm("آیا از نصب دستگاه پوز برای این مشتری مطمئن هستید؟")) return;
 btnElement.innerText = "در حال تایید..."; btnElement.disabled = true;
@@ -2979,6 +3056,69 @@ else if (val.indexOf('rast') !== -1) this.value = "6418 - رازی";
 });
   
 </script>
+
+<!-- MEHR V5 strategic growth workbench: additive to V4; uses authenticated growth session -->
+<style>
+#mehr-v5-launch{display:none!important;position:fixed;left:16px;bottom:18px;z-index:2147482000;background:#075b3b;color:#fff;border:0;border-radius:999px;padding:13px 18px;font:700 13px Tahoma;box-shadow:0 6px 22px #0003;cursor:pointer}
+#mehr-v5-modal{display:none;position:fixed;inset:0;z-index:2147482500;background:#071c14cc;padding:12px;overflow:auto;direction:rtl;font-family:Tahoma,Arial}
+#mehr-v5-modal.open{display:flex;align-items:flex-start;justify-content:center}
+#mehr-v5-card{background:#f6faf7;border-radius:18px;width:min(1100px,100%);margin:auto;overflow:hidden;box-shadow:0 18px 70px #0005;color:#20372b}
+#mehr-v5-head{background:linear-gradient(120deg,#063c29,#11804c);color:#fff;padding:17px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#mehr-v5-head h2{font-size:17px;margin:0}#mehr-v5-head button{border:0;background:#ffffff22;color:white;border-radius:9px;padding:8px 12px;font-size:20px}
+#mehr-v5-content{padding:16px}.mehr-v5-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}
+.mehr-v5-kpi,.mehr-v5-panel{background:white;border:1px solid #e0ebe4;border-radius:13px;padding:13px}
+.mehr-v5-kpi small{display:block;color:#697b70;font-size:11px}.mehr-v5-kpi b{display:block;color:#087448;font-size:20px;margin-top:6px;overflow-wrap:anywhere}
+.mehr-v5-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.mehr-v5-tabs button,.mehr-v5-action{border:0;border-radius:9px;background:#087448;color:white;padding:10px 13px;font:700 12px Tahoma;cursor:pointer}.mehr-v5-tabs button.secondary{background:#e8f2ec;color:#145638}
+.mehr-v5-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mehr-v5-form label{font-size:11px;color:#53665a}.mehr-v5-form input,.mehr-v5-form select,.mehr-v5-form textarea{display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:10px;border:1px solid #d8e5dc;border-radius:8px;font:12px Tahoma;background:#fff}.mehr-v5-form .wide{grid-column:1/-1}
+.mehr-v5-table{overflow:auto;margin-top:12px;border:1px solid #e1eae4;border-radius:10px}.mehr-v5-table table{width:100%;border-collapse:collapse;min-width:680px;font-size:11px}.mehr-v5-table th,.mehr-v5-table td{padding:9px;border-bottom:1px solid #edf1ee;text-align:right}.mehr-v5-table th{background:#edf6f0;color:#145638}.mehr-v5-muted{font-size:11px;color:#718077;line-height:1.9}.mehr-v5-alert{background:#fff8e8;border:1px solid #efdfb7;border-radius:10px;padding:10px;font-size:11px;line-height:1.8;margin:10px 0}
+@media(max-width:600px){#mehr-v5-launch{left:10px;bottom:10px;padding:11px 13px}.mehr-v5-form{grid-template-columns:1fr}.mehr-v5-form .wide{grid-column:auto}#mehr-v5-content{padding:10px}}
+</style>
+<button id="mehr-v5-launch" type="button" onclick="mehrV5Open()">📊 میزکار راهبردی رشد</button>
+<div id="mehr-v5-modal" aria-hidden="true"><div id="mehr-v5-card">
+ <div id="mehr-v5-head"><div><h2>میزکار راهبردی مدیریت کسب‌وکار</h2><small>جذب، نگهداشت، احیا و سنجش اثر اقتصادی</small></div><button type="button" onclick="mehrV5Close()">×</button></div>
+ <div id="mehr-v5-content">
+  <div class="mehr-v5-alert">این میزکار به نشست معتبر همکار نیاز دارد. ارقام بر اساس داده‌های ثبت‌شده نمایش داده می‌شوند؛ مبلغ برآوردی از منابع تأییدشده جداست. ثبت منابع تأییدشده فقط در سطح مدیر سامانه مجاز است.</div>
+  <div class="mehr-v5-grid" id="mehr-v5-kpis"><div class="mehr-v5-kpi"><small>فرصت‌ها</small><b>—</b></div></div>
+  <div class="mehr-v5-tabs"><button type="button" onclick="mehrV5Tab('opps')">فرصت‌های بازار</button><button type="button" class="secondary" onclick="mehrV5Tab('resource')">ثبت اثر منابع</button><button type="button" class="secondary" onclick="mehrV5Tab('list')">فهرست فرصت‌ها</button><button type="button" class="secondary" onclick="mehrV5Refresh()">به‌روزرسانی شاخص‌ها</button></div>
+  <section id="mehr-v5-opps" class="mehr-v5-panel">
+   <h3>ثبت فرصت جذب یا توسعه مشتری</h3><form class="mehr-v5-form" id="mehr-v5-opportunity-form">
+    <label>نوع مشتری<select name="customerType"><option>حقوقی</option><option>حقیقی</option><option>سازمانی</option><option>صنف و توزیع</option></select></label>
+    <label>نام مشتری / شرکت<input name="name" required maxlength="160"></label><label>نام رابط<input name="contact"></label><label>شماره همراه<input name="phone" inputmode="tel"></label>
+    <label>حوزه فعالیت<input name="industry"></label><label>ظرفیت منابع برآوردی (تومان)<input name="capacity" type="number" min="0"></label>
+    <label>احتمال تبدیل (درصد)<input name="probability" type="number" min="0" max="100" value="30"></label><label>اولویت<select name="priority"><option>A</option><option selected>B</option><option>C</option></select></label>
+    <label>مرحله<select name="stage"><option>جدید</option><option>شناسایی‌شده</option><option>تماس اولیه</option><option>جلسه</option><option>مذاکره</option><option>در انتظار تصمیم</option><option>تبدیل‌شده</option><option>مختومه ناموفق</option></select></label>
+    <label>کیفیت داده<select name="dataQuality"><option>نیازمند تأیید</option><option>تأییدشده</option><option>تخمینی</option><option>ناقص</option></select></label>
+    <label class="wide">اقدام بعدی<input name="nextAction" placeholder="تماس، جلسه، ارائه پیشنهاد، بررسی گردش مالی..."></label><label>مهلت اقدام<input name="dueDate" placeholder="۱۴۰۵/۰۹/۰۱"></label>
+    <button class="mehr-v5-action wide" type="submit">ثبت فرصت</button>
+   </form><div id="mehr-v5-op-msg" class="mehr-v5-muted"></div>
+  </section>
+  <section id="mehr-v5-resource" class="mehr-v5-panel" style="display:none"><h3>ثبت اثر بر منابع بانک</h3><form class="mehr-v5-form" id="mehr-v5-resource-form">
+   <label>نوع اثر<select name="type"><option>جذب</option><option>نگهداشت</option><option>احیا</option><option>انتقال از رقبا</option></select></label><label>مبلغ (تومان)<input name="amount" type="number" min="1" required></label>
+   <label>وضعیت<select name="status"><option>برآوردی</option><option>در انتظار تأیید</option><option>تأییدشده</option></select></label><label>تاریخ اثر<input name="effectDate" placeholder="۱۴۰۵/۰۹/۰۱"></label>
+   <label>شناسه فرصت (اختیاری)<input name="opportunityId"></label><label>منبع اطلاعات<input name="source" placeholder="گزارش شعبه، مستند مشتری، گزارش سامانه..."></label>
+   <label class="wide">توضیحات<textarea name="note" rows="2"></textarea></label><button class="mehr-v5-action wide" type="submit">ثبت رویداد منابع</button>
+  </form><div id="mehr-v5-resource-msg" class="mehr-v5-muted"></div></section>
+  <section id="mehr-v5-list" class="mehr-v5-panel" style="display:none"><h3>فهرست فرصت‌ها</h3><div class="mehr-v5-table"><table><thead><tr><th>نام مشتری/شرکت</th><th>ظرفیت (تومان)</th><th>اولویت</th><th>مرحله</th><th>مسئول</th><th>اقدام بعدی</th></tr></thead><tbody id="mehr-v5-rows"><tr><td colspan="6">برای دریافت اطلاعات، به‌روزرسانی را بزنید.</td></tr></tbody></table></div></section>
+  <p class="mehr-v5-muted">نسخه افزوده V5 روی داده‌های جداگانه ذخیره می‌کند و اطلاعات قبلی V4 را حذف یا بازنویسی نمی‌کند. این نسخه نیازمند آزمون عملی و بازبینی امنیتی پیش از استفاده با اطلاعات محرمانه بانکی است.</p>
+ </div></div></div>
+<script>
+(function(){'use strict';
+ function token(){try{return sessionStorage.getItem('growthToken')||'';}catch(e){return '';}}
+ function api(action,extra){if(!token())return Promise.reject(new Error('ابتدا از درگاه مدیریت کسب‌وکار وارد شوید.'));return fetch(window.SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token()},extra||{}))}).then(function(r){if(!r.ok)throw new Error('ارتباط با سرور ناموفق بود.');return r.json();}).then(function(d){if(d&&d.success===false)throw new Error(d.error||'عملیات انجام نشد.');return d;});}
+ window.mehrV5Open=function(){var m=document.getElementById('mehr-v5-modal');m.classList.add('open');m.setAttribute('aria-hidden','false');mehrV5Refresh();};
+ window.mehrV5Close=function(){var m=document.getElementById('mehr-v5-modal');m.classList.remove('open');m.setAttribute('aria-hidden','true');};
+ window.mehrV5Tab=function(k){['opps','resource','list'].forEach(function(x){document.getElementById('mehr-v5-'+x).style.display=x===k?'block':'none';});};
+ function money(n){return (Number(n)||0).toLocaleString('fa-IR');}
+ window.mehrV5Refresh=function(){api('mehrExecutiveDashboard').then(function(d){var k=d.kpis||{},items=[['فرصت‌های ثبت‌شده',k.opportunities],['فرصت‌های فعال',k.active],['تبدیل‌شده',k.converted],['ظرفیت برآوردی (تومان)',k.estimatedCapacity],['منابع تأییدشده (تومان)',k.verifiedResources],['منابع برآوردی (تومان)',k.estimatedResources],['جذب تأییدشده',k.attracted],['منابع حفظ‌شده',k.retained],['منابع احیاشده',k.recovered],['انتقال از رقبا',k.transferred]];document.getElementById('mehr-v5-kpis').innerHTML=items.map(function(x){return '<div class="mehr-v5-kpi"><small>'+x[0]+'</small><b>'+money(x[1])+'</b></div>';}).join('');}).catch(function(e){document.getElementById('mehr-v5-kpis').innerHTML='<div class="mehr-v5-alert">'+e.message+'</div>';});mehrV5LoadList();};
+ function mehrV5LoadList(){api('mehrOpportunityList').then(function(d){var rows=d.items||[];document.getElementById('mehr-v5-rows').innerHTML=rows.length?rows.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td>'+money(x.capacity)+'</td><td>'+esc(x.priority)+'</td><td>'+esc(x.stage)+'</td><td>'+esc(x.owner)+'</td><td>'+esc(x.nextAction)+'</td></tr>';}).join(''):'<tr><td colspan="6">هنوز فرصتی ثبت نشده است.</td></tr>';}).catch(function(e){document.getElementById('mehr-v5-rows').innerHTML='<tr><td colspan="6">'+esc(e.message)+'</td></tr>';});}
+ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+ function formData(f){var o={};new FormData(f).forEach(function(v,k){o[k]=v;});return o;}
+ document.getElementById('mehr-v5-opportunity-form').addEventListener('submit',function(e){e.preventDefault();var msg=document.getElementById('mehr-v5-op-msg');var b=this.querySelector('button[type=submit]');b.disabled=true;api('mehrOpportunitySave',formData(this)).then(function(d){msg.textContent='فرصت ثبت شد؛ شناسه: '+d.id;e.target.reset();mehrV5Refresh();}).catch(function(err){msg.textContent=err.message;}).finally(function(){b.disabled=false;});});
+ document.getElementById('mehr-v5-resource-form').addEventListener('submit',function(e){e.preventDefault();var msg=document.getElementById('mehr-v5-resource-msg');var b=this.querySelector('button[type=submit]');b.disabled=true;api('mehrResourceEventSave',formData(this)).then(function(d){msg.textContent='رویداد منابع ثبت شد؛ شناسه: '+d.id;e.target.reset();mehrV5Refresh();}).catch(function(err){msg.textContent=err.message;}).finally(function(){b.disabled=false;});});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')mehrV5Close();});
+})();
+</script>
+
 <script id="growth-homepage-entry-stable-legacy">
 (function(){
  'use strict';
@@ -3103,13 +3243,19 @@ else if (val.indexOf('rast') !== -1) this.value = "6418 - رازی";
 </script>
 <script>
 let growthLeadsCache=[];
-function growthCall(payload){payload.growthToken=sessionStorage.getItem('growthToken')||'';return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());}
+function growthCall(payload){const token=sessionStorage.getItem('growthToken')||'';payload.token=token;payload.growthToken=token;return fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());}
 function growthSaveLead(){
  const name=document.getElementById('g-name').value.trim(); if(!name){alert('نام شرکت یا کسب‌وکار الزامی است.');return;}
  const data={action:'growthAddLead',name,contact:document.getElementById('g-contact').value.trim(),phone:document.getElementById('g-phone').value.trim(),type:document.getElementById('g-type').value.trim(),opportunity:document.getElementById('g-opportunity').value,priority:document.getElementById('g-priority').value,estimate:document.getElementById('g-estimate').value,nextDate:document.getElementById('g-next').value,status:document.getElementById('g-status').value,notes:document.getElementById('g-notes').value.trim()};
  const msg=document.getElementById('growth-msg');msg.textContent='در حال ثبت...';growthCall(data).then(x=>{if(!x.success)throw new Error(x.error||'ثبت انجام نشد');msg.textContent='ثبت شد؛ کد پیگیری: '+x.id;['g-name','g-contact','g-phone','g-type','g-estimate','g-next','g-notes'].forEach(id=>document.getElementById(id).value='');growthLoadLeads();}).catch(e=>{msg.textContent='خطا: '+e.message;});
 }
 function growthLoadLeads(){const body=document.getElementById('growth-list');body.innerHTML='<tr><td colspan="6">در حال دریافت...</td></tr>';growthCall({action:'growthGetLeads'}).then(x=>{if(!x.success)throw new Error(x.error||'دریافت ناموفق');growthLeadsCache=x.items||[];growthRenderLeads();}).catch(e=>{body.innerHTML='<tr><td colspan="6">خطا در دریافت: '+growthEscape(e.message)+'</td></tr>';});}
+function growthDownloadLeadTemplate(){const h=['نام شرکت','نام رابط','شماره تماس','حوزه فعالیت','نوع فرصت','اولویت','برآورد منابع تومان','تاریخ اقدام بعدی','وضعیت','شرح'];const sample=['شرکت نمونه پخش گیلان','مدیر فروش','09120000000','پخش مواد غذایی','جذب منابع','A','500000000','2026-12-01','جدید','نمونه فرضی'];const csv='\ufeff'+[h,sample].map(a=>a.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='قالب_ورود_گروهی_مشتریان.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function growthReadCsvRows(t){const rows=[];let row=[],cell='',q=false;for(let i=0;i<t.length;i++){const c=t[i],n=t[i+1];if(c==='"'&&q&&n==='"'){cell+='"';i++;}else if(c==='"')q=!q;else if(c===','&&!q){row.push(cell);cell='';}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell='';}else cell+=c;}row.push(cell);if(row.some(v=>v.trim()))rows.push(row);return rows;}
+function growthHeaderKey(v){return String(v||'').replace(/[\u200c\s_ـ]/g,'').replace(/[ي]/g,'ی').replace(/[ك]/g,'ک').toLowerCase();}
+function growthPreviewBulk(input){const out=document.getElementById('growth-bulk-preview'),f=input.files&&input.files[0];if(!f)return;if(!/\.csv$/i.test(f.name)){out.textContent='فقط CSV UTF-8 پذیرفته می‌شود.';input.value='';return;}const rd=new FileReader();rd.onload=()=>{try{const rows=growthReadCsvRows(String(rd.result||'').replace(/^\ufeff/,''));if(rows.length<2)throw Error('فایل داده‌ای ندارد.');const h=rows[0].map(growthHeaderKey),a={name:['نامشرکت','نامکسبوکار','ناممشتری','شرکت'],contact:['نامرابط','رابط'],phone:['شمارتماس','تلفن','موبایل','شمارههمراه'],type:['حوزهفعالیت','فعالیت','صنف'],opportunity:['نوعفرصت','فرصت','خدمت'],priority:['اولویت'],estimate:['برآوردمنابعتومان','منابع','مبلغمنابع'],nextDate:['تاریخاقدامبعدی','مهلتپیگیری','تاریخپیگیری'],status:['وضعیت','مرحله'],notes:['شرح','توضیحات','اقدامبعدی']},ix={};Object.keys(a).forEach(k=>ix[k]=h.findIndex(v=>a[k].includes(v)));if(ix.name<0)throw Error('ستون نام شرکت پیدا نشد؛ قالب را دانلود کنید.');const data=rows.slice(1).filter(r=>r.some(v=>v.trim())).map(r=>({name:(r[ix.name]||'').trim(),contact:ix.contact<0?'':(r[ix.contact]||'').trim(),phone:ix.phone<0?'':(r[ix.phone]||'').trim(),type:ix.type<0?'':(r[ix.type]||'').trim(),opportunity:ix.opportunity<0?'جذب منابع':(r[ix.opportunity]||'جذب منابع').trim(),priority:ix.priority<0?'B':(r[ix.priority]||'B').trim().toUpperCase(),estimate:ix.estimate<0?0:(Number(String(r[ix.estimate]||'').replace(/[,،]/g,''))||0),nextDate:ix.nextDate<0?'':(r[ix.nextDate]||'').trim(),status:ix.status<0?'جدید':(r[ix.status]||'جدید').trim(),notes:ix.notes<0?'':(r[ix.notes]||'').trim()})).filter(x=>x.name);if(!data.length)throw Error('هیچ نام شرکتی در فایل نیست.');if(data.length>500)throw Error('حداکثر ۵۰۰ ردیف در هر بار مجاز است.');window.__growthBulkPending=data;out.innerHTML='<p><b>'+growthEscape(f.name)+'</b> | تعداد ردیف معتبر: <b>'+data.length+'</b></p><p>تکراری‌ها بر اساس شماره تماس یا نام شرکت کنار گذاشته می‌شوند.</p><button type="button" class="btn" onclick="growthCommitBulk()">تأیید و ثبت گروهی</button> <button type="button" class="btn btn-outline" onclick="growthCancelBulk()">انصراف</button>';}catch(e){out.textContent='خطا: '+e.message;}};rd.onerror=()=>out.textContent='خواندن فایل ناموفق بود.';rd.readAsText(f,'UTF-8');}
+async function growthCommitBulk(){const out=document.getElementById('growth-bulk-preview'),items=window.__growthBulkPending||[];if(!items.length)return;out.textContent='در حال ثبت...';try{const r=await growthCall({action:'growthBulkAddLeads',items});if(!r.success)throw Error(r.error||'ثبت ناموفق');out.textContent='ثبت جدید: '+r.inserted+' | تکراری: '+r.duplicates+' | نامعتبر: '+r.invalid;window.__growthBulkPending=[];document.getElementById('growth-bulk-file').value='';growthLoadLeads();}catch(e){out.textContent='خطا: '+e.message;}}
+function growthCancelBulk(){window.__growthBulkPending=[];document.getElementById('growth-bulk-file').value='';document.getElementById('growth-bulk-preview').textContent='ورود گروهی لغو شد.';}
 function growthEscape(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function growthRenderLeads(){const q=(document.getElementById('g-search')?.value||'').toLowerCase();const pr=document.getElementById('g-filter-priority')?.value||'';const st=document.getElementById('g-filter-status')?.value||'';const arr=growthLeadsCache.filter(x=>[x.name,x.type,x.phone,x.opportunity].join(' ').toLowerCase().includes(q)&&(!pr||x.priority===pr)&&(!st||x.status===st));const body=document.getElementById('growth-list');body.innerHTML=arr.map(x=>`<tr><td>${growthEscape(x.name)}</td><td>${growthEscape(x.opportunity)}</td><td>${growthEscape(x.priority)}</td><td><select onchange="growthUpdateStatus('${growthEscape(x.id)}',this.value)">${['جدید','تماس اولیه','جلسه برگزار شد','در حال مذاکره','تبدیل‌شده','عدم همکاری'].map(v=>`<option ${v===x.status?'selected':''}>${v}</option>`).join('')}</select></td><td>${growthEscape(x.phone)}</td><td><button class="btn btn-outline" style="width:auto;margin:0;padding:6px 10px;font-size:11px" onclick="growthShowDetail('${growthEscape(x.id)}')">جزئیات</button></td></tr>`).join('')||'<tr><td colspan="6" class="growth-empty">موردی مطابق جست‌وجو پیدا نشد.</td></tr>';document.getElementById('growth-total').textContent=growthLeadsCache.length;document.getElementById('growth-open').textContent=growthLeadsCache.filter(x=>!['تبدیل‌شده','عدم همکاری'].includes(x.status)).length;document.getElementById('growth-won').textContent=growthLeadsCache.filter(x=>x.status==='تبدیل‌شده').length;document.getElementById('growth-a').textContent=growthLeadsCache.filter(x=>x.priority==='A').length;}
 function growthResetForm(){['g-name','g-contact','g-phone','g-type','g-estimate','g-next','g-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});document.getElementById('g-priority').value='A';document.getElementById('g-status').value='جدید';document.getElementById('growth-msg').textContent='فرم پاک شد.';}
@@ -3989,6 +4135,9 @@ window.openGrowthPortalModule=function(id){
    if(feedback)feedback.textContent='';
    try{
      var action=mode==='manager'?'growthManagerLogin':'growthEmployeeLogin';
+     // Keep the previously used Apps Script request format: a plain POST with
+     // JSON body and no custom headers. This avoids changing the browser request
+     // behavior while retaining the newer server-side login routing.
      var response=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action:action,username:username,pass:pass})});
      if(!response.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+response.status+').');
      var data=await response.json();
@@ -4005,7 +4154,7 @@ window.openGrowthPortalModule=function(id){
      else throw new Error('بخش داخلی پنل پیدا نشد؛ فایل Index را کامل جایگزین کنید.');
    }catch(error){if(feedback)feedback.textContent=error.message||'ورود انجام نشد؛ اتصال سامانه را بررسی کنید.';}
    finally{if(button){button.disabled=false;button.textContent=mode==='manager'?'🛡️ ورود مدیریت سامانه':'🔐 ورود به پنل همکار';}}
- };
+ }
  function bind(){var entry=el('growth-tab-btn');if(entry)entry.onclick=function(){window.openGrowthPortal(entry);};ensureManagerChoice();}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
  document.addEventListener('keydown',function(e){if(e.key==='Escape')window.closeGrowthPortal();});
@@ -4054,6 +4203,223 @@ window.openGrowthPortalModule=function(id){
  window.addEventListener('load',bindChoices);
 })();
 </script>
+
+
+
+<!-- MEHR V5 strategic growth workbench: additive to V4; uses authenticated growth session -->
+<style>
+#mehr-v5-launch{display:none!important;position:fixed;left:16px;bottom:18px;z-index:2147482000;background:#075b3b;color:#fff;border:0;border-radius:999px;padding:13px 18px;font:700 13px Tahoma;box-shadow:0 6px 22px #0003;cursor:pointer}
+#mehr-v5-modal{display:none;position:fixed;inset:0;z-index:2147482500;background:#071c14cc;padding:12px;overflow:auto;direction:rtl;font-family:Tahoma,Arial}
+#mehr-v5-modal.open{display:flex;align-items:flex-start;justify-content:center}
+#mehr-v5-card{background:#f6faf7;border-radius:18px;width:min(1100px,100%);margin:auto;overflow:hidden;box-shadow:0 18px 70px #0005;color:#20372b}
+#mehr-v5-head{background:linear-gradient(120deg,#063c29,#11804c);color:#fff;padding:17px 20px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+#mehr-v5-head h2{font-size:17px;margin:0}#mehr-v5-head button{border:0;background:#ffffff22;color:white;border-radius:9px;padding:8px 12px;font-size:20px}
+#mehr-v5-content{padding:16px}.mehr-v5-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:12px 0}
+.mehr-v5-kpi,.mehr-v5-panel{background:white;border:1px solid #e0ebe4;border-radius:13px;padding:13px}
+.mehr-v5-kpi small{display:block;color:#697b70;font-size:11px}.mehr-v5-kpi b{display:block;color:#087448;font-size:20px;margin-top:6px;overflow-wrap:anywhere}
+.mehr-v5-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.mehr-v5-tabs button,.mehr-v5-action{border:0;border-radius:9px;background:#087448;color:white;padding:10px 13px;font:700 12px Tahoma;cursor:pointer}.mehr-v5-tabs button.secondary{background:#e8f2ec;color:#145638}
+.mehr-v5-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mehr-v5-form label{font-size:11px;color:#53665a}.mehr-v5-form input,.mehr-v5-form select,.mehr-v5-form textarea{display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:10px;border:1px solid #d8e5dc;border-radius:8px;font:12px Tahoma;background:#fff}.mehr-v5-form .wide{grid-column:1/-1}
+.mehr-v5-table{overflow:auto;margin-top:12px;border:1px solid #e1eae4;border-radius:10px}.mehr-v5-table table{width:100%;border-collapse:collapse;min-width:680px;font-size:11px}.mehr-v5-table th,.mehr-v5-table td{padding:9px;border-bottom:1px solid #edf1ee;text-align:right}.mehr-v5-table th{background:#edf6f0;color:#145638}.mehr-v5-muted{font-size:11px;color:#718077;line-height:1.9}.mehr-v5-alert{background:#fff8e8;border:1px solid #efdfb7;border-radius:10px;padding:10px;font-size:11px;line-height:1.8;margin:10px 0}
+@media(max-width:600px){#mehr-v5-launch{left:10px;bottom:10px;padding:11px 13px}.mehr-v5-form{grid-template-columns:1fr}.mehr-v5-form .wide{grid-column:auto}#mehr-v5-content{padding:10px}}
+</style>
+<button id="mehr-v5-launch" type="button" onclick="mehrV5Open()">📊 میزکار راهبردی رشد</button>
+<div id="mehr-v5-modal" aria-hidden="true"><div id="mehr-v5-card">
+ <div id="mehr-v5-head"><div><h2>میزکار راهبردی مدیریت کسب‌وکار</h2><small>جذب، نگهداشت، احیا و سنجش اثر اقتصادی</small></div><button type="button" onclick="mehrV5Close()">×</button></div>
+ <div id="mehr-v5-content">
+  <div class="mehr-v5-alert">این میزکار به نشست معتبر همکار نیاز دارد. ارقام بر اساس داده‌های ثبت‌شده نمایش داده می‌شوند؛ مبلغ برآوردی از منابع تأییدشده جداست. ثبت منابع تأییدشده فقط در سطح مدیر سامانه مجاز است.</div>
+  <div class="mehr-v5-grid" id="mehr-v5-kpis"><div class="mehr-v5-kpi"><small>فرصت‌ها</small><b>—</b></div></div>
+  <div class="mehr-v5-tabs"><button type="button" onclick="mehrV5Tab('opps')">فرصت‌های بازار</button><button type="button" class="secondary" onclick="mehrV5Tab('resource')">ثبت اثر منابع</button><button type="button" class="secondary" onclick="mehrV5Tab('list')">فهرست فرصت‌ها</button><button type="button" class="secondary" onclick="mehrV5Refresh()">به‌روزرسانی شاخص‌ها</button></div>
+  <section id="mehr-v5-opps" class="mehr-v5-panel">
+   <h3>ثبت فرصت جذب یا توسعه مشتری</h3><form class="mehr-v5-form" id="mehr-v5-opportunity-form">
+    <label>نوع مشتری<select name="customerType"><option>حقوقی</option><option>حقیقی</option><option>سازمانی</option><option>صنف و توزیع</option></select></label>
+    <label>نام مشتری / شرکت<input name="name" required maxlength="160"></label><label>نام رابط<input name="contact"></label><label>شماره همراه<input name="phone" inputmode="tel"></label>
+    <label>حوزه فعالیت<input name="industry"></label><label>ظرفیت منابع برآوردی (تومان)<input name="capacity" type="number" min="0"></label>
+    <label>احتمال تبدیل (درصد)<input name="probability" type="number" min="0" max="100" value="30"></label><label>اولویت<select name="priority"><option>A</option><option selected>B</option><option>C</option></select></label>
+    <label>مرحله<select name="stage"><option>جدید</option><option>شناسایی‌شده</option><option>تماس اولیه</option><option>جلسه</option><option>مذاکره</option><option>در انتظار تصمیم</option><option>تبدیل‌شده</option><option>مختومه ناموفق</option></select></label>
+    <label>کیفیت داده<select name="dataQuality"><option>نیازمند تأیید</option><option>تأییدشده</option><option>تخمینی</option><option>ناقص</option></select></label>
+    <label class="wide">اقدام بعدی<input name="nextAction" placeholder="تماس، جلسه، ارائه پیشنهاد، بررسی گردش مالی..."></label><label>مهلت اقدام<input name="dueDate" placeholder="۱۴۰۵/۰۹/۰۱"></label>
+    <button class="mehr-v5-action wide" type="submit">ثبت فرصت</button>
+   </form><div id="mehr-v5-op-msg" class="mehr-v5-muted"></div>
+  </section>
+  <section id="mehr-v5-resource" class="mehr-v5-panel" style="display:none"><h3>ثبت اثر بر منابع بانک</h3><form class="mehr-v5-form" id="mehr-v5-resource-form">
+   <label>نوع اثر<select name="type"><option>جذب</option><option>نگهداشت</option><option>احیا</option><option>انتقال از رقبا</option></select></label><label>مبلغ (تومان)<input name="amount" type="number" min="1" required></label>
+   <label>وضعیت<select name="status"><option>برآوردی</option><option>در انتظار تأیید</option><option>تأییدشده</option></select></label><label>تاریخ اثر<input name="effectDate" placeholder="۱۴۰۵/۰۹/۰۱"></label>
+   <label>شناسه فرصت (اختیاری)<input name="opportunityId"></label><label>منبع اطلاعات<input name="source" placeholder="گزارش شعبه، مستند مشتری، گزارش سامانه..."></label>
+   <label class="wide">توضیحات<textarea name="note" rows="2"></textarea></label><button class="mehr-v5-action wide" type="submit">ثبت رویداد منابع</button>
+  </form><div id="mehr-v5-resource-msg" class="mehr-v5-muted"></div></section>
+  <section id="mehr-v5-list" class="mehr-v5-panel" style="display:none"><h3>فهرست فرصت‌ها</h3><div class="mehr-v5-table"><table><thead><tr><th>نام مشتری/شرکت</th><th>ظرفیت (تومان)</th><th>اولویت</th><th>مرحله</th><th>مسئول</th><th>اقدام بعدی</th></tr></thead><tbody id="mehr-v5-rows"><tr><td colspan="6">برای دریافت اطلاعات، به‌روزرسانی را بزنید.</td></tr></tbody></table></div></section>
+  <p class="mehr-v5-muted">نسخه افزوده V5 روی داده‌های جداگانه ذخیره می‌کند و اطلاعات قبلی V4 را حذف یا بازنویسی نمی‌کند. این نسخه نیازمند آزمون عملی و بازبینی امنیتی پیش از استفاده با اطلاعات محرمانه بانکی است.</p>
+ </div></div></div>
+<script>
+(function(){'use strict';
+ function token(){try{return sessionStorage.getItem('growthToken')||'';}catch(e){return '';}}
+ function api(action,extra){if(!token())return Promise.reject(new Error('ابتدا از درگاه مدیریت کسب‌وکار وارد شوید.'));return fetch(window.SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action:action,token:token()},extra||{}))}).then(function(r){if(!r.ok)throw new Error('ارتباط با سرور ناموفق بود.');return r.json();}).then(function(d){if(d&&d.success===false)throw new Error(d.error||'عملیات انجام نشد.');return d;});}
+ window.mehrV5Open=function(){var m=document.getElementById('mehr-v5-modal');m.classList.add('open');m.setAttribute('aria-hidden','false');mehrV5Refresh();};
+ window.mehrV5Close=function(){var m=document.getElementById('mehr-v5-modal');m.classList.remove('open');m.setAttribute('aria-hidden','true');};
+ window.mehrV5Tab=function(k){['opps','resource','list'].forEach(function(x){document.getElementById('mehr-v5-'+x).style.display=x===k?'block':'none';});};
+ function money(n){return (Number(n)||0).toLocaleString('fa-IR');}
+ window.mehrV5Refresh=function(){api('mehrExecutiveDashboard').then(function(d){var k=d.kpis||{},items=[['فرصت‌های ثبت‌شده',k.opportunities],['فرصت‌های فعال',k.active],['تبدیل‌شده',k.converted],['ظرفیت برآوردی (تومان)',k.estimatedCapacity],['منابع تأییدشده (تومان)',k.verifiedResources],['منابع برآوردی (تومان)',k.estimatedResources],['جذب تأییدشده',k.attracted],['منابع حفظ‌شده',k.retained],['منابع احیاشده',k.recovered],['انتقال از رقبا',k.transferred]];document.getElementById('mehr-v5-kpis').innerHTML=items.map(function(x){return '<div class="mehr-v5-kpi"><small>'+x[0]+'</small><b>'+money(x[1])+'</b></div>';}).join('');}).catch(function(e){document.getElementById('mehr-v5-kpis').innerHTML='<div class="mehr-v5-alert">'+e.message+'</div>';});mehrV5LoadList();};
+ function mehrV5LoadList(){api('mehrOpportunityList').then(function(d){var rows=d.items||[];document.getElementById('mehr-v5-rows').innerHTML=rows.length?rows.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td>'+money(x.capacity)+'</td><td>'+esc(x.priority)+'</td><td>'+esc(x.stage)+'</td><td>'+esc(x.owner)+'</td><td>'+esc(x.nextAction)+'</td></tr>';}).join(''):'<tr><td colspan="6">هنوز فرصتی ثبت نشده است.</td></tr>';}).catch(function(e){document.getElementById('mehr-v5-rows').innerHTML='<tr><td colspan="6">'+esc(e.message)+'</td></tr>';});}
+ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+ function formData(f){var o={};new FormData(f).forEach(function(v,k){o[k]=v;});return o;}
+ document.getElementById('mehr-v5-opportunity-form').addEventListener('submit',function(e){e.preventDefault();var msg=document.getElementById('mehr-v5-op-msg');var b=this.querySelector('button[type=submit]');b.disabled=true;api('mehrOpportunitySave',formData(this)).then(function(d){msg.textContent='فرصت ثبت شد؛ شناسه: '+d.id;e.target.reset();mehrV5Refresh();}).catch(function(err){msg.textContent=err.message;}).finally(function(){b.disabled=false;});});
+ document.getElementById('mehr-v5-resource-form').addEventListener('submit',function(e){e.preventDefault();var msg=document.getElementById('mehr-v5-resource-msg');var b=this.querySelector('button[type=submit]');b.disabled=true;api('mehrResourceEventSave',formData(this)).then(function(d){msg.textContent='رویداد منابع ثبت شد؛ شناسه: '+d.id;e.target.reset();mehrV5Refresh();}).catch(function(err){msg.textContent=err.message;}).finally(function(){b.disabled=false;});});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')mehrV5Close();});
+})();
+</script>
+
+<style id="mehr-v5-integrated-workflow-style">
+#mehr-v5-workflow{margin:16px 0;padding:14px;border:1px solid #cfe2d5;border-radius:16px;background:#f5faf7;color:#183c2a;font-family:Tahoma,Arial,sans-serif}
+#mehr-v5-workflow *{box-sizing:border-box}#mehr-v5-workflow h3,#mehr-v5-workflow h4{margin:7px 0;color:#075b3b}#mehr-v5-workflow .mw-banner{background:#e8f3ec;border:1px solid #cfe1d5;border-radius:10px;padding:10px;font-size:12px;line-height:1.9;margin:9px 0}
+#mehr-v5-workflow .mw-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:10px 0}#mehr-v5-workflow .mw-kpi{background:#fff;border:1px solid #e0eae3;border-radius:10px;padding:10px;text-align:center}#mehr-v5-workflow .mw-kpi b{display:block;font-size:20px;color:#087448}#mehr-v5-workflow .mw-kpi small{font-size:10px;color:#64756a}
+#mehr-v5-workflow .mw-grid{display:grid;grid-template-columns:minmax(240px,.85fr) minmax(0,1.6fr);gap:10px}#mehr-v5-workflow .mw-panel{background:#fff;border:1px solid #e0eae3;border-radius:12px;padding:12px;margin:9px 0;min-width:0}
+#mehr-v5-workflow label{display:block;font-size:11px;font-weight:700;margin:7px 0;color:#53665a}#mehr-v5-workflow input,#mehr-v5-workflow select,#mehr-v5-workflow textarea{width:100%;padding:9px;border:1px solid #d4e2d9;border-radius:8px;background:#fff;font:12px Tahoma;margin-top:4px;color:#20372b}#mehr-v5-workflow textarea{min-height:65px;resize:vertical}
+#mehr-v5-workflow .mw-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}#mehr-v5-workflow button{border:0;border-radius:8px;background:#087448;color:white;padding:9px 12px;font:700 11px Tahoma;cursor:pointer;margin:3px}#mehr-v5-workflow button.alt{background:#e8f2ec;color:#145638;border:1px solid #cfe0d5}#mehr-v5-workflow button.warn{background:#98651b}#mehr-v5-workflow button:disabled{opacity:.55;cursor:wait}
+#mehr-v5-workflow .mw-case-list{display:grid;gap:7px;max-height:420px;overflow:auto}#mehr-v5-workflow .mw-case{background:#fbfdfb;border:1px solid #e1eae4;border-radius:9px;padding:9px;text-align:right;color:#20372b;width:100%}#mehr-v5-workflow .mw-case.active{border:2px solid #0b8651;background:#edf8f1}#mehr-v5-workflow .mw-case small{display:block;color:#68786e;font-weight:400;margin-top:4px;line-height:1.7}
+#mehr-v5-workflow .mw-table{overflow:auto}#mehr-v5-workflow table{width:100%;border-collapse:collapse;min-width:580px;font-size:10px}#mehr-v5-workflow th,#mehr-v5-workflow td{padding:7px;border-bottom:1px solid #e8eee9;text-align:right;vertical-align:top}#mehr-v5-workflow th{background:#edf6f0;color:#145638}
+#mehr-v5-workflow .mw-log{padding-right:20px;font-size:11px;line-height:1.9}#mehr-v5-workflow .mw-log li{padding:5px 0;border-bottom:1px dashed #e0e9e3}#mehr-v5-workflow .mw-muted{font-size:10px;color:#6c7d72;line-height:1.8}#mehr-v5-workflow .mw-role{display:flex;gap:6px;flex-wrap:wrap}
+@media(max-width:720px){#mehr-v5-workflow .mw-grid{grid-template-columns:1fr}#mehr-v5-workflow .mw-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#mehr-v5-workflow .mw-row{grid-template-columns:1fr}}
+</style>
+<script id="mehr-v5-integrated-workflow-engine">
+(function(){
+'use strict';
+const STORE='mehr_v5_integrated_cases_demo_2026_11';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>Number(n||0).toLocaleString('fa-IR');
+const now=()=>new Date().toLocaleString('fa-IR');
+const stages=['شناسایی','آماده تماس','تماس انجام شد','جلسه تنظیم شد','جلسه برگزار شد','مذاکره','در انتظار اقدام مشتری','در انتظار پشتیبانی ستاد','در حال اجرا','جذب/احیا/نگهداشت محقق شد','مختومه ناموفق'];
+const seed=()=>[
+{id:'D-1001',name:'شرکت نمونه سپهر',kind:'شرکت حقوقی',type:'جذب بازار',need:'انتقال حقوق ۸۰ نفر، افتتاح حساب و خدمات پذیرندگی',potential:18000000000,risk:'متوسط',priority:'A ـ فوری',stage:'شناسایی',owner:'تعیین نشده',due:'',next:'بررسی رابط مالی و تماس اولیه',branch:'شعبه نمونه',actual:0,retained:0,history:[]},
+{id:'D-1002',name:'مشتری نمونه الف',kind:'مشتری حقیقی',type:'نگهداشت منابع',need:'کاهش ۴۰ درصدی میانگین موجودی؛ بررسی علت خروج منابع',potential:4500000000,risk:'زیاد',priority:'A ـ فوری',stage:'آماده تماس',owner:'تعیین نشده',due:'',next:'تماس رئیس شعبه و شناخت علت کاهش منابع',branch:'شعبه نمونه',actual:0,retained:0,history:[]},
+{id:'D-1003',name:'مشتری غیرفعال نمونه ب',kind:'مشتری حقیقی',type:'احیای مشتری',need:'عدم گردش حساب در ۹ ماه؛ بررسی نیاز جدید',potential:1200000000,risk:'متوسط',priority:'B ـ مهم',stage:'شناسایی',owner:'تعیین نشده',due:'',next:'تماس رضایت‌محور و نیازسنجی',branch:'شعبه نمونه',actual:0,retained:0,history:[]},
+{id:'D-1004',name:'شرکت پخش نمونه گیلان',kind:'شرکت حقوقی',type:'توسعه بازار',need:'جذب منابع، انتقال حقوق و پایانه فروش',potential:8000000000,risk:'کم',priority:'A ـ فوری',stage:'تماس انجام شد',owner:'کارشناس جذب منابع',due:'',next:'تنظیم جلسه با مدیر مالی',branch:'شعبه نمونه',actual:0,retained:0,history:[{at:now(),actor:'کارشناس جذب منابع',kind:'تماس',note:'تماس اولیه؛ مدیر مالی خواستار جلسه حضوری شده است.'}]},
+{id:'D-1005',name:'درخواست رسیدگی نمونه',kind:'مشتری',type:'تجربه مشتری',need:'نارضایتی از تأخیر خدمت؛ جلوگیری از ریزش مشتری',potential:0,risk:'زیاد',priority:'A ـ فوری',stage:'آماده تماس',owner:'تعیین نشده',due:'',next:'تماس مسئول رسیدگی و اعلام زمان حل مشکل',branch:'شعبه نمونه',actual:0,retained:0,history:[]},
+{id:'D-1006',name:'پذیرنده نمونه دارویی',kind:'کسب‌وکار',type:'درخواست پوز',need:'بررسی درخواست دو پایانه و فعال‌سازی پذیرندگی',potential:600000000,risk:'کم',priority:'B ـ مهم',stage:'جلسه تنظیم شد',owner:'کارشناس پذیرندگی',due:'',next:'کنترل مدارک و ارجاع به واحد پذیرندگی',branch:'شعبه نمونه',actual:0,retained:0,history:[]},
+{id:'D-1007',name:'شرکت تولیدی نمونه شمال',kind:'شرکت حقوقی',type:'نیاز اعتباری',need:'نیازسنجی سرمایه در گردش و ارجاع ضابطه‌مند به اعتبارات',potential:6500000000,risk:'متوسط',priority:'B ـ مهم',stage:'شناسایی',owner:'تعیین نشده',due:'',next:'تکمیل نیازسنجی و مدارک اولیه؛ بدون وعده تسهیلات',branch:'شعبه نمونه',actual:0,retained:0,history:[]}
+];
+let db={cases:[],selected:'',events:[],mode:'demo',role:'branchHead'};
+function load(){try{const v=JSON.parse(localStorage.getItem(STORE)||'null');if(v&&Array.isArray(v.cases))db=v;else db.cases=seed();}catch(e){db.cases=seed();}}
+function persist(){try{localStorage.setItem(STORE,JSON.stringify(db));}catch(e){}}
+function activeMode(){const b=document.querySelector('#growth-mode-content .growth-demo-banner');return b&&/محیط آزمایشی فعال است/.test(b.textContent)?'demo':'live';}
+function api(action,extra){const token=sessionStorage.getItem('growthToken')||'';if(!token)return Promise.reject(new Error('نشست معتبر نیست؛ دوباره وارد درگاه مدیریت شوید.'));const url=window.SCRIPT_URL||window.mehrApiUrl&&window.mehrApiUrl();if(!url) return Promise.reject(new Error('نشانی Web App تنظیم نشده است.'));return fetch(url,{method:'POST',body:JSON.stringify(Object.assign({action,token},extra||{}))}).then(r=>{if(!r.ok)throw new Error('پاسخ سرور ناموفق بود: '+r.status);return r.json();}).then(d=>{if(d&&d.success===false)throw new Error(d.error||'عملیات انجام نشد.');return d;});}
+function cases(){return db.cases;}
+function selected(){return cases().find(x=>x.id===db.selected)||cases()[0]||null;}
+function addEvent(message,actor){db.events.unshift({at:now(),message,actor});persist();}
+function panelHtml(mode){return `<section id="mehr-v5-workflow"><div class="mw-banner"><b>میزکار یکپارچه عملیات و گردش‌کار</b><br>${mode==='demo'?'حالت آزمایشی: تمام پرونده‌ها، اشخاص و ارقام ساختگی‌اند و فقط در مرورگر ذخیره می‌شوند.':'حالت عملیاتی: اطلاعات با نشست معتبر در سرور ذخیره می‌شود؛ پیش از ورود داده محرمانه، مجوزها و دسترسی‌های سازمانی باید تأیید شده باشد.'} اینجا پس از شناسایی، تماس، جلسه، مذاکره، مأموریت، ارجاع ستادی، پیگیری، احیا و ثبت نتیجه انجام می‌شود.</div>
+<div class="mw-role"><label style="min-width:230px">نمای کاری<select id="mw-role"><option value="branchHead">رئیس شعبه</option><option value="staff">کارشناس / همکار</option><option value="hq">واحد ستادی / مدیریت منطقه</option></select></label><label style="min-width:230px">فیلتر پرونده<select id="mw-filter"><option value="all">همه پرونده‌ها</option><option value="A">اولویت A</option><option value="retention">نگهداشت و احیا</option><option value="market">جذب و توسعه بازار</option><option value="open">اقدام باز / معوق</option></select></label></div>
+<div class="mw-kpis" id="mw-kpis"></div><div class="mw-grid"><div><div class="mw-panel"><h4>صف پرونده‌ها و فرصت‌ها</h4><input id="mw-search" placeholder="جست‌وجوی مشتری، شرکت، نوع نیاز"/><div id="mw-cases" class="mw-case-list"></div></div>
+<div class="mw-panel"><h4>ثبت فرصت یا خطر جدید</h4><form id="mw-new-form"><label>نام مشتری / شرکت<input name="name" required maxlength="140" placeholder="نام پرونده"></label><div class="mw-row"><label>نوع پرونده<select name="type"><option>جذب بازار</option><option>نگهداشت منابع</option><option>احیای مشتری</option><option>تجربه مشتری</option><option>درخواست پوز</option><option>نیاز اعتباری</option><option>توسعه مشتری</option></select></label><label>اولویت<select name="priority"><option>A ـ فوری</option><option>B ـ مهم</option><option>C ـ عادی</option></select></label></div><label>نیاز / علت شناسایی<textarea name="need" required placeholder="چرا باید اقدام کنیم؟"></textarea></label><div class="mw-row"><label>ظرفیت احتمالی منابع (تومان)<input name="potential" type="number" min="0" value="0"></label><label>سطح ریسک<select name="risk"><option>زیاد</option><option>متوسط</option><option>کم</option></select></label></div><button type="submit">ثبت پرونده و ورود به گردش کار</button></form><div class="mw-muted" id="mw-new-msg"></div></div></div>
+<div><div class="mw-panel" id="mw-detail"><p class="mw-muted">یک پرونده را از فهرست انتخاب کنید.</p></div><div class="mw-panel"><h4>گزارش اقدامات و ردپای مدیریتی</h4><ol id="mw-events" class="mw-log"></ol></div></div></div>
+<div class="mw-panel"><h4>صف ارجاع و پشتیبانی ستاد</h4><div id="mw-hq-queue" class="mw-muted">درخواست‌های ارجاعی و موانع پرونده‌ها اینجا نمایش داده می‌شوند.</div></div>
+<p class="mw-muted">راهنمای تصمیم: اولویت A به معنی اقدام فوری است، نه حذف پرونده به علت نقص داده. ظرفیت احتمالی با منابع تحقق‌یافته یکی نیست. تأیید تسهیلات، منابع و اقدامات حساس فقط با مجوز و مستند معتبر انجام می‌شود.</p></section>`;}
+function build(){const host=$('growth-mode-content');if(!host||!host.innerHTML)return;const mode=activeMode();if($('mehr-v5-workflow'))$('mehr-v5-workflow').remove();host.insertAdjacentHTML('beforeend',panelHtml(mode));db.mode=mode;if(mode==='demo'){load();if(!db.cases.length)db.cases=seed();$('mw-role').disabled=false;}else{db.cases=[];const serverRole=sessionStorage.getItem('growthRole')||'';db.role=(serverRole==='admin'||serverRole==='branch')?'branchHead':(serverRole==='department'?'hq':'staff');$('mw-role').disabled=true;}
+$('mw-role').value=db.role||'branchHead';$('mw-role').addEventListener('change',e=>{if(db.mode==='demo'){db.role=e.target.value;persist();render();}});$('mw-filter').addEventListener('change',render);$('mw-search').addEventListener('input',render);
+$('mw-new-form').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target),item={id:'CASE-'+Date.now(),name:f.get('name'),kind:'مشتری / شرکت',type:f.get('type'),need:f.get('need'),potential:Number(f.get('potential')||0),risk:f.get('risk'),priority:f.get('priority'),stage:'شناسایی',owner:'تعیین نشده',due:'',next:'تعیین مسئول و تماس اولیه',branch:'شعبه ثبت‌کننده',actual:0,retained:0,history:[]};if(mode==='demo'){db.cases.unshift(item);addEvent('پرونده جدید '+item.name+' ثبت شد و در صف تعیین مسئول قرار گرفت.','کاربر آزمایشی');db.selected=item.id;persist();render();$('mw-new-msg').textContent='پرونده در حافظه آزمایشی ثبت شد.';}else{api('growthCaseCreate',{item}).then(d=>{$('mw-new-msg').textContent='پرونده ثبت شد: '+d.id;render();}).catch(err=>$('mw-new-msg').textContent=err.message);}});
+render();}
+function filtered(){let a=cases(),f=$('mw-filter')?.value||'all',q=($('mw-search')?.value||'').trim().toLowerCase();if(f==='A')a=a.filter(x=>(x.priority||'').startsWith('A'));if(f==='retention')a=a.filter(x=>/نگهداشت|احیا/.test(x.type));if(f==='market')a=a.filter(x=>/جذب|بازار|توسعه/.test(x.type));if(f==='open')a=a.filter(x=>!['جذب/احیا/نگهداشت محقق شد','مختومه ناموفق'].includes(x.stage));if(q)a=a.filter(x=>(x.name+' '+x.type+' '+x.need).toLowerCase().includes(q));return a;}
+function render(){if(! $('mehr-v5-workflow'))return;if(db.mode==='live'){renderLive();return;}const a=cases();const count=(fn)=>a.filter(fn).length;$('mw-kpis').innerHTML=[['کل پرونده‌ها',a.length],['اقدام فوری',count(x=>(x.priority||'').startsWith('A'))],['در حال پیگیری',count(x=>!['جذب/احیا/نگهداشت محقق شد','مختومه ناموفق'].includes(x.stage))],['محقق‌شده',count(x=>x.stage==='جذب/احیا/نگهداشت محقق شد')],['ظرفیت احتمالی (تومان)',fmt(a.reduce((s,x)=>s+(Number(x.potential)||0),0))]].map(x=>`<div class="mw-kpi"><b>${x[1]}</b><small>${x[0]}</small></div>`).join('');
+$('mw-cases').innerHTML=filtered().map(x=>`<button type="button" class="mw-case ${x.id===db.selected?'active':''}" data-id="${esc(x.id)}"><b>${esc(x.name)}</b><small>${esc(x.type)} | ${esc(x.priority)}<br>${esc(x.stage)} | مسئول: ${esc(x.owner)}</small></button>`).join('')||'<p class="mw-muted">پرونده‌ای با این فیلتر پیدا نشد.</p>';
+$('mw-cases').querySelectorAll('[data-id]').forEach(b=>b.addEventListener('click',()=>{db.selected=b.dataset.id;persist();render();}));
+const c=selected();$('mw-detail').innerHTML=c?detailHtml(c):'<p>پرونده‌ای انتخاب نشده است.</p>';
+$('mw-events').innerHTML=(db.events||[]).slice(0,18).map(e=>`<li><b>${esc(e.message)}</b><br><small>${esc(e.at)} | ${esc(e.actor)}</small></li>`).join('')||'<li>هنوز اقدامی ثبت نشده است.</li>';
+$('mw-hq-queue').innerHTML=a.filter(x=>x.stage==='در انتظار پشتیبانی ستاد').map(x=>`<div>• ${esc(x.name)} ـ ${esc(x.next)} <button class="alt" data-hq="${esc(x.id)}">ثبت پاسخ ستاد</button></div>`).join('')||'در حال حاضر پرونده ارجاعی باز وجود ندارد.';
+$('mw-hq-queue').querySelectorAll('[data-hq]').forEach(b=>b.onclick=()=>{const x=cases().find(y=>y.id===b.dataset.hq);if(!x)return;x.stage='در حال اجرا';x.next='ادامه اقدام در شعبه';x.history.unshift({at:now(),actor:'واحد ستادی',kind:'پشتیبانی',note:'پاسخ/پشتیبانی ستاد ثبت شد؛ پرونده برای اجرا به شعبه بازگشت.'});addEvent(x.name+' از صف ستاد به شعبه بازگشت.','واحد ستادی');persist();render();});
+}
+function detailHtml(c){const role=db.role;const canAssign=role==='branchHead';const canValue=role==='branchHead';const canEscalate=role==='branchHead';const timeline=(c.history||[]).map(h=>`<li><b>${esc(h.kind)}</b> ـ ${esc(h.note)}<small>${esc(h.at)} | ${esc(h.actor)}</small></li>`).join('')||'<li>هنوز اقدامی ثبت نشده است.</li>';
+return `<h3>${esc(c.name)}</h3><div class="mw-muted">${esc(c.id)} | ${esc(c.kind)} | ${esc(c.type)} | اولویت ${esc(c.priority)}</div><p><b>نیاز/علت:</b> ${esc(c.need)}</p><div class="mw-row"><div><b>ظرفیت احتمالی:</b> ${fmt(c.potential)} تومان</div><div><b>ریسک:</b> ${esc(c.risk)}</div></div><div class="mw-row"><div><b>مسئول:</b> ${esc(c.owner)}</div><div><b>مرحله:</b> ${esc(c.stage)}</div></div>
+${canAssign?`<h4>تصمیم رئیس شعبه / ارجاع</h4><div class="mw-row"><label>مسئول پرونده<input id="mw-owner" value="${esc(c.owner==='تعیین نشده'?'کارشناس جذب منابع':c.owner)}"></label><label>مهلت اقدام<input id="mw-due" type="date" value="${esc(c.due||'')}"></label></div><button type="button" onclick="window.mwAssign('${esc(c.id)}')">تخصیص مأموریت و تعیین مهلت</button>`:''}
+<h4>ثبت تماس، جلسه، مذاکره یا پیگیری</h4><div class="mw-row"><label>نوع اقدام<select id="mw-kind"><option>تماس اولیه</option><option>تماس پیگیری</option><option>جلسه حضوری</option><option>مذاکره</option><option>بازدید میدانی</option><option>رسیدگی به نارضایتی</option><option>پیگیری مدارک</option><option>پشتیبانی ستاد</option></select></label><label>نتیجه / مرحله<select id="mw-stage">${stages.map(s=>`<option ${s===c.stage?'selected':''}>${s}</option>`).join('')}</select></label></div><label>شرح اقدام و نتیجه<textarea id="mw-note" placeholder="چه کسی با چه کسی صحبت کرد؟ نیاز و مانع چه بود؟ توافق یا نتیجه چه شد؟"></textarea></label><div class="mw-row"><label>اقدام بعدی<input id="mw-next" value="${esc(c.next||'')}"></label><label>تاریخ پیگیری بعدی<input id="mw-next-date" type="date"></label></div><button type="button" onclick="window.mwSaveAction('${esc(c.id)}')">ثبت اقدام و به‌روزرسانی پرونده</button>
+${canValue?`<h4>ثبت نتیجه اقتصادی (فقط پس از تحقق و مستند)</h4><div class="mw-row"><label>منابع جذب‌شده واقعی (تومان)<input id="mw-actual" type="number" min="0" value="${Number(c.actual)||0}"></label><label>منابع حفظ‌شده / احیاشده (تومان)<input id="mw-retained" type="number" min="0" value="${Number(c.retained)||0}"></label></div><button class="alt" type="button" onclick="window.mwSaveValue('${esc(c.id)}')">ثبت نتیجه اقتصادی</button>`:''}
+${canEscalate?`<h4>درخواست پشتیبانی ستاد</h4><div class="mw-row"><label>واحد مقصد<select id="mw-dept"><option>اعتبارات</option><option>بانکداری دیجیتال</option><option>فناوری اطلاعات</option><option>حقوقی</option><option>مدیریت منطقه</option><option>عملیات و خدمات</option></select></label><label>موضوع ارجاع<input id="mw-escalation" placeholder="مجوز، مانع، بررسی تخصصی"></label></div><button class="warn" type="button" onclick="window.mwEscalate('${esc(c.id)}')">ارجاع مانع به ستاد</button>`:''}
+<h4>سوابق پرونده</h4><ol class="mw-log">${timeline}</ol>`;}
+window.mwAssign=function(id){const c=cases().find(x=>x.id===id);if(!c)return;const owner=$('mw-owner')?.value.trim(),due=$('mw-due')?.value;if(!owner||!due){alert('مسئول و مهلت اقدام را مشخص کنید.');return;}if(db.mode==='demo'){c.owner=owner;c.due=due;c.stage='آماده تماس';c.next='تماس اولیه و نیازسنجی';c.history.unshift({at:now(),actor:db.role==='hq'?'مدیریت منطقه':'رئیس شعبه',kind:'تخصیص مأموریت',note:'مسئول: '+owner+'؛ مهلت: '+due});addEvent('پرونده '+c.name+' به '+owner+' واگذار شد.','رئیس شعبه');persist();render();}else api('growthCaseAssign',{id,owner,due}).then(render).catch(e=>alert(e.message));};
+window.mwSaveAction=function(id){const c=cases().find(x=>x.id===id);if(!c)return;const kind=$('mw-kind').value,note=$('mw-note').value.trim(),stage=$('mw-stage').value,next=$('mw-next').value.trim(),nextDate=$('mw-next-date').value;if(!note){alert('شرح اقدام و نتیجه را وارد کنید.');return;}if(db.mode==='demo'){c.history.unshift({at:now(),actor:db.role==='staff'?(c.owner||'کارشناس نمونه'):db.role==='hq'?'واحد ستادی':'رئیس شعبه',kind,note});c.stage=stage;c.next=next||'نیازمند تعیین اقدام بعدی';c.due=nextDate||c.due;addEvent(kind+' برای '+c.name+' ثبت شد؛ مرحله: '+stage,c.owner);persist();render();}else api('growthCaseInteraction',{id,kind,note,stage,next,nextDate}).then(render).catch(e=>alert(e.message));};
+window.mwSaveValue=function(id){const c=cases().find(x=>x.id===id);if(!c)return;const actual=Number($('mw-actual').value||0),retained=Number($('mw-retained').value||0);if(db.mode==='demo'){c.actual=actual;c.retained=retained;if(actual+retained>0)c.stage='جذب/احیا/نگهداشت محقق شد';c.history.unshift({at:now(),actor:'مدیر پرونده',kind:'ثبت نتیجه اقتصادی',note:'جذب واقعی: '+fmt(actual)+' تومان؛ حفظ/احیا: '+fmt(retained)+' تومان؛ صرفاً داده آزمایشی'});addEvent('نتیجه اقتصادی پرونده '+c.name+' ثبت شد.','مدیر پرونده');persist();render();}else api('growthCaseValue',{id,actual,retained}).then(render).catch(e=>alert(e.message));};
+window.mwEscalate=function(id){const c=cases().find(x=>x.id===id);if(!c)return;const dept=$('mw-dept').value,issue=$('mw-escalation').value.trim();if(!issue){alert('موضوع ارجاع به ستاد را بنویسید.');return;}if(db.mode==='demo'){c.stage='در انتظار پشتیبانی ستاد';c.next='پاسخ '+dept+' به موضوع: '+issue;c.history.unshift({at:now(),actor:'رئیس شعبه',kind:'ارجاع به ستاد',note:'واحد مقصد: '+dept+'؛ موضوع: '+issue});addEvent('پرونده '+c.name+' برای پشتیبانی به '+dept+' ارجاع شد.','رئیس شعبه');persist();render();}else api('growthCaseEscalate',{id,department:dept,issue}).then(render).catch(e=>alert(e.message));};
+function renderLive(){const wrap=$('mehr-v5-workflow');if(!wrap)return;Promise.all([api('growthCaseList'),api('growthCaseHqList')]).then(([d,hq])=>{const rows=d.items||[];db.cases=rows;db.selected=db.selected||((rows[0]||{}).id||'');$('mw-kpis').innerHTML=[['پرونده‌ها',rows.length],['اولویت فوری',rows.filter(x=>(x.priority||'').startsWith('A')).length],['در حال پیگیری',rows.filter(x=>!['جذب/احیا/نگهداشت محقق شد','مختومه ناموفق'].includes(x.stage)).length],['در انتظار ستاد',rows.filter(x=>x.stage==='در انتظار پشتیبانی ستاد').length],['ظرفیت احتمالی (تومان)',fmt(rows.reduce((s,x)=>s+(Number(x.potential)||0),0))]].map(x=>`<div class="mw-kpi"><b>${x[1]}</b><small>${x[0]}</small></div>`).join('');$('mw-cases').innerHTML=rows.map(x=>`<button class="mw-case" data-id="${esc(x.id)}"><b>${esc(x.name)}</b><small>${esc(x.type)} | ${esc(x.priority)}<br>${esc(x.stage)} | ${esc(x.owner)}</small></button>`).join('')||'<p class="mw-muted">هنوز پرونده‌ای ثبت نشده است.</p>'; $('mw-cases').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{db.selected=b.dataset.id;const c=rows.find(x=>x.id===db.selected);$('mw-detail').innerHTML=c?detailHtml(c):'';});$('mw-events').innerHTML='<li>اطلاعات از سرور دریافت شد.</li>';const q=hq.items||[];$('mw-hq-queue').innerHTML=q.map(x=>`<div style="padding:8px;border-bottom:1px solid #eee"><b>${esc(x.caseName||x.caseId)}</b> ـ ${esc(x.department)}: ${esc(x.issue)} <small>(${esc(x.status)})</small> <button class="alt" data-hqr="${esc(x.id)}">ثبت پاسخ ستاد</button></div>`).join('')||'در حال حاضر ارجاع باز وجود ندارد.';$('mw-hq-queue').querySelectorAll('[data-hqr]').forEach(b=>b.onclick=()=>{const reply=prompt('پاسخ یا اقدام واحد ستادی را وارد کنید:');if(!reply)return;api('growthCaseHqRespond',{id:b.dataset.hqr,reply}).then(render).catch(e=>alert(e.message));});}).catch(e=>{$('mw-cases').innerHTML='<p class="mw-muted">'+esc(e.message)+'</p>';});}
+// Wrap the existing mode selector: the original legacy site, old modules and old workflow remain in place.
+const oldSelect=window.growthSelectMode;window.growthSelectMode=function(mode){if(typeof oldSelect==='function')oldSelect(mode);setTimeout(build,0);};
+const oldRefresh=window.growthOpsRefresh;window.growthOpsRefresh=function(){if(typeof oldRefresh==='function')oldRefresh();if(db.mode==='demo')render();};
+})();
+</script>
+
+
+
+<style id="mehr-v52-guided-style">
+#growth-employee-authenticated.mehr-v52-compact>:not(#mehr-v52-guided-workspace){display:none!important}
+#mehr-v52-guided-workspace{display:block!important;background:#f6fbf7;border:1px solid #d5e8da;border-radius:16px;padding:14px;margin:12px 0;color:#173c29;line-height:1.9}
+#mehr-v52-guided-workspace .m52-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+#mehr-v52-guided-workspace .m52-eyebrow{font-size:11px;color:#168052;font-weight:800}
+#mehr-v52-guided-workspace h3{font-size:18px;margin:2px 0 6px;color:#0a4d2e}
+#mehr-v52-guided-workspace .m52-current{background:#fff;border:1px solid #dce9df;border-radius:12px;padding:13px;margin:12px 0}
+#mehr-v52-guided-workspace .m52-stepbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:12px 0}
+#mehr-v52-guided-workspace .m52-step{background:#e9f0eb;border-radius:8px;padding:7px 4px;text-align:center;font-size:10px;min-height:48px}
+#mehr-v52-guided-workspace .m52-step.active{background:#fff3d8;border:1px solid #d7a642;font-weight:800}
+#mehr-v52-guided-workspace .m52-step.done{background:#e1f4e8;border:1px solid #78bd91}
+#mehr-v52-guided-workspace .m52-step.locked{opacity:.55}
+#mehr-v52-guided-workspace .m52-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+#mehr-v52-guided-workspace button{border:0;border-radius:9px;padding:10px 13px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;background:#087348;color:white}
+#mehr-v52-guided-workspace button.secondary{background:#e8f2eb;color:#145b38;border:1px solid #c7ddce}
+#mehr-v52-guided-workspace button:disabled{opacity:.5;cursor:not-allowed}
+#mehr-v52-guided-workspace textarea{width:100%;min-height:78px;padding:10px;border:1px solid #cbdccf;border-radius:9px;font:inherit;background:#fff}
+#mehr-v52-guided-workspace .m52-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+#mehr-v52-guided-workspace .m52-kpi{background:#fff;border:1px solid #e0eae3;border-radius:10px;padding:9px;font-size:11px}
+#mehr-v52-guided-workspace .m52-kpi b{display:block;color:#087348;font-size:16px}
+#mehr-v52-guided-workspace .m52-note{font-size:11px;color:#5b6c60}
+#mehr-v52-guided-workspace .m52-approval{border:1px solid #e5d8b4;background:#fffaf0;border-radius:10px;padding:10px;margin:8px 0}
+@media(max-width:600px){#mehr-v52-guided-workspace .m52-stepbar{grid-template-columns:repeat(2,minmax(0,1fr))}#mehr-v52-guided-workspace .m52-grid{grid-template-columns:1fr 1fr}}
+
+#mehr-v52-guided-workspace .m52-task{background:#fff;border:1px solid #dce9df;border-radius:12px;padding:13px;margin:12px 0}
+#mehr-v52-guided-workspace .m52-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+#mehr-v52-guided-workspace .m52-form label{font-size:11px;font-weight:700;color:#3f5748}
+#mehr-v52-guided-workspace .m52-form input:not([type=checkbox]),#mehr-v52-guided-workspace .m52-form select,#mehr-v52-guided-workspace .m52-form textarea{display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:10px;border:1px solid #cbdccf;border-radius:8px;font:12px Tahoma;background:#fff}
+#mehr-v52-guided-workspace .m52-form textarea{min-height:68px}
+#mehr-v52-guided-workspace .m52-form .wide{grid-column:1/-1}
+#mehr-v52-guided-workspace .m52-confirm{grid-column:1/-1;display:flex;align-items:center;gap:8px;background:#f2f8f4;padding:10px;border-radius:8px}
+#mehr-v52-guided-workspace .m52-step small{display:block;margin-top:4px}
+@media(max-width:600px){#mehr-v52-guided-workspace .m52-form{grid-template-columns:1fr}#mehr-v52-guided-workspace .m52-form .wide{grid-column:auto}}
+</style>
+<script id="mehr-v52-guided-script">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ let state=null, analytics=null, loading=false;
+ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ async function api(action,payload){const token=sessionStorage.getItem('growthToken')||'';if(!token)throw new Error('نشست معتبر نیست؛ دوباره وارد شوید.');const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action,token},payload||{}))});const d=await r.json();if(d&&d.success===false)throw new Error(d.error||'عملیات انجام نشد.');return d;}
+ function roleTitle(){const r=sessionStorage.getItem('growthRole')||'';const d=sessionStorage.getItem('growthDepartment')||'';return r==='admin'?'مدیر سامانه':r==='branch'?'مسئول شعبه':d?('همکار '+d):'کارشناس مدیریت کسب‌وکار';}
+ function moduleLabel(id){const m=(window.growthModules||[]).find(x=>x.id===id);return m?m.title:'بخش مرتبط';}
+ function render(){
+  const host=$('growth-employee-authenticated');if(!host)return;
+  let panel=$('mehr-v52-guided-workspace');if(!panel){panel=document.createElement('section');panel.id='mehr-v52-guided-workspace';host.insertBefore(panel,host.firstChild);}
+  host.classList.add('mehr-v52-compact');
+  if(loading){panel.innerHTML='<b>در حال آماده‌سازی میزکار اختصاصی شما...</b>';return;}
+  if(!state){panel.innerHTML='<b>میزکار هوشمند</b><p>برای دریافت وظایف و وضعیت گردش‌کار، وضعیت اتصال را بررسی و دوباره تلاش کنید.</p><button onclick="window.mehrV52Refresh()">بارگذاری میزکار</button>';return;}
+  const steps=state.steps||[],n=state.activeStep||1,active=state.active,k=analytics&&analytics.kpis?analytics.kpis:{};
+  const stepHtml=steps.map(x=>`<div class="m52-step ${x.status==='تأیید شد'?'done':x.number===n?'active':'locked'}"><b>${x.number}</b><br>${esc(x.title)}<small>${esc(x.status)}</small></div>`).join('');
+  const analyticsHtml=analytics&&analytics.success?`<div class="m52-grid"><div class="m52-kpi">پرونده‌های فرصت<b>${Number(k.opportunities||0).toLocaleString('fa-IR')}</b></div><div class="m52-kpi">ظرفیت برآوردی<b>${Number(k.estimatedCapacity||0).toLocaleString('fa-IR')} تومان</b></div><div class="m52-kpi">منابع تأییدشده<b>${Number(k.verifiedResources||0).toLocaleString('fa-IR')} تومان</b></div></div><p class="m52-note">ظرفیت برآوردی از منابع تحقق‌یافته و تأییدشده جداست.</p>`:'<p class="m52-note">برای نمایش شاخص‌ها، ابتدا داده معتبر در ماژول‌های مرتبط ثبت شود.</p>';
+  const approvals=(state.pendingApprovals||[]).map(x=>`<div class="m52-approval"><b>${esc(x.username)}</b> · مرحله ${x.step}<p>${esc(x.note)}</p><button onclick="window.mehrV52Approve('${esc(x.username)}',${x.step})">بررسی و تأیید</button></div>`).join('');
+  const form=active?`<div class="m52-task"><h4>محیط انجام وظیفه · مرحله ${n}</h4><p>${esc(active.why)}</p><p class="m52-note"><b>معیار کنترل:</b> ${esc(active.check)}</p><div class="m52-actions"><button onclick="window.mehrV52OpenModule('${esc(active.module)}')">بازکردن ابزار مرتبط: ${esc(moduleLabel(active.module))}</button><button class="secondary" onclick="window.mehrV52Refresh()">بازخوانی وضعیت</button></div>
+  <div class="m52-form"><label>شناسه پرونده / رکورد مرتبط<input id="m52-record" maxlength="100" placeholder="شناسه ثبت‌شده در ماژول مربوط"></label><label>وضعیت مدارک<select id="m52-docs"><option value="">انتخاب کنید</option><option>کامل و کنترل‌شده</option><option>ناقص؛ برای رفع نقص ارجاع شد</option><option>فاقد مدرک؛ نیازمند دریافت</option><option>نامرتبط با این مرحله</option></select></label><label class="wide">شواهد و داده‌های بررسی‌شده<textarea id="m52-evidence" placeholder="نام داده/مدرک، منبع، تاریخ بررسی و نتیجه کنترل را بنویسید"></textarea></label><label class="wide">نتیجه واقعی اقدام<textarea id="m52-result" placeholder="چه کاری انجام شد و چه نتیجه قابل بررسی به دست آمد؟"></textarea></label><label class="wide">اقدام بعدی و مسئول/مهلت<input id="m52-next" maxlength="300" placeholder="اقدام بعدی، مسئول و مهلت"></label><label class="m52-confirm"><input id="m52-confirm" type="checkbox"> تأیید می‌کنم اطلاعات بالا با اقدام انجام‌شده و رکورد سامانه مطابقت دارد.</label><label class="wide">شرح تکمیلی برای مسئول تأییدکننده<textarea id="mehr-v52-note" placeholder="توضیح تکمیلی، مغایرت‌ها یا علت توقف احتمالی"></textarea></label><div class="m52-actions"><button id="m52-submit" onclick="window.mehrV52Submit(${n})" ${steps[n-1]&&steps[n-1].status==='در انتظار تأیید'?'disabled':''}>ثبت انجام کار و ارسال برای تأیید</button></div><p class="m52-note">ارسال گزارش به‌تنهایی مرحله بعد را باز نمی‌کند؛ تأیید فرد مجاز در سمت سرور الزامی است.</p></div></div>`:`<div class="m52-task"><h4>گردش‌کار تکمیل شد</h4><p>تمام مراحل این گردش‌کار تأیید شده‌اند. برای پرونده جدید، گردش‌کار مستقل ایجاد شود.</p></div>`;
+  panel.innerHTML=`<div class="m52-head"><div><div class="m52-eyebrow">میزکار هدایت‌شده · نسخه آزمایشی/عملیاتی بر اساس محیط انتخابی</div><h3>سلام؛ ${esc(roleTitle())}</h3><div class="m52-note">کاربر: ${esc(sessionStorage.getItem('growthUser')||'')} · ${esc(state.department||state.branch||'ستادی')}</div></div></div><div class="m52-stepbar">${stepHtml}</div>${form}<div class="m52-current"><h3>تحلیل و پیشنهاد اجرایی</h3>${analyticsHtml}<p><b>راهنمای هوشمند:</b> ${active?esc(active.why):'نتیجه واقعی را پایش کنید.'}</p></div>${approvals?'<h4>صف بررسی و تأیید</h4>'+approvals:''}<div class="m52-actions"><button class="secondary" onclick="window.mehrV52ShowAll()">نمایش امکانات تخصصی مجاز</button><button class="secondary" onclick="window.growthPortalLogout&&window.growthPortalLogout()">خروج از پنل</button></div><p class="m52-note">داده‌های آزمایشی از داده‌های عملیاتی جدا هستند. تصمیم اعتباری، تأیید نهایی و تغییر داده حساس فقط توسط فرد دارای اختیار انجام می‌شود.</p>`;
+ }
+ async function refresh(){if(!sessionStorage.getItem('growthToken'))return;loading=true;render();try{const [a,b]=await Promise.all([api('mehrWorkflowGetState'),api('mehrExecutiveDashboard')]);state=a&&a.success?a:null;analytics=b&&b.success?b:null;}catch(e){state=null;analytics=null;console.error(e);}loading=false;render();}
+ window.mehrV52Refresh=refresh;
+ window.mehrV52ShowAll=function(){const h=$('growth-employee-authenticated');if(h)h.classList.remove('mehr-v52-compact');const grid=$('growth-portal-module-grid');if(grid)grid.style.display='grid';};
+ window.mehrV52OpenModule=function(id){window.mehrV52ShowAll();if(typeof window.openGrowthPortalModule==='function')window.openGrowthPortalModule(id);};
+ window.mehrV52Submit=async function(n){const val=id=>($(id)?.value||'').trim();const evidence={recordId:val('m52-record'),documentStatus:val('m52-docs'),evidence:val('m52-evidence'),result:val('m52-result'),nextAction:val('m52-next'),confirmed:!!$('m52-confirm')?.checked};const note=val('mehr-v52-note');if(!evidence.recordId||!evidence.documentStatus||evidence.evidence.length<20||evidence.result.length<20||!evidence.nextAction||!evidence.confirmed){alert('همه موارد الزامی را تکمیل و صحت اطلاعات را تأیید کنید.');return;}const btn=$('m52-submit');if(btn)btn.disabled=true;try{const r=await api('mehrWorkflowSubmitStep',{step:n,note,evidence});alert(r.message||'برای بررسی ارسال شد.');await refresh();}catch(e){alert(e.message||'ارسال انجام نشد.');if(btn)btn.disabled=false;}};
+ window.mehrV52Approve=async function(username,step){if(!confirm('پس از بررسی شواهد و رکورد پرونده، این مرحله تأیید شود؟'))return;try{const r=await api('mehrWorkflowApproveStep',{username,step});alert(r.message||'');if(r.success)refresh();}catch(e){alert(e.message||'تأیید انجام نشد.');}};
+ function mount(){const host=$('growth-employee-authenticated');if(host&&host.style.display!=='none'&&sessionStorage.getItem('growthToken'))refresh();}
+ const old=window.growthGoToEmployeeSection;if(typeof old==='function'&&!old.__mehrV52){const wrapped=function(){old.apply(this,arguments);setTimeout(mount,50);};wrapped.__mehrV52=true;window.growthGoToEmployeeSection=wrapped;}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else setTimeout(mount,0);
+ const mo=new MutationObserver(()=>{const h=$('growth-employee-authenticated');if(h&&h.style.display!=='none'&&sessionStorage.getItem('growthToken')&&!$('mehr-v52-guided-workspace'))mount();});mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+})();
+</script>
+
+
+
+
+
 
 </body>
 </html>
