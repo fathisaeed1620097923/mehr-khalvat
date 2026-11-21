@@ -407,6 +407,7 @@ window.mehrApiUrl = function() { return window.SCRIPT_URL; };
 <!-- درگاه مدیریت کسب‌وکار فقط از تب اصلی پایین باز می‌شود؛ کادر ورود جداگانه حذف شد. -->
 <div class="tabs" id="main-tabs">
 <button type="button" class="tab-btn growth-entry-btn" id="growth-tab-btn" onclick="window.openGrowthPortal(this)">🚀 مدیریت کسب‌وکار</button>
+<button type="button" class="tab-btn" id="debt-intake-tab-btn" onclick="switchTab('debt-intake', this)">📥 مدیریت وصول مطالبات</button>
 <button class="tab-btn active" onclick="switchTab('customer', this)">📝 ثبت مشکل</button>
 <button class="tab-btn" onclick="switchTab('track', this)">🔍 پیگیری</button>
 <button class="tab-btn" onclick="switchTab('guide', this)">📚 راهنمای تسهیلات</button>
@@ -937,6 +938,37 @@ window.mehrApiUrl = function() { return window.SCRIPT_URL; };
 <p style="font-size:13px;color:#555;margin-top:10px;">کارشناسان شعبه پس از بررسی با شما تماس خواهند گرفت.</p>
 <button class="btn" onclick="location.reload()" style="margin-top:15px;">درخواست جدید</button>
 </div>
+</div>
+
+<!-- تب مستقل مدیریت وصول مطالبات؛ خارج از مدیریت کسب‌وکار -->
+<div class="content panel" id="panel-debt-intake">
+  <section style="background:#f5faf7;border:1px solid #d6e8dc;border-radius:14px;padding:18px;margin-bottom:16px">
+    <h2 style="margin:0 0 8px;color:#0a4d2e;font-size:20px">سامانه دریافت و آماده‌سازی پرونده‌های مطالبات</h2>
+    <p style="margin:0;color:#52645a;line-height:1.9;font-size:13px">در این بخش فقط اطلاعات خام مطالبات از طریق بارگذاری فایل یا دریافت ایمیل وارد صف بررسی می‌شود. پس از دریافت، داده‌ها قرنطینه، دسته‌بندی و برای کنترل و تخصیص آماده خواهند شد؛ هیچ پرونده‌ای بدون تأیید به شعبه ارجاع نمی‌شود.</p>
+  </section>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+    <div style="border:1px solid #e1e8e3;border-radius:12px;padding:16px;background:#fff">
+      <h3 style="color:#0a4d2e;margin:0 0 10px">📤 بارگذاری فایل اطلاعات خام</h3>
+      <p style="font-size:12px;color:#667;margin:0 0 12px;line-height:1.8">Excel، CSV، JSON و فایل‌های مستندات مانند PDF و تصویر. فایل اصلی نگهداری می‌شود؛ اطلاعات جدولی قابل استخراج وارد صف تطبیق می‌شود.</p>
+      <input id="debt-files" type="file" multiple accept=".xlsx,.xls,.csv,.json,.pdf,.jpg,.jpeg,.png,.doc,.docx" style="width:100%;padding:9px;border:1px dashed #9bb8a5;border-radius:8px;background:#f9fcfa">
+      <button type="button" onclick="debtUploadSelectedFiles()" style="margin-top:12px;background:#0a6b3b;color:white;border:0;border-radius:8px;padding:11px 16px;font-family:inherit;cursor:pointer;width:100%">بارگذاری و ثبت در صف بررسی</button>
+      <div id="debt-upload-status" style="font-size:12px;color:#52645a;margin-top:10px;line-height:1.8"></div>
+    </div>
+    <div style="border:1px solid #e1e8e3;border-radius:12px;padding:16px;background:#fff">
+      <h3 style="color:#0a4d2e;margin:0 0 10px">📧 دریافت از طریق ایمیل</h3>
+      <p style="font-size:12px;color:#667;line-height:1.8">ایمیل‌های ارسالی به صندوق تعیین‌شده، پس از ایجاد برچسب Gmail و فعال‌سازی مجوز، به‌همراه پیوست‌ها وارد صف دریافت می‌شوند.</p>
+      <label style="font-size:12px;display:block;margin:10px 0 5px">نشانی ایمیل اختصاصی دریافت مطالبات</label>
+      <input id="debt-intake-email" type="email" placeholder="نشانی صندوق ایمیل سازمانی" style="width:100%;padding:10px;border:1px solid #ccd8d0;border-radius:8px;box-sizing:border-box">
+      <button type="button" onclick="saveDebtIntakeEmail()" style="margin-top:10px;background:#315b46;color:white;border:0;border-radius:8px;padding:10px 14px;font-family:inherit;cursor:pointer;width:100%">ذخیره نشانی راهنمای دریافت</button>
+      <button type="button" onclick="debtPollMailbox()" style="margin-top:8px;background:#fff;color:#315b46;border:1px solid #9bb8a5;border-radius:8px;padding:10px 14px;font-family:inherit;cursor:pointer;width:100%">بررسی ایمیل‌های برچسب‌خورده</button>
+      <div id="debt-email-status" style="font-size:12px;color:#52645a;margin-top:10px;line-height:1.8">برای دریافت خودکار، برچسب Gmail با نام MEHR_DEBT_INTAKE و مجوز Gmail در پروژه Apps Script لازم است.</div>
+    </div>
+  </div>
+  <div style="margin-top:16px;border:1px solid #e1e8e3;border-radius:12px;padding:16px;background:#fff">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><h3 style="margin:0;color:#0a4d2e">📂 صف دریافت و بررسی اولیه</h3><button type="button" onclick="loadDebtIntakeQueue()" style="border:1px solid #9bb8a5;background:#f7fbf8;border-radius:8px;padding:8px 12px;font-family:inherit;cursor:pointer">به‌روزرسانی صف</button></div>
+    <p style="font-size:12px;color:#667;line-height:1.8">وضعیت اولیه همه موارد «در انتظار بررسی» است. اطلاعات حساس قبل از تخصیص باید از نظر تکراری بودن، کامل بودن، شعبه مرتبط و صحت مبلغ کنترل شود.</p>
+    <div id="debt-intake-queue" style="overflow-x:auto;font-size:12px;color:#52645a">برای مشاهده موارد دریافت‌شده، صف را به‌روزرسانی کنید.</div>
+  </div>
 </div>
 
 <!-- ۷. پنل کارمند -->
@@ -4396,20 +4428,46 @@ const oldRefresh=window.growthOpsRefresh;window.growthOpsRefresh=function(){if(t
   if(loading){panel.innerHTML='<b>در حال آماده‌سازی میزکار اختصاصی شما...</b>';return;}
   if(!state){panel.innerHTML='<b>میزکار هوشمند</b><p>برای دریافت وظایف و وضعیت گردش‌کار، وضعیت اتصال را بررسی و دوباره تلاش کنید.</p><button onclick="window.mehrV52Refresh()">بارگذاری میزکار</button>';return;}
   const steps=state.steps||[],n=state.activeStep||1,active=state.active,k=analytics&&analytics.kpis?analytics.kpis:{};
-  const stepHtml=steps.map(x=>`<div class="m52-step ${x.status==='تأیید شد'?'done':x.number===n?'active':'locked'}"><b>${x.number}</b><br>${esc(x.title)}<small>${esc(x.status)}</small></div>`).join('');
+  const stepHtml=steps.filter(x=>x.status==='تأیید شد'||x.number===n||x.status==='در انتظار تأیید').map(x=>`<div class="m52-step ${x.status==='تأیید شد'?'done':x.number===n?'active':'locked'}"><b>${x.number}</b><br>${esc(x.title)}<small>${esc(x.status)}</small></div>`).join('');
   const analyticsHtml=analytics&&analytics.success?`<div class="m52-grid"><div class="m52-kpi">پرونده‌های فرصت<b>${Number(k.opportunities||0).toLocaleString('fa-IR')}</b></div><div class="m52-kpi">ظرفیت برآوردی<b>${Number(k.estimatedCapacity||0).toLocaleString('fa-IR')} تومان</b></div><div class="m52-kpi">منابع تأییدشده<b>${Number(k.verifiedResources||0).toLocaleString('fa-IR')} تومان</b></div></div><p class="m52-note">ظرفیت برآوردی از منابع تحقق‌یافته و تأییدشده جداست.</p>`:'<p class="m52-note">برای نمایش شاخص‌ها، ابتدا داده معتبر در ماژول‌های مرتبط ثبت شود.</p>';
   const approvals=(state.pendingApprovals||[]).map(x=>`<div class="m52-approval"><b>${esc(x.username)}</b> · مرحله ${x.step}<p>${esc(x.note)}</p><button onclick="window.mehrV52Approve('${esc(x.username)}',${x.step})">بررسی و تأیید</button></div>`).join('');
-  const form=active?`<div class="m52-task"><h4>محیط انجام وظیفه · مرحله ${n}</h4><p>${esc(active.why)}</p><p class="m52-note"><b>معیار کنترل:</b> ${esc(active.check)}</p><div class="m52-actions"><button onclick="window.mehrV52OpenModule('${esc(active.module)}')">بازکردن ابزار مرتبط: ${esc(moduleLabel(active.module))}</button><button class="secondary" onclick="window.mehrV52Refresh()">بازخوانی وضعیت</button></div>
+  const form=state.allDone?`<div class="m52-task"><h4>گردش‌کار تکمیل شد</h4><p>تمام مراحل این گردش‌کار تأیید شده‌اند. برای پرونده جدید، گردش‌کار مستقلی ایجاد کنید.</p></div>`:active&&steps[n-1]&&steps[n-1].status==='در انتظار تأیید'?`<div class="m52-task"><h4>مرحله ${n} ارسال شده و در انتظار تأیید است</h4><p>گزارش و شواهد ثبت شده‌اند. تا بررسی مسئول مجاز، امکان ثبت مجدد و مشاهده مرحله بعد وجود ندارد.</p><button class="secondary" onclick="window.mehrV52Refresh()">بازخوانی وضعیت</button></div>`:active?`<div class="m52-task"><h4>محیط انجام وظیفه · مرحله ${n}</h4><p>${esc(active.why)}</p><p class="m52-note"><b>معیار کنترل:</b> ${esc(active.check)}</p><div class="m52-actions"><button onclick="window.mehrV52OpenModule('${esc(active.module)}')">بازکردن ابزار مرتبط: ${esc(moduleLabel(active.module))}</button><button class="secondary" onclick="window.mehrV52Refresh()">بازخوانی وضعیت</button></div>
   <div class="m52-form"><label>شناسه پرونده / رکورد مرتبط<input id="m52-record" maxlength="100" placeholder="شناسه ثبت‌شده در ماژول مربوط"></label><label>وضعیت مدارک<select id="m52-docs"><option value="">انتخاب کنید</option><option>کامل و کنترل‌شده</option><option>ناقص؛ برای رفع نقص ارجاع شد</option><option>فاقد مدرک؛ نیازمند دریافت</option><option>نامرتبط با این مرحله</option></select></label><label class="wide">شواهد و داده‌های بررسی‌شده<textarea id="m52-evidence" placeholder="نام داده/مدرک، منبع، تاریخ بررسی و نتیجه کنترل را بنویسید"></textarea></label><label class="wide">نتیجه واقعی اقدام<textarea id="m52-result" placeholder="چه کاری انجام شد و چه نتیجه قابل بررسی به دست آمد؟"></textarea></label><label class="wide">اقدام بعدی و مسئول/مهلت<input id="m52-next" maxlength="300" placeholder="اقدام بعدی، مسئول و مهلت"></label><label class="m52-confirm"><input id="m52-confirm" type="checkbox"> تأیید می‌کنم اطلاعات بالا با اقدام انجام‌شده و رکورد سامانه مطابقت دارد.</label><label class="wide">شرح تکمیلی برای مسئول تأییدکننده<textarea id="mehr-v52-note" placeholder="توضیح تکمیلی، مغایرت‌ها یا علت توقف احتمالی"></textarea></label><div class="m52-actions"><button id="m52-submit" onclick="window.mehrV52Submit(${n})" ${steps[n-1]&&steps[n-1].status==='در انتظار تأیید'?'disabled':''}>ثبت انجام کار و ارسال برای تأیید</button></div><p class="m52-note">ارسال گزارش به‌تنهایی مرحله بعد را باز نمی‌کند؛ تأیید فرد مجاز در سمت سرور الزامی است.</p></div></div>`:`<div class="m52-task"><h4>گردش‌کار تکمیل شد</h4><p>تمام مراحل این گردش‌کار تأیید شده‌اند. برای پرونده جدید، گردش‌کار مستقل ایجاد شود.</p></div>`;
   panel.innerHTML=`<div class="m52-head"><div><div class="m52-eyebrow">میزکار هدایت‌شده · نسخه آزمایشی/عملیاتی بر اساس محیط انتخابی</div><h3>سلام؛ ${esc(roleTitle())}</h3><div class="m52-note">کاربر: ${esc(sessionStorage.getItem('growthUser')||'')} · ${esc(state.department||state.branch||'ستادی')}</div></div></div><div class="m52-stepbar">${stepHtml}</div>${form}<div class="m52-current"><h3>تحلیل و پیشنهاد اجرایی</h3>${analyticsHtml}<p><b>راهنمای هوشمند:</b> ${active?esc(active.why):'نتیجه واقعی را پایش کنید.'}</p></div>${approvals?'<h4>صف بررسی و تأیید</h4>'+approvals:''}<div class="m52-actions"><button class="secondary" onclick="window.mehrV52ShowAll()">نمایش امکانات تخصصی مجاز</button><button class="secondary" onclick="window.growthPortalLogout&&window.growthPortalLogout()">خروج از پنل</button></div><p class="m52-note">داده‌های آزمایشی از داده‌های عملیاتی جدا هستند. تصمیم اعتباری، تأیید نهایی و تغییر داده حساس فقط توسط فرد دارای اختیار انجام می‌شود.</p>`;
  }
- async function refresh(){if(!sessionStorage.getItem('growthToken'))return;loading=true;render();try{const [a,b]=await Promise.all([api('mehrWorkflowGetState'),api('mehrExecutiveDashboard')]);state=a&&a.success?a:null;analytics=b&&b.success?b:null;}catch(e){state=null;analytics=null;console.error(e);}loading=false;render();}
+ async function refresh(){
+  if(!sessionStorage.getItem('growthToken'))return;
+  const mode=sessionStorage.getItem('mehrWorkMode')||'';
+  if(!mode){state=null;analytics=null;loading=false;return;}
+  loading=true;render();
+  if(mode==='demo'){
+    const username=sessionStorage.getItem('growthUser')||'demo-user';
+    const key='mehr_v52_demo_workflow_'+username;
+    const role=sessionStorage.getItem('growthRole')||'department';
+    const dep=sessionStorage.getItem('growthDepartment')||'';
+    let demo;
+    try{demo=JSON.parse(localStorage.getItem(key)||'null');}catch(e){demo=null;}
+    let titles=dep==='اعتبارات'?['دریافت و کنترل اولیه پرونده','بررسی مدارک و مغایرت‌ها','تحلیل کارشناسی و ظرفیت','ارجاع برای تصمیم مسئول مجاز','ثبت نتیجه و پایش تعهدات']:
+      dep==='بانکداری دیجیتال'?['شناسایی نیاز و خدمت دیجیتال','کنترل اطلاعات و مدارک فنی','تحلیل ظرفیت و اولویت اجرا','هماهنگی و اجرای خدمت','ثبت نتیجه واقعی']:
+      role==='branch'?['شناسایی فرصت‌های منطقه','اولویت‌بندی مشتریان و شرکت‌ها','تخصیص به رئیس شعبه یا تیم بازاریابی','مذاکره و پیگیری فرصت','ثبت نتیجه و اثر منابع']:
+      ['ثبت و تکمیل اطلاعات مشتری یا شرکت','بررسی مدارک و رفع نواقص','تحلیل ظرفیت اقتصادی و اولویت‌بندی','اقدام، مذاکره و پیگیری','ثبت نتیجه واقعی و ارزیابی'];
+    if(!demo){demo={steps:titles.map((title,i)=>({number:i+1,title:title,status:i===0?'فعال':'قفل',note:''})),activeStep:1,events:[]};localStorage.setItem(key,JSON.stringify(demo));}
+    const next=demo.steps.findIndex(x=>x.status!=='تأیید شد');
+    const n=next<0?demo.steps.length+1:next+1;
+    state={success:true,user:username,role:role,department:dep,branch:sessionStorage.getItem('growthBranch')||'',steps:demo.steps,activeStep:n,active:demo.steps[n-1]||null,allDone:n>titles.length,pendingApprovals:[],demoKey:key,events:demo.events||[]};
+    analytics={success:true,kpis:{opportunities:7,estimatedCapacity:30200000000,verifiedResources:0}};
+    loading=false;render();return;
+  }
+  try{const [a,b]=await Promise.all([api('mehrWorkflowGetState'),api('mehrExecutiveDashboard')]);state=a&&a.success?a:null;analytics=b&&b.success?b:null;}
+  catch(e){state=null;analytics=null;console.error(e);}
+  loading=false;render();
+}
  window.mehrV52Refresh=refresh;
  window.mehrV52ShowAll=function(){const h=$('growth-employee-authenticated');if(h)h.classList.remove('mehr-v52-compact');const grid=$('growth-portal-module-grid');if(grid)grid.style.display='grid';};
- window.mehrV52OpenModule=function(id){window.mehrV52ShowAll();if(typeof window.openGrowthPortalModule==='function')window.openGrowthPortalModule(id);};
- window.mehrV52Submit=async function(n){const val=id=>($(id)?.value||'').trim();const evidence={recordId:val('m52-record'),documentStatus:val('m52-docs'),evidence:val('m52-evidence'),result:val('m52-result'),nextAction:val('m52-next'),confirmed:!!$('m52-confirm')?.checked};const note=val('mehr-v52-note');if(!evidence.recordId||!evidence.documentStatus||evidence.evidence.length<20||evidence.result.length<20||!evidence.nextAction||!evidence.confirmed){alert('همه موارد الزامی را تکمیل و صحت اطلاعات را تأیید کنید.');return;}const btn=$('m52-submit');if(btn)btn.disabled=true;try{const r=await api('mehrWorkflowSubmitStep',{step:n,note,evidence});alert(r.message||'برای بررسی ارسال شد.');await refresh();}catch(e){alert(e.message||'ارسال انجام نشد.');if(btn)btn.disabled=false;}};
- window.mehrV52Approve=async function(username,step){if(!confirm('پس از بررسی شواهد و رکورد پرونده، این مرحله تأیید شود؟'))return;try{const r=await api('mehrWorkflowApproveStep',{username,step});alert(r.message||'');if(r.success)refresh();}catch(e){alert(e.message||'تأیید انجام نشد.');}};
- function mount(){const host=$('growth-employee-authenticated');if(host&&host.style.display!=='none'&&sessionStorage.getItem('growthToken'))refresh();}
+ window.mehrV52OpenModule=function(id){const host=$('growth-employee-authenticated'),grid=$('growth-portal-module-grid');if(host)host.classList.remove('mehr-v52-compact');if(grid){grid.style.display='grid';Array.from(grid.children).forEach(card=>{const m=(card.getAttribute('onclick')||'').match(/openGrowthPortalModule\('([^']+)'\)/);card.style.display=(m&&m[1]===id)?'':'none';});}if(typeof window.openGrowthPortalModule==='function')window.openGrowthPortalModule(id);};
+ window.mehrV52Submit=async function(n){const val=id=>($(id)?.value||'').trim();const evidence={recordId:val('m52-record'),documentStatus:val('m52-docs'),evidence:val('m52-evidence'),result:val('m52-result'),nextAction:val('m52-next'),confirmed:!!$('m52-confirm')?.checked};const note=val('mehr-v52-note');if(!evidence.recordId||!evidence.documentStatus||evidence.evidence.length<20||evidence.result.length<20||!evidence.nextAction||!evidence.confirmed){alert('همه موارد الزامی را تکمیل و صحت اطلاعات را تأیید کنید.');return;}const btn=$('m52-submit');if(btn)btn.disabled=true;try{if(sessionStorage.getItem('mehrWorkMode')==='demo'){const key=state.demoKey;const d=JSON.parse(localStorage.getItem(key)||'{}');d.steps[n-1].status='در انتظار تأیید';d.steps[n-1].note=note;d.steps[n-1].evidence=evidence;d.events=d.events||[];d.events.unshift({at:new Date().toLocaleString('fa-IR'),action:'ارسال مرحله آزمایشی',detail:'مرحله '+n+' برای بررسی مدیر ارسال شد.'});localStorage.setItem(key,JSON.stringify(d));alert('در نسخه آزمایشی ثبت شد؛ مرحله بعد تا تأیید مدیر قفل می‌ماند.');await refresh();return;}const r=await api('mehrWorkflowSubmitStep',{step:n,note,evidence});alert(r.message||'برای بررسی ارسال شد.');await refresh();}catch(e){alert(e.message||'ارسال انجام نشد.');if(btn)btn.disabled=false;}};
+ window.mehrV52Approve=async function(username,step){if(!confirm('پس از بررسی شواهد و رکورد پرونده، این مرحله تأیید شود؟'))return;try{if(sessionStorage.getItem('mehrWorkMode')==='demo'){const key='mehr_v52_demo_workflow_'+username;const d=JSON.parse(localStorage.getItem(key)||'null');if(!d||!d.steps||!d.steps[step-1]||d.steps[step-1].status!=='در انتظار تأیید')throw new Error('درخواست آزمایشی برای تأیید پیدا نشد.');d.steps[step-1].status='تأیید شد';d.steps[step-1].approvedBy=sessionStorage.getItem('growthUser')||'مدیر آزمایشی';d.events=d.events||[];d.events.unshift({at:new Date().toLocaleString('fa-IR'),action:'تأیید آزمایشی',detail:'مرحله '+step+' توسط مدیر آزمایشی تأیید شد.'});localStorage.setItem(key,JSON.stringify(d));alert('مرحله آزمایشی تأیید شد.');await refresh();return;}const r=await api('mehrWorkflowApproveStep',{username,step});alert(r.message||'');if(r.success)refresh();}catch(e){alert(e.message||'تأیید انجام نشد.');}};
+ function mount(){const host=$('growth-employee-authenticated');if(host&&host.style.display!=='none'&&sessionStorage.getItem('growthToken')&&sessionStorage.getItem('mehrWorkMode'))refresh();}
  const old=window.growthGoToEmployeeSection;if(typeof old==='function'&&!old.__mehrV52){const wrapped=function(){old.apply(this,arguments);setTimeout(mount,50);};wrapped.__mehrV52=true;window.growthGoToEmployeeSection=wrapped;}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else setTimeout(mount,0);
  const mo=new MutationObserver(()=>{const h=$('growth-employee-authenticated');if(h&&h.style.display!=='none'&&sessionStorage.getItem('growthToken')&&!$('mehr-v52-guided-workspace'))mount();});mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
@@ -4421,6 +4479,101 @@ const oldRefresh=window.growthOpsRefresh;window.growthOpsRefresh=function(){if(t
 
 
 
+<style id="mehr-v53-role-admin-style">
+#mehr-v53-admin{margin:14px 0;padding:14px;border:1px solid #d8e7dd;border-radius:14px;background:#fbfefc;color:#20392c}
+#mehr-v53-admin h3{font-size:16px;margin:0 0 8px}#mehr-v53-admin p{font-size:11px;color:#64756a;line-height:1.8;margin:5px 0 10px}
+#mehr-v53-admin .v53-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}#mehr-v53-admin select,#mehr-v53-admin button{font:inherit;font-size:12px;border-radius:8px;padding:9px;border:1px solid #cbdccf;background:#fff;max-width:100%}
+#mehr-v53-admin button{background:#087348;color:#fff;border:0;font-weight:700;cursor:pointer}#mehr-v53-admin .v53-secondary{background:#eaf3ed;color:#145638}
+#mehr-v53-admin .v53-card{margin-top:10px;padding:11px;border:1px solid #e0eae3;border-radius:10px;background:#fff;font-size:12px;line-height:1.9}
+#mehr-v53-admin .v53-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:7px;margin-top:8px}#mehr-v53-admin .v53-step{padding:8px;border-radius:8px;background:#f1f6f2;border:1px solid #e0eae3}
+#mehr-v53-admin .v53-log{max-height:260px;overflow:auto;padding-right:18px}#mehr-v53-admin .v53-log li{margin:5px 0;font-size:11px}
+</style>
+<script id="mehr-v53-role-admin-runtime">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const isAdmin=()=>sessionStorage.getItem('growthRole')==='admin';
+ const mode=()=>sessionStorage.getItem('mehrWorkMode')||'';
+ async function api(action,extra){const token=sessionStorage.getItem('growthToken')||'';if(!token)throw new Error('نشست معتبر نیست.');const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(Object.assign({action,token},extra||{}))});if(!r.ok)throw new Error('ارتباط با سرور ناموفق بود.');const d=await r.json();if(d&&d.success===false)throw new Error(d.error||'درخواست انجام نشد.');return d;}
+ const roleModules={
+  branch:['crm360','leads','nextbest','campaign','resource','retention','loyalty','referral','companies','payroll','partners','map','sme','acquiring','loanlead','branch','performance','voice','queue','complaints','bi','ai'],
+  department:{'اعتبارات':['crm360','companies','loanlead','los','credit','kyc','bi','ai'],'بانکداری دیجیتال':['crm360','campaign','companies','acquiring','resource','bi','api','security','ai'],'انفورماتیک':['security','fraud','kyc','bi','process','api','ai'],'حقوقی':['companies','los','kyc','security','bi','ai'],'دانش‌بنیان':['companies','sme','loanlead','resource','bi','ai']}
+ };
+ window.mehrV52ShowAll=function(){
+  const host=$('growth-employee-authenticated'),grid=$('growth-portal-module-grid');if(host)host.classList.remove('mehr-v52-compact');if(!grid)return;
+  const role=sessionStorage.getItem('growthRole')||'',dep=sessionStorage.getItem('growthDepartment')||'';
+  let allowed=role==='admin'?null:(role==='branch'?roleModules.branch:(roleModules.department[dep]||['crm360','companies','campaign','resource','bi','ai']));
+  grid.style.display='grid';
+  Array.from(grid.children).forEach(card=>{const m=(card.getAttribute('onclick')||'').match(/openGrowthPortalModule\('([^']+)'\)/);const id=m&&m[1];card.style.display=(!allowed||allowed.includes(id))?'':'none';});
+  grid.scrollIntoView({behavior:'smooth',block:'start'});
+ };
+ window.mehrV52OpenModule=function(id){const host=$('growth-employee-authenticated'),grid=$('growth-portal-module-grid');if(host)host.classList.remove('mehr-v52-compact');if(grid){grid.style.display='grid';Array.from(grid.children).forEach(card=>{const m=(card.getAttribute('onclick')||'').match(/openGrowthPortalModule\('([^']+)'\)/);card.style.display=(m&&m[1]===id)?'':'none';});}if(typeof window.openGrowthPortalModule==='function')window.openGrowthPortalModule(id);};
+ function adminHtml(){return `<section id="mehr-v53-admin"><h3>مرکز نظارت و مدیریت کاربران</h3><p>این بخش فقط برای مدیر سامانه نمایش داده می‌شود. مشاهده میزکار سایر کاربران در اینجا فقط‌خواندنی است؛ هر اقدام مدیریتی جداگانه با هویت مدیر ثبت می‌شود.</p><div class="v53-row"><select id="v53-user"><option value="">در حال دریافت فهرست کاربران...</option></select><button type="button" id="v53-view">مشاهده میزکار کاربر</button><button type="button" class="v53-secondary" id="v53-audit">گزارش فعالیت‌ها</button></div><div id="v53-result" class="v53-card">یک کاربر را انتخاب کنید تا مراحل، وضعیت و سوابق او نمایش داده شود.</div><div id="v53-audit-result" class="v53-card" style="display:none"></div></section>`;}
+ async function loadUsers(){const sel=$('v53-user');if(!sel)return;sel.innerHTML='<option value="">در حال دریافت...</option>';try{let users;if(mode()==='demo'){users=[{username:'branch6400',role:'branch',branch:'6400',department:''},{username:'etehbarat',role:'department',department:'اعتبارات'},{username:'digital',role:'department',department:'بانکداری دیجیتال'},{username:'it',role:'department',department:'انفورماتیک'},{username:'admin',role:'admin',department:'مدیریت سامانه'}];}else{const d=await api('mehrAdminListUsers');users=d.items||[];}sel.innerHTML='<option value="">انتخاب کاربر...</option>'+users.filter(x=>x.username!=='admin').map(x=>`<option value="${esc(x.username)}">${esc(x.username)} — ${esc(x.department||('شعبه '+(x.branch||''))||x.role)}</option>`).join('');}catch(e){sel.innerHTML='<option value="">خطا در دریافت کاربران</option>';const r=$('v53-result');if(r)r.textContent=e.message;}}
+ async function viewUser(){const sel=$('v53-user'),out=$('v53-result');if(!sel||!sel.value){if(out)out.textContent='ابتدا کاربر را انتخاب کنید.';return;}if(out)out.textContent='در حال دریافت میزکار و مراحل...';try{let d;if(mode()==='demo'){const key='mehr_v52_demo_workflow_'+sel.value;d=JSON.parse(localStorage.getItem(key)||'null');if(!d){const titles=['شناسایی فرصت‌های منطقه','اولویت‌بندی مشتریان و شرکت‌ها','تخصیص به تیم بازاریابی','مذاکره و پیگیری','ثبت نتیجه و اثر منابع'];d={steps:titles.map((title,i)=>({number:i+1,title,status:i===0?'فعال':'قفل',note:''})),activeStep:1,events:[]};localStorage.setItem(key,JSON.stringify(d));}d.user={username:sel.value};}else{d=await api('mehrAdminGetUserWorkspace',{username:sel.value});}if(!d||d.success===false)throw new Error(d.error||'اطلاعات دریافت نشد.');const steps=d.steps||[];const pending=steps.find(x=>x.status==='در انتظار تأیید');out.innerHTML=`<b>میزکار: ${esc(sel.value)}</b><div class="v53-steps">${steps.map(s=>`<div class="v53-step"><b>مرحله ${s.number}: ${esc(s.title)}</b><br>${esc(s.status)}${s.approvedBy?'<br>تأییدکننده: '+esc(s.approvedBy):''}</div>`).join('')}</div><p>اقدام جاری: ${esc((steps.find(x=>x.status==='فعال')||{}).title||pending?.title||'—')}</p>${pending?`<button type="button" onclick="window.mehrV53ApproveSelected('${esc(sel.value)}',${pending.number})">بررسی و تأیید مرحله ${pending.number}</button>`:''}<p>این نما برای نظارت است؛ هر تأیید با هویت مدیر سامانه ثبت می‌شود.</p><h4>آخرین سوابق کاربر</h4><ol class="v53-log">${(d.events||[]).map(x=>`<li>${esc(x.at||'')} — ${esc(x.action||'')} — ${esc(x.detail||'')}</li>`).join('')||'<li>هنوز سابقه‌ای ثبت نشده است.</li>'}</ol>`;}catch(e){out.textContent=e.message;}}
+ window.mehrV53ApproveSelected=async function(username,step){if(window.mehrV52Approve)await window.mehrV52Approve(username,step);setTimeout(viewUser,350);};
+ async function loadAudit(){const out=$('v53-audit-result');if(!out)return;out.style.display='block';out.textContent='در حال دریافت گزارش ممیزی...';try{let items;if(mode()==='demo'){items=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf('mehr_v52_demo_workflow_')===0){const d=JSON.parse(localStorage.getItem(k)||'{}');(d.events||[]).forEach(x=>items.push(Object.assign({username:k.replace('mehr_v52_demo_workflow_','')},x)));}}}else{const d=await api('mehrAdminAuditList');items=d.items||[];}out.innerHTML='<b>گزارش فعالیت‌ها</b><ol class="v53-log">'+(items.slice(0,100).map(x=>`<li>${esc(x.at||'')} — ${esc(x.username||'')} — ${esc(x.action||'')} — ${esc(x.detail||'')}</li>`).join('')||'<li>هنوز رویدادی ثبت نشده است.</li>')+'</ol>';}catch(e){out.textContent=e.message;}}
+ function mount(){const host=$('mehr-v52-guided-workspace');if(!host||!isAdmin()||!mode())return;let panel=$('mehr-v53-admin');if(!panel){host.insertAdjacentHTML('beforeend',adminHtml());panel=$('mehr-v53-admin');$('v53-view').addEventListener('click',viewUser);$('v53-audit').addEventListener('click',loadAudit);loadUsers();}}
+ const oldSelect=window.growthSelectMode;window.growthSelectMode=function(m){sessionStorage.setItem('mehrWorkMode',m==='demo'?'demo':'live');if(typeof oldSelect==='function')oldSelect(m);setTimeout(function(){if(window.mehrV52Refresh)window.mehrV52Refresh();setTimeout(mount,80);},80);};
+ const oldLogout=window.growthPortalLogout;window.growthPortalLogout=function(){sessionStorage.removeItem('mehrWorkMode');if(typeof oldLogout==='function')oldLogout();};
+ const mo=new MutationObserver(()=>{if(isAdmin()&&mode()&&!$('mehr-v53-admin'))setTimeout(mount,60);});mo.observe(document.documentElement,{childList:true,subtree:true});
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else setTimeout(mount,0);
+})();
+</script>
+
+<script id="mehr-v53-single-login">
+(function(){
+ 'use strict';const $=id=>document.getElementById(id);const show=(id,v)=>{const n=$(id);if(n)n.style.display=v;};
+ window.openGrowthPortal=function(btn){const modal=$('growth-portal-modal');if(!modal){alert('درگاه مدیریت کسب‌وکار پیدا نشد.');return;}document.querySelectorAll('#main-tabs .tab-btn').forEach(x=>x.classList.remove('active'));const b=btn||$('growth-tab-btn');if(b)b.classList.add('active');modal.style.display='flex';modal.classList.add('open');document.body.style.overflow='hidden';if(sessionStorage.getItem('growthToken')){show('growth-chooser','none');show('growth-customer-flow','none');show('growth-employee-flow','block');if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();show('growth-employee-login-actions','none');show('growth-employee-authenticated','block');if(sessionStorage.getItem('mehrWorkMode')&&window.mehrV52Refresh)window.mehrV52Refresh();}else window.growthBackToChooser();};
+ window.growthBackToChooser=function(){show('growth-chooser','none');show('growth-customer-flow','none');show('growth-employee-flow','block');show('growth-employee-authenticated','none');show('growth-employee-login-actions','grid');window.growthLoginMode='single';const h=$('growth-employee-flow')?.querySelector('h3');if(h)h.textContent='ورود به سامانه مدیریت کسب‌وکار';const p=$('growth-employee-flow')?.querySelector('p');if(p)p.textContent='با نام کاربری و رمز سازمانی خود وارد شوید؛ سامانه پس از احراز هویت، نقش و میزکار اختصاصی شما را تشخیص می‌دهد.';const b=$('growth-employee-login-button');if(b)b.textContent='ورود به سامانه';const u=$('growth-employee-username');if(u)u.placeholder='نام کاربری سازمانی';const fb=$('growth-employee-login-feedback');if(fb)fb.textContent='';};
+ window.chooseGrowthPath=function(path){if(path==='customer'){show('growth-chooser','none');show('growth-employee-flow','none');show('growth-customer-flow','block');if(window.growthUpdateRequirements)window.growthUpdateRequirements();return;}window.growthBackToChooser();};
+ window.growthEmployeeLogin=async function(){const username=($( 'growth-employee-username')?.value||'').trim(),pass=$('growth-employee-password')?.value||'',fb=$('growth-employee-login-feedback'),btn=$('growth-employee-login-button');if(!username||!pass){if(fb)fb.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}if(btn){btn.disabled=true;btn.textContent='در حال بررسی...';}if(fb)fb.textContent='';try{const admin=username.toLowerCase()==='admin';const action=admin?'growthManagerLogin':'growthEmployeeLogin';const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,username,pass})});if(!r.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+r.status+').');const d=await r.json();if(!d||d.access!==true||!d.token)throw new Error(d&&d.error||'نام کاربری یا رمز عبور صحیح نیست.');if(admin&&d.role!=='admin')throw new Error('حساب مدیر سامانه معتبر نیست.');if(!admin&&d.role==='admin')throw new Error('نقش حساب با مسیر ورود مطابقت ندارد.');['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories','mehrWorkMode'].forEach(k=>sessionStorage.removeItem(k));sessionStorage.setItem('growthToken',d.token);sessionStorage.setItem('growthUser',d.username||username);sessionStorage.setItem('growthRole',d.role||'');sessionStorage.setItem('growthDepartment',d.department||'');sessionStorage.setItem('growthBranch',d.branch||'');sessionStorage.setItem('growthAllowedCategories',JSON.stringify(d.allowedCategories||[]));$('growth-employee-password').value='';if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();else throw new Error('میزکار داخلی پیدا نشد؛ فایل Index را کامل جایگزین کنید.');}catch(e){if(fb)fb.textContent=e.message||'ورود انجام نشد.';}finally{if(btn){btn.disabled=false;btn.textContent='ورود به سامانه';}}};
+})();
+
+// ---------------- مستقل از مدیریت کسب‌وکار: دریافت ورودی مطالبات ----------------
+function debtApi_(payload){
+  payload.token = sessionStorage.getItem('adminToken') || '';
+  if(!payload.token) throw new Error('برای مدیریت وصول مطالبات ابتدا با حساب همکار مجاز وارد سامانه شوید.');
+  return fetch(window.mehrApiUrl(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(r=>r.json());
+}
+function debtReadAsBase64_(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',')[1]||'');r.onerror=reject;r.readAsDataURL(file);});}
+async function debtUploadSelectedFiles(){
+ const input=document.getElementById('debt-files'), status=document.getElementById('debt-upload-status');
+ const files=Array.from(input.files||[]); if(!files.length){status.textContent='ابتدا یک یا چند فایل انتخاب کنید.';return;}
+ status.textContent='در حال آماده‌سازی فایل‌ها...';
+ for(const file of files){
+  try{
+   if(file.size>7*1024*1024){status.textContent+='\n'+file.name+': حجم بیش از ۷ مگابایت است و ارسال نشد.';continue;}
+   let rows=null; const ext=(file.name.split('.').pop()||'').toLowerCase();
+   if(['csv','json','xlsx','xls'].includes(ext)){
+    if(ext==='json'){rows=JSON.parse(await file.text());if(!Array.isArray(rows)) rows=rows.rows||rows.data||[rows];}
+    else {
+     if((ext==='xlsx'||ext==='xls') && !window.XLSX) throw new Error('کتابخانه خواندن Excel بارگذاری نشده است.');
+     if(ext==='csv'){const txt=await file.text(); rows=debtParseCsv_(txt);}
+     else {const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];rows=XLSX.utils.sheet_to_json(ws,{defval:''});}
+    }
+   }
+   const base64=await debtReadAsBase64_(file);
+   const result=await debtApi_({action:'debtIntakeUpload',fileName:file.name,mimeType:file.type||'application/octet-stream',fileBase64:base64,rows:rows});
+   status.textContent+='\n'+file.name+': '+(result.success?'با موفقیت وارد صف شد؛ کد '+result.id:(result.error||'خطا در ثبت'));
+  }catch(e){status.textContent+='\n'+file.name+': '+(e.message||'خطا در پردازش فایل');}
+ }
+ input.value=''; loadDebtIntakeQueue();
+}
+function debtParseCsv_(text){
+ const lines=String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());
+ if(!lines.length)return [];
+ const parseLine=line=>{let out=[],v='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'&&line[i+1]==='"'&&q){v+='"';i++;}else if(c==='"'){q=!q;}else if((c===','||c===';')&&!q){out.push(v.trim());v='';}else v+=c;}out.push(v.trim());return out;};
+ const headers=parseLine(lines.shift());return lines.map(line=>{const vals=parseLine(line),o={};headers.forEach((h,i)=>o[h||('ستون_'+(i+1))]=vals[i]||'');return o;});
+}
+function saveDebtIntakeEmail(){const email=(document.getElementById('debt-intake-email').value||'').trim();if(!email){document.getElementById('debt-email-status').textContent='نشانی ایمیل را وارد کنید.';return;}debtApi_({action:'debtSaveIntakeEmail',email}).then(r=>document.getElementById('debt-email-status').textContent=r.success?'نشانی راهنمای دریافت ذخیره شد. برای فعال‌سازی دریافت، برچسب Gmail و مجوزهای Apps Script باید تنظیم شود.':(r.error||'خطا')).catch(e=>document.getElementById('debt-email-status').textContent=e.message);}
+function debtPollMailbox(){const el=document.getElementById('debt-email-status');el.textContent='در حال بررسی صندوق ایمیل...';debtApi_({action:'debtPollMailbox'}).then(r=>{el.textContent=r.success?('بررسی انجام شد؛ '+r.count+' پیوست/مورد جدید دریافت شد.'):('خطا: '+(r.error||'نامشخص'));loadDebtIntakeQueue();}).catch(e=>el.textContent='خطای ارتباط: '+e.message);}
+function loadDebtIntakeQueue(){const box=document.getElementById('debt-intake-queue');if(!box)return;box.textContent='در حال دریافت...';debtApi_({action:'debtGetIntakeQueue'}).then(r=>{if(!r.success){box.textContent=r.error||'خطا در دریافت صف';return;}if(!r.items.length){box.textContent='هنوز موردی دریافت نشده است.';return;}let h='<table style="width:100%;border-collapse:collapse;min-width:650px"><thead><tr style="background:#f2f7f3"><th style="padding:9px">کد</th><th>نام فایل</th><th>روش دریافت</th><th>تعداد ردیف</th><th>زمان دریافت</th><th>وضعیت</th></tr></thead><tbody>';r.items.forEach(x=>{h+='<tr style="border-top:1px solid #e6ece8"><td style="padding:9px">'+debtEsc_(x.id)+'</td><td>'+debtEsc_(x.name)+'</td><td>'+debtEsc_(x.source)+'</td><td>'+debtEsc_(x.rows)+'</td><td>'+debtEsc_(x.date)+'</td><td>'+debtEsc_(x.status)+'</td></tr>';});box.innerHTML=h+'</tbody></table>';}).catch(e=>box.textContent='خطای ارتباط: '+e.message);}
+function debtEsc_(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </body>
 </html>
 
