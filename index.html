@@ -2,72 +2,6 @@
 <!-- Mehr Business Management V5 additive upgrade based on V4; save as Index.html -->
 <html lang="fa" dir="rtl">
 <head>
-<script id="mehr-v5-demo-adapter">
-(function(){
-  var params=new URLSearchParams(location.search);
-  var DEMO=window.MEHR_FORCE_DEMO===true || params.get('demo')==='1';
-  window.MEHR_DEMO_MODE=DEMO;
-  if(!DEMO) return;
-  var nativeFetch=window.fetch.bind(window), records={tickets:[],leads:[],ops:[],tasks:[],requests:[],cases:[]}, seq=1, sessions={};
-  function result(data){return Promise.resolve({ok:true,status:200,json:function(){return Promise.resolve(data)},text:function(){return Promise.resolve(JSON.stringify(data))}})}
-  function login(u,p,manager){
-    var users={admin:'Mehr@1405',etehbarat:'Etehbarat123',digital:'Digital123',it:'IT123',hoghoughi:'Hoghoughi123',daneshbonyan:'Danesh123'};
-    var ok=!!users[u]&&users[u]===p&&(!manager||u==='admin')&&(manager||u!=='admin');
-    if(!ok)return {access:false,error:'نام کاربری یا رمز عبور صحیح نیست.'};
-    var token='DEMO-'+Date.now()+'-'+Math.random().toString(36).slice(2); sessions[token]=u;
-    var role=u==='admin'?'admin':(u.indexOf('branch')===0?'branch':'department');
-    var map={etehbarat:'اعتبارات',digital:'بانکداری دیجیتال',it:'انفورماتیک',hoghoughi:'حقوقی',daneshbonyan:'دانش‌بنیان'};
-    return {access:true,token:token,username:u,role:role,department:map[u]||'',branch:u.indexOf('branch')===0?u.replace('branch',''):'',allowedCategories:[]};
-  }
-  function api(d){d=d||{};var a=d.action||'';
-    if(a==='login'){var ticketUsers={admin:'Mehr@1405',etehbarat:'Etehbarat123',digital:'Digital123',it:'IT123',hoghoughi:'Hoghoughi123',daneshbonyan:'Danesh123'};var passOk=(ticketUsers[d.username]===d.pass)||(/^branch64\d\d$/.test(d.username||'')&&d.pass===d.username.replace('branch','Branch')+'@');return {access:!!passOk,token:passOk?'DEMO-TICKET':'',role:d.username==='admin'?'admin':'department',department:'',branch:''};}
-    if(a==='growthManagerLogin')return login(d.username,d.pass,true);
-    if(a==='growthEmployeeLogin')return login(d.username,d.pass,false);
-    if(a==='growthOpsSave'){var x={id:'GOP-DEMO-'+seq++,title:d.title||'پرونده نمونه',type:d.type||'جذب مشتری',contact:d.contact||'',amount:Number(d.amount)||0,status:d.status||'جدید',owner:d.owner||'admin',notes:d.notes||'',branch:d.branch||'ستادی',created:'آزمایشی'};records.ops.push(x);return {success:true,id:x.id};}
-    if(a==='growthOpsList')return {success:true,items:records.ops,stats:{total:records.ops.length,open:records.ops.filter(x=>x.status!=='به نتیجه رسیده').length,done:records.ops.filter(x=>x.status==='به نتیجه رسیده').length,amount:records.ops.reduce((s,x)=>s+(x.status==='به نتیجه رسیده'?x.amount:0),0)}};
-    if(a==='growthOpsUpdate'){var op=records.ops.find(x=>x.id===d.id);if(op)op.status=d.status;return {success:!!op};}
-    if(a==='growthAddLead'||a==='growthBulkAddLeads'){var items=a==='growthAddLead'?[d]:(d.items||[]);items.forEach(v=>records.leads.push({id:'LEAD-'+seq++,name:v.name||v.title||'سرنخ آزمایشی',phone:v.phone||'',type:v.type||'کسب‌وکار',priority:v.priority||'B',status:v.status||'جدید',estimate:Number(v.estimate)||0}));return {success:true,inserted:items.length,duplicates:0,invalid:0};}
-    if(a==='growthGetLeads')return {success:true,items:records.leads};
-    if(a==='growthUpdateLead'){var l=records.leads.find(x=>x.id===d.id);if(l)l.status=d.status;return {success:!!l};}
-    if(a==='growthTaskCreate'){var t={id:'TASK-'+seq++,title:d.title,assignee:d.assignee,due:d.due,status:'در انتظار انجام'};records.tasks.push(t);return {success:true,id:t.id};}
-    if(a==='growthTaskList')return {success:true,items:records.tasks};
-    if(a==='growthTaskUpdate')return {success:true};
-    if(a==='growthRequestList')return {success:true,items:records.requests};
-    if(a==='growthCaseList'||a==='growthCaseHqList')return {success:true,items:records.cases};
-    if(a==='growthCustomerRequest'){var id='REQ-DEMO-'+seq++;records.requests.push({id:id,status:'ثبت آزمایشی',name:d.name||'مشتری نمونه',type:d.type||'درخواست'});return {success:true,id:id,trackingId:id};}
-    if(a==='growthTrackRequest')return {success:true,found:true,item:records.requests.find(x=>x.id===d.id||x.id===d.trackingId)||null};
-    if(a==='growthCustomerLogin')return {success:true,access:true,token:'DEMO-CUSTOMER'};
-    if(a==='growthCustomerUpload'||a==='growthUploadFile')return {success:true,id:'FILE-DEMO',name:d.fileName||d.name||'فایل آزمایشی'};
-    if(a==='getTicketsSecured'||a==='getTickets')return records.tickets;
-    if(a==='submitTicket'){var tk=d.trackingCode||('TKT-DEMO-'+seq++);records.tickets.push({row:records.tickets.length+2,name:d.name||'مشتری آزمایشی',description:d.description||'شرح نمونه',trackingCode:tk,status:'در حال بررسی',department:d.department||'پشتیبانی',branch:d.branch||'رشت'});return {result:'success',success:true,trackingCode:tk,code:tk};}
-    if(a==='updateStatus')return {result:'success'};
-    if(a==='getDashboardStats')return {totalTickets:records.tickets.length,totalAppointments:0};
-    if(a==='getBookedTimes'||a==='getAppointments'||a==='getPOSRequests')return [];
-    if(a==='submitAppointment')return {success:true,trackingCode:'APT-DEMO-'+seq++};
-    if(a==='submitPOS')return {success:true,trackingCode:'POS-DEMO-'+seq++};
-    if(a==='growthCaseCreate'||a==='growthCaseAssign'||a==='growthCaseInteraction'||a==='growthCaseValue'||a==='growthCaseEscalate'||a==='growthCaseHqRespond'||a==='growthRequestAssign'||a==='growthRequestUpdate')return {success:true,id:'DEMO-'+seq++};
-    if(a==='growthUploadFile'||a==='growthCustomerUpload')return {success:true};
-    return {success:true,access:true,items:[],message:'پاسخ شبیه‌ساز نسخه آزمایشی'};
-  }
-  window.fetch=function(input,init){
-    var url=typeof input==='string'?input:(input&&input.url)||'';
-    if(url.indexOf('script.google.com/macros/s/')!==-1){
-      var data={};try{if(init&&init.body)data=JSON.parse(init.body);else{var u=new URL(url);data.action=u.searchParams.get('action')||'';data.code=u.searchParams.get('code')||'';}}catch(e){}
-      if(data.action==='trackTicket')return result({found:false,type:'ticket'});
-      if(data.action==='trackSatna')return result({found:false});
-      return result(api(data));
-    }
-    return nativeFetch(input,init);
-  };
-  window.MEHR_DEMO_RESET=function(){records={tickets:[],leads:[],ops:[],tasks:[],requests:[],cases:[]};seq=1;};
-  document.addEventListener('DOMContentLoaded',function(){
-    var b=document.createElement('div');b.id='mehr-demo-banner';b.textContent='🧪 محیط آزمایشی فعال است — اطلاعات ساختگی است و به بانک یا سامانه واقعی ارسال نمی‌شود';
-    b.style.cssText='position:sticky;top:0;z-index:2147483647;background:#fff3cd;color:#664d03;border-bottom:1px solid #ffecb5;padding:9px 12px;text-align:center;font:700 12px/1.7 sans-serif';
-    document.body.insertBefore(b,document.body.firstChild);
-  });
-})();
-</script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>سامانه جامع مهر</title>
@@ -391,8 +325,6 @@ body { background: #fff !important; padding: 0 !important; }
 /* آدرس فقط از قالب سمت سرور Apps Script تزریق می‌شود؛ فایل HTML مستقل آدرس عملیاتی ندارد. */
 window.MEHR_WEBAPP_URL = <?!= JSON.stringify(SCRIPT_URL || '') ?>;
 window.SCRIPT_URL = window.MEHR_WEBAPP_URL;
-/* در نسخه آزمایشی، تمام درخواست‌های API به آدرس ساختگی هدایت می‌شوند و fetch شبیه‌ساز آن‌ها را محلی پاسخ می‌دهد. */
-if (window.MEHR_DEMO_MODE) { window.SCRIPT_URL = 'https://script.google.com/macros/s/MEHR_DEMO/exec'; window.MEHR_WEBAPP_URL = window.SCRIPT_URL; }
 window.mehrApiUrl = function() {
   var raw = String(window.SCRIPT_URL || '').trim();
   if (!raw || raw.indexOf('<?') !== -1 || raw.indexOf('<?=') !== -1) {
@@ -404,6 +336,22 @@ window.mehrApiUrl = function() {
     throw new Error('نشانی باید HTTPS و از نوع Google Apps Script Web App با پایان /exec یا /dev باشد؛ نام کاربری و رمز را داخل URL ننویسید.');
   }
   return parsed.href;
+};
+window.mehrReadJsonResponse = async function(response, context) {
+  var body = await response.text();
+  var contentType = String(response.headers && response.headers.get('content-type') || '').toLowerCase();
+  var trimmed = body.trim();
+  if (!response.ok) {
+    throw new Error((context || 'درخواست') + ' ناموفق بود؛ کد HTTP ' + response.status + (response.url ? ' · ' + response.url : ''));
+  }
+  try { return JSON.parse(body); } catch (e) {
+    var looksHtml = /^(<!doctype html|<html|<head|<body)/i.test(trimmed) || contentType.indexOf('text/html') >= 0;
+    if (looksHtml) {
+      var destination = response.url || '';
+      throw new Error((context || 'سرویس') + ': به‌جای JSON صفحه HTML دریافت شد. نشانی اجرا/انتشار Web App یا سطح دسترسی را بررسی کنید.' + (response.redirected ? ' پاسخ به نشانی دیگری هدایت شده است.' : '') + (destination ? ' مقصد پاسخ: ' + destination : ''));
+    }
+    throw new Error((context || 'سرویس') + ': پاسخ JSON معتبر نیست. ابتدای پاسخ: ' + trimmed.slice(0, 120));
+  }
 };
 </script>
 </head>
@@ -1249,11 +1197,7 @@ window.mehrApiUrl = function() {
 
 <script>
 var SCRIPT_URL = window.MEHR_WEBAPP_URL || window.SCRIPT_URL || "";
-// سازگاری با ماژول‌هایی که آدرس API را به شکل تابع فراخوانی می‌کنند
-window.SCRIPT_URL = window.SCRIPT_URL || SCRIPT_URL;
-window.mehrApiUrl = function(){ return window.SCRIPT_URL; };
-
-window.SCRIPT_URL = window.SCRIPT_URL || SCRIPT_URL; // آدرس سراسری برای تمام اسکریپت‌ها، از جمله پنل مستقل تیکت
+window.SCRIPT_URL = window.SCRIPT_URL || SCRIPT_URL; // آدرس واحد Web App برای تمام ماژول‌ها
 
 /* ================== Notifications ================== */
 function requestNotificationPermission() {
@@ -1597,8 +1541,7 @@ async function submitTicketEmployeeLogin(){
  btn.disabled=true;btn.textContent='در حال بررسی...';msg.textContent='';
  try{
   const response=await fetch(window.mehrApiUrl(),{method:'POST',body:JSON.stringify({action:'login',username:username,pass:pass})});
-  if(!response.ok)throw new Error('HTTP '+response.status);
-  const data=await response.json();
+  const data=await window.mehrReadJsonResponse(response,'ورود همکار/تیکت');
   if(!data.access){msg.textContent=data.error||'نام کاربری یا رمز عبور صحیح نیست.';btn.disabled=false;btn.textContent='ورود';return;}
   sessionStorage.setItem('adminToken',data.token||'');sessionStorage.setItem('loggedInUser',username);sessionStorage.setItem('role',data.role||'');sessionStorage.setItem('department',data.department||'');sessionStorage.setItem('branch',data.branch||'');
   modal.remove();const tab=document.getElementById('employee-tab-btn');if(tab){tab.style.display='block';if(typeof switchTab==='function')switchTab('employee',tab);}
@@ -4615,8 +4558,10 @@ const oldRefresh=window.growthOpsRefresh;window.growthOpsRefresh=function(){if(t
 function debtApi_(payload){
   payload.debtToken = sessionStorage.getItem('debtSessionToken') || '';
   if(payload.action!=='debtLogin' && !payload.debtToken) throw new Error('ابتدا با نام کاربری و رمز اختصاصی وصول مطالبات وارد شوید.');
-  return fetch(window.mehrApiUrl(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
-    .then(r=>r.json()).then(r=>{if(r&&r.success===false&&/نشست معتبر نیست/.test(r.error||'')){sessionStorage.removeItem('debtSessionToken');sessionStorage.removeItem('debtSessionUser');}return r;});
+  var apiUrl=window.mehrApiUrl();
+  return fetch(apiUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(function(response){return window.mehrReadJsonResponse(response,'درگاه وصول مطالبات');})
+    .then(function(r){if(r&&r.success===false&&/نشست معتبر نیست/.test(r.error||'')){sessionStorage.removeItem('debtSessionToken');sessionStorage.removeItem('debtSessionUser');}return r;});
 }
 function debtShowLogin(tabButton){
   let modal=document.getElementById('debt-login-modal');
@@ -4704,9 +4649,6 @@ function debtApprovePayment(id){const u=JSON.parse(sessionStorage.getItem('debtS
 function debtLoadPriority(){const b=document.getElementById('debt-priority-list');if(!b)return;b.textContent='در حال محاسبه...';debtApi_({action:'debtGetWorklist'}).then(r=>{if(!r.success)throw new Error(r.error||'خطا');if(!r.items.length){b.textContent='پرونده‌ای در محدوده دسترسی شما ثبت نشده است.';return;}b.innerHTML='<table style="width:100%;min-width:720px;border-collapse:collapse"><tr style="background:#f1f7f3"><th>شناسه</th><th>شعبه</th><th>مسئول</th><th>مانده</th><th>اولویت</th><th>امتیاز</th><th>فاصله از اقدام</th><th>وضعیت SLA</th></tr>'+r.items.map(x=>'<tr style="border-top:1px solid #e4ece6"><td>'+debtEsc_(x.id)+'</td><td>'+debtEsc_(x.branch)+'</td><td>'+debtEsc_(x.owner)+'</td><td>'+debtEsc_(x.balance)+'</td><td><b>'+debtEsc_(x.priority.rank)+'</b></td><td>'+debtEsc_(x.priority.score)+'</td><td>'+debtEsc_(x.sla.daysSinceAction)+' روز</td><td>'+debtEsc_(x.sla.level)+'</td></tr>').join('')+'</table>';}).catch(e=>b.textContent='خطا: '+e.message); }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-</body>
-</html>
-
 
 
 <script id="mehr-debt-customer-requests-staff">
@@ -4744,3 +4686,6 @@ window.debtLoadRangeReport=function(){var g=function(id){return (document.getEle
 window.debtSaveSmartAction=function(){var g=function(id){return (document.getElementById(id)||{}).value||'';};var d={action:'debtSaveCaseAction',caseId:g('dsi-case'),nextAction:g('dsi-next'),due:g('dsi-due'),path:g('dsi-path'),complexity:g('dsi-complexity')};if(!d.caseId||!d.nextAction||!d.due){alert('شناسه پرونده، اقدام بعدی و مهلت الزامی است.');return;}debtApi_(d).then(function(r){if(!r.success)throw new Error(r.error||'خطا');alert(r.message);debtLoadSmartDashboard();}).catch(function(e){alert(e.message);});};
 })();
 </script>
+
+</body>
+</html>
