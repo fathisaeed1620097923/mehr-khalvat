@@ -388,21 +388,10 @@ body { background: #fff !important; padding: 0 !important; }
 </style>
 
 <script id="mehr-api-bootstrap">
-/* آدرس فقط از قالب سمت سرور Apps Script تزریق می‌شود؛ فایل HTML مستقل آدرس عملیاتی ندارد. */
-window.MEHR_WEBAPP_URL = <?!= JSON.stringify(SCRIPT_URL || '') ?>;
+/* تعریف زودهنگام آدرس API برای جلوگیری از خطای mehrApiUrl */
+window.MEHR_WEBAPP_URL = '<?= SCRIPT_URL ?>';
 window.SCRIPT_URL = window.MEHR_WEBAPP_URL;
-window.mehrApiUrl = function() {
-  var raw = String(window.SCRIPT_URL || '').trim();
-  if (!raw || raw.indexOf('<?') !== -1 || raw.indexOf('<?=') !== -1) {
-    throw new Error('آدرس Web App تنظیم نشده است. سامانه را از نشانی Deploy شده Google Apps Script با /exec باز کنید، نه از فایل HTML یا GitHub.');
-  }
-  var parsed;
-  try { parsed = new URL(raw); } catch (e) { throw new Error('نشانی Web App معتبر نیست؛ از Deploy > Manage deployments آدرس Web app را کپی کنید.'); }
-  if (parsed.protocol !== 'https:' || parsed.username || parsed.password || !/\/macros\/(s|u\/\d+)\//.test(parsed.pathname) || !/\/(exec|dev)$/.test(parsed.pathname)) {
-    throw new Error('نشانی باید HTTPS و از نوع Google Apps Script Web App با پایان /exec یا /dev باشد؛ نام کاربری و رمز را داخل URL ننویسید.');
-  }
-  return parsed.href;
-};
+window.mehrApiUrl = function() { return window.SCRIPT_URL; };
 </script>
 </head>
 <body>
@@ -977,14 +966,6 @@ window.mehrApiUrl = function() {
     <p style="font-size:13px;color:#65756b">نمای کلی پرونده‌ها، ورودی‌ها و اقداماتی که نیازمند رسیدگی هستند.</p>
     <div id="debt-dashboard-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px"><div class="debt-stat">پرونده‌های ورودی<b>—</b></div><div class="debt-stat">اقدامات باز<b>—</b></div><div class="debt-stat">وعده‌های پرداخت<b>—</b></div><div class="debt-stat">پرونده‌های حقوقی<b>—</b></div></div>
     <div style="margin-top:14px;background:#fff;border:1px solid #dfe9e2;border-radius:12px;padding:14px"><b>اولویت‌های امروز</b><div id="debt-dashboard-alerts" style="font-size:13px;color:#52645a;margin-top:8px">برای مشاهده وضعیت، داشبورد را به‌روزرسانی کنید.</div><button type="button" onclick="debtLoadDashboard()" style="margin-top:10px;padding:8px 12px;border:0;border-radius:8px;background:#0a6b3b;color:#fff">به‌روزرسانی میزکار</button></div>
-    <section id="debt-smart-panel" style="margin-top:14px;background:#f8fcf9;border:1px solid #d8e8dd;border-radius:12px;padding:14px">
-      <h3 style="margin:0 0 8px;color:#0a4d2e">موتور هوشمند راهبری وصول مطالبات</h3>
-      <p style="font-size:12px;color:#65756b;line-height:1.8">تحلیل اولویت، هشدار مهلت، مقایسه ۱۸ شعبه، رتبه‌بندی وزنی، مسیرهای صلح/امهال/تملک و برآورد مقدماتی احتمال وصول.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" onclick="debtLoadSmartDashboard()" style="padding:9px 13px;background:#0a6b3b;color:white;border:0;border-radius:8px">تحلیل هوشمند و رتبه‌بندی</button><button type="button" onclick="debtRunSmartSla()" style="padding:9px 13px;background:#fff;color:#0a6b3b;border:1px solid #9bb8a5;border-radius:8px">اجرای کنترل SLA</button></div>
-      <div id="debt-smart-results" style="margin-top:12px;font-size:12px;color:#405348">برای تحلیل، دکمه اول را بزنید.</div>
-      <div style="margin-top:12px;border-top:1px solid #dfe9e2;padding-top:10px"><b>گزارش بازه‌ای (ماهانه، فصلی، سالانه یا دلخواه)</b><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="dsi-from" type="date"><input id="dsi-to" type="date"><button type="button" onclick="debtLoadRangeReport()" style="padding:8px 12px;background:#315b46;color:#fff;border:0;border-radius:8px">تهیه گزارش بازه</button></div><div id="dsi-range-report" style="margin-top:8px"></div></div>
-      <div style="margin-top:12px;border-top:1px solid #dfe9e2;padding-top:10px"><b>ثبت اقدام بعدی و مسیر تعیین تکلیف</b><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:7px;margin-top:8px"><input id="dsi-case" placeholder="شناسه پرونده"><input id="dsi-next" placeholder="اقدام بعدی"><input id="dsi-due" type="date"><select id="dsi-path"><option>پیگیری عادی</option><option>حقوقی</option><option>صلح</option><option>امهال</option><option>تملک</option></select><select id="dsi-complexity"><option value="1">پیچیدگی ۱</option><option value="2">پیچیدگی ۲</option><option value="3" selected>پیچیدگی ۳</option><option value="4">پیچیدگی ۴</option><option value="5">پیچیدگی ۵</option></select></div><button type="button" onclick="debtSaveSmartAction()" style="margin-top:8px;padding:8px 12px;background:#315b46;color:#fff;border:0;border-radius:8px">ثبت اقدام و مهلت</button></div>
-    </section>
   </section>
   <section id="debt-view-intake" class="debt-view">
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
@@ -4721,24 +4702,5 @@ window.debtCustomerVerifyOtp=async function(){const nid=norm($('dc-national-id')
 window.debtCustomerLoadCases=async function(){const box=$('dc-cases');box.textContent='در حال دریافت پرونده‌های مجاز...';try{const d=await api('debtCustomerGetMyCases',{customerToken:customerToken});if(!d.success)throw new Error(d.error||'دریافت اطلاعات ناموفق بود.');myCases=d.items||[];const sel=$('dc-case-select');sel.innerHTML='<option value="">درخواست عمومی</option>'+myCases.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.id)+' — '+esc(c.role)+'</option>').join('');if(!myCases.length){box.textContent='در حال حاضر پرونده مرتبطی برای این مشخصات در سامانه وصول ثبت نشده است.';return;}box.innerHTML=myCases.map(c=>'<article style="background:#fff;border:1px solid #e1e9e3;border-radius:11px;padding:13px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>پرونده '+esc(c.id)+'</b><span style="font-size:12px;color:#0a6b3b">'+esc(c.role)+'</span></div><div style="font-size:12px;line-height:2;margin-top:8px">شماره تسهیلات: '+esc(c.facility)+'<br>شعبه: '+esc(c.branch)+'<br>وضعیت: <b>'+esc(c.status)+'</b><br>طبقه ثبت‌شده: '+esc(c.category)+'<br>مانده: '+esc(c.balance)+'<br>آخرین اقدام: '+esc(c.lastAction)+'</div>'+(c.payments&&c.payments.length?'<hr><b>پرداخت‌های ثبت‌شده متعلق به شما</b>'+c.payments.map(p=>'<div style="font-size:12px">'+esc(p.date)+' · '+esc(p.amount)+' · '+esc(p.status)+'</div>').join(''):'')+(c.legal&&c.legal.length?'<hr><b>وضعیت پیگیری حقوقی</b>'+c.legal.map(l=>'<div style="font-size:12px">'+esc(l.status)+' · تاریخ ارجاع: '+esc(l.date)+' · مهلت بررسی: '+esc(l.due)+'</div>').join(''):'')+'</article>').join('');}catch(e){box.textContent=e.message;}};
 window.debtCustomerSubmitRequest=async function(){const msg=$('dc-request-message'),text=$('dc-message').value.trim();if(text.length<10){msg.textContent='شرح درخواست را حداقل در ۱۰ نویسه وارد کنید.';return;}msg.textContent='در حال ثبت...';try{const d=await api('debtCustomerCreateRequest',{customerToken:customerToken,caseId:$('dc-case-select').value,kind:$('dc-kind').value,message:text});if(!d.success)throw new Error(d.error||'ثبت درخواست ناموفق بود.');msg.textContent=d.message;$('dc-message').value='';}catch(e){msg.textContent=e.message;}};
 window.debtCustomerLogout=function(){customerToken='';myCases=[];$('debt-customer-dashboard').style.display='none';$('debt-customer-login').style.display='block';$('dc-otp-area').style.display='none';$('dc-otp').value='';$('dc-login-message').textContent='از حساب مشتری خارج شدید.';};
-})();
-</script>
-
-
-<script id="mehr-debt-smart-runtime-v1">
-(function(){'use strict';
-function esc(v){return typeof debtEsc_==='function'?debtEsc_(v):String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function fmt(v){return Number(v||0).toLocaleString('fa-IR');}
-window.debtLoadSmartDashboard=function(){var box=document.getElementById('debt-smart-results');if(!box)return;box.textContent='در حال تحلیل داده‌ها...';debtApi_({action:'debtGetSmartDashboard'}).then(function(r){if(!r.success)throw new Error(r.error||'خطا');var d=r.data||{};var cards=[['کل پرونده‌ها',d.cases],['فوری',d.urgent],['خارج از مهلت',d.overdue],['ارجاع حقوقی',d.legal],['بدون مسئول',d.unassigned],['صلح/امهال/تملک',d.settlement]];var h='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:7px">'+cards.map(function(x){return '<div style="background:#fff;border:1px solid #e0e9e3;border-radius:8px;padding:9px">'+esc(x[0])+'<b style="display:block;font-size:19px;color:#0a6b3b">'+fmt(x[1])+'</b></div>';}).join('')+'</div>';
- h+='<p style="margin:10px 0"><b>برآورد تخمینی وصول:</b> احتمال بالا '+fmt(d.forecast&&d.forecast.high)+' · متوسط '+fmt(d.forecast&&d.forecast.medium)+' · پایین '+fmt(d.forecast&&d.forecast.low)+'</p>';
- function table(title,rows){return '<h4 style="margin:12px 0 6px;color:#0a4d2e">'+title+'</h4><div style="overflow:auto"><table style="width:100%;min-width:520px;border-collapse:collapse;background:#fff"><tr style="background:#edf5ef"><th>رتبه</th><th>شعبه/مسئول</th><th>امتیاز وزنی</th><th>پرونده</th><th>وصول تأییدشده</th><th>مانده</th></tr>'+(rows||[]).map(function(x){return '<tr style="border-top:1px solid #e3ebe5"><td>'+fmt(x.rank)+'</td><td>'+esc(x.name)+'</td><td><b>'+fmt(x.score)+'</b></td><td>'+fmt(x.cases)+'</td><td>'+fmt(x.collected)+'</td><td>'+fmt(x.openBalance)+'</td></tr>';}).join('')+'</table></div>';}
- h+=table('رتبه‌بندی شعب',d.branchRanking)+table('رتبه‌بندی همیاران و مسئولان',d.ownerRanking);
- h+='<h4 style="margin:12px 0 6px;color:#0a4d2e">پوشش ۱۸ شعبه استان</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px">'+(d.branchCoverage||[]).map(function(x){return '<div style="background:#fff;border:1px solid #e0e9e3;border-radius:7px;padding:7px">شعبه '+esc(x.name)+'<b style="display:block">'+fmt(x.cases)+' پرونده</b><small>امتیاز '+fmt(x.score)+'</small></div>';}).join('')+'</div>';
- h+='<h4 style="margin:12px 0 6px;color:#9a5700">پرونده‌های نیازمند اقدام</h4>'+(d.actions&&d.actions.length?'<div style="overflow:auto"><table style="width:100%;min-width:520px"><tr><th>پرونده</th><th>شعبه</th><th>مسئول</th><th>تأخیر</th><th>اقدام بعدی</th></tr>'+d.actions.map(function(x){return '<tr><td>'+esc(x.caseId)+'</td><td>'+esc(x.branch)+'</td><td>'+esc(x.owner)+'</td><td>'+fmt(x.days)+' روز</td><td>'+esc(x.next)+'</td></tr>';}).join('')+'</table></div>':'موردی گزارش نشده است.');
- h+='<p style="color:#667;font-size:11px;line-height:1.8">'+esc(d.forecastNote||'')+'<br>'+esc(d.slaRule||'')+'<br>وزن امتیاز: وصول ۴۰٪، SLA ۲۵٪، کیفیت پیگیری ۲۰٪، تعیین تکلیف راکد ۱۵٪. رتبه فعلی مقدماتی است و برای تصمیم پرسنلی قطعی کافی نیست.</p>';
- box.innerHTML=h;}).catch(function(e){box.textContent='خطا در تحلیل هوشمند: '+e.message;});};
-window.debtRunSmartSla=function(){if(!confirm('کنترل مهلت ارجاعات حقوقی اجرا شود؟ این عملیات فقط هشدار ثبت می‌کند و اقدام حقوقی خودکار انجام نمی‌دهد.'))return;debtApi_({action:'debtRunSlaMonitor'}).then(function(r){if(!r.success)throw new Error(r.error||'خطا');alert(r.message+' تعداد موارد خارج از مهلت: '+r.overdue);debtLoadSmartDashboard();}).catch(function(e){alert(e.message);});};
-window.debtLoadRangeReport=function(){var g=function(id){return (document.getElementById(id)||{}).value||'';},box=document.getElementById('dsi-range-report');box.textContent='در حال تهیه گزارش...';debtApi_({action:'debtGetRangeReport',from:g('dsi-from'),to:g('dsi-to')}).then(function(r){if(!r.success)throw new Error(r.error||'خطا');var d=r.report||{};box.innerHTML='<div style="background:#fff;border:1px solid #e0e9e3;border-radius:8px;padding:10px;line-height:2"><b>پرونده‌های قابل مشاهده:</b> '+fmt(d.cases)+'<br><b>اقدامات ثبت‌شده:</b> '+fmt(d.actions)+'<br><b>پرداخت‌های تأییدشده:</b> '+fmt(d.approvedPayments)+'<br><b>مبلغ وصول تأییدشده:</b> '+fmt(d.approvedAmount)+'<br><b>ارجاعات حقوقی:</b> '+fmt(d.legalReferrals)+'<br><small>'+esc(d.note||'')+'</small></div>';}).catch(function(e){box.textContent='خطا: '+e.message;});};
-window.debtSaveSmartAction=function(){var g=function(id){return (document.getElementById(id)||{}).value||'';};var d={action:'debtSaveCaseAction',caseId:g('dsi-case'),nextAction:g('dsi-next'),due:g('dsi-due'),path:g('dsi-path'),complexity:g('dsi-complexity')};if(!d.caseId||!d.nextAction||!d.due){alert('شناسه پرونده، اقدام بعدی و مهلت الزامی است.');return;}debtApi_(d).then(function(r){if(!r.success)throw new Error(r.error||'خطا');alert(r.message);debtLoadSmartDashboard();}).catch(function(e){alert(e.message);});};
 })();
 </script>
