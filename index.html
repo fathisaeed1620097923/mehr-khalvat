@@ -321,12 +321,18 @@ body { background: #fff !important; padding: 0 !important; }
 @media(max-width:600px){#growth-portal-modal{padding:5px}#growth-portal-modal .growth-modal-card{max-height:98vh}}
 </style>
 
+<meta name="mehr-webapp-url" content="<?!= SCRIPT_URL ?>">
 <script id="mehr-api-bootstrap">
-/* آدرس فقط از قالب سمت سرور Apps Script تزریق می‌شود؛ فایل HTML مستقل آدرس عملیاتی ندارد. */
-window.MEHR_WEBAPP_URL = <?!= JSON.stringify(SCRIPT_URL || '') ?>;
-window.SCRIPT_URL = window.MEHR_WEBAPP_URL;
+/* این تابع باید حتی در صورت بازشدن فایل ایستا تعریف شود؛ برای GitHub Pages مقدار meta را با نشانی واقعی /exec جایگزین کنید. */
+(function(){
+  var meta = document.querySelector('meta[name="mehr-webapp-url"]');
+  var injected = meta ? String(meta.getAttribute('content') || '').trim() : '';
+  if (injected.indexOf('<?') !== -1 || injected.indexOf('?>') !== -1) injected = '';
+  window.MEHR_WEBAPP_URL = String(window.MEHR_WEBAPP_URL || injected || '').trim();
+  window.SCRIPT_URL = window.MEHR_WEBAPP_URL;
+})();
 window.mehrApiUrl = function() {
-  var raw = String(window.SCRIPT_URL || '').trim();
+  var raw = String(window.SCRIPT_URL || window.MEHR_WEBAPP_URL || '').trim();
   if (!raw || raw.indexOf('<?') !== -1 || raw.indexOf('<?=') !== -1) {
     throw new Error('آدرس Web App تنظیم نشده است. سامانه را از نشانی Deploy شده Google Apps Script با /exec باز کنید، نه از فایل HTML یا GitHub.');
   }
@@ -1547,7 +1553,7 @@ async function submitTicketEmployeeLogin(){
   modal.remove();const tab=document.getElementById('employee-tab-btn');if(tab){tab.style.display='block';if(typeof switchTab==='function')switchTab('employee',tab);}
   if(typeof requestNotificationPermission==='function')requestNotificationPermission();
   if(typeof showToast==='function')showToast('ورود همکار با موفقیت انجام شد.','success');
- }catch(err){console.error('Ticket login failed:',err);msg.textContent='ارتباط با سرویس برقرار نشد؛ در نسخه آزمایشی باید شبیه‌ساز فعال باشد.';btn.disabled=false;btn.textContent='تلاش مجدد';}
+ }catch(err){console.error('Ticket login failed:',err);msg.textContent=(err && err.message) ? err.message : 'ارتباط با وب‌اپ Google Apps Script برقرار نشد. صفحه را از نشانی منتشرشده /exec باز کنید.';btn.disabled=false;btn.textContent='تلاش مجدد';}
 }
 
 window.askAdminPassword=askAdminPassword;
@@ -1601,8 +1607,8 @@ department: department,
 trackingCode: trackingCode,
 branch: document.getElementById('c-branch').value
 };
-fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-.then(res => res.json())
+fetch(window.mehrApiUrl(), { method: 'POST', body: JSON.stringify(payload) })
+.then(res => window.mehrReadJsonResponse(res, 'ثبت درخواست مشتری'))
 .then(data => {
 if (data.result === 'error') { alert("خطا در ثبت: " + data.error); btn.innerText = "ثبت نهایی درخواست"; btn.disabled = false; return; }
 document.getElementById('ticketForm').style.display = 'none';
@@ -1612,7 +1618,7 @@ document.getElementById('c-trackingCode').textContent = trackingCode;
 document.getElementById('c-routingInfo').innerHTML = `<strong>مسیر رسیدگی:</strong> درخواست شما به <strong>${department}</strong> ارسال شد.`;
 showToast("درخواست شما ثبت شد. کد پیگیری: " + trackingCode, "success");
 })
-.catch(err => { alert("خطا در ارتباط با سرور."); btn.innerText = "ثبت نهایی درخواست"; btn.disabled = false; });
+.catch(err => { console.error('Customer ticket submit failed:',err); alert('ثبت درخواست انجام نشد: ' + (err && err.message ? err.message : 'ارتباط با وب‌اپ Google Apps Script برقرار نشد.')); btn.innerText = "ثبت نهایی درخواست"; btn.disabled = false; });
 }
 
 function startTracking() {
@@ -4551,7 +4557,7 @@ const oldRefresh=window.growthOpsRefresh;window.growthOpsRefresh=function(){if(t
  window.openGrowthPortal=function(btn){const modal=$('growth-portal-modal');if(!modal){alert('درگاه مدیریت کسب‌وکار پیدا نشد.');return;}document.querySelectorAll('#main-tabs .tab-btn').forEach(x=>x.classList.remove('active'));const b=btn||$('growth-tab-btn');if(b)b.classList.add('active');modal.style.display='flex';modal.classList.add('open');document.body.style.overflow='hidden';if(sessionStorage.getItem('growthToken')){show('growth-chooser','none');show('growth-customer-flow','none');show('growth-employee-flow','block');if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();show('growth-employee-login-actions','none');show('growth-employee-authenticated','block');if(sessionStorage.getItem('mehrWorkMode')&&window.mehrV52Refresh)window.mehrV52Refresh();}else window.growthBackToChooser();};
  window.growthBackToChooser=function(){show('growth-chooser','none');show('growth-customer-flow','none');show('growth-employee-flow','block');show('growth-employee-authenticated','none');show('growth-employee-login-actions','grid');window.growthLoginMode='single';const h=$('growth-employee-flow')?.querySelector('h3');if(h)h.textContent='ورود به سامانه مدیریت کسب‌وکار';const p=$('growth-employee-flow')?.querySelector('p');if(p)p.textContent='با نام کاربری و رمز سازمانی خود وارد شوید؛ سامانه پس از احراز هویت، نقش و میزکار اختصاصی شما را تشخیص می‌دهد.';const b=$('growth-employee-login-button');if(b)b.textContent='ورود به سامانه';const u=$('growth-employee-username');if(u)u.placeholder='نام کاربری سازمانی';const fb=$('growth-employee-login-feedback');if(fb)fb.textContent='';};
  window.chooseGrowthPath=function(path){if(path==='customer'){show('growth-chooser','none');show('growth-employee-flow','none');show('growth-customer-flow','block');if(window.growthUpdateRequirements)window.growthUpdateRequirements();return;}window.growthBackToChooser();};
- window.growthEmployeeLogin=async function(){const username=($( 'growth-employee-username')?.value||'').trim(),pass=$('growth-employee-password')?.value||'',fb=$('growth-employee-login-feedback'),btn=$('growth-employee-login-button');if(!username||!pass){if(fb)fb.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}if(btn){btn.disabled=true;btn.textContent='در حال بررسی...';}if(fb)fb.textContent='';try{const admin=username.toLowerCase()==='admin';const action=admin?'growthManagerLogin':'growthEmployeeLogin';const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({action,username,pass})});if(!r.ok)throw new Error('ارتباط با سرور ناموفق بود (کد '+r.status+').');const d=await r.json();if(!d||d.access!==true||!d.token)throw new Error(d&&d.error||'نام کاربری یا رمز عبور صحیح نیست.');if(admin&&d.role!=='admin')throw new Error('حساب مدیر سامانه معتبر نیست.');if(!admin&&d.role==='admin')throw new Error('نقش حساب با مسیر ورود مطابقت ندارد.');['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories','mehrWorkMode'].forEach(k=>sessionStorage.removeItem(k));sessionStorage.setItem('growthToken',d.token);sessionStorage.setItem('growthUser',d.username||username);sessionStorage.setItem('growthRole',d.role||'');sessionStorage.setItem('growthDepartment',d.department||'');sessionStorage.setItem('growthBranch',d.branch||'');sessionStorage.setItem('growthAllowedCategories',JSON.stringify(d.allowedCategories||[]));$('growth-employee-password').value='';if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();else throw new Error('میزکار داخلی پیدا نشد؛ فایل Index را کامل جایگزین کنید.');}catch(e){if(fb)fb.textContent=e.message||'ورود انجام نشد.';}finally{if(btn){btn.disabled=false;btn.textContent='ورود به سامانه';}}};
+ window.growthEmployeeLogin=async function(){const username=($( 'growth-employee-username')?.value||'').trim(),pass=$('growth-employee-password')?.value||'',fb=$('growth-employee-login-feedback'),btn=$('growth-employee-login-button');if(!username||!pass){if(fb)fb.textContent='نام کاربری و رمز عبور را وارد کنید.';return;}if(btn){btn.disabled=true;btn.textContent='در حال بررسی...';}if(fb)fb.textContent='';try{const admin=username.toLowerCase()==='admin';const action=admin?'growthManagerLogin':'growthEmployeeLogin';const r=await fetch(window.mehrApiUrl(),{method:'POST',body:JSON.stringify({action,username,pass})});const d=await window.mehrReadJsonResponse(r,'ورود مدیریت کسب‌وکار');if(!d||d.access!==true||!d.token)throw new Error(d&&d.error||'نام کاربری یا رمز عبور صحیح نیست.');if(admin&&d.role!=='admin')throw new Error('حساب مدیر سامانه معتبر نیست.');if(!admin&&d.role==='admin')throw new Error('نقش حساب با مسیر ورود مطابقت ندارد.');['growthToken','growthUser','growthRole','growthDepartment','growthBranch','growthAllowedCategories','mehrWorkMode'].forEach(k=>sessionStorage.removeItem(k));sessionStorage.setItem('growthToken',d.token);sessionStorage.setItem('growthUser',d.username||username);sessionStorage.setItem('growthRole',d.role||'');sessionStorage.setItem('growthDepartment',d.department||'');sessionStorage.setItem('growthBranch',d.branch||'');sessionStorage.setItem('growthAllowedCategories',JSON.stringify(d.allowedCategories||[]));$('growth-employee-password').value='';if(typeof window.growthGoToEmployeeSection==='function')window.growthGoToEmployeeSection();else throw new Error('میزکار داخلی پیدا نشد؛ فایل Index را کامل جایگزین کنید.');}catch(e){if(fb)fb.textContent=e.message||'ورود انجام نشد.';}finally{if(btn){btn.disabled=false;btn.textContent='ورود به سامانه';}}};
 })();
 
 // ---------------- مستقل از مدیریت کسب‌وکار: دریافت ورودی مطالبات ----------------
@@ -4659,7 +4665,7 @@ async function debtReplyCustomerRequest(id){const reply=document.getElementById(
 (function(){'use strict';const $=id=>document.getElementById(id);let customerToken='',myCases=[];
 function norm(v){return String(v||'').replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c)).replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/[^0-9]/g,'');}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-async function api(action,extra){const r=await fetch(window.mehrApiUrl(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:action},extra||{}))});if(!r.ok)throw new Error('ارتباط با سرور برقرار نشد.');return r.json();}
+async function api(action,extra){const url=window.mehrApiUrl();const r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:action},extra||{}))});return window.mehrReadJsonResponse(r,'درگاه مشتریان مطالبات');}
 window.debtCustomerSendOtp=async function(){const nid=norm($('dc-national-id').value),phone=norm($('dc-phone').value),msg=$('dc-login-message'),btn=$('dc-send-otp');if(!/^\d{10}$/.test(nid)||!/^09\d{9}$/.test(phone)){msg.textContent='کد ملی ۱۰ رقمی و شماره همراه ۱۱ رقمی را صحیح وارد کنید.';return;}btn.disabled=true;msg.textContent='در حال بررسی و ارسال درخواست...';try{const d=await api('debtCustomerRequestOtp',{nationalId:nid,phone:phone});if(!d.success)throw new Error(d.error||'درخواست ارسال رمز انجام نشد.');msg.textContent=d.message||'در صورت تطبیق اطلاعات، پیامک ارسال می‌شود.';$('dc-otp-area').style.display='block';}catch(e){msg.textContent=e.message;}finally{btn.disabled=false;}};
 window.debtCustomerVerifyOtp=async function(){const nid=norm($('dc-national-id').value),phone=norm($('dc-phone').value),otp=norm($('dc-otp').value),msg=$('dc-login-message');msg.textContent='در حال تأیید...';try{const d=await api('debtCustomerVerifyOtp',{nationalId:nid,phone:phone,otp:otp});if(!d.success||!d.token)throw new Error(d.error||'ورود تأیید نشد.');customerToken=d.token;$('debt-customer-login').style.display='none';$('debt-customer-dashboard').style.display='block';await debtCustomerLoadCases();}catch(e){msg.textContent=e.message;}};
 window.debtCustomerLoadCases=async function(){const box=$('dc-cases');box.textContent='در حال دریافت پرونده‌های مجاز...';try{const d=await api('debtCustomerGetMyCases',{customerToken:customerToken});if(!d.success)throw new Error(d.error||'دریافت اطلاعات ناموفق بود.');myCases=d.items||[];const sel=$('dc-case-select');sel.innerHTML='<option value="">درخواست عمومی</option>'+myCases.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.id)+' — '+esc(c.role)+'</option>').join('');if(!myCases.length){box.textContent='در حال حاضر پرونده مرتبطی برای این مشخصات در سامانه وصول ثبت نشده است.';return;}box.innerHTML=myCases.map(c=>'<article style="background:#fff;border:1px solid #e1e9e3;border-radius:11px;padding:13px;margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>پرونده '+esc(c.id)+'</b><span style="font-size:12px;color:#0a6b3b">'+esc(c.role)+'</span></div><div style="font-size:12px;line-height:2;margin-top:8px">شماره تسهیلات: '+esc(c.facility)+'<br>شعبه: '+esc(c.branch)+'<br>وضعیت: <b>'+esc(c.status)+'</b><br>طبقه ثبت‌شده: '+esc(c.category)+'<br>مانده: '+esc(c.balance)+'<br>آخرین اقدام: '+esc(c.lastAction)+'</div>'+(c.payments&&c.payments.length?'<hr><b>پرداخت‌های ثبت‌شده متعلق به شما</b>'+c.payments.map(p=>'<div style="font-size:12px">'+esc(p.date)+' · '+esc(p.amount)+' · '+esc(p.status)+'</div>').join(''):'')+(c.legal&&c.legal.length?'<hr><b>وضعیت پیگیری حقوقی</b>'+c.legal.map(l=>'<div style="font-size:12px">'+esc(l.status)+' · تاریخ ارجاع: '+esc(l.date)+' · مهلت بررسی: '+esc(l.due)+'</div>').join(''):'')+'</article>').join('');}catch(e){box.textContent=e.message;}};
